@@ -130,12 +130,30 @@ export type WorkflowDesignLineEndpoint = {
   [key: string]: unknown
 }
 
+export type WorkflowDesignLineType = 'orthogonal' | 'straight' | 'bezier'
+
+export type WorkflowDesignLineControlPoint = Readonly<{
+  x: number
+  y: number
+}>
+
+export type WorkflowDesignLineVisual = {
+  lineType?: WorkflowDesignLineType
+  controlPoints?: WorkflowDesignLineControlPoint[]
+  [key: string]: unknown
+}
+
+export type WorkflowDesignLineData = {
+  visual?: WorkflowDesignLineVisual
+  [key: string]: unknown
+}
+
 export type WorkflowDesignGraphLine = {
   id?: string
   from: WorkflowDesignLineEndpoint
   to: WorkflowDesignLineEndpoint
   type?: string
-  data?: JsonRecord
+  data?: WorkflowDesignLineData
   [key: string]: unknown
 }
 
@@ -237,6 +255,8 @@ export type WorkflowDesignLinePatch = {
   to?: WorkflowDesignLineEndpoint
   type?: string
   relation?: string
+  lineType?: WorkflowDesignLineType
+  controlPoints?: readonly WorkflowDesignLineControlPoint[]
 }
 
 export type WorkflowDesignAutoLayoutGraphResult = {
@@ -511,6 +531,10 @@ export function addWorkflowDesignLine(
         default: true,
       },
       validation: {},
+      visual: {
+        lineType: 'orthogonal',
+        controlPoints: [],
+      },
     },
   }
   graph.lines.push(line)
@@ -566,6 +590,35 @@ export function updateWorkflowDesignLine(line: WorkflowDesignGraphLine, patch: W
   if (patch.relation !== undefined) {
     line.data ??= {}
     line.data['relation'] = patch.relation
+  }
+  if (patch.lineType !== undefined) ensureWorkflowDesignLineVisual(line).lineType = patch.lineType
+  if (patch.controlPoints !== undefined) {
+    ensureWorkflowDesignLineVisual(line).controlPoints = patch.controlPoints.map(point => ({ ...point }))
+  }
+}
+
+export function workflowDesignLineType(line: WorkflowDesignGraphLine): WorkflowDesignLineType {
+  const value = line.data?.visual?.lineType
+  return value === 'straight' || value === 'bezier' ? value : 'orthogonal'
+}
+
+export function workflowDesignLineControlPoints(
+  line: WorkflowDesignGraphLine,
+): readonly WorkflowDesignLineControlPoint[] {
+  const value = line.data?.visual?.controlPoints
+  if (!Array.isArray(value)) return []
+  return value.filter(isWorkflowDesignLineControlPoint).map(point => ({ x: point.x, y: point.y }))
+}
+
+export function normalizeWorkflowDesignLineState(document: WorkflowDesignDocument): void {
+  for (const graphView of collectWorkflowDesignGraphs(document)) {
+    for (const line of graphView.graph.lines) {
+      line.from = normalizeWorkflowDesignLineEndpoint(line.from)
+      line.to = normalizeWorkflowDesignLineEndpoint(line.to)
+      const visual = ensureWorkflowDesignLineVisual(line)
+      visual.lineType = workflowDesignLineType(line)
+      visual.controlPoints = workflowDesignLineControlPoints(line).map(point => ({ ...point }))
+    }
   }
 }
 
@@ -822,12 +875,13 @@ function toDefinitionNode(node: WorkflowDesignGraphNode): SparkAgent.AgentWorkfl
 }
 
 function toDefinitionLine(line: WorkflowDesignGraphLine): SparkAgent.AgentWorkflowGraphLine {
+  const data = definitionWorkflowDesignLineData(line.data)
   return {
     id: line.id ?? `${line.from.nodeId}-${line.to.nodeId}`,
     from: line.from,
     to: line.to,
     ...(line.type === undefined ? {} : { type: line.type }),
-    ...(line.data === undefined ? {} : { data: line.data }),
+    ...(data === undefined ? {} : { data }),
   }
 }
 
@@ -1740,7 +1794,41 @@ function createDefaultLineEndpoint(nodeId: string, memberName: string): Workflow
     nodeId,
     modelId: nodeId === 'start' || nodeId === 'output' ? '$workflow' : PLACEHOLDER_MODEL_ID,
     memberName,
+    dock: 0,
   }
+}
+
+function ensureWorkflowDesignLineVisual(line: WorkflowDesignGraphLine): WorkflowDesignLineVisual {
+  line.data ??= {}
+  const visual = line.data.visual
+  if (visual !== undefined && isJsonRecord(visual)) return visual
+  const created: WorkflowDesignLineVisual = {}
+  line.data.visual = created
+  return created
+}
+
+function normalizeWorkflowDesignLineEndpoint(
+  endpoint: WorkflowDesignLineEndpoint,
+): WorkflowDesignLineEndpoint {
+  const dock = endpoint.dock
+  return {
+    ...endpoint,
+    dock: typeof dock === 'number' && Number.isInteger(dock) && dock >= 0 && dock <= 12 ? dock : 0,
+  }
+}
+
+function isWorkflowDesignLineControlPoint(value: unknown): value is WorkflowDesignLineControlPoint {
+  return isJsonRecord(value)
+    && typeof value['x'] === 'number'
+    && Number.isFinite(value['x'])
+    && typeof value['y'] === 'number'
+    && Number.isFinite(value['y'])
+}
+
+function definitionWorkflowDesignLineData(data: WorkflowDesignLineData | undefined): JsonRecord | undefined {
+  if (data === undefined) return undefined
+  const { visual: _visual, ...definitionData } = data
+  return Object.keys(definitionData).length === 0 ? undefined : definitionData
 }
 
 function defaultNodeId(kind: WorkflowDesignNodeCreateKind): string {

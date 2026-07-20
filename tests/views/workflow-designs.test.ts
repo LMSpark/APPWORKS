@@ -148,12 +148,29 @@ const HandleStub = defineComponent({
     type: String,
     position: String,
   },
-  setup(_props, { attrs, slots }) {
+  setup(props, { attrs, slots }) {
     return () => h('button', {
       ...attrs,
       type: 'button',
       class: ['vue-flow__handle', attrs['class']],
+      'data-handle-id': props.id,
+      'data-handle-type': props.type,
+      'data-handle-position': props.position,
     }, slots['default']?.())
+  },
+})
+
+const BaseEdgeStub = defineComponent({
+  props: {
+    id: String,
+    path: String,
+  },
+  setup(props) {
+    return () => h('path', {
+      class: 'vue-flow__edge-path',
+      'data-edge-id': props.id,
+      d: props.path,
+    })
   },
 })
 
@@ -203,6 +220,11 @@ const VueFlowStub = defineComponent({
       const renderedLines = props.edges.map((line: any) => h('button', {
         type: 'button',
         class: 'vue-flow__line',
+        'data-edge-type': line.type,
+        'data-source-handle': line.sourceHandle,
+        'data-target-handle': line.targetHandle,
+        'data-line-type': line.data?.lineType,
+        'data-runtime-status': line.data?.runtimeStatus,
         title: `选择连线 ${line.source} -> ${line.target}`,
         onClick: () => emit('edgesChange', [{ type: 'select', id: line.id, selected: true }]),
         onDblclick: () => emit('edgeDoubleClick', { edge: line }),
@@ -223,10 +245,22 @@ const VueFlowStub = defineComponent({
         }),
       }))
 
-      return h('div', { class: 'vue-flow-stub' }, [
+      const customEdges = props.edges.flatMap((line: any) => slots['edge-workflow-control']?.({
+        id: line.id,
+        sourceX: 108,
+        sourceY: 118,
+        targetX: 388,
+        targetY: 0,
+        markerEnd: line.markerEnd,
+        style: {},
+        data: line.data,
+      }) ?? [])
+
+      return h('svg', { class: 'vue-flow-stub' }, [
         ...renderedLines,
         ...lineUpdateButtons,
         ...renderedNodes,
+        ...customEdges,
       ])
     }
   },
@@ -471,6 +505,7 @@ function mountWorkflowDesigns() {
         ElSkeleton: true,
         ElTag: PassthroughStub,
         Background: true,
+        BaseEdge: BaseEdgeStub,
         Controls: true,
         Handle: HandleStub,
         MiniMap: true,
@@ -857,6 +892,87 @@ describe('WorkflowDesigns visual editor', () => {
       from: expect.objectContaining({ nodeId: 'start' }),
       to: expect.objectContaining({ nodeId: 'output' }),
     }))
+  })
+
+  it('renders twelve numbered docks and resolves legacy automatic endpoints', async () => {
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+
+    const businessNode = wrapper.find('[data-node-id="node.model"]')
+    expect(businessNode.findAll('.vue-flow__handle')).toHaveLength(12)
+    expect(businessNode.findAll('[data-handle-type="target"]').map(handle => handle.attributes('data-handle-id')))
+      .toEqual(['dock-1', 'dock-2', 'dock-3', 'dock-10', 'dock-11', 'dock-12'])
+    expect(businessNode.findAll('[data-handle-type="source"]').map(handle => handle.attributes('data-handle-id')))
+      .toEqual(['dock-4', 'dock-5', 'dock-6', 'dock-7', 'dock-8', 'dock-9'])
+
+    const firstLine = wrapper.find('.vue-flow__line')
+    expect(firstLine.attributes('data-edge-type')).toBe('workflow-control')
+    expect(firstLine.attributes('data-source-handle')).toMatch(/^dock-(4|5|6|7|8|9)$/u)
+    expect(firstLine.attributes('data-target-handle')).toMatch(/^dock-(1|2|3|10|11|12)$/u)
+    expect(firstLine.attributes('data-line-type')).toBe('orthogonal')
+    expect(firstLine.attributes('data-runtime-status')).toBe('idle')
+  })
+
+  it('changes and persists the selected line visual type', async () => {
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+
+    await wrapper.find('.vue-flow__line').trigger('dblclick')
+    const lineTypeSelect = wrapper.find('select.line-visual-type-select')
+    expect(lineTypeSelect.exists()).toBe(true)
+    await lineTypeSelect.setValue('straight')
+    await findButton(wrapper, '保存').trigger('click')
+    await flushPromises()
+
+    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    expect(savedDocument.workflow.graph.lines[0]?.data?.visual).toMatchObject({
+      lineType: 'straight',
+      controlPoints: [],
+    })
+  })
+
+  it('accepts explicit runtime line states without persisting them', async () => {
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+
+    expect(wrapper.vm.setWorkflowLineRuntimeStatus('line.start.node', 'running')).toBe(true)
+    await flushPromises()
+    expect(wrapper.find('.vue-flow__line').attributes('data-runtime-status')).toBe('running')
+
+    await findButton(wrapper, '保存').trigger('click')
+    await flushPromises()
+    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    expect(savedDocument.workflow.graph.lines[0]?.data).not.toHaveProperty('runtimeStatus')
+  })
+
+  it('adds, drags, deletes, and clears persisted line control points', async () => {
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+
+    const edgeGroup = wrapper.find('.workflow-control-edge')
+    expect(edgeGroup.exists()).toBe(true)
+    await edgeGroup.trigger('dblclick', { clientX: 220, clientY: 80 })
+    await flushPromises()
+    let controlPoint = wrapper.find('.workflow-edge-control-point')
+    expect(controlPoint.exists()).toBe(true)
+
+    controlPoint.element.dispatchEvent(new PointerEvent('pointerdown', { clientX: 220, clientY: 80, bubbles: true }))
+    window.dispatchEvent(new PointerEvent('pointermove', { clientX: 250, clientY: 110 }))
+    window.dispatchEvent(new PointerEvent('pointerup'))
+    await flushPromises()
+    controlPoint = wrapper.find('.workflow-edge-control-point')
+    await controlPoint.trigger('dblclick')
+    await flushPromises()
+    expect(wrapper.find('.workflow-edge-control-point').exists()).toBe(false)
+
+    await wrapper.find('.workflow-control-edge').trigger('dblclick', { clientX: 200, clientY: 70 })
+    await flushPromises()
+    await findButton(wrapper, '清空控制点').trigger('click')
+    await findButton(wrapper, '保存').trigger('click')
+    await flushPromises()
+
+    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    expect(savedDocument.workflow.graph.lines[0]?.data?.visual?.controlPoints).toEqual([])
   })
 
   it('publishes the current design as definition.json', async () => {

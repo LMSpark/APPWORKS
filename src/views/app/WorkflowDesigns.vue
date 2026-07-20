@@ -230,18 +230,12 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
                             'is-boundary': data.isBoundaryNode,
                             'is-loop': data.nodeType === 'loop',
                           }" @dblclick.stop="openNodeEditor(data.viewKey)">
-                            <Handle
-                              id="target"
-                              type="target"
-                              :position="Position.Top"
-                              :title="`连到 ${data.title}`"
-                            />
-                            <Handle
-                              id="source"
-                              type="source"
-                              :position="Position.Bottom"
-                              :title="`从 ${data.title} 连线`"
-                            />
+                            <Handle v-for="dock in inputDockDefinitions" :id="`dock-${dock.id}`" :key="dock.id"
+                              type="target" :position="dock.position" :style="dock.style"
+                              :title="`输入接点 ${dock.id} · ${data.title}`" />
+                            <Handle v-for="dock in outputDockDefinitions" :id="`dock-${dock.id}`" :key="dock.id"
+                              type="source" :position="dock.position" :style="dock.style"
+                              :title="`输出接点 ${dock.id} · ${data.title}`" />
                             <span class="node-kind">{{ data.nodeType }}</span>
                             <strong>{{ data.title }}</strong>
                             <small>{{ data.scopePath }} / {{ id }}</small>
@@ -256,6 +250,39 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
                             </span>
                             <small v-if="data.validationActionDocText" class="node-jsdoc">{{ data.validationActionDocText }}</small>
                           </div>
+                        </template>
+
+                        <template #edge-workflow-control="edge">
+                          <g
+                            class="workflow-control-edge"
+                            :class="`is-${edge.data.runtimeStatus}`"
+                            @dblclick.stop="addLineControlPoint($event, edge.data, panel.graphView)"
+                          >
+                            <BaseEdge
+                              :id="edge.id"
+                              :path="workflowControlEdgePath(edge)"
+                              :marker-end="edge.markerEnd"
+                              :style="edge.style"
+                            />
+                            <circle
+                              v-for="(point, index) in edge.data.controlPoints"
+                              :key="index"
+                              class="workflow-edge-control-point"
+                              :class="{ 'is-selected': isSelectedControlPoint(edge.data.lineKey, index) }"
+                              :cx="point.x"
+                              :cy="point.y"
+                              r="6"
+                              @pointerdown.stop.prevent="startControlPointDrag({ event: $event, data: edge.data, index, graphView: panel.graphView })"
+                              @click.stop="selectControlPoint(edge.data.lineKey, index)"
+                              @dblclick.stop.prevent="deleteLineControlPoint(edge.data.lineKey, index)"
+                            />
+                            <text
+                              v-if="edge.data.runtimeStatus !== 'idle'"
+                              class="workflow-edge-status-icon"
+                              :x="workflowEdgeStatusPoint(edge).x"
+                              :y="workflowEdgeStatusPoint(edge).y"
+                            >{{ workflowRuntimeStatusIcon(edge.data.runtimeStatus) }}</text>
+                          </g>
                         </template>
                       </VueFlow>
                     </div>
@@ -377,6 +404,17 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
             <span>{{ selectedLine.scopePath }}</span>
           </div>
           <div v-else class="workflow-tool-empty">未选择连线</div>
+          <label v-if="selectedLine" class="workflow-line-type-field">
+            <span>线型</span>
+            <select v-model="lineVisualTypeText" class="native-select line-visual-type-select" @change="applySelectedLineVisualType">
+              <option value="orthogonal">正交</option>
+              <option value="straight">直线</option>
+              <option value="bezier">曲线</option>
+            </select>
+          </label>
+          <el-button :disabled="selectedLine === null || selectedLineControlPointCount === 0" @click="clearSelectedLineControlPoints">
+            清空控制点
+          </el-button>
           <el-button :icon="DocumentCopy" :disabled="selectedLine === null" @click="openPropertiesDrawer">
             打开属性
           </el-button>
@@ -1695,6 +1733,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import {
+  BaseEdge,
   ConnectionLineType,
   ConnectionMode,
   Handle,
@@ -1744,6 +1783,7 @@ import {
   listWorkflowDesigns,
   markWorkflowDesignDirty,
   markWorkflowDesignSaved,
+  normalizeWorkflowDesignLineState,
   parseAgentWorkflowDefinitionJson,
   publishWorkflowDefinition,
   readWorkflowDefinition,
@@ -1753,9 +1793,13 @@ import {
   saveWorkflowDefinition,
   saveWorkflowDesign,
   updateWorkflowDesignLine,
+  workflowDesignLineControlPoints,
+  workflowDesignLineType,
   type WorkflowDesignCapability,
   type WorkflowDesignDocument,
   type WorkflowDesignLineEndpoint,
+  type WorkflowDesignLineControlPoint,
+  type WorkflowDesignLineType,
   type WorkflowDesignLineView,
   type WorkflowDesignGraphView,
   type WorkflowDesignNodeView,
@@ -1804,8 +1848,50 @@ type WorkflowFlowNodeData = {
 
 type WorkflowFlowLineData = {
   lineKey: string
-  lineCount: number
+  lineType: WorkflowDesignLineType
+  controlPoints: readonly WorkflowDesignLineControlPoint[]
+  runtimeStatus: WorkflowLineRuntimeStatus
 }
+
+type WorkflowLineRuntimeStatus = 'idle' | 'running' | 'completed' | 'failed' | 'skipped'
+
+type WorkflowControlEdgeSlot = Readonly<{
+  id: string
+  sourceX: number
+  sourceY: number
+  targetX: number
+  targetY: number
+  markerEnd?: string
+  style?: CSSProperties
+  data: WorkflowFlowLineData
+}>
+
+type WorkflowDockDefinition = Readonly<{
+  id: number
+  position: Position
+  style: CSSProperties
+}>
+
+type SelectedControlPoint = Readonly<{
+  lineKey: string
+  index: number
+}>
+
+type ControlPointDragState = Readonly<{
+  lineKey: string
+  index: number
+  graph: WorkflowDesignGraphView['graph']
+  startClientX: number
+  startClientY: number
+  startPoint: WorkflowDesignLineControlPoint
+}>
+
+type StartControlPointDragCommand = Readonly<{
+  event: PointerEvent
+  data: WorkflowFlowLineData
+  index: string | number
+  graphView: WorkflowDesignGraphView
+}>
 
 type VueFlowLineChange = Readonly<{
   id?: string
@@ -1852,10 +1938,12 @@ type ClassModelOption = {
 type WorkflowFlowNode = Node<WorkflowFlowNodeData, Record<string, never>, 'workflow'>
 type WorkflowFlowConnection = {
   id: string
+  type: 'workflow-control'
   source: string
   target: string
   sourceHandle?: string
   targetHandle?: string
+  markerEnd: MarkerType
   data: WorkflowFlowLineData
 }
 
@@ -1939,7 +2027,26 @@ const NODE_KEYBOARD_MOVE_STEP = 20
 const NODE_KEYBOARD_FAST_MOVE_STEP = 100
 const UNREADABLE_WORKFLOW_DESIGN_STATUS = 'unreadable'
 const UNREADABLE_WORKFLOW_DESIGN_FALLBACK_ERROR = '设计稿格式不兼容或文件不可读'
+const WORKFLOW_NODE_WIDTH = 216
+const WORKFLOW_NODE_HEIGHT = 118
 let structuredEditorId = 0
+
+const inputDockDefinitions: readonly WorkflowDockDefinition[] = [
+  { id: 1, position: Position.Top, style: { left: '25%' } },
+  { id: 2, position: Position.Top, style: { left: '50%' } },
+  { id: 3, position: Position.Top, style: { left: '75%' } },
+  { id: 10, position: Position.Left, style: { top: '25%' } },
+  { id: 11, position: Position.Left, style: { top: '50%' } },
+  { id: 12, position: Position.Left, style: { top: '75%' } },
+]
+const outputDockDefinitions: readonly WorkflowDockDefinition[] = [
+  { id: 4, position: Position.Right, style: { top: '25%' } },
+  { id: 5, position: Position.Right, style: { top: '50%' } },
+  { id: 6, position: Position.Right, style: { top: '75%' } },
+  { id: 7, position: Position.Bottom, style: { left: '75%' } },
+  { id: 8, position: Position.Bottom, style: { left: '50%' } },
+  { id: 9, position: Position.Bottom, style: { left: '25%' } },
+]
 
 const designs = ref<WorkflowDesignSummary[]>([])
 const currentWorkflowId = ref('')
@@ -1948,6 +2055,9 @@ const currentFilename = ref('')
 const currentDocument = ref<WorkflowDesignDocument | null>(null)
 const selectedNodeKey = ref('')
 const selectedLineKey = ref('')
+const selectedControlPoint = ref<SelectedControlPoint | null>(null)
+const controlPointDragState = ref<ControlPointDragState | null>(null)
+const lineRuntimeStatuses = ref<Record<string, WorkflowLineRuntimeStatus>>({})
 const propertiesDrawerVisible = ref(false)
 const propertiesDrawerTarget = ref<PropertyDrawerTarget>('node')
 const classModelDrawerVisible = ref(false)
@@ -2025,6 +2135,7 @@ const lineTypeText = ref('')
 const lineFromDockText = ref('')
 const lineToDockText = ref('')
 const lineRelationText = ref('')
+const lineVisualTypeText = ref<WorkflowDesignLineType>('orthogonal')
 const businessInputRows = ref<StructuredFieldRow[]>([])
 const businessOutputRows = ref<StructuredFieldRow[]>([])
 const taskGoalText = ref('')
@@ -2063,6 +2174,10 @@ const lineViews = computed(() => currentDocument.value === null ? [] : collectWo
 const businessNodes = computed(() => allNodes.value.filter(node => node.isBusinessNode))
 const selectedNode = computed(() => allNodes.value.find(node => node.key === selectedNodeKey.value) ?? null)
 const selectedLine = computed(() => lineViews.value.find(line => line.key === selectedLineKey.value) ?? null)
+const selectedLineControlPointCount = computed(() => {
+  const line = selectedLine.value
+  return line === null ? 0 : workflowDesignLineControlPoints(line.line).length
+})
 const selectedClassModelOption = computed(() => {
   return classModelOptions.value.find(item => item.kind === modelClassText.value.trim()) ?? null
 })
@@ -2333,12 +2448,15 @@ watch(
 
 onMounted(async () => {
   window.document.addEventListener('keydown', handleNodeKeyboardMove)
+  window.document.addEventListener('keydown', handleControlPointDeleteKey)
   await loadDesigns()
   await openInitialDesign()
 })
 
 onBeforeUnmount(() => {
   window.document.removeEventListener('keydown', handleNodeKeyboardMove)
+  window.document.removeEventListener('keydown', handleControlPointDeleteKey)
+  stopControlPointDrag()
   stopLayoutResize()
   stopGraphSplitResize()
 })
@@ -2384,6 +2502,7 @@ async function openDesign(workflowId: string): Promise<void> {
       ElMessage.info('设计稿未变化')
       return
     }
+    normalizeWorkflowDesignLineState(result.document)
     currentWorkflowId.value = normalizedWorkflowId
     currentFilename.value = result.filename
     currentTimestamp.value = result.timestamp
@@ -2770,7 +2889,7 @@ function isWorkflowFlowLineData(value: unknown): value is WorkflowFlowLineData {
   return isJsonRecord(value) && typeof value['lineKey'] === 'string'
 }
 
-function readFlowConnectionLineFromEvent(value: unknown): WorkflowFlowConnection | null {
+function readFlowConnectionLineFromEvent(value: unknown): Readonly<{ data: WorkflowFlowLineData }> | null {
   if (!isJsonRecord(value)) return null
   const linePayload = value['edge']
   if (
@@ -2784,9 +2903,6 @@ function readFlowConnectionLineFromEvent(value: unknown): WorkflowFlowConnection
   const data = linePayload['data']
   if (!isWorkflowFlowLineData(data)) return null
   return {
-    id: linePayload['id'],
-    source: linePayload['source'],
-    target: linePayload['target'],
     data,
   }
 }
@@ -3313,8 +3429,8 @@ function capabilityCardsToData(cards: readonly StructuredCapabilityCard[]): Work
   }))
 }
 
-function dockHandle(dock: number | undefined, fallback: string): string {
-  return typeof dock === 'number' && Number.isInteger(dock) && dock >= 0 ? `dock-${dock}` : fallback
+function dockHandle(dock: number): string {
+  return `dock-${dock}`
 }
 
 function dockFromHandle(handle: string | null | undefined): number | undefined {
@@ -3322,18 +3438,18 @@ function dockFromHandle(handle: string | null | undefined): number | undefined {
   const match = /^dock-(\d+)$/u.exec(handle.trim())
   if (match !== null) return Number(match[1])
   const parsed = Number(handle)
-  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 12 ? parsed : undefined
 }
 
 function readDockText(dock: unknown): string {
-  return typeof dock === 'number' && Number.isInteger(dock) && dock >= 0 ? String(dock) : ''
+  return typeof dock === 'number' && Number.isInteger(dock) && dock >= 0 && dock <= 12 ? String(dock) : '0'
 }
 
 function parseDockText(value: string): number | undefined {
   const text = value.trim()
-  if (text.length === 0) return undefined
+  if (text.length === 0) return 0
   const parsed = Number(text)
-  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 12 ? parsed : undefined
 }
 
 function withConnectionEndpoint(
@@ -3348,7 +3464,7 @@ function withConnectionEndpoint(
     nodeId,
     modelId: rest.modelId.trim().length > 0 ? rest.modelId : '$workflow',
     memberName: rest.memberName.trim().length > 0 ? rest.memberName : 'value',
-    ...(dock === undefined ? {} : { dock }),
+    dock: dock ?? 0,
   }
 }
 
@@ -3370,7 +3486,7 @@ function createEditorLineEndpoint(
     nodeId,
     modelId,
     memberName,
-    ...(dock === undefined ? {} : { dock }),
+    dock: dock ?? 0,
   }
 }
 
@@ -3378,6 +3494,7 @@ function isSameLineEndpoint(left: WorkflowDesignLineEndpoint, right: WorkflowDes
   return left.nodeId === right.nodeId
     && left.modelId === right.modelId
     && left.memberName === right.memberName
+    && (left.dock ?? 0) === (right.dock ?? 0)
 }
 
 function selectNode(key: string): void {
@@ -3390,6 +3507,7 @@ function selectNode(key: string): void {
 function selectLine(key: string): void {
   if (editorDirty.value && !applySelectedDraft({ silent: false })) return
   selectedNodeKey.value = ''
+  selectedControlPoint.value = null
   selectedLineKey.value = key
 }
 
@@ -3473,27 +3591,270 @@ function flowNodesForGraph(graphView: WorkflowDesignGraphView): WorkflowFlowNode
 }
 
 function flowConnectionsForGraph(graphView: WorkflowDesignGraphView): WorkflowFlowConnection[] {
-  const connectionsByNodePair = new Map<string, WorkflowFlowConnection>()
-  for (const line of linesForGraph(graphView)) {
-    const nodePairKey = `${line.from.nodeId}\u0000${line.to.nodeId}`
-    const existingConnection = connectionsByNodePair.get(nodePairKey)
-    if (existingConnection?.data !== undefined) {
-      existingConnection.data.lineCount += 1
-      continue
-    }
-    connectionsByNodePair.set(nodePairKey, {
+  return linesForGraph(graphView).map((line) => {
+    const docks = resolvedLineDocks(line)
+    return {
       id: workflowFlowConnectionId(line),
+      type: 'workflow-control',
       source: line.from.nodeId,
       target: line.to.nodeId,
-      sourceHandle: dockHandle(line.from.dock, 'source'),
-      targetHandle: dockHandle(line.to.dock, 'target'),
+      sourceHandle: dockHandle(docks.source),
+      targetHandle: dockHandle(docks.target),
+      markerEnd: MarkerType.ArrowClosed,
       data: {
         lineKey: line.key,
-        lineCount: 1,
+        lineType: workflowDesignLineType(line.line),
+        controlPoints: workflowDesignLineControlPoints(line.line),
+        runtimeStatus: lineRuntimeStatuses.value[line.key] ?? 'idle',
       },
-    })
+    }
+  })
+}
+
+function resolvedLineDocks(line: WorkflowDesignLineView): Readonly<{ source: number; target: number }> {
+  const sourceCandidates = outputDockDefinitions.map(dock => dock.id)
+  const targetCandidates = inputDockDefinitions.map(dock => dock.id)
+  const fixedSource = sourceCandidates.includes(line.from.dock ?? 0) ? line.from.dock : undefined
+  const fixedTarget = targetCandidates.includes(line.to.dock ?? 0) ? line.to.dock : undefined
+  const sources = fixedSource === undefined ? sourceCandidates : [fixedSource]
+  const targets = fixedTarget === undefined ? targetCandidates : [fixedTarget]
+  let best = { source: sources[0] ?? 5, target: targets[0] ?? 2, distance: Number.POSITIVE_INFINITY }
+  for (const source of sources) {
+    for (const target of targets) {
+      const sourcePoint = workflowDockPoint(line.fromNode, source)
+      const targetPoint = workflowDockPoint(line.toNode, target)
+      const distance = Math.hypot(sourcePoint.x - targetPoint.x, sourcePoint.y - targetPoint.y)
+      if (distance < best.distance) best = { source, target, distance }
+    }
   }
-  return [...connectionsByNodePair.values()]
+  return { source: best.source, target: best.target }
+}
+
+function workflowDockPoint(node: WorkflowDesignLineView['fromNode'], dock: number): WorkflowDesignLineControlPoint {
+  const x = node?.position?.x ?? 0
+  const y = node?.position?.y ?? 0
+  const quarterX = WORKFLOW_NODE_WIDTH / 4
+  const quarterY = WORKFLOW_NODE_HEIGHT / 4
+  if (dock >= 1 && dock <= 3) return { x: x + quarterX * dock, y }
+  if (dock >= 4 && dock <= 6) return { x: x + WORKFLOW_NODE_WIDTH, y: y + quarterY * (dock - 3) }
+  if (dock >= 7 && dock <= 9) return { x: x + quarterX * (10 - dock), y: y + WORKFLOW_NODE_HEIGHT }
+  return { x, y: y + quarterY * (dock - 9) }
+}
+
+function workflowControlEdgePath(edge: WorkflowControlEdgeSlot): string {
+  const points = [
+    { x: edge.sourceX, y: edge.sourceY },
+    ...edge.data.controlPoints,
+    { x: edge.targetX, y: edge.targetY },
+  ]
+  if (edge.data.lineType === 'straight') return polylinePath(points)
+  if (edge.data.lineType === 'bezier') return smoothControlPointPath(points)
+  return orthogonalControlPointPath(points)
+}
+
+function polylinePath(points: readonly WorkflowDesignLineControlPoint[]): string {
+  const first = points[0]
+  if (first === undefined) return ''
+  return `M ${first.x} ${first.y}${points.slice(1).map(point => ` L ${point.x} ${point.y}`).join('')}`
+}
+
+function orthogonalControlPointPath(points: readonly WorkflowDesignLineControlPoint[]): string {
+  const first = points[0]
+  if (first === undefined) return ''
+  let path = `M ${first.x} ${first.y}`
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = points[index - 1]
+    const point = points[index]
+    if (previous === undefined || point === undefined) continue
+    const middleY = (previous.y + point.y) / 2
+    path += ` L ${previous.x} ${middleY} L ${point.x} ${middleY} L ${point.x} ${point.y}`
+  }
+  return path
+}
+
+function smoothControlPointPath(points: readonly WorkflowDesignLineControlPoint[]): string {
+  const first = points[0]
+  if (first === undefined) return ''
+  if (points.length < 3) {
+    const last = points[points.length - 1]
+    if (last === undefined) return ''
+    const middleY = (first.y + last.y) / 2
+    return `M ${first.x} ${first.y} C ${first.x} ${middleY}, ${last.x} ${middleY}, ${last.x} ${last.y}`
+  }
+  let path = `M ${first.x} ${first.y}`
+  for (let index = 1; index < points.length - 1; index += 1) {
+    const point = points[index]
+    const next = points[index + 1]
+    if (point === undefined || next === undefined) continue
+    path += ` Q ${point.x} ${point.y} ${(point.x + next.x) / 2} ${(point.y + next.y) / 2}`
+  }
+  const previous = points[points.length - 2]
+  const last = points[points.length - 1]
+  return previous === undefined || last === undefined ? path : `${path} Q ${previous.x} ${previous.y} ${last.x} ${last.y}`
+}
+
+function workflowEdgeStatusPoint(edge: WorkflowControlEdgeSlot): WorkflowDesignLineControlPoint {
+  const middle = edge.data.controlPoints[Math.floor(edge.data.controlPoints.length / 2)]
+  return middle ?? { x: (edge.sourceX + edge.targetX) / 2, y: (edge.sourceY + edge.targetY) / 2 }
+}
+
+function workflowRuntimeStatusIcon(status: WorkflowLineRuntimeStatus): string {
+  if (status === 'running') return '▶'
+  if (status === 'completed') return '✓'
+  if (status === 'failed') return '!'
+  if (status === 'skipped') return '–'
+  return ''
+}
+
+function setWorkflowLineRuntimeStatus(lineIdOrKey: string, status: WorkflowLineRuntimeStatus): boolean {
+  const line = lineViews.value.find(item => item.key === lineIdOrKey || item.id === lineIdOrKey)
+  if (line === undefined) return false
+  lineRuntimeStatuses.value = {
+    ...lineRuntimeStatuses.value,
+    [line.key]: status,
+  }
+  return true
+}
+
+defineExpose({ setWorkflowLineRuntimeStatus })
+
+function applySelectedLineVisualType(): void {
+  const line = selectedLine.value
+  const document = currentDocument.value
+  if (line === null || document === null) return
+  updateWorkflowDesignLine(line.line, { lineType: lineVisualTypeText.value })
+  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
+}
+
+function clearSelectedLineControlPoints(): void {
+  const line = selectedLine.value
+  const document = currentDocument.value
+  if (line === null || document === null) return
+  updateWorkflowDesignLine(line.line, { controlPoints: [] })
+  selectedControlPoint.value = null
+  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
+}
+
+function isSelectedControlPoint(lineKey: string, index: string | number): boolean {
+  const selected = selectedControlPoint.value
+  return selected !== null && selected.lineKey === lineKey && selected.index === Number(index)
+}
+
+function selectControlPoint(lineKey: string, index: string | number): void {
+  selectLine(lineKey)
+  selectedControlPoint.value = { lineKey, index: Number(index) }
+}
+
+function addLineControlPoint(event: MouseEvent, data: WorkflowFlowLineData, graphView: WorkflowDesignGraphView): void {
+  const line = lineViews.value.find(item => item.key === data.lineKey && item.graph === graphView.graph)
+  const svg = event.currentTarget instanceof SVGElement ? event.currentTarget.ownerSVGElement : null
+  const document = currentDocument.value
+  if (line === undefined || svg === null || document === null) return
+  const rect = svg.getBoundingClientRect()
+  const viewport = graphView.graph.viewport
+  const zoom = viewport?.zoom ?? 1
+  const point = {
+    x: Math.round((event.clientX - rect.left - (viewport?.x ?? 0)) / zoom),
+    y: Math.round((event.clientY - rect.top - (viewport?.y ?? 0)) / zoom),
+  }
+  const points = [...workflowDesignLineControlPoints(line.line)]
+  const docks = resolvedLineDocks(line)
+  const anchors = [workflowDockPoint(line.fromNode, docks.source), ...points, workflowDockPoint(line.toNode, docks.target)]
+  const insertIndex = nearestLineSegmentIndex(anchors, point)
+  points.splice(insertIndex, 0, point)
+  updateWorkflowDesignLine(line.line, { controlPoints: points })
+  selectControlPoint(line.key, insertIndex)
+  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
+}
+
+function nearestLineSegmentIndex(
+  points: readonly WorkflowDesignLineControlPoint[],
+  point: WorkflowDesignLineControlPoint,
+): number {
+  let bestIndex = 0
+  let bestDistance = Number.POSITIVE_INFINITY
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const start = points[index]
+    const end = points[index + 1]
+    if (start === undefined || end === undefined) continue
+    const distance = pointToLineSegmentDistance(point, start, end)
+    if (distance < bestDistance) {
+      bestDistance = distance
+      bestIndex = index
+    }
+  }
+  return bestIndex
+}
+
+function pointToLineSegmentDistance(
+  point: WorkflowDesignLineControlPoint,
+  start: WorkflowDesignLineControlPoint,
+  end: WorkflowDesignLineControlPoint,
+): number {
+  const dx = end.x - start.x
+  const dy = end.y - start.y
+  if (dx === 0 && dy === 0) return Math.hypot(point.x - start.x, point.y - start.y)
+  const ratio = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / (dx * dx + dy * dy)))
+  return Math.hypot(point.x - (start.x + ratio * dx), point.y - (start.y + ratio * dy))
+}
+
+function startControlPointDrag(command: StartControlPointDragCommand): void {
+  const { event, data, index, graphView } = command
+  const pointIndex = Number(index)
+  const point = data.controlPoints[pointIndex]
+  if (point === undefined) return
+  selectControlPoint(data.lineKey, pointIndex)
+  controlPointDragState.value = {
+    lineKey: data.lineKey,
+    index: pointIndex,
+    graph: graphView.graph,
+    startClientX: event.clientX,
+    startClientY: event.clientY,
+    startPoint: point,
+  }
+  window.addEventListener('pointermove', moveControlPoint)
+  window.addEventListener('pointerup', stopControlPointDrag, { once: true })
+}
+
+function moveControlPoint(event: PointerEvent): void {
+  const drag = controlPointDragState.value
+  const document = currentDocument.value
+  const line = drag === null ? undefined : lineViews.value.find(item => item.key === drag.lineKey && item.graph === drag.graph)
+  if (drag === null || line === undefined || document === null) return
+  const zoom = line.graph.viewport?.zoom ?? 1
+  const points = [...workflowDesignLineControlPoints(line.line)]
+  points[drag.index] = {
+    x: Math.round(drag.startPoint.x + (event.clientX - drag.startClientX) / zoom),
+    y: Math.round(drag.startPoint.y + (event.clientY - drag.startClientY) / zoom),
+  }
+  updateWorkflowDesignLine(line.line, { controlPoints: points })
+  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
+}
+
+function stopControlPointDrag(): void {
+  controlPointDragState.value = null
+  window.removeEventListener('pointermove', moveControlPoint)
+}
+
+function deleteLineControlPoint(lineKey: string, index: string | number): void {
+  const line = lineViews.value.find(item => item.key === lineKey)
+  const document = currentDocument.value
+  if (line === undefined || document === null) return
+  const points = [...workflowDesignLineControlPoints(line.line)]
+  const pointIndex = Number(index)
+  if (pointIndex < 0 || pointIndex >= points.length) return
+  points.splice(pointIndex, 1)
+  updateWorkflowDesignLine(line.line, { controlPoints: points })
+  selectedControlPoint.value = null
+  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
+}
+
+function handleControlPointDeleteKey(event: KeyboardEvent): void {
+  const selected = selectedControlPoint.value
+  if (selected === null || isEditableKeyboardTarget(event.target)) return
+  if (event.key !== 'Delete' && event.key !== 'Backspace') return
+  event.preventDefault()
+  deleteLineControlPoint(selected.lineKey, selected.index)
 }
 
 function flowDefaultViewport(graphView: WorkflowDesignGraphView): ViewportTransform {
@@ -3577,7 +3938,7 @@ function workflowLineViewForFlowConnectionId(
 }
 
 function workflowFlowConnectionId(line: WorkflowDesignLineView): string {
-  return `${line.from.nodeId}->${line.to.nodeId}`
+  return line.key
 }
 
 function handleFlowViewportChangeEnd(viewport: ViewportTransform, graphView: WorkflowDesignGraphView): void {
@@ -3824,6 +4185,7 @@ function syncLineEditorFromSelected(): void {
     lineFromDockText.value = ''
     lineToDockText.value = ''
     lineRelationText.value = ''
+    lineVisualTypeText.value = 'orthogonal'
     return
   }
   lineFromNodeText.value = line.from.nodeId
@@ -3837,6 +4199,7 @@ function syncLineEditorFromSelected(): void {
   lineToDockText.value = readDockText(line.to.dock)
   const relation = line.line.data?.['relation']
   lineRelationText.value = typeof relation === 'string' ? relation : 'sequence'
+  lineVisualTypeText.value = workflowDesignLineType(line.line)
 }
 
 function syncWorkflowEditorFromDocument(): void {
@@ -4593,6 +4956,7 @@ async function saveCurrentDesign(): Promise<boolean> {
   const document = currentDocument.value
   if (document === null || currentWorkflowId.value.length === 0) return false
   if (!applySelectedDraft({ silent: true })) return false
+  normalizeWorkflowDesignLineState(document)
 
   saving.value = true
   try {
@@ -4926,6 +5290,63 @@ function errorMessage(error: unknown): string {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.workflow-line-type-field {
+  display: grid;
+  gap: 4px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.workflow-control-edge :deep(.vue-flow__edge-path) {
+  stroke: #64748b;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.workflow-control-edge.is-running :deep(.vue-flow__edge-path) {
+  stroke: #2563eb;
+  stroke-dasharray: 8 5;
+  animation: workflow-edge-flow 0.8s linear infinite;
+}
+
+.workflow-control-edge.is-completed :deep(.vue-flow__edge-path) {
+  stroke: #16a34a;
+}
+
+.workflow-control-edge.is-failed :deep(.vue-flow__edge-path) {
+  stroke: #dc2626;
+}
+
+.workflow-control-edge.is-skipped :deep(.vue-flow__edge-path) {
+  stroke: #94a3b8;
+  stroke-dasharray: 5 5;
+}
+
+.workflow-edge-control-point {
+  fill: #ffffff;
+  stroke: #2563eb;
+  stroke-width: 2;
+  cursor: move;
+}
+
+.workflow-edge-control-point.is-selected {
+  fill: #dbeafe;
+  stroke: #1d4ed8;
+  stroke-width: 3;
+}
+
+.workflow-edge-status-icon {
+  fill: #334155;
+  font-size: 14px;
+  font-weight: 800;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+@keyframes workflow-edge-flow {
+  to { stroke-dashoffset: -13; }
 }
 
 .workflow-tool-selection strong {

@@ -29,6 +29,7 @@ import {
   createAgentWorkflowDefinitionFromDesign,
   createWorkflowDesignNode,
   markWorkflowDesignDirty,
+  normalizeWorkflowDesignLineState,
   parseAgentWorkflowDefinitionJson,
   publishWorkflowDefinition,
   readWorkflowDefinition,
@@ -36,6 +37,8 @@ import {
   removeWorkflowDesignNode,
   saveWorkflowDefinition,
   updateWorkflowDesignLine,
+  workflowDesignLineControlPoints,
+  workflowDesignLineType,
   type WorkflowDesignDocument,
 } from '@/services/workflow-designs'
 
@@ -513,6 +516,10 @@ describe('workflow design helpers', () => {
 
     const line = addWorkflowDesignLine(graph, 'start', 'output')
     expect(line.id).toBe('line.start.output')
+    expect(line.from.dock).toBe(0)
+    expect(line.to.dock).toBe(0)
+    expect(workflowDesignLineType(line)).toBe('orthogonal')
+    expect(workflowDesignLineControlPoints(line)).toEqual([])
     expect(graph.lines.some(item => item === line)).toBe(true)
 
     expect(removeWorkflowDesignLine(graph, line)).toBe(true)
@@ -587,14 +594,63 @@ describe('workflow design helpers', () => {
       to: { nodeId: 'output', modelId: '$workflow', memberName: 'result', dock: 2 },
       type: 'custom',
       relation: 'fallback',
+      lineType: 'bezier',
+      controlPoints: [{ x: 120, y: 180 }],
     })
 
     expect(line).toEqual(expect.objectContaining({
       from: { nodeId: 'node.model', modelId: 'node.model.model', memberName: 'result', dock: 1 },
       to: { nodeId: 'output', modelId: '$workflow', memberName: 'result', dock: 2 },
       type: 'custom',
-      data: { relation: 'fallback' },
+      data: expect.objectContaining({ relation: 'fallback' }),
     }))
+    expect(workflowDesignLineType(line)).toBe('bezier')
+    expect(workflowDesignLineControlPoints(line)).toEqual([{ x: 120, y: 180 }])
+  })
+
+  it('normalizes legacy line docks and visual defaults across nested graphs', () => {
+    const design = createDesign()
+    const rootLine = design.workflow.graph.lines[0]
+    if (rootLine === undefined) throw new Error('missing root line')
+    rootLine.from.dock = 99
+    rootLine.data = { relation: 'default' }
+    design.workflow.graph.nodes[1]!.data!.loop = {
+      subGraph: {
+        nodes: [],
+        lines: [{
+          from: { nodeId: 'nested.start', modelId: '$workflow', memberName: 'out' },
+          to: { nodeId: 'nested.output', modelId: '$workflow', memberName: 'in' },
+        }],
+      },
+    }
+
+    normalizeWorkflowDesignLineState(design)
+
+    expect(rootLine.from.dock).toBe(0)
+    expect(rootLine.to.dock).toBe(0)
+    expect(rootLine.data?.visual).toEqual({ lineType: 'orthogonal', controlPoints: [] })
+    expect(design.workflow.graph.nodes[1]!.data!.loop!.subGraph!.lines[0]).toMatchObject({
+      from: { dock: 0 },
+      to: { dock: 0 },
+      data: { visual: { lineType: 'orthogonal', controlPoints: [] } },
+    })
+  })
+
+  it('keeps design-only line visuals out of the published definition', () => {
+    const design = createDesign()
+    const line = design.workflow.graph.lines[0]
+    if (line === undefined) throw new Error('missing line')
+    line.data = {
+      relation: 'default',
+      visual: {
+        lineType: 'straight',
+        controlPoints: [{ x: 10, y: 20 }],
+      },
+    }
+
+    const definition = createAgentWorkflowDefinitionFromDesign(design)
+
+    expect(definition.workflow.graph.lines[0]?.data).toEqual({ relation: 'default' })
   })
 
   it('publishes workflow graph into an AgentWorkflowDefinition', () => {

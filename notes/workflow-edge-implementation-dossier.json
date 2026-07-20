@@ -1,0 +1,43 @@
+{
+  "kind": "spark-implementation-dossier",
+  "schemaVersion": 1,
+  "taskKey": "page.workflow-edge-routing-controls",
+  "planDigest": "13fd57b4299aed82877bcff7acdb36377b9508a89dd9a45fc2cc1eb53c9da1a8",
+  "approvalRecordRef": "conversation:user-approved-2026-07-20",
+  "scopeDigest": "13fd57b4299aed82877bcff7acdb36377b9508a89dd9a45fc2cc1eb53c9da1a8",
+  "status": "completed",
+  "implementationSlices": [
+    {
+      "sliceKey": "workflow.edge-design-model",
+      "kind": "page",
+      "status": "completed",
+      "plannedFiles": ["src/services/workflow-designs.ts", "tests/services/workflow-designs.test.ts"],
+      "changedFiles": ["src/services/workflow-designs.ts", "tests/services/workflow-designs.test.ts"],
+      "evidenceRefs": ["test:workflow-design-service-20-passed"]
+    },
+    {
+      "sliceKey": "workflow.edge-editor",
+      "kind": "page",
+      "status": "completed",
+      "plannedFiles": ["src/views/app/WorkflowDesigns.vue", "tests/views/workflow-designs.test.ts"],
+      "changedFiles": ["src/views/app/WorkflowDesigns.vue", "tests/views/workflow-designs.test.ts"],
+      "evidenceRefs": ["test:workflow-design-page-21-passed", "build:frontend-passed"]
+    }
+  ],
+  "changedFiles": [
+    "src/services/workflow-designs.ts",
+    "src/views/app/WorkflowDesigns.vue",
+    "tests/services/workflow-designs.test.ts",
+    "tests/views/workflow-designs.test.ts"
+  ],
+  "minimumVerification": [
+    { "checkKey": "workflow.typecheck", "status": "passed", "evidenceRef": "run:pnpm-typecheck" },
+    { "checkKey": "workflow.lint", "status": "passed", "evidenceRef": "run:pnpm-lint" },
+    { "checkKey": "workflow.focused-tests", "status": "passed", "evidenceRef": "run:vitest-41-passed" },
+    { "checkKey": "workflow.frontend-build", "status": "passed", "evidenceRef": "run:build-fe" }
+  ],
+  "unresolved": [
+    "verify:workflow-designs fails on an unchanged artifact count expectation (expected 15, current 12); no comparable pre-change baseline was captured.",
+    "verify:ai-codegen reports six existing repository violations outside this change; the one violation introduced during implementation was removed."
+  ]
+}

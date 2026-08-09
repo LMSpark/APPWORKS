@@ -1,0 +1,45 @@
+{
+  "name": "lowcode-jdk17-backend-api",
+  "source": "E:\\lowcode-jdk17",
+  "baseApplication": "apps/metadata",
+  "contractFiles": {
+    "models": "./common.ts",
+    "endpoints": "./endpoints.ts",
+    "exports": "./index.ts"
+  },
+  "serializationRules": [
+    "字段名保留后端 Jackson 实际 JSON 名称，包括大小写和下划线",
+    "AjaxResult 使用 Code、Message、Result、Type、Extras、Time",
+    "FlowBackInput 的 JSON 字段是 flowObjId，不是 Java 语义名 wfId",
+    "SyncDataRequest 使用 source_db、source_table、target_db、target_table",
+    "CodeNodesList 使用 codeNodesList",
+    "未声明专用 DTO 的 Map/list 参数保留为 Record<string, unknown>"
+  ],
+  "responseKinds": {
+    "ajax": "AjaxResult<T>",
+    "binary": "binary/void 或 ResponseEntity<Resource>",
+    "sse": "text/event-stream",
+    "emptyStatus": "HTTP 状态码，无响应体"
+  },
+  "controllers": [
+    { "name": "CodeController", "basePath": "/api/Codeing/", "purpose": "代码设计与代码生成" },
+    { "name": "LoginController", "basePath": "/api/LoginAuthority/", "purpose": "注册、登录、令牌、组织与会话" },
+    { "name": "MessageController", "basePath": "/api/message/", "purpose": "消息、离线消息与验证码" },
+    { "name": "DataInterfaceController", "basePath": "/api/dataInterface/", "purpose": "QYAPI 调用、通用数据接口与语音识别" },
+    { "name": "BasicFunController", "basePath": "/api/DataOperation", "purpose": "通用表查询、聚合、取值与批量 CRUD" },
+    { "name": "FlowController", "basePath": "/api/Flow", "purpose": "流程运行、提交、撤回、退回与执行人" },
+    { "name": "FormDesignController", "basePath": "/api/FormDesign/", "purpose": "导航菜单与权限菜单" },
+    { "name": "WorkflowController", "basePath": "/api/Workflow/", "purpose": "工作流执行与测试" },
+    { "name": "DbInfoController", "basePath": "/api/Db/", "purpose": "数据库服务器和数据库注册" },
+    { "name": "TableFieldController", "basePath": "/api/Table/", "purpose": "表元数据、数据同步与字段迁移" },
+    { "name": "ViewController", "basePath": "/api/View", "purpose": "数据库视图注册" },
+    { "name": "ViewDataController", "basePath": "/api/ViewData/", "purpose": "视图定义和视图数据" },
+    { "name": "JsonDataController", "basePath": "/api/JsonData/", "purpose": "JSON 数据增删改查和结构转换" },
+    { "name": "UserController", "basePath": "/api/User/", "purpose": "验证码场景与用户名检查" },
+    { "name": "FileController", "basePath": "/api/File", "purpose": "文件、流程设计和系统数据初始化" },
+    { "name": "SheetDataController", "basePath": "/api/File/", "purpose": "Excel 导入导出" },
+    { "name": "SseController", "basePath": "/api/sse", "purpose": "SSE 连接、统计与踢出" },
+    { "name": "Sm2Controller", "basePath": "/api/sm2", "purpose": "SM2 临时公钥协商" }
+  ],
+  "endpointRegistry": "./endpoints.ts#backendApiEndpoints"
+}

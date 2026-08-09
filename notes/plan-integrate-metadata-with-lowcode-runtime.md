@@ -1,4 +1,6 @@
-状态：draft
+状态：superseded
+
+> 失效原因：本计划绑定了已不存在的 `C:\Users\lgf22\Documents\SPARKProject\apps\metadatamanagement` 快照，并假设 `data/ai`、部署期 runtime config 以及根 Reactor 可交付 MCP/IoT。2026-08-03 当前来源已改为 `E:\R\sparkproject\apps\metadata`，真实公共包闭包、启动链和后端聚合状态均已变化。替代计划将在当前研读确认和逐题范围裁决后生成，禁止按本文件开工。
 
 # 元数据管理前端与 lowcode 分布式运行时直接集成方案
 

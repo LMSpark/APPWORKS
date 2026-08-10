@@ -1,0 +1,3863 @@
+{
+  "schemaVersion": 1,
+  "source": "lowcode-jdk17-controller-source",
+  "generationMode": "read-only-static-characterization",
+  "limitations": [
+    "Records Spring mapping annotations from source; runtime gateway rewrites and Nacos routing are not inferred.",
+    "ANY means RequestMapping did not declare a single HTTP method.",
+    "Authentication, transaction, database and response semantics require linked source or behavior fixtures."
+  ],
+  "endpointCount": 385,
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/admin/log-queue/metrics",
+      "controller": "LogQueueController",
+      "handler": "getMetrics",
+      "sourceFile": "lowcode-framework/lowcode-log/src/main/java/com/htong/config/LogQueueController.java",
+      "sourceLine": 24,
+      "evidence": "@GetMapping(\"/metrics\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/log-queue/reset-metrics",
+      "controller": "LogQueueController",
+      "handler": "resetMetrics",
+      "sourceFile": "lowcode-framework/lowcode-log/src/main/java/com/htong/config/LogQueueController.java",
+      "sourceLine": 30,
+      "evidence": "@PostMapping(\"/reset-metrics\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/api-key/create",
+      "controller": "AiApiKeyController",
+      "handler": "createApiKey",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiApiKeyController.java",
+      "sourceLine": 33,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/api-key/delete",
+      "controller": "AiApiKeyController",
+      "handler": "deleteApiKey",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiApiKeyController.java",
+      "sourceLine": 46,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/api-key/get",
+      "controller": "AiApiKeyController",
+      "handler": "getApiKey",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiApiKeyController.java",
+      "sourceLine": 54,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/api-key/page",
+      "controller": "AiApiKeyController",
+      "handler": "getApiKeyPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiApiKeyController.java",
+      "sourceLine": 62,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/api-key/simple-list",
+      "controller": "AiApiKeyController",
+      "handler": "getApiKeySimpleList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiApiKeyController.java",
+      "sourceLine": 69,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/api-key/update",
+      "controller": "AiApiKeyController",
+      "handler": "updateApiKey",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiApiKeyController.java",
+      "sourceLine": 39,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/chat-role/category-list",
+      "controller": "AiChatRoleController",
+      "handler": "getChatRoleCategoryList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 73,
+      "evidence": "@GetMapping(\"/category-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/chat-role/create",
+      "controller": "AiChatRoleController",
+      "handler": "createChatRole",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 81,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/chat-role/create-my",
+      "controller": "AiChatRoleController",
+      "handler": "createChatRoleMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 52,
+      "evidence": "@PostMapping(\"/create-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/chat-role/delete",
+      "controller": "AiChatRoleController",
+      "handler": "deleteChatRole",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 94,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/chat-role/delete-my",
+      "controller": "AiChatRoleController",
+      "handler": "deleteChatRoleMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 65,
+      "evidence": "@DeleteMapping(\"/delete-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/chat-role/get",
+      "controller": "AiChatRoleController",
+      "handler": "getChatRole",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 102,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/chat-role/get-my",
+      "controller": "AiChatRoleController",
+      "handler": "getChatRoleMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 40,
+      "evidence": "@GetMapping(\"/get-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/chat-role/my-page",
+      "controller": "AiChatRoleController",
+      "handler": "getChatRoleMyPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 32,
+      "evidence": "@GetMapping(\"/my-page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/chat-role/page",
+      "controller": "AiChatRoleController",
+      "handler": "getChatRolePage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 111,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/chat-role/update",
+      "controller": "AiChatRoleController",
+      "handler": "updateChatRole",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 87,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/chat-role/update-my",
+      "controller": "AiChatRoleController",
+      "handler": "updateChatRoleMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiChatRoleController.java",
+      "sourceLine": 58,
+      "evidence": "@PutMapping(\"/update-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/image/delete",
+      "controller": "AiImageController",
+      "handler": "deleteImage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 126,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/image/delete-my",
+      "controller": "AiImageController",
+      "handler": "deleteImageMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 80,
+      "evidence": "@DeleteMapping(\"/delete-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/image/draw",
+      "controller": "AiImageController",
+      "handler": "drawImage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 74,
+      "evidence": "@PostMapping(\"/draw\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/image/get-my",
+      "controller": "AiImageController",
+      "handler": "getImageMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 49,
+      "evidence": "@GetMapping(\"/get-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/image/midjourney/action",
+      "controller": "AiImageController",
+      "handler": "midjourneyAction",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 104,
+      "evidence": "@PostMapping(\"/midjourney/action\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/image/midjourney/imagine",
+      "controller": "AiImageController",
+      "handler": "midjourneyImagine",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 90,
+      "evidence": "@PostMapping(\"/midjourney/imagine\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/image/midjourney/notify",
+      "controller": "AiImageController",
+      "handler": "midjourneyNotify",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 97,
+      "evidence": "@PostMapping(\"/midjourney/notify\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/image/my-list-by-ids",
+      "controller": "AiImageController",
+      "handler": "getImageListMyByIds",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 62,
+      "evidence": "@GetMapping(\"/my-list-by-ids\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/image/my-page",
+      "controller": "AiImageController",
+      "handler": "getImagePageMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 35,
+      "evidence": "@GetMapping(\"/my-page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/image/page",
+      "controller": "AiImageController",
+      "handler": "getImagePage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 112,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/image/public-page",
+      "controller": "AiImageController",
+      "handler": "getImagePagePublic",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 42,
+      "evidence": "@GetMapping(\"/public-page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/image/update",
+      "controller": "AiImageController",
+      "handler": "updateImage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/image/AiImageController.java",
+      "sourceLine": 119,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/knowledge/create",
+      "controller": "AiKnowledgeController",
+      "handler": "createKnowledge",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeController.java",
+      "sourceLine": 48,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/knowledge/delete",
+      "controller": "AiKnowledgeController",
+      "handler": "deleteKnowledge",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeController.java",
+      "sourceLine": 61,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/knowledge/document/create",
+      "controller": "AiKnowledgeDocumentController",
+      "handler": "createKnowledgeDocument",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeDocumentController.java",
+      "sourceLine": 43,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/knowledge/document/create-list",
+      "controller": "AiKnowledgeDocumentController",
+      "handler": "createKnowledgeDocumentList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeDocumentController.java",
+      "sourceLine": 50,
+      "evidence": "@PostMapping(\"/create-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/knowledge/document/delete",
+      "controller": "AiKnowledgeDocumentController",
+      "handler": "deleteKnowledgeDocument",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeDocumentController.java",
+      "sourceLine": 73,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/document/get",
+      "controller": "AiKnowledgeDocumentController",
+      "handler": "getKnowledgeDocument",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeDocumentController.java",
+      "sourceLine": 36,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/document/page",
+      "controller": "AiKnowledgeDocumentController",
+      "handler": "getKnowledgeDocumentPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeDocumentController.java",
+      "sourceLine": 28,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/knowledge/document/update",
+      "controller": "AiKnowledgeDocumentController",
+      "handler": "updateKnowledgeDocument",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeDocumentController.java",
+      "sourceLine": 58,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/knowledge/document/update-status",
+      "controller": "AiKnowledgeDocumentController",
+      "handler": "updateKnowledgeDocumentStatus",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeDocumentController.java",
+      "sourceLine": 65,
+      "evidence": "@PutMapping(\"/update-status\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/get",
+      "controller": "AiKnowledgeController",
+      "handler": "getKnowledge",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeController.java",
+      "sourceLine": 40,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/page",
+      "controller": "AiKnowledgeController",
+      "handler": "getKnowledgePage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeController.java",
+      "sourceLine": 33,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/knowledge/segment/create",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "createKnowledgeSegment",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 58,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/segment/get",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "getKnowledgeSegment",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 42,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/segment/get-process-list",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "getKnowledgeSegmentProcessList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 92,
+      "evidence": "@GetMapping(\"/get-process-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/segment/page",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "getKnowledgeSegmentPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 50,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/segment/search",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "searchKnowledgeSegment",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 101,
+      "evidence": "@GetMapping(\"/search\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/segment/split",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "splitContent",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 79,
+      "evidence": "@GetMapping(\"/split\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/knowledge/segment/update",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "updateKnowledgeSegment",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 64,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/knowledge/segment/update-status",
+      "controller": "AiKnowledgeSegmentController",
+      "handler": "updateKnowledgeSegmentStatus",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeSegmentController.java",
+      "sourceLine": 71,
+      "evidence": "@PutMapping(\"/update-status\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/knowledge/simple-list",
+      "controller": "AiKnowledgeController",
+      "handler": "getKnowledgeSimpleList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeController.java",
+      "sourceLine": 69,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/knowledge/update",
+      "controller": "AiKnowledgeController",
+      "handler": "updateKnowledge",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/knowledge/AiKnowledgeController.java",
+      "sourceLine": 54,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/mind-map/delete",
+      "controller": "AiMindMapController",
+      "handler": "deleteMindMap",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/mindmap/AiMindMapController.java",
+      "sourceLine": 36,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/mind-map/generate-stream",
+      "controller": "AiMindMapController",
+      "handler": "generateMindMap",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/mindmap/AiMindMapController.java",
+      "sourceLine": 28,
+      "evidence": "@PostMapping(value = \"/generate-stream\", produces = MediaType.TEXT_EVENT_STREAM_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/mind-map/page",
+      "controller": "AiMindMapController",
+      "handler": "getMindMapPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/mindmap/AiMindMapController.java",
+      "sourceLine": 44,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/model/create",
+      "controller": "AiModelController",
+      "handler": "createModel",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiModelController.java",
+      "sourceLine": 33,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/model/delete",
+      "controller": "AiModelController",
+      "handler": "deleteModel",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiModelController.java",
+      "sourceLine": 46,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/model/get",
+      "controller": "AiModelController",
+      "handler": "getModel",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiModelController.java",
+      "sourceLine": 54,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/model/page",
+      "controller": "AiModelController",
+      "handler": "getModelPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiModelController.java",
+      "sourceLine": 62,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/model/simple-list",
+      "controller": "AiModelController",
+      "handler": "getModelSimpleList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiModelController.java",
+      "sourceLine": 69,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/model/update",
+      "controller": "AiModelController",
+      "handler": "updateModel",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiModelController.java",
+      "sourceLine": 39,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/music/delete",
+      "controller": "AiMusicController",
+      "handler": "deleteMusic",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 75,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/music/delete-my",
+      "controller": "AiMusicController",
+      "handler": "deleteMusicMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 40,
+      "evidence": "@DeleteMapping(\"/delete-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/music/generate",
+      "controller": "AiMusicController",
+      "handler": "generateMusic",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 33,
+      "evidence": "@PostMapping(\"/generate\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/music/get-my",
+      "controller": "AiMusicController",
+      "handler": "getMusicMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 47,
+      "evidence": "@GetMapping(\"/get-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/music/my-page",
+      "controller": "AiMusicController",
+      "handler": "getMusicMyPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 26,
+      "evidence": "@GetMapping(\"/my-page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/music/page",
+      "controller": "AiMusicController",
+      "handler": "getMusicPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 68,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/music/update",
+      "controller": "AiMusicController",
+      "handler": "updateMusic",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 83,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/music/update-my",
+      "controller": "AiMusicController",
+      "handler": "updateMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/music/AiMusicController.java",
+      "sourceLine": 58,
+      "evidence": "@PostMapping(\"/update-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/tool/create",
+      "controller": "AiToolController",
+      "handler": "createTool",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiToolController.java",
+      "sourceLine": 33,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/tool/delete",
+      "controller": "AiToolController",
+      "handler": "deleteTool",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiToolController.java",
+      "sourceLine": 46,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/tool/get",
+      "controller": "AiToolController",
+      "handler": "getTool",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiToolController.java",
+      "sourceLine": 54,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/tool/page",
+      "controller": "AiToolController",
+      "handler": "getToolPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiToolController.java",
+      "sourceLine": 62,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/tool/simple-list",
+      "controller": "AiToolController",
+      "handler": "getToolSimpleList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiToolController.java",
+      "sourceLine": 69,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/tool/update",
+      "controller": "AiToolController",
+      "handler": "updateTool",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/model/AiToolController.java",
+      "sourceLine": 39,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/workflow/create",
+      "controller": "AiWorkflowController",
+      "handler": "createWorkflow",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/workflow/AiWorkflowController.java",
+      "sourceLine": 29,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/workflow/delete",
+      "controller": "AiWorkflowController",
+      "handler": "deleteWorkflow",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/workflow/AiWorkflowController.java",
+      "sourceLine": 42,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/workflow/get",
+      "controller": "AiWorkflowController",
+      "handler": "getWorkflow",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/workflow/AiWorkflowController.java",
+      "sourceLine": 50,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/workflow/page",
+      "controller": "AiWorkflowController",
+      "handler": "getWorkflowPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/workflow/AiWorkflowController.java",
+      "sourceLine": 58,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/workflow/test",
+      "controller": "AiWorkflowController",
+      "handler": "testWorkflow",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/workflow/AiWorkflowController.java",
+      "sourceLine": 65,
+      "evidence": "@PostMapping(\"/test\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/ai/workflow/update",
+      "controller": "AiWorkflowController",
+      "handler": "updateWorkflow",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/workflow/AiWorkflowController.java",
+      "sourceLine": 35,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/ai/write/delete",
+      "controller": "AiWriteController",
+      "handler": "deleteWrite",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/write/AiWriteController.java",
+      "sourceLine": 36,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/ai/write/generate-stream",
+      "controller": "AiWriteController",
+      "handler": "generateWriteContent",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/write/AiWriteController.java",
+      "sourceLine": 28,
+      "evidence": "@PostMapping(value = \"/generate-stream\", produces = MediaType.TEXT_EVENT_STREAM_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/ai/write/page",
+      "controller": "AiWriteController",
+      "handler": "getWritePage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/write/AiWriteController.java",
+      "sourceLine": 44,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/add_dify_user",
+      "controller": "AIController",
+      "handler": "addDifyUser",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/AIController.java",
+      "sourceLine": 52,
+      "evidence": "@GetMapping(\"add_dify_user\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/chat",
+      "controller": "AIController",
+      "handler": "chat",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/AIController.java",
+      "sourceLine": 137,
+      "evidence": "@PostMapping(\"/chat\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/chat/conversation/create-my",
+      "controller": "AiChatConversationController",
+      "handler": "createChatConversationMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 39,
+      "evidence": "@PostMapping(\"/create-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/chat/conversation/delete-by-admin",
+      "controller": "AiChatConversationController",
+      "handler": "deleteChatConversationByAdmin",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 100,
+      "evidence": "@DeleteMapping(\"/delete-by-admin\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/chat/conversation/delete-by-unpinned",
+      "controller": "AiChatConversationController",
+      "handler": "deleteChatConversationMyByUnpinned",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 77,
+      "evidence": "@DeleteMapping(\"/delete-by-unpinned\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/chat/conversation/delete-my",
+      "controller": "AiChatConversationController",
+      "handler": "deleteChatConversationMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 69,
+      "evidence": "@DeleteMapping(\"/delete-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/chat/conversation/get-my",
+      "controller": "AiChatConversationController",
+      "handler": "getChatConversationMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 60,
+      "evidence": "@GetMapping(\"/get-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/chat/conversation/my-list",
+      "controller": "AiChatConversationController",
+      "handler": "getChatConversationMyList",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 52,
+      "evidence": "@GetMapping(\"/my-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/chat/conversation/page",
+      "controller": "AiChatConversationController",
+      "handler": "getChatConversationPage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 86,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/ai/chat/conversation/update-my",
+      "controller": "AiChatConversationController",
+      "handler": "updateChatConversationMy",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatConversationController.java",
+      "sourceLine": 45,
+      "evidence": "@PutMapping(\"/update-my\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/chat/message/delete",
+      "controller": "AiChatMessageController",
+      "handler": "deleteChatMessage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatMessageController.java",
+      "sourceLine": 112,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/chat/message/delete-by-admin",
+      "controller": "AiChatMessageController",
+      "handler": "deleteChatMessageByAdmin",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatMessageController.java",
+      "sourceLine": 145,
+      "evidence": "@DeleteMapping(\"/delete-by-admin\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/chat/message/delete-by-conversation-id",
+      "controller": "AiChatMessageController",
+      "handler": "deleteChatMessageByConversationId",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatMessageController.java",
+      "sourceLine": 120,
+      "evidence": "@DeleteMapping(\"/delete-by-conversation-id\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/chat/message/list-by-conversation-id",
+      "controller": "AiChatMessageController",
+      "handler": "getChatMessageListByConversationId",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatMessageController.java",
+      "sourceLine": 69,
+      "evidence": "@GetMapping(\"/list-by-conversation-id\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/chat/message/page",
+      "controller": "AiChatMessageController",
+      "handler": "getChatMessagePage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatMessageController.java",
+      "sourceLine": 129,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/chat/message/send",
+      "controller": "AiChatMessageController",
+      "handler": "sendMessage",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatMessageController.java",
+      "sourceLine": 57,
+      "evidence": "@PostMapping(\"/send\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/chat/message/send-stream",
+      "controller": "AiChatMessageController",
+      "handler": "sendChatMessageStream",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/controller/chat/AiChatMessageController.java",
+      "sourceLine": 63,
+      "evidence": "@PostMapping(value = \"/send-stream\", produces = MediaType.TEXT_EVENT_STREAM_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/conversations",
+      "controller": "ConversationController",
+      "handler": "listConversations",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/llm/controller/ConversationController.java",
+      "sourceLine": 27,
+      "evidence": "@GetMapping(\"/conversations\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/conversations/{sessionId}",
+      "controller": "ConversationController",
+      "handler": "deleteConversation",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/llm/controller/ConversationController.java",
+      "sourceLine": 37,
+      "evidence": "@DeleteMapping(\"/conversations/{sessionId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/sessions/{sessionId}/turn/append",
+      "controller": "AiController",
+      "handler": "appendToolResult",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/llm/controller/AiController.java",
+      "sourceLine": 43,
+      "evidence": "@PostMapping(\"/sessions/{sessionId}/turn/append\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/turns",
+      "controller": "AiController",
+      "handler": "createTurn",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/llm/controller/AiController.java",
+      "sourceLine": 26,
+      "evidence": "@PostMapping(\"/turns\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/bids/entSuggest",
+      "controller": "BidController",
+      "handler": "entSuggest",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
+      "sourceLine": 724,
+      "evidence": "@GetMapping(value = \"/entSuggest\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/bids/entVerify",
+      "controller": "BidController",
+      "handler": "entVerify",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
+      "sourceLine": 599,
+      "evidence": "@PostMapping(value = \"/entVerify\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/bids/ocrVerify",
+      "controller": "BidController",
+      "handler": "ocrVerify",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
+      "sourceLine": 887,
+      "evidence": "@PostMapping(value = \"/ocrVerify\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/bids/orgRegister",
+      "controller": "BidController",
+      "handler": "orgRegister",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
+      "sourceLine": 746,
+      "evidence": "@PostMapping(value = \"/orgRegister\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/bids/submit",
+      "controller": "BidController",
+      "handler": "submitBid",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
+      "sourceLine": 69,
+      "evidence": "@PostMapping(value = \"/submit\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/bids/viewCount",
+      "controller": "BidController",
+      "handler": "viewCount",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
+      "sourceLine": 851,
+      "evidence": "@PostMapping(value = \"/viewCount\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Codeing/CodeInitDataList",
+      "controller": "CodeController",
+      "handler": "CodeInitDataList",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/CodeController.java",
+      "sourceLine": 147,
+      "evidence": "@GetMapping(\"CodeInitDataList\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Codeing/GetCodeString/{subTableNameKey}/{codeDesignId}",
+      "controller": "CodeController",
+      "handler": "getCodeString",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/CodeController.java",
+      "sourceLine": 37,
+      "evidence": "@GetMapping(\"GetCodeString/{subTableNameKey}/{codeDesignId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Codeing/TestGetCodeString/{busTableId}",
+      "controller": "CodeController",
+      "handler": "testGetCodeString",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/CodeController.java",
+      "sourceLine": 82,
+      "evidence": "@PostMapping(\"TestGetCodeString/{busTableId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dataInterface/callApi/Body",
+      "controller": "DataInterfaceController",
+      "handler": "callApiWithBody",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DataInterfaceController.java",
+      "sourceLine": 126,
+      "evidence": "@PostMapping(\"callApi/Body\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dataInterface/callApi/FormData",
+      "controller": "DataInterfaceController",
+      "handler": "callApiWithHttpServletRequest",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DataInterfaceController.java",
+      "sourceLine": 54,
+      "evidence": "@PostMapping(\"callApi/FormData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dataInterface/GetApiData",
+      "controller": "DataInterfaceController",
+      "handler": "filteredCallApi",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DataInterfaceController.java",
+      "sourceLine": 41,
+      "evidence": "@PostMapping(\"GetApiData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dataInterface/qyCallApi",
+      "controller": "DataInterfaceController",
+      "handler": "qyCallApi",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DataInterfaceController.java",
+      "sourceLine": 150,
+      "evidence": "@PostMapping(\"qyCallApi\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dataInterface/SpeechToText",
+      "controller": "DataInterfaceController",
+      "handler": "SpeechToText",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DataInterfaceController.java",
+      "sourceLine": 169,
+      "evidence": "@PostMapping(\"SpeechToText\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/{Name}/GetGroupData",
+      "controller": "BasicFunController",
+      "handler": "GetGroupData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "sourceLine": 70,
+      "evidence": "@PostMapping(\"/{Name}/GetGroupData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/{Name}/GetTableData",
+      "controller": "BasicFunController",
+      "handler": "getTableData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "sourceLine": 49,
+      "evidence": "@PostMapping(\"/{Name}/GetTableData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "controller": "BasicFunController",
+      "handler": "BatchTableOperateRequestByCRUD",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "sourceLine": 141,
+      "evidence": "@PostMapping(\"/BatchTableOperateRequestByCRUD\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/CallProcedure",
+      "controller": "BasicFunController",
+      "handler": "CallProcedure",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "sourceLine": 358,
+      "evidence": "@PostMapping(\"/CallProcedure\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetBaseData",
+      "controller": "BasicFunController",
+      "handler": "GetBaseData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "sourceLine": 159,
+      "evidence": "@PostMapping(\"/GetBaseData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetSelfRefData",
+      "controller": "BasicFunController",
+      "handler": "GetSelfRefData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "sourceLine": 292,
+      "evidence": "@PostMapping(\"/GetSelfRefData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetValue",
+      "controller": "BasicFunController",
+      "handler": "getValue",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/BasicFunController.java",
+      "sourceLine": 106,
+      "evidence": "@PostMapping(\"/GetValue\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Db/getUnregisteredDb/{serverId}",
+      "controller": "DbInfoController",
+      "handler": "getUnregisteredDb",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DbInfoController.java",
+      "sourceLine": 188,
+      "evidence": "@GetMapping(\"/getUnregisteredDb/{serverId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Db/getUnregisteredTable/{dbId}",
+      "controller": "DbInfoController",
+      "handler": "getUnregisteredTable",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DbInfoController.java",
+      "sourceLine": 226,
+      "evidence": "@GetMapping(\"/getUnregisteredTable/{dbId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Db/registerDB/{serverId}",
+      "controller": "DbInfoController",
+      "handler": "registerDB",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DbInfoController.java",
+      "sourceLine": 145,
+      "evidence": "@PostMapping(\"/registerDB/{serverId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Db/registerServer",
+      "controller": "DbInfoController",
+      "handler": "registerServer",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DbInfoController.java",
+      "sourceLine": 103,
+      "evidence": "@PostMapping(\"/registerServer\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Db/testConnection",
+      "controller": "DbInfoController",
+      "handler": "testConnection",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DbInfoController.java",
+      "sourceLine": 35,
+      "evidence": "@PostMapping(\"/testConnection\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/{Name}/AddDictDataList",
+      "controller": "DictController",
+      "handler": "addDictDataList",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 136,
+      "evidence": "@PostMapping(\"{Name}/AddDictDataList\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/Dict/{Name}/DeleteDict",
+      "controller": "DictController",
+      "handler": "deleteDict",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 65,
+      "evidence": "@DeleteMapping(\"{Name}/DeleteDict\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Dict/{Name}/GetCustomKeyValueDictData",
+      "controller": "DictController",
+      "handler": "getCustomKeyValueDictData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 238,
+      "evidence": "@GetMapping(\"/{Name}/GetCustomKeyValueDictData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Dict/{Name}/GetDict",
+      "controller": "DictController",
+      "handler": "getDict",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 101,
+      "evidence": "@GetMapping(\"/{Name}/GetDict\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/{Name}/GetDictData",
+      "controller": "DictController",
+      "handler": "getDictData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 204,
+      "evidence": "@PostMapping(\"/{Name}/GetDictData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/{Name}/GetDictPage",
+      "controller": "DictController",
+      "handler": "getDictPage",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 255,
+      "evidence": "@PostMapping(\"/{Name}/GetDictPage\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/{tableName}/BatchData",
+      "controller": "DictController",
+      "handler": "batchData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 220,
+      "evidence": "@PostMapping(\"/{tableName}/BatchData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/Dict/{tableName}/EditDictData",
+      "controller": "DictController",
+      "handler": "editDictData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 171,
+      "evidence": "@PutMapping(\"{tableName}/EditDictData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/AddDict",
+      "controller": "DictController",
+      "handler": "addDict",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 46,
+      "evidence": "@PostMapping(\"AddDict\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/AddDictAndData",
+      "controller": "DictController",
+      "handler": "addDictAndData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 118,
+      "evidence": "@PostMapping(\"AddDictAndData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/AddDictData",
+      "controller": "DictController",
+      "handler": "addDictData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 154,
+      "evidence": "@PostMapping(\"AddDictData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/Dict/DeleteDictData",
+      "controller": "DictController",
+      "handler": "deleteDictData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 188,
+      "evidence": "@DeleteMapping(\"DeleteDictData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/Dict/EditDict",
+      "controller": "DictController",
+      "handler": "editDict",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 84,
+      "evidence": "@PutMapping(\"EditDict\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Dict/GetDictData",
+      "controller": "DictController",
+      "handler": "GetDictData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/DictController.java",
+      "sourceLine": 267,
+      "evidence": "@PostMapping(\"/GetDictData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dify/test/chat",
+      "controller": "DifyTestController",
+      "handler": "chat",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/test/dify/config/other/DifyTestController.java",
+      "sourceLine": 29,
+      "evidence": "@PostMapping(\"/chat\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dify/test/chat-blocking",
+      "controller": "DifyTestController",
+      "handler": "chatBlocking",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/test/dify/config/other/DifyTestController.java",
+      "sourceLine": 135,
+      "evidence": "@PostMapping(\"/chat-blocking\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dify/test/chat-stream",
+      "controller": "DifyTestController",
+      "handler": "chatStream",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/test/dify/config/other/DifyTestController.java",
+      "sourceLine": 93,
+      "evidence": "@PostMapping(\"/chat-stream\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dify/test/health",
+      "controller": "DifyTestController",
+      "handler": "health",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/test/dify/config/other/DifyTestController.java",
+      "sourceLine": 196,
+      "evidence": "@GetMapping(\"/health\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dify/test/stop",
+      "controller": "DifyTestController",
+      "handler": "stopMessage",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/test/dify/config/other/DifyTestController.java",
+      "sourceLine": 174,
+      "evidence": "@PostMapping(\"/stop\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/elyb/combinedSignFileInit",
+      "controller": "ErLunYanBaoController",
+      "handler": "combinedSignFileInit",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/erLunYanBao/ErLunYanBaoController.java",
+      "sourceLine": 177,
+      "evidence": "@PostMapping(\"combinedSignFileInit\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/elyb/register",
+      "controller": "ErLunYanBaoController",
+      "handler": "register",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/erLunYanBao/ErLunYanBaoController.java",
+      "sourceLine": 62,
+      "evidence": "@PostMapping(\"register\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/elyb/signFileResult",
+      "controller": "ErLunYanBaoController",
+      "handler": "signFileResult",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/erLunYanBao/ErLunYanBaoController.java",
+      "sourceLine": 188,
+      "evidence": "@PostMapping(\"signFileResult\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Ent/AddEnterprise",
+      "controller": "EntLoginController",
+      "handler": "addEnterprise",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 219,
+      "evidence": "@PostMapping(\"AddEnterprise\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Ent/code/send/private",
+      "controller": "EntLoginController",
+      "handler": "sendCodePrivate",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 351,
+      "evidence": "@PostMapping(\"code/send/private\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Ent/codeSceneAction",
+      "controller": "EntLoginController",
+      "handler": "codeSceneAction",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 208,
+      "evidence": "@PostMapping(\"codeSceneAction\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Ent/DownFile",
+      "controller": "EntLoginController",
+      "handler": "downFile",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 300,
+      "evidence": "@GetMapping(value = \"DownFile\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Ent/EditEnterprise",
+      "controller": "EntLoginController",
+      "handler": "editEnterprise",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 248,
+      "evidence": "@PostMapping(\"EditEnterprise\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Ent/GetEntInfo",
+      "controller": "EntLoginController",
+      "handler": "getEnterprise",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 293,
+      "evidence": "@GetMapping(\"GetEntInfo\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Ent/UploadFile",
+      "controller": "EntLoginController",
+      "handler": "upload",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 317,
+      "evidence": "@PostMapping(value = \"UploadFile\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Ent/UserLogoutByEnt",
+      "controller": "EntLoginController",
+      "handler": "UserLogoutByEnt",
+      "sourceFile": "lowcode-ent-register/src/main/java/com/htong/controller/EntLoginController.java",
+      "sourceLine": 178,
+      "evidence": "@GetMapping(\"UserLogoutByEnt\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Enterprise/delEnt",
+      "controller": "EnterpriseController",
+      "handler": "delEnt",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/EnterpriseController.java",
+      "sourceLine": 61,
+      "evidence": "@PostMapping(\"delEnt\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Enterprise/initEnt",
+      "controller": "EnterpriseController",
+      "handler": "initEnt",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/EnterpriseController.java",
+      "sourceLine": 31,
+      "evidence": "@PostMapping(\"initEnt\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/File/auth",
+      "controller": "FileController",
+      "handler": "auth",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 365,
+      "evidence": "@GetMapping(\"/auth\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "controller": "FileController",
+      "handler": "getFileContentAsString",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 173,
+      "evidence": "@PostMapping(value = \"/content/text\", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/ConvertFile",
+      "controller": "FileController",
+      "handler": "convertFile",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 115,
+      "evidence": "@PostMapping(value = \"/ConvertFile\", consumes = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/DownFile",
+      "controller": "FileController",
+      "handler": "downFile",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 86,
+      "evidence": "@PostMapping(value = \"/DownFile\", consumes = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/file/download/{fileId}",
+      "controller": "FileDownloadController",
+      "handler": "downloadFile",
+      "sourceFile": "lowcode-framework/lowcode-base-service/src/main/java/com/htong/gm/controller/FileDownloadController.java",
+      "sourceLine": 56,
+      "evidence": "@GetMapping(\"/download/{fileId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/File/exportDesignDoc",
+      "controller": "FileController",
+      "handler": "generateWordDocument",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 341,
+      "evidence": "@GetMapping(\"/exportDesignDoc\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/ExportExcel",
+      "controller": "SheetDataController",
+      "handler": "exportExcel",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/SheetDataController.java",
+      "sourceLine": 116,
+      "evidence": "@PostMapping(\"ExportExcel\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/ExportExcelData",
+      "controller": "SheetDataController",
+      "handler": "exportExcelData",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/SheetDataController.java",
+      "sourceLine": 69,
+      "evidence": "@PostMapping(\"ExportExcelData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/File/exportSDD",
+      "controller": "DocExportController",
+      "handler": "exportSDD",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/DocExportController.java",
+      "sourceLine": 42,
+      "evidence": "@GetMapping(\"/exportSDD\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/File/exportSRS",
+      "controller": "DocExportController",
+      "handler": "exportSRS",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/DocExportController.java",
+      "sourceLine": 26,
+      "evidence": "@GetMapping(\"/exportSRS\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/File/GetFlowDesignInfo/{flowModId}",
+      "controller": "FileController",
+      "handler": "getFlowDesignInfo",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 380,
+      "evidence": "@GetMapping(\"/GetFlowDesignInfo/{flowModId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/importExcel",
+      "controller": "SheetDataController",
+      "handler": "importExcel",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/SheetDataController.java",
+      "sourceLine": 88,
+      "evidence": "@PostMapping(value = \"importExcel\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/importExcelData",
+      "controller": "SheetDataController",
+      "handler": "importExcelData",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/SheetDataController.java",
+      "sourceLine": 47,
+      "evidence": "@PostMapping(value = \"importExcelData\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/initSystemData",
+      "controller": "FileController",
+      "handler": "initSystemData",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 403,
+      "evidence": "@PostMapping(\"/initSystemData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/lastModifiedTime",
+      "controller": "FileController",
+      "handler": "getFileLastModified",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 279,
+      "evidence": "@PostMapping(\"/lastModifiedTime\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/list",
+      "controller": "FileController",
+      "handler": "listFiles",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 309,
+      "evidence": "@PostMapping(\"/list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/QueryJson/{formkey}",
+      "controller": "FileController",
+      "handler": "queryJson",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 71,
+      "evidence": "@PostMapping(\"/QueryJson/{formkey}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/RemoveFile",
+      "controller": "FileController",
+      "handler": "deleteFile",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 324,
+      "evidence": "@PostMapping(\"/RemoveFile\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/report/export",
+      "controller": "ExportController",
+      "handler": "exportReportFile",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/ExportController.java",
+      "sourceLine": 115,
+      "evidence": "@PostMapping(\"/report/export\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/saveFile",
+      "controller": "FileController",
+      "handler": "saveFile",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 287,
+      "evidence": "@PostMapping(value = \"/saveFile\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/SaveFlowDesignInfo",
+      "controller": "FileController",
+      "handler": "saveFlowDesignInfo",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 390,
+      "evidence": "@PostMapping(\"/SaveFlowDesignInfo\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/SaveJson/{Data}/{formkey}",
+      "controller": "FileController",
+      "handler": "saveJson",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 53,
+      "evidence": "@PostMapping(\"/SaveJson/{Data}/{formkey}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/UploadFile",
+      "controller": "FileController",
+      "handler": "upload",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 189,
+      "evidence": "@PostMapping(value = \"/UploadFile\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/uploadFileByBytes",
+      "controller": "FileController",
+      "handler": "upload",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 217,
+      "evidence": "@PostMapping(value = \"/uploadFileByBytes\", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/uploadFileByStr",
+      "controller": "FileController",
+      "handler": "upload",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 243,
+      "evidence": "@PostMapping(value = \"/uploadFileByStr\", consumes = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/uploadFileByUrl",
+      "controller": "FileController",
+      "handler": "uploadByUrl",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
+      "sourceLine": 260,
+      "evidence": "@PostMapping(value = \"/uploadFileByUrl\", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/CanAutoSubmitAfter",
+      "controller": "FlowController",
+      "handler": "canAutoSubmitAfter",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 252,
+      "evidence": "@PostMapping(\"/CanAutoSubmitAfter\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/FlowAddReceiveUser",
+      "controller": "FlowController",
+      "handler": "flowAddReceiveUser",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 175,
+      "evidence": "@PostMapping(\"/FlowAddReceiveUser\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/FlowBack",
+      "controller": "FlowController",
+      "handler": "flowBack",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 122,
+      "evidence": "@PostMapping(\"/FlowBack\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/FlowForceBack",
+      "controller": "FlowController",
+      "handler": "flowForceBack",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 140,
+      "evidence": "@PostMapping(\"/FlowForceBack\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/FlowForceRevoke",
+      "controller": "FlowController",
+      "handler": "flowForceRevoke",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 104,
+      "evidence": "@PostMapping(\"/FlowForceRevoke\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/FlowRevoke",
+      "controller": "FlowController",
+      "handler": "flowRevoke",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 87,
+      "evidence": "@PostMapping(\"/FlowRevoke\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/FlowSubmitOrStart",
+      "controller": "FlowController",
+      "handler": "flowSubmitOrStart",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 66,
+      "evidence": "@PostMapping(\"/FlowSubmitOrStart\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/FlowToCreator",
+      "controller": "FlowController",
+      "handler": "flowToCreator",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 156,
+      "evidence": "@PostMapping(\"/FlowToCreator\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Flow/GetExeUsers",
+      "controller": "FlowController",
+      "handler": "getExeUsers",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 237,
+      "evidence": "@GetMapping(\"/GetExeUsers\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Flow/GetOptionButtonHandleUserOptionData",
+      "controller": "FlowController",
+      "handler": "getOptionButtonHandleUserOptionData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 212,
+      "evidence": "@GetMapping(\"/GetOptionButtonHandleUserOptionData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Flow/RefreshWaiting",
+      "controller": "FlowController",
+      "handler": "refreshWaiting",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 194,
+      "evidence": "@GetMapping(\"/RefreshWaiting\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Flow/SaveFlowAndFormRelation/{flowId}",
+      "controller": "FlowController",
+      "handler": "saveFlowAndFormRelation",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+      "sourceLine": 44,
+      "evidence": "@PostMapping(\"/SaveFlowAndFormRelation/{flowId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Form/AddForm",
+      "controller": "FormController",
+      "handler": "addForm",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FormController.java",
+      "sourceLine": 61,
+      "evidence": "@PostMapping(\"/AddForm\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/Form/DelForm",
+      "controller": "FormController",
+      "handler": "delForm",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FormController.java",
+      "sourceLine": 123,
+      "evidence": "@DeleteMapping(\"/DelForm\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/Form/EditForm",
+      "controller": "FormController",
+      "handler": "editForm",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FormController.java",
+      "sourceLine": 164,
+      "evidence": "@PutMapping(\"/EditForm\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/FormDesign/getNavigationMenusFlat/{sysId}/{beginNodeId}",
+      "controller": "FormDesignController",
+      "handler": "getNavigationMenusFlat",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FormDesignController.java",
+      "sourceLine": 104,
+      "evidence": "@GetMapping(\"getNavigationMenusFlat/{sysId}/{beginNodeId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/FormDesign/menus/withPermissions/{sysId}/{userId}",
+      "controller": "FormDesignController",
+      "handler": "GetMenusWithPermissions",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FormDesignController.java",
+      "sourceLine": 179,
+      "evidence": "@PostMapping(\"menus/withPermissions/{sysId}/{userId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Function/GetFormUserFunction",
+      "controller": "FunctionController",
+      "handler": "getFormUserFunction",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FunctionController.java",
+      "sourceLine": 34,
+      "evidence": "@GetMapping(\"GetFormUserFunction\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/import/mdb",
+      "controller": "ImportController",
+      "handler": "importMdb",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/ImportController.java",
+      "sourceLine": 134,
+      "evidence": "@PostMapping(value = \"/mdb\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/import/shp",
+      "controller": "ImportController",
+      "handler": "exportShpJson",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/controller/ImportController.java",
+      "sourceLine": 48,
+      "evidence": "@PostMapping(value = \"/shp\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/JsonData/AddJsonData",
+      "controller": "JsonDataController",
+      "handler": "addJsonData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/JsonDataController.java",
+      "sourceLine": 177,
+      "evidence": "@PostMapping(\"AddJsonData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/JsonData/ArrayToJson",
+      "controller": "JsonDataController",
+      "handler": "arrayToJson",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/JsonDataController.java",
+      "sourceLine": 360,
+      "evidence": "@PostMapping(\"ArrayToJson\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/JsonData/BatchData",
+      "controller": "JsonDataController",
+      "handler": "BatchData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/JsonDataController.java",
+      "sourceLine": 135,
+      "evidence": "@PostMapping(\"BatchData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/JsonData/DelJsonData",
+      "controller": "JsonDataController",
+      "handler": "delJsonData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/JsonDataController.java",
+      "sourceLine": 262,
+      "evidence": "@PostMapping(\"DelJsonData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/JsonData/EditJsonData",
+      "controller": "JsonDataController",
+      "handler": "editJsonData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/JsonDataController.java",
+      "sourceLine": 223,
+      "evidence": "@PostMapping(\"EditJsonData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/JsonData/GetJsonData",
+      "controller": "JsonDataController",
+      "handler": "GetJsonData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/JsonDataController.java",
+      "sourceLine": 41,
+      "evidence": "@PostMapping(\"GetJsonData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/JsonData/SaveJsonData",
+      "controller": "JsonDataController",
+      "handler": "saveJsonData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/JsonDataController.java",
+      "sourceLine": 410,
+      "evidence": "@PostMapping(\"SaveJsonData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/LoginAuthority/ForceLogout",
+      "controller": "LoginController",
+      "handler": "forceLogout",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
+      "sourceLine": 291,
+      "evidence": "@GetMapping(\"ForceLogout\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/LoginAuthority/GetUserInfo",
+      "controller": "LoginController",
+      "handler": "GetUserInfo",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
+      "sourceLine": 224,
+      "evidence": "@GetMapping(\"GetUserInfo\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/LoginAuthority/org/list",
+      "controller": "LoginController",
+      "handler": "getOrg",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
+      "sourceLine": 328,
+      "evidence": "@GetMapping(\"org/list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/refresh",
+      "controller": "LoginController",
+      "handler": "refresh",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
+      "sourceLine": 368,
+      "evidence": "@PostMapping(\"/refresh\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/register",
+      "controller": "LoginController",
+      "handler": "register",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
+      "sourceLine": 38,
+      "evidence": "@PostMapping(\"register\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/LoginAuthority/UserLogoutByEnt",
+      "controller": "LoginController",
+      "handler": "loginOut",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
+      "sourceLine": 261,
+      "evidence": "@GetMapping(\"UserLogoutByEnt\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/logs/demo",
+      "controller": "LogController",
+      "handler": "demoAction",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LogController.java",
+      "sourceLine": 43,
+      "evidence": "@GetMapping(\"/demo\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/logs/query",
+      "controller": "LogController",
+      "handler": "queryLogs",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LogController.java",
+      "sourceLine": 31,
+      "evidence": "@PostMapping(\"/query\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mcp/add",
+      "controller": "McpController",
+      "handler": "add",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/mcp/controller/McpController.java",
+      "sourceLine": 22,
+      "evidence": "@PostMapping(\"/add\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mcp/del",
+      "controller": "McpController",
+      "handler": "del",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/mcp/controller/McpController.java",
+      "sourceLine": 28,
+      "evidence": "@PostMapping(\"/del\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mcp/update",
+      "controller": "McpController",
+      "handler": "update",
+      "sourceFile": "lowcode-mcp-client/src/main/java/com/htong/mcp/controller/McpController.java",
+      "sourceLine": 38,
+      "evidence": "@PostMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/message/code/send/private",
+      "controller": "MessageController",
+      "handler": "sendCodePrivate",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/MessageController.java",
+      "sourceLine": 234,
+      "evidence": "@PostMapping(\"/code/send/private\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/message/code/send/public",
+      "controller": "MessageController",
+      "handler": "sendCodePublic",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/MessageController.java",
+      "sourceLine": 273,
+      "evidence": "@PostMapping(\"/code/send/public\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/message/confirmMessages",
+      "controller": "MessageController",
+      "handler": "confirmMessages",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/MessageController.java",
+      "sourceLine": 170,
+      "evidence": "@PostMapping(\"confirmMessages\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/message/offlineMessages",
+      "controller": "MessageController",
+      "handler": "getOfflineMessages",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/MessageController.java",
+      "sourceLine": 130,
+      "evidence": "@PostMapping(\"offlineMessages\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/message/SendMessage",
+      "controller": "MessageController",
+      "handler": "sendMessage",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/MessageController.java",
+      "sourceLine": 65,
+      "evidence": "@PostMapping(\"SendMessage\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/perm/updateAll",
+      "controller": "PermController",
+      "handler": "updateAll",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/PermController.java",
+      "sourceLine": 27,
+      "evidence": "@PostMapping(\"/updateAll\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/perm/updateByFunc",
+      "controller": "PermController",
+      "handler": "updateByFunc",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/PermController.java",
+      "sourceLine": 46,
+      "evidence": "@GetMapping(\"/updateByFunc\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/perm/updateByUser",
+      "controller": "PermController",
+      "handler": "updateByUser",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/PermController.java",
+      "sourceLine": 35,
+      "evidence": "@GetMapping(\"/updateByUser\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/recovery/GetDelData",
+      "controller": "RecoveryController",
+      "handler": "GetDelData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/RecoveryController.java",
+      "sourceLine": 47,
+      "evidence": "@PostMapping(\"GetDelData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sap/agent-loop",
+      "controller": "SAPAgentController",
+      "handler": "agentLoopSse",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/sap/controller/SAPAgentController.java",
+      "sourceLine": 63,
+      "evidence": "@PostMapping(value = \"/agent-loop\", produces = \"text/event-stream;charset=UTF-8\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sap/agent-loop-batch",
+      "controller": "SAPAgentController",
+      "handler": "batchNoSse",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/sap/controller/SAPAgentController.java",
+      "sourceLine": 171,
+      "evidence": "@PostMapping(\"/agent-loop-batch\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/seal/sign",
+      "controller": "SealController",
+      "handler": "sign",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/seal/controller/SealController.java",
+      "sourceLine": 63,
+      "evidence": "@PostMapping(\"/sign\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/seal/verify",
+      "controller": "SealController",
+      "handler": "verify",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/seal/controller/SealController.java",
+      "sourceLine": 143,
+      "evidence": "@PostMapping(\"/verify\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sm2/public-key",
+      "controller": "Sm2Controller",
+      "handler": "publicKey",
+      "sourceFile": "lowcode-framework/lowcode-base-service/src/main/java/com/htong/gm/controller/Sm2Controller.java",
+      "sourceLine": 49,
+      "evidence": "@PostMapping(\"/api/sm2/public-key\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sse/allConnections",
+      "controller": "SseController",
+      "handler": "allConnections",
+      "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
+      "sourceLine": 135,
+      "evidence": "@GetMapping(value = \"/allConnections\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sse/anonymousConnect",
+      "controller": "SseController",
+      "handler": "anonymousConnect",
+      "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
+      "sourceLine": 78,
+      "evidence": "@GetMapping(value = \"/anonymousConnect\", produces = MediaType.TEXT_EVENT_STREAM_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sse/anonymousConnections",
+      "controller": "SseController",
+      "handler": "anonymousConnections",
+      "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
+      "sourceLine": 145,
+      "evidence": "@GetMapping(value = \"/anonymousConnections\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sse/anonymousCount",
+      "controller": "SseController",
+      "handler": "anonymousCount",
+      "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
+      "sourceLine": 155,
+      "evidence": "@GetMapping(value = \"/anonymousCount\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sse/connect",
+      "controller": "SseController",
+      "handler": "connect",
+      "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
+      "sourceLine": 38,
+      "evidence": "@GetMapping(value = \"/connect\", produces = MediaType.TEXT_EVENT_STREAM_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sse/kick",
+      "controller": "SseController",
+      "handler": "kickUser",
+      "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
+      "sourceLine": 123,
+      "evidence": "@PostMapping(value = \"/kick\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sse/onlineCount",
+      "controller": "SseController",
+      "handler": "onlineCount",
+      "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
+      "sourceLine": 111,
+      "evidence": "@GetMapping(value = \"/onlineCount\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sso/access_token",
+      "controller": "SsoController",
+      "handler": "accessToken",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/hbgc/SsoController.java",
+      "sourceLine": 181,
+      "evidence": "@PostMapping(value = \"/access_token\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sso/code",
+      "controller": "SsoController",
+      "handler": "code",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/hbgc/SsoController.java",
+      "sourceLine": 253,
+      "evidence": "@PostMapping(value = \"/code\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sso/login",
+      "controller": "SsoController",
+      "handler": "login",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/hbgc/SsoController.java",
+      "sourceLine": 339,
+      "evidence": "@PostMapping(value = \"/login\", produces = MediaType.APPLICATION_JSON_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sso/loginByCode",
+      "controller": "SsoController",
+      "handler": "loginByCode",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/hbgc/SsoController.java",
+      "sourceLine": 135,
+      "evidence": "@GetMapping(value = \"loginByCode\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sysCache/clearAll",
+      "controller": "SysCacheController",
+      "handler": "clearAllCache",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
+      "sourceLine": 265,
+      "evidence": "@GetMapping(\"/clearAll\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sysCache/delete",
+      "controller": "SysCacheController",
+      "handler": "delete",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
+      "sourceLine": 199,
+      "evidence": "@PostMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sysCache/deleteByPreKey",
+      "controller": "SysCacheController",
+      "handler": "deleteByPreKey",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
+      "sourceLine": 231,
+      "evidence": "@PostMapping(\"/deleteByPreKey\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sysCache/findByPatternPageWithTotal",
+      "controller": "SysCacheController",
+      "handler": "GetAllCache",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
+      "sourceLine": 82,
+      "evidence": "@PostMapping(\"/findByPatternPageWithTotal\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sysCache/GetByPreKey",
+      "controller": "SysCacheController",
+      "handler": "getByPreKey",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
+      "sourceLine": 166,
+      "evidence": "@PostMapping(\"/GetByPreKey\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sysCache/keyList",
+      "controller": "SysCacheController",
+      "handler": "keyList",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
+      "sourceLine": 52,
+      "evidence": "@GetMapping(\"/keyList\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sysCache/value",
+      "controller": "SysCacheController",
+      "handler": "getValue",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
+      "sourceLine": 133,
+      "evidence": "@PostMapping(\"/value\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Table/defaultField/{db}",
+      "controller": "TableFieldController",
+      "handler": "defaultField",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TableFieldController.java",
+      "sourceLine": 41,
+      "evidence": "@PostMapping(\"defaultField/{db}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Table/migrateTableField",
+      "controller": "TableFieldController",
+      "handler": "migrateTableField",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TableFieldController.java",
+      "sourceLine": 201,
+      "evidence": "@PostMapping(\"migrateTableField\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Table/registerTable/{dbId}",
+      "controller": "TableFieldController",
+      "handler": "registerTable",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TableFieldController.java",
+      "sourceLine": 146,
+      "evidence": "@PostMapping(\"registerTable/{dbId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Table/SyncData",
+      "controller": "TableFieldController",
+      "handler": "SyncData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TableFieldController.java",
+      "sourceLine": 117,
+      "evidence": "@PostMapping(\"SyncData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Table/SyncMetaData/{db}/{table}",
+      "controller": "TableFieldController",
+      "handler": "SyncMetaData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TableFieldController.java",
+      "sourceLine": 80,
+      "evidence": "@GetMapping(\"SyncMetaData/{db}/{table}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/a",
+      "controller": "TestController",
+      "handler": "testA",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 78,
+      "evidence": "@GetMapping(\"a\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/add",
+      "controller": "TestController",
+      "handler": "add",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 393,
+      "evidence": "@GetMapping(\"add\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/b",
+      "controller": "TestController",
+      "handler": "testB",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 95,
+      "evidence": "@GetMapping(\"b\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/c",
+      "controller": "TestController",
+      "handler": "testA",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 41,
+      "evidence": "@GetMapping(\"c\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/dd",
+      "controller": "TestController",
+      "handler": "testdd",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 102,
+      "evidence": "@GetMapping(\"dd\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/del",
+      "controller": "TestController",
+      "handler": "del",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 409,
+      "evidence": "@GetMapping(\"del\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/query",
+      "controller": "TestController",
+      "handler": "query",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 386,
+      "evidence": "@GetMapping(\"query\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/register",
+      "controller": "TestController",
+      "handler": "registerDataSource",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 360,
+      "evidence": "@GetMapping(\"register\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/test/update",
+      "controller": "TestController",
+      "handler": "update",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
+      "sourceLine": 401,
+      "evidence": "@GetMapping(\"update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/thirdParty/auth/callback",
+      "controller": "ThirdPartyController",
+      "handler": "authCallback",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 322,
+      "evidence": "@GetMapping(\"auth/callback\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/auth/kickout-by-user",
+      "controller": "ThirdPartyController",
+      "handler": "kickoutByUser",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 363,
+      "evidence": "@PostMapping(\"auth/kickout-by-user\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/auth/logout-by-ticket",
+      "controller": "ThirdPartyController",
+      "handler": "logoutByTicket",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 343,
+      "evidence": "@PostMapping(\"auth/logout-by-ticket\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/GetEntWXUrl",
+      "controller": "ThirdPartyController",
+      "handler": "getEntWXUrl",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 101,
+      "evidence": "@PostMapping(\"GetEntWXUrl\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/thirdParty/login",
+      "controller": "ThirdPartyController",
+      "handler": "login",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 64,
+      "evidence": "@GetMapping(\"login\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/thirdParty/miniProgram/bind",
+      "controller": "ThirdPartyController",
+      "handler": "bindMiniProgram",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 308,
+      "evidence": "@GetMapping(\"miniProgram/bind\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/miniProgram/GetEidResult",
+      "controller": "TencentController",
+      "handler": "getEidResult",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/TencentController.java",
+      "sourceLine": 39,
+      "evidence": "@PostMapping(\"miniProgram/GetEidResult\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/miniProgram/GetEidToken",
+      "controller": "TencentController",
+      "handler": "getEidToken",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/TencentController.java",
+      "sourceLine": 28,
+      "evidence": "@PostMapping(\"miniProgram/GetEidToken\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/thirdParty/miniProgram/getEntByCode",
+      "controller": "ThirdPartyController",
+      "handler": "getEntByCode",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 256,
+      "evidence": "@GetMapping(\"miniProgram/getEntByCode\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/miniProgram/getOpenId",
+      "controller": "ThirdPartyController",
+      "handler": "getOpenId",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 223,
+      "evidence": "@PostMapping(\"miniProgram/getOpenId\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/miniProgram/login",
+      "controller": "ThirdPartyController",
+      "handler": "login",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 159,
+      "evidence": "@PostMapping(\"miniProgram/login\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/miniProgram/register",
+      "controller": "ThirdPartyController",
+      "handler": "register",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 195,
+      "evidence": "@PostMapping(\"miniProgram/register\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/SendEntWXAppMsg",
+      "controller": "ThirdPartyController",
+      "handler": "sendEntWXAppMsg",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 133,
+      "evidence": "@PostMapping(\"SendEntWXAppMsg\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/user/login",
+      "controller": "ThirdPartyController",
+      "handler": "userLogin",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 298,
+      "evidence": "@PostMapping(\"user/login\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/thirdParty/wechat/notify",
+      "controller": "ThirdPartyController",
+      "handler": "notifyMsg",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/controller/ThirdPartyController.java",
+      "sourceLine": 270,
+      "evidence": "@PostMapping(\"wechat/notify\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/upload/file",
+      "controller": "UploadController",
+      "handler": "uploadFile",
+      "sourceFile": "lowcode-framework/lowcode-base-service/src/main/java/com/htong/gm/controller/UploadController.java",
+      "sourceLine": 43,
+      "evidence": "@PostMapping(\"/api/upload/file\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/User/check_username",
+      "controller": "UserController",
+      "handler": "checkUsername",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/UserController.java",
+      "sourceLine": 150,
+      "evidence": "@GetMapping(\"check_username\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/UserManage/GetBaseUserInfo",
+      "controller": "UserManageController",
+      "handler": "getBaseUserInfo",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/UserManageController.java",
+      "sourceLine": 37,
+      "evidence": "@PostMapping(\"GetBaseUserInfo\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ViewData/GetViewData",
+      "controller": "ViewDataController",
+      "handler": "getViewData",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/ViewDataController.java",
+      "sourceLine": 125,
+      "evidence": "@PostMapping(\"GetViewData\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ViewData/SaveView",
+      "controller": "ViewDataController",
+      "handler": "saveView",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/ViewDataController.java",
+      "sourceLine": 72,
+      "evidence": "@PostMapping(\"SaveView\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Workflow/Run/{workflowId}",
+      "controller": "WorkflowController",
+      "handler": "runWorkflow",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WorkflowController.java",
+      "sourceLine": 38,
+      "evidence": "@PostMapping(\"Run/{workflowId}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Workflow/runSingleNodeTest",
+      "controller": "WorkflowController",
+      "handler": "runWorkflow",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WorkflowController.java",
+      "sourceLine": 50,
+      "evidence": "@PostMapping(\"runSingleNodeTest\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Workflow/runWorkflowTest",
+      "controller": "WorkflowController",
+      "handler": "runWorkflowTest",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WorkflowController.java",
+      "sourceLine": 60,
+      "evidence": "@PostMapping(\"runWorkflowTest\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/alert-config/create",
+      "controller": "IotAlertConfigController",
+      "handler": "createAlertConfig",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertConfigController.java",
+      "sourceLine": 39,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/alert-config/delete",
+      "controller": "IotAlertConfigController",
+      "handler": "deleteAlertConfig",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertConfigController.java",
+      "sourceLine": 52,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/alert-config/get",
+      "controller": "IotAlertConfigController",
+      "handler": "getAlertConfig",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertConfigController.java",
+      "sourceLine": 60,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/alert-config/page",
+      "controller": "IotAlertConfigController",
+      "handler": "getAlertConfigPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertConfigController.java",
+      "sourceLine": 68,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/alert-config/simple-list",
+      "controller": "IotAlertConfigController",
+      "handler": "getAlertConfigSimpleList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertConfigController.java",
+      "sourceLine": 85,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/alert-config/update",
+      "controller": "IotAlertConfigController",
+      "handler": "updateAlertConfig",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertConfigController.java",
+      "sourceLine": 45,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/alert-record/get",
+      "controller": "IotAlertRecordController",
+      "handler": "getAlertRecord",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertRecordController.java",
+      "sourceLine": 33,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/alert-record/page",
+      "controller": "IotAlertRecordController",
+      "handler": "getAlertRecordPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertRecordController.java",
+      "sourceLine": 42,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/alert-record/process",
+      "controller": "IotAlertRecordController",
+      "handler": "processAlertRecord",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/alert/IotAlertRecordController.java",
+      "sourceLine": 50,
+      "evidence": "@PutMapping(\"/process\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/data-rule/create",
+      "controller": "IotDataRuleController",
+      "handler": "createDataRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataRuleController.java",
+      "sourceLine": 32,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/data-rule/delete",
+      "controller": "IotDataRuleController",
+      "handler": "deleteDataRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataRuleController.java",
+      "sourceLine": 47,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/data-rule/get",
+      "controller": "IotDataRuleController",
+      "handler": "getDataRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataRuleController.java",
+      "sourceLine": 56,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/data-rule/page",
+      "controller": "IotDataRuleController",
+      "handler": "getDataRulePage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataRuleController.java",
+      "sourceLine": 65,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/data-rule/update",
+      "controller": "IotDataRuleController",
+      "handler": "updateDataRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataRuleController.java",
+      "sourceLine": 39,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/data-sink/create",
+      "controller": "IotDataSinkController",
+      "handler": "createDataSink",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataSinkController.java",
+      "sourceLine": 35,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/data-sink/delete",
+      "controller": "IotDataSinkController",
+      "handler": "deleteDataSink",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataSinkController.java",
+      "sourceLine": 50,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/data-sink/get",
+      "controller": "IotDataSinkController",
+      "handler": "getDataSink",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataSinkController.java",
+      "sourceLine": 59,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/data-sink/page",
+      "controller": "IotDataSinkController",
+      "handler": "getDataSinkPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataSinkController.java",
+      "sourceLine": 68,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/data-sink/simple-list",
+      "controller": "IotDataSinkController",
+      "handler": "getDataSinkSimpleList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataSinkController.java",
+      "sourceLine": 76,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/data-sink/update",
+      "controller": "IotDataSinkController",
+      "handler": "updateDataSink",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotDataSinkController.java",
+      "sourceLine": 42,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/device-group/create",
+      "controller": "IotDeviceGroupController",
+      "handler": "createDeviceGroup",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceGroupController.java",
+      "sourceLine": 38,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/device-group/delete",
+      "controller": "IotDeviceGroupController",
+      "handler": "deleteDeviceGroup",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceGroupController.java",
+      "sourceLine": 53,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device-group/get",
+      "controller": "IotDeviceGroupController",
+      "handler": "getDeviceGroup",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceGroupController.java",
+      "sourceLine": 62,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device-group/page",
+      "controller": "IotDeviceGroupController",
+      "handler": "getDeviceGroupPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceGroupController.java",
+      "sourceLine": 71,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device-group/simple-list",
+      "controller": "IotDeviceGroupController",
+      "handler": "getSimpleDeviceGroupList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceGroupController.java",
+      "sourceLine": 80,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/device-group/update",
+      "controller": "IotDeviceGroupController",
+      "handler": "updateDeviceGroup",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceGroupController.java",
+      "sourceLine": 45,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/count",
+      "controller": "IotDeviceController",
+      "handler": "getDeviceCount",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 107,
+      "evidence": "@GetMapping(\"/count\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/device/create",
+      "controller": "IotDeviceController",
+      "handler": "createDevice",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 42,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/device/delete",
+      "controller": "IotDeviceController",
+      "handler": "deleteDevice",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 64,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/device/delete-list",
+      "controller": "IotDeviceController",
+      "handler": "deleteDeviceList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 72,
+      "evidence": "@DeleteMapping(\"/delete-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/export-excel",
+      "controller": "IotDeviceController",
+      "handler": "exportDeviceExcel",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 95,
+      "evidence": "@GetMapping(\"/export-excel\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/get",
+      "controller": "IotDeviceController",
+      "handler": "getDevice",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 80,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/get-auth-info",
+      "controller": "IotDeviceController",
+      "handler": "getDeviceAuthInfo",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 153,
+      "evidence": "@GetMapping(\"/get-auth-info\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/get-import-template",
+      "controller": "IotDeviceController",
+      "handler": "importTemplate",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 139,
+      "evidence": "@GetMapping(\"/get-import-template\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/device/import",
+      "controller": "IotDeviceController",
+      "handler": "importDevice",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 129,
+      "evidence": "@PostMapping(\"/import\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/list-by-product-key-and-names",
+      "controller": "IotDeviceController",
+      "handler": "getDevicesByProductKeyAndNames",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 160,
+      "evidence": "@GetMapping(\"/list-by-product-key-and-names\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/message/page",
+      "controller": "IotDeviceMessageController",
+      "handler": "getDeviceMessagePage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceMessageController.java",
+      "sourceLine": 47,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/message/pair-page",
+      "controller": "IotDeviceMessageController",
+      "handler": "getDeviceMessagePairPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceMessageController.java",
+      "sourceLine": 56,
+      "evidence": "@GetMapping(\"/pair-page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/device/message/send",
+      "controller": "IotDeviceMessageController",
+      "handler": "sendDeviceMessage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceMessageController.java",
+      "sourceLine": 84,
+      "evidence": "@PostMapping(\"/send\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/page",
+      "controller": "IotDeviceController",
+      "handler": "getDevicePage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 88,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/property/get-latest",
+      "controller": "IotDevicePropertyController",
+      "handler": "getLatestDeviceProperties",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDevicePropertyController.java",
+      "sourceLine": 48,
+      "evidence": "@GetMapping(\"/get-latest\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/property/history-list",
+      "controller": "IotDevicePropertyController",
+      "handler": "getHistoryDevicePropertyList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDevicePropertyController.java",
+      "sourceLine": 81,
+      "evidence": "@GetMapping(\"/history-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/device/simple-list",
+      "controller": "IotDeviceController",
+      "handler": "getDeviceSimpleList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 114,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/device/update",
+      "controller": "IotDeviceController",
+      "handler": "updateDevice",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 48,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/device/update-group",
+      "controller": "IotDeviceController",
+      "handler": "updateDeviceGroup",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/device/IotDeviceController.java",
+      "sourceLine": 57,
+      "evidence": "@PutMapping(\"/update-group\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/ota/firmware/create",
+      "controller": "IotOtaFirmwareController",
+      "handler": "createOtaFirmware",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaFirmwareController.java",
+      "sourceLine": 36,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/ota/firmware/get",
+      "controller": "IotOtaFirmwareController",
+      "handler": "getOtaFirmware",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaFirmwareController.java",
+      "sourceLine": 51,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/ota/firmware/page",
+      "controller": "IotOtaFirmwareController",
+      "handler": "getOtaFirmwarePage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaFirmwareController.java",
+      "sourceLine": 67,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/ota/firmware/update",
+      "controller": "IotOtaFirmwareController",
+      "handler": "updateOtaFirmware",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaFirmwareController.java",
+      "sourceLine": 43,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/ota/task/cancel",
+      "controller": "IotOtaTaskController",
+      "handler": "cancelOtaTask",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskController.java",
+      "sourceLine": 39,
+      "evidence": "@PostMapping(\"/cancel\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/ota/task/create",
+      "controller": "IotOtaTaskController",
+      "handler": "createOtaTask",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskController.java",
+      "sourceLine": 32,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/ota/task/get",
+      "controller": "IotOtaTaskController",
+      "handler": "getOtaTask",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskController.java",
+      "sourceLine": 56,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/ota/task/page",
+      "controller": "IotOtaTaskController",
+      "handler": "getOtaTaskPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskController.java",
+      "sourceLine": 48,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/ota/task/record/cancel",
+      "controller": "IotOtaTaskRecordController",
+      "handler": "cancelOtaTaskRecord",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskRecordController.java",
+      "sourceLine": 90,
+      "evidence": "@PutMapping(\"/cancel\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/ota/task/record/get",
+      "controller": "IotOtaTaskRecordController",
+      "handler": "getOtaTaskRecord",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskRecordController.java",
+      "sourceLine": 81,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/ota/task/record/get-status-statistics",
+      "controller": "IotOtaTaskRecordController",
+      "handler": "getOtaTaskRecordStatusStatistics",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskRecordController.java",
+      "sourceLine": 44,
+      "evidence": "@GetMapping(\"/get-status-statistics\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/ota/task/record/page",
+      "controller": "IotOtaTaskRecordController",
+      "handler": "getOtaTaskRecordPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/ota/IotOtaTaskRecordController.java",
+      "sourceLine": 57,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/product-category/create",
+      "controller": "IotProductCategoryController",
+      "handler": "createProductCategory",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductCategoryController.java",
+      "sourceLine": 35,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/product-category/delete",
+      "controller": "IotProductCategoryController",
+      "handler": "deleteProductCategory",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductCategoryController.java",
+      "sourceLine": 50,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product-category/get",
+      "controller": "IotProductCategoryController",
+      "handler": "getProductCategory",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductCategoryController.java",
+      "sourceLine": 59,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product-category/page",
+      "controller": "IotProductCategoryController",
+      "handler": "getProductCategoryPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductCategoryController.java",
+      "sourceLine": 68,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product-category/simple-list",
+      "controller": "IotProductCategoryController",
+      "handler": "getSimpleProductCategoryList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductCategoryController.java",
+      "sourceLine": 76,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/product-category/update",
+      "controller": "IotProductCategoryController",
+      "handler": "updateProductCategory",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductCategoryController.java",
+      "sourceLine": 42,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/product/create",
+      "controller": "IotProductController",
+      "handler": "createProduct",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 48,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/product/delete",
+      "controller": "IotProductController",
+      "handler": "deleteProduct",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 70,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product/export-excel",
+      "controller": "IotProductController",
+      "handler": "exportProductExcel",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 128,
+      "evidence": "@GetMapping(\"/export-excel\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product/get",
+      "controller": "IotProductController",
+      "handler": "getProduct",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 78,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product/get-by-key",
+      "controller": "IotProductController",
+      "handler": "getProductByKey",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 95,
+      "evidence": "@GetMapping(\"/get-by-key\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product/page",
+      "controller": "IotProductController",
+      "handler": "getProductPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 112,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/product/simple-list",
+      "controller": "IotProductController",
+      "handler": "getProductSimpleList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 145,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/product/update",
+      "controller": "IotProductController",
+      "handler": "updateProduct",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 54,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/product/update-status",
+      "controller": "IotProductController",
+      "handler": "updateProductStatus",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/product/IotProductController.java",
+      "sourceLine": 61,
+      "evidence": "@PutMapping(\"/update-status\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/scene-rule/create",
+      "controller": "IotSceneRuleController",
+      "handler": "createSceneRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotSceneRuleController.java",
+      "sourceLine": 36,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/scene-rule/delete",
+      "controller": "IotSceneRuleController",
+      "handler": "deleteSceneRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotSceneRuleController.java",
+      "sourceLine": 59,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/scene-rule/get",
+      "controller": "IotSceneRuleController",
+      "handler": "getSceneRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotSceneRuleController.java",
+      "sourceLine": 68,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/scene-rule/page",
+      "controller": "IotSceneRuleController",
+      "handler": "getSceneRulePage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotSceneRuleController.java",
+      "sourceLine": 77,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/scene-rule/simple-list",
+      "controller": "IotSceneRuleController",
+      "handler": "getSceneRuleSimpleList",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotSceneRuleController.java",
+      "sourceLine": 85,
+      "evidence": "@GetMapping(\"/simple-list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/scene-rule/update",
+      "controller": "IotSceneRuleController",
+      "handler": "updateSceneRule",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotSceneRuleController.java",
+      "sourceLine": 43,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/scene-rule/update-status",
+      "controller": "IotSceneRuleController",
+      "handler": "updateSceneRuleStatus",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/rule/IotSceneRuleController.java",
+      "sourceLine": 51,
+      "evidence": "@PutMapping(\"/update-status\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/statistics/get-device-message-summary-by-date",
+      "controller": "IotStatisticsController",
+      "handler": "getDeviceMessageSummaryByDate",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/statistics/IotStatisticsController.java",
+      "sourceLine": 70,
+      "evidence": "@GetMapping(\"/get-device-message-summary-by-date\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/statistics/get-summary",
+      "controller": "IotStatisticsController",
+      "handler": "getStatisticsSummary",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/statistics/IotStatisticsController.java",
+      "sourceLine": 43,
+      "evidence": "@GetMapping(\"/get-summary\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/iot/thing-model/create",
+      "controller": "IotThingModelController",
+      "handler": "createThingModel",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/thingmodel/IotThingModelController.java",
+      "sourceLine": 39,
+      "evidence": "@PostMapping(\"/create\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/iot/thing-model/delete",
+      "controller": "IotThingModelController",
+      "handler": "deleteThingModel",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/thingmodel/IotThingModelController.java",
+      "sourceLine": 54,
+      "evidence": "@DeleteMapping(\"/delete\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/thing-model/get",
+      "controller": "IotThingModelController",
+      "handler": "getThingModel",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/thingmodel/IotThingModelController.java",
+      "sourceLine": 63,
+      "evidence": "@GetMapping(\"/get\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/thing-model/get-tsl",
+      "controller": "IotThingModelController",
+      "handler": "getThingModelTsl",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/thingmodel/IotThingModelController.java",
+      "sourceLine": 72,
+      "evidence": "@GetMapping(\"/get-tsl\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/thing-model/list",
+      "controller": "IotThingModelController",
+      "handler": "getThingModelListByProductId",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/thingmodel/IotThingModelController.java",
+      "sourceLine": 95,
+      "evidence": "@GetMapping(\"/list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/iot/thing-model/page",
+      "controller": "IotThingModelController",
+      "handler": "getThingModelPage",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/thingmodel/IotThingModelController.java",
+      "sourceLine": 103,
+      "evidence": "@GetMapping(\"/page\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PUT",
+      "path": "/iot/thing-model/update",
+      "controller": "IotThingModelController",
+      "handler": "updateThingModel",
+      "sourceFile": "lowcode-module-iot/lowcode-module-iot-server/src/main/java/cn/iocoder/yudao/module/iot/controller/admin/thingmodel/IotThingModelController.java",
+      "sourceLine": 46,
+      "evidence": "@PutMapping(\"/update\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/weather/query",
+      "controller": "WeatherController",
+      "handler": "queryWeather",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/sap/controller/WeatherController.java",
+      "sourceLine": 35,
+      "evidence": "@GetMapping(\"/query\")",
+      "confidence": "source-characterized"
+    }
+  ]
+}

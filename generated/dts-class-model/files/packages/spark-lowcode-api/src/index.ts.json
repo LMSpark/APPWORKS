@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:index",
+    "sourcePath": "packages/spark-lowcode-api/src/index.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/index.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "index",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-09T23:31:42.229Z",
+  "models": {}
+}

@@ -193,7 +193,7 @@ function resolveToolbarActionNode(node: SparkNode): SparkNode {
     row: scopedRow,
     data: scopedRow,
     dataSource: dataState.resolvedView.value,
-    modelPermission: dataState.modelPermission.value,
+    permissionSnapshot: dataState.permissionSnapshot.value,
     host: { type: 'r-tree-toolbar' },
   })
 
@@ -435,4 +435,3 @@ const rawNodeActionsToolbarConfig = computed<SparkNode>(() => ({
   color: #303133;
 }
 </style>
-

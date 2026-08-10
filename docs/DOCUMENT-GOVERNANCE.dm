@@ -1,8 +1,8 @@
 dm DocumentGovernance {
   schema: 1
-  ver: "1.0.0"
+  ver: "1.1.0"
   st: active
-  dt: 2026-05-23
+  dt: 2026-08-10
   locale: zh-CN
   owner: "SPARK View"
 
@@ -16,7 +16,7 @@ dm DocumentGovernance {
     "packages/**/README.md",
     "tools/**/README.md",
     "scripts/**/README.md",
-    "spark-ai-server/**/README.md"
+    "backend-api-contracts/**/README.md"
   ]
 
   tool_gate:
@@ -290,7 +290,7 @@ section DirectoryRules {
 }
 
 section DirectoryRegistry {
-  reg_ver: "1.0.0"
+  reg_ver: "1.1.0"
   update_rule:
     "新增文档目录前，必须先在本节登记 owner、purpose、index、allowed_files，并同步 tools/verify-docs.mjs 的 registeredDocPrefixes。"
 
@@ -404,12 +404,12 @@ section DirectoryRegistry {
     allowed_files: ["README.md", "**/README.md"]
   }
 
-  entry spark_ai_server {
-    path: "spark-ai-server/"
-    owner: "backend"
-    purpose: "Java 后端说明、数据目录说明和页面配置数据说明。"
-    index: "spark-ai-server/README.md"
-    allowed_files: ["README.md", "data/README.md", "data/pages-config/README.md", "data/pages-config/**/README.md"]
+  entry backend_api_contracts {
+    path: "backend-api-contracts/"
+    owner: "api-characterization"
+    purpose: "lowcode 旧端点账本、行为 characterization 与只读迁移证据。"
+    index: "backend-api-contracts/README.md"
+    allowed_files: ["README.md", "characterization-fixtures/**/README.md"]
   }
 
   entry plans {

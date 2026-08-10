@@ -1,45 +1,45 @@
 import { describe, expect, it } from 'vitest'
 import { permission } from '../../packages/spark-component/src/index'
-import type { DataRow } from '@spark-appworks/spark-data'
+import type { DataPermissionSnapshot, DataRow } from '@spark-appworks/spark-data'
 
 const { canCreate, canImport, canExport, canDelete, canCreateChild, canEdit } = permission
 
+function snapshot(tags: readonly string[] = []): DataPermissionSnapshot {
+  return {
+    formKey: 'FORM-1',
+    dataSpaceId: 'SPACE-1',
+    modelId: 'MODEL-1',
+    allowAdd: true,
+    systemKey: 'TABLE-KEY',
+    originalRows: [],
+    authorizedFeatureTags: tags,
+  }
+}
+
 describe('PermissionChecker', () => {
-  it('defaults rows without snapshot to baseline allow (max(baseline, snapshot))', () => {
-    const rowWithoutPerm: DataRow = { id: 1 }
-    const rowWithEmptyPerm: DataRow = { id: 2, _perm: {} }
+  it('fails closed when the backend permission result is missing', () => {
+    const row: DataRow = { id: 1 }
 
-    // 未声明 editableFields → 基线允许
-    expect(canEdit(rowWithoutPerm)).toBe(true)
-    expect(canEdit(rowWithEmptyPerm)).toBe(true)
-  })
-
-  it('treats empty editableFields as explicit deny', () => {
-    const row: DataRow = { id: 3, _perm: { editableFields: [] } }
-
+    expect(canCreate()).toBe(false)
+    expect(canImport()).toBe(false)
+    expect(canExport()).toBe(false)
     expect(canEdit(row)).toBe(false)
+    expect(canDelete(row)).toBe(false)
+    expect(canCreateChild(row)).toBe(false)
   })
 
-  it('uses max(baseline=allow, snapshot) — only explicit false denies', () => {
-    const modelPerm = { allowCreate: true, allowImport: true, allowExport: true }
-    const writableRow: DataRow = { id: 4, _perm: { editableFields: ['name'], allowDelete: true, allowCreateChild: true } }
-    const rowWithoutPerm: DataRow = { id: 5 }
-    const explicitDenyRow: DataRow = { id: 6, _perm: { allowDelete: false, allowCreateChild: false } }
+  it('consumes allowAdd, feature tags and row sparse sets without compressing them', () => {
+    const permissionSnapshot = snapshot(['import', 'export', 'create-child'])
+    const row: DataRow = {
+      id: 1,
+      lingma_sys_params: { r: ['requiredName'], e: ['name'], h: [], m: [], d: true },
+    }
 
-    expect(canCreate(modelPerm)).toBe(true)
-    expect(canImport(modelPerm)).toBe(true)
-    expect(canExport(modelPerm)).toBe(true)
-    // 缺省模型权限 → 基线允许
-    expect(canCreate(undefined)).toBe(true)
-    expect(canImport(undefined)).toBe(true)
-    expect(canExport(undefined)).toBe(true)
-    expect(canDelete(writableRow)).toBe(true)
-    expect(canCreateChild(writableRow)).toBe(true)
-    // 行无 _perm → 基线允许
-    expect(canDelete(rowWithoutPerm)).toBe(true)
-    expect(canCreateChild(rowWithoutPerm)).toBe(true)
-    // 显式 false → 拒绝
-    expect(canDelete(explicitDenyRow)).toBe(false)
-    expect(canCreateChild(explicitDenyRow)).toBe(false)
+    expect(canCreate(permissionSnapshot)).toBe(true)
+    expect(canImport(permissionSnapshot)).toBe(true)
+    expect(canExport(permissionSnapshot)).toBe(true)
+    expect(canEdit(row)).toBe(true)
+    expect(canDelete(row)).toBe(true)
+    expect(canCreateChild(row, permissionSnapshot)).toBe(true)
   })
 })

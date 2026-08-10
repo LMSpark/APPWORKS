@@ -39,6 +39,19 @@ export function mountFieldInContext(options: MountFieldInContextOptions) {
   const globalOptions = options.global ?? {}
   const providedValues = globalOptions.provide ?? {}
 
+  if (options.model.lingma_sys_params === undefined) {
+    Object.defineProperty(options.model, 'lingma_sys_params', {
+      configurable: true,
+      value: {
+        r: [],
+        e: [options.fieldName],
+        h: [],
+        m: [],
+        d: true,
+      },
+    })
+  }
+
   const Provider = defineComponent({
     setup() {
       const hostType = options.hostType ?? 'r-form'

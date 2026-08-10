@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { NavigationClient } from '../../src/io/navigation-client'
-import type { ProjectModelData, ProjectNodeData } from '../../src/navigation/project-node'
-import { replaceNavigationChildrenRemote } from '../../src/io/navigation-tree-sync'
+import type { ProjectBlueprintClient } from '../../src/io/project-blueprint-client'
+import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '../../src/blueprint/project-blueprint-node'
+import { replaceProjectBlueprintChildrenRemote } from '../../src/io/project-blueprint-tree-sync'
 
-const serverRoot: ProjectModelData = {
+const serverRoot: ProjectBlueprintTreeData = {
   id: 'demo',
   title: 'Demo',
   nodeKind: 'module',
@@ -25,7 +25,7 @@ const serverRoot: ProjectModelData = {
   ],
 }
 
-function createMockClient(): NavigationClient {
+function createMockClient(): ProjectBlueprintClient {
   const root = structuredClone(serverRoot)
   return {
     loadRoot: vi.fn(async () => structuredClone(root)),
@@ -54,10 +54,10 @@ function createMockClient(): NavigationClient {
     }),
     moveNode: vi.fn(),
     probeLink: vi.fn(),
-  } as unknown as NavigationClient
+  } as unknown as ProjectBlueprintClient
 }
 
-function findNode(nodes: ProjectModelData['children'], id: string): ProjectNodeData | undefined {
+function findNode(nodes: ProjectBlueprintTreeData['children'], id: string): ProjectBlueprintTreeNodeData | undefined {
   if (!Array.isArray(nodes)) return undefined
   for (const node of nodes) {
     if (node.id === id) return node
@@ -67,7 +67,7 @@ function findNode(nodes: ProjectModelData['children'], id: string): ProjectNodeD
   return undefined
 }
 
-function removeNode(nodes: ProjectModelData['children'], id: string): boolean {
+function removeNode(nodes: ProjectBlueprintTreeData['children'], id: string): boolean {
   if (!Array.isArray(nodes)) return false
   const index = nodes.findIndex((node) => node.id === id)
   if (index >= 0) {
@@ -80,10 +80,10 @@ function removeNode(nodes: ProjectModelData['children'], id: string): boolean {
   return false
 }
 
-describe('replaceNavigationChildrenRemote', () => {
+describe('replaceProjectBlueprintChildrenRemote', () => {
   it('adds new module/page tree and removes legacy nodes', async () => {
     const client = createMockClient()
-    const result = await replaceNavigationChildrenRemote(client, serverRoot, [
+    const result = await replaceProjectBlueprintChildrenRemote(client, serverRoot, [
       {
         id: 'core-module',
         title: 'Core',

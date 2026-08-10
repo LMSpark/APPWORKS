@@ -23,8 +23,7 @@
       "title": "PermissionActionContext",
       "properties": {
         "permissionMode": {
-          "type": "object",
-          "title": "NavPermissionMode"
+          "$ref": "../core/capability-keys.ts.json#/$defs/PagePermissionMode"
         }
       },
       "additionalProperties": false
@@ -85,21 +84,20 @@
           "title": "Omit<FieldRenderConfig, 'field'>"
         },
         "permissionMode": {
-          "type": "object",
-          "title": "NavPermissionMode"
+          "$ref": "../core/capability-keys.ts.json#/$defs/PagePermissionMode"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:21:14.092Z",
+  "generatedAt": "2026-08-09T22:04:31.136Z",
   "models": {
     "PermissionActionContext": {
       "name": "PermissionActionContext",
       "jsdoc": "Permission Action Context 的运行上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ScriptPermissionActionContext & {\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: NavPermissionMode | undefined;\n}",
+        "declarationTypeText": "ScriptPermissionActionContext & {\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -108,7 +106,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: NavPermissionMode | undefined;\n}"
+            "typeText": "{\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}"
           }
         ],
         "members": {
@@ -183,11 +181,11 @@
       "jsdoc": "Resolve Field Permission State Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含 _perm.editableFields / hiddenFields / maskedFields）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: NavPermissionMode | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含 _perm.editableFields / hiddenFields / maskedFields）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: NavPermissionMode | undefined;\n}>",
+            "typeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -201,7 +199,7 @@
             },
             {
               "name": "row",
-              "jsdoc": "数据行（需包含 _perm.editableFields / hiddenFields / maskedFields）。",
+              "jsdoc": "数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。",
               "readable": true,
               "writable": false
             },

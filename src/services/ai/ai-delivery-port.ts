@@ -2,22 +2,22 @@
  * @module app:services/ai-delivery-port
  * 职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。
  * 边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。
- * AI用途：排查 Host Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。
+ * AI用途：排查 Agent Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。
  */
 
 export type AiDeliveryMode = 'manual' | 'auto'
 
-/** 单次交付涉及的文件或导航变更摘要。 */
+/** 单次交付涉及的页面文件或项目蓝图变更摘要。 */
 export type AiDeliveryArtifact = Readonly<{
-  /** 产物类型（页面文件或导航变更）。 */
-  kind: 'page-file' | 'navigation'
-  /** 产物名称（文件名或导航标识）。 */
+  /** 产物类型。 */
+  kind: 'page-file' | 'project-blueprint'
+  /** 产物名称（文件名或项目蓝图标识）。 */
   name: string
   /** 产物当前交付状态。 */
   status: 'dirty' | 'saved' | 'skipped' | 'rolledBack'
 }>
 
-/** Host Run 结束后的交付回执，包含模式、状态与产物列表。 */
+/** Agent Run 结束后的交付回执，包含模式、状态与产物列表。 */
 export type AiDeliveryResult = Readonly<{
   /** 交付模式（手动或自动）。 */
   mode: AiDeliveryMode

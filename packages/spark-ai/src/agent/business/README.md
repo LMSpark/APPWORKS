@@ -43,13 +43,13 @@ ClassModelAgentAdapter.register({ host, alias, metadata, moduleClass, options })
 |------|------|
 | `src/services/ai/agent-workflow-bindings.ts` | 落盘 definition 读取、解释器激活、领域 binding 组合 |
 | `src/services/page-design/page-design-agent-workflow-binding.ts` | pageDesign SOP hooks、data-only prompt 分支、gate 领域能力 |
-| `src/services/page-data-design/page-data-design-host-run-provider.ts` | pageDataDesign preset → pageDesign Host Run |
+| `src/services/page-data-design/page-data-design-agent-run-provider.ts` | pageDataDesign preset → pageDesign Agent Run |
 | `src/services/project-planning/project-planning-agent-workflow-binding.ts` | projectPlanning 输入、prompt、gate 领域能力 |
 | `src/services/page-design/page-design-ai-runner.ts` | DevSystem `runPageDesignAiSession` |
-| `src/services/project-planning/project-planning-ai-runner.ts` | headless `runProjectPlanningAiSession`、Host Run 复用 |
+| `src/services/project-planning/project-planning-ai-runner.ts` | headless `runProjectPlanningAiSession`、Agent Run 复用 |
 | `src/services/page-design/page-design-gates.ts` | mutation gate、`allowedOperations`、run context |
-| `src/services/ai/ai-host-run-bridge.ts` | Host Run 回执桥 |
-| `src/services/ai-host.ts` | `appAiAgent` 生产 Host |
+| `src/services/ai/ai-agent-run.ts` | transport-neutral Agent Run 契约 |
+| `src/services/ai/ai-turn-bridge.ts` | `appAiAgent` 生产 Host 与 session-turn transport |
 
 DevSystem 端到端：[`docs/pagedesign-devsystem-zh-cn.md`](../../../docs/pagedesign-devsystem-zh-cn.md)
 

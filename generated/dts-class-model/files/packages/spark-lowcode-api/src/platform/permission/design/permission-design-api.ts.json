@@ -1,0 +1,639 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/permission/design/permission-design-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/permission/design/permission-design-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/design/permission-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionFeatureTag, PermissionDataObjectPolicy, PermissionGrantSubjectKind, PermissionGrantOrganizationScope, PermissionObjectGrant, PermissionDesignSnapshot, PermissionDesignApi（共 7 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "PermissionFeatureTag",
+      "PermissionDataObjectPolicy",
+      "PermissionGrantSubjectKind",
+      "PermissionGrantOrganizationScope",
+      "PermissionObjectGrant",
+      "PermissionDesignSnapshot",
+      "PermissionDesignApi"
+    ]
+  },
+  "$defs": {
+    "PermissionFeatureTag": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionFeatureTag",
+      "properties": {
+        "tagId": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PermissionDataObjectPolicy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionDataObjectPolicy",
+      "properties": {
+        "policyId": {
+          "type": "string"
+        },
+        "featureTagId": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "readableFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "editableFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "maskedFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "showFilter": {
+          "type": "string"
+        },
+        "addFilter": {
+          "type": "string"
+        },
+        "editFilter": {
+          "type": "string"
+        },
+        "deleteFilter": {
+          "type": "string"
+        },
+        "saveFilter": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PermissionGrantSubjectKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PermissionGrantSubjectKind",
+      "enum": [
+        "role",
+        "position",
+        "user",
+        "unresolved"
+      ]
+    },
+    "PermissionGrantOrganizationScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PermissionGrantOrganizationScope",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "unscoped"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "fixed-organization"
+            },
+            "organizationId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "organizationId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "business-field-organization"
+            },
+            "field": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "field"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PermissionObjectGrant": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionObjectGrant",
+      "properties": {
+        "grantId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "featureTagIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subjectKind": {
+          "$ref": "#/$defs/PermissionGrantSubjectKind"
+        },
+        "subjectIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "organizationScope": {
+          "$ref": "#/$defs/PermissionGrantOrganizationScope"
+        },
+        "businessId": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "rawGrantType": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "PermissionDesignSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionDesignSnapshot",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "featureTags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionFeatureTag"
+          }
+        },
+        "dataObjectPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionDataObjectPolicy"
+          }
+        },
+        "grants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PermissionObjectGrant"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "PermissionDesignApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionDesignApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "formKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<PermissionDesignSnapshot>"
+        },
+        "method.prepareMutation.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "permission-design-mutation.ts.json#/$defs/PermissionDesignMutationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareMutation.return": {
+          "$ref": "permission-design-mutation.ts.json#/$defs/PermissionDesignMutationCommand"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T21:37:38.204Z",
+  "models": {
+    "PermissionFeatureTag": {
+      "name": "PermissionFeatureTag",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tagId: string;\n    parentId: string;\n    title: string;\n    description: string;\n    code: string;\n    order: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tagId: string;\n    parentId: string;\n    title: string;\n    description: string;\n    code: string;\n    order: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tagId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PermissionDataObjectPolicy": {
+      "name": "PermissionDataObjectPolicy",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    policyId: string;\n    featureTagId: string;\n    resourceName: string;\n    databaseName: string;\n    readableFields: readonly string[];\n    editableFields: readonly string[];\n    maskedFields: readonly string[];\n    showFilter: string;\n    addFilter: string;\n    editFilter: string;\n    deleteFilter: string;\n    saveFilter: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    policyId: string;\n    featureTagId: string;\n    resourceName: string;\n    databaseName: string;\n    readableFields: readonly string[];\n    editableFields: readonly string[];\n    maskedFields: readonly string[];\n    showFilter: string;\n    addFilter: string;\n    editFilter: string;\n    deleteFilter: string;\n    saveFilter: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "policyId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "featureTagId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readableFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editableFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maskedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showFilter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "addFilter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editFilter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleteFilter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveFilter",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PermissionGrantSubjectKind": {
+      "name": "PermissionGrantSubjectKind",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'role' | 'position' | 'user' | 'unresolved'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'role'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'position'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'user'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unresolved'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PermissionGrantOrganizationScope": {
+      "name": "PermissionGrantOrganizationScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'unscoped';\n}> | Readonly<{\n    kind: 'fixed-organization';\n    organizationId: string;\n}> | Readonly<{\n    kind: 'business-field-organization';\n    field: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'unscoped';\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'fixed-organization';\n    organizationId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'business-field-organization';\n    field: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PermissionObjectGrant": {
+      "name": "PermissionObjectGrant",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    grantId: string;\n    pageId: string;\n    featureTagIds: readonly string[];\n    subjectKind: PermissionGrantSubjectKind;\n    subjectIds: readonly string[];\n    organizationScope: PermissionGrantOrganizationScope;\n    businessId: string;\n    enabled: boolean;\n    rawGrantType: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    grantId: string;\n    pageId: string;\n    featureTagIds: readonly string[];\n    subjectKind: PermissionGrantSubjectKind;\n    subjectIds: readonly string[];\n    organizationScope: PermissionGrantOrganizationScope;\n    businessId: string;\n    enabled: boolean;\n    rawGrantType: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "grantId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "featureTagIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subjectIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "organizationScope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enabled",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rawGrantType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PermissionDesignSnapshot": {
+      "name": "PermissionDesignSnapshot",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    featureTags: readonly PermissionFeatureTag[];\n    dataObjectPolicies: readonly PermissionDataObjectPolicy[];\n    grants: readonly PermissionObjectGrant[];\n    diagnostics: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    featureTags: readonly PermissionFeatureTag[];\n    dataObjectPolicies: readonly PermissionDataObjectPolicy[];\n    grants: readonly PermissionObjectGrant[];\n    diagnostics: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "featureTags",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataObjectPolicies",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "grants",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PermissionDesignApi": {
+      "name": "PermissionDesignApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "formKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PermissionDesignSnapshot",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareMutation",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PermissionDesignMutationInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PermissionDesignMutationCommand",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

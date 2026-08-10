@@ -20,18 +20,18 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <section class="config-section">
         <div class="section-heading">
           <div>
-            <h3>基础配置</h3>
+            <h3>企业配置</h3>
             <p>{{ props.tenantId }}</p>
           </div>
           <el-button :icon="Refresh" :loading="loading" @click="loadConfig">刷新</el-button>
         </div>
 
         <el-form :model="form" label-width="92px" class="config-form">
-          <el-form-item label="租户名称">
+          <el-form-item label="企业名称">
             <el-input v-model="form.tenantName" placeholder="租户显示名称" />
           </el-form-item>
-          <el-form-item label="租户编码">
-            <el-input v-model="form.tenantCode" placeholder="租户编码" />
+          <el-form-item label="域名标识">
+            <el-input v-model="form.tenantCode" placeholder="四级域名技术标识" />
           </el-form-item>
           <el-form-item label="Logo">
             <el-input v-model="form.logo" placeholder="Logo URL" />
@@ -56,6 +56,12 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
               <el-option label="error" value="error" />
             </el-select>
           </el-form-item>
+          <el-alert
+            title="当前只读自 lowcode 企业接口；写入需满足治理门禁后启用"
+            type="info"
+            :closable="false"
+            show-icon
+          />
           <div class="form-actions">
             <el-button type="primary" :loading="saving" @click="saveBasicConfig">保存基础配置</el-button>
           </div>
@@ -65,13 +71,13 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <section class="config-section">
         <h3>当前租户信息</h3>
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="租户 ID">
+          <el-descriptions-item label="企业作用域">
             <el-tag>{{ tenantInfo?.tenantId ?? props.tenantId }}</el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="租户名称">
             {{ tenantInfo?.tenantName || '-' }}
           </el-descriptions-item>
-          <el-descriptions-item label="租户编码">
+          <el-descriptions-item label="四级域名标识">
             {{ tenantInfo?.tenantCode || '-' }}
           </el-descriptions-item>
           <el-descriptions-item label="状态">
@@ -123,7 +129,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         <div class="section-heading">
           <div>
             <h3>完整配置 JSON</h3>
-            <p>保存后会写入 /api/config/tenant/{tenantId}</p>
+            <p>来自登录响应 entinfo；密码与敏感字段已从公共 API 投影中排除</p>
           </div>
           <div class="section-actions">
             <el-button :icon="DocumentCopy" @click="copyJson">复制</el-button>
@@ -148,8 +154,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { DocumentCopy, Refresh } from '@element-plus/icons-vue'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { http } from '@/services/http'
-import { getPlatformTenantApi, getTenantConfigApi } from '@/services/api-paths'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 
 type TenantInfo = {
   tenantId: string
@@ -177,6 +182,7 @@ type TenantFullConfig = {
     apiBaseUrl?: string
     homePath?: string
   }
+  enterprise?: unknown
   [key: string]: unknown}
 
 function isOptionalRecord(value: unknown): boolean {
@@ -194,10 +200,6 @@ const props = defineProps<{
   tenantId: string
 }>()
 
-const emit = defineEmits<{
-  updated: []
-}>()
-
 const loading = ref(false)
 const saving = ref(false)
 const savingJson = ref(false)
@@ -211,7 +213,7 @@ const form = reactive({
   primaryColor: '',
   borderRadius: '',
   homePath: '',
-  logLevel: 'info',
+  logLevel: '',
 })
 
 const tenantInfo = computed(() => fullConfig.value?.tenant)
@@ -239,7 +241,14 @@ function syncForm(config: TenantFullConfig): void {
   form.primaryColor = tenantTheme.primaryColor ?? ''
   form.borderRadius = tenantTheme.borderRadius ?? ''
   form.homePath = config.pageNode?.homePath ?? ''
-  form.logLevel = config.config?.logLevel ?? 'info'
+  form.logLevel = config.config?.logLevel ?? ''
+}
+
+function enterpriseStatus(checkState: number | null): string {
+  if (checkState === 1) return 'ACTIVE'
+  if (checkState === 2) return 'REJECTED'
+  if (checkState === 0) return 'PENDING'
+  return 'UNKNOWN'
 }
 
 function errorMessage(error: unknown): string {
@@ -251,7 +260,37 @@ async function loadConfig(): Promise<void> {
   loading.value = true
   loadError.value = ''
   try {
-    const config = await http.get<TenantFullConfig>(getTenantConfigApi(props.tenantId))
+    const session = lowcodeApi.session.get()
+    if (session === null || session.enterprise.shortName !== props.tenantId) {
+      throw new Error('lowcode 当前会话无权读取该企业')
+    }
+    const enterprise = await lowcodeApi.platform.getEnterpriseInfo()
+    if (enterprise.domainKey !== props.tenantId) {
+      throw new Error(`lowcode 企业域名标识不一致：${enterprise.domainKey}`)
+    }
+    const policy = enterprise.policy
+    const config: TenantFullConfig = {
+      tenant: {
+        tenantId: enterprise.domainKey,
+        tenantName: enterprise.chineseShortName
+          ?? enterprise.chineseName
+          ?? enterprise.englishName
+          ?? enterprise.domainKey,
+        tenantCode: enterprise.domainKey,
+        status: enterpriseStatus(enterprise.checkState),
+        logo: enterprise.iconUrl ?? '',
+      },
+      config: {
+        features: policy === null ? {} : {
+          userAudit: policy.userAudit,
+          passwordRequiresLetter: policy.passwordRequiresLetter,
+          passwordRequiresDigit: policy.passwordRequiresDigit,
+          passwordRequiresSpecial: policy.passwordRequiresSpecial,
+        },
+      },
+      pageNode: {},
+      enterprise,
+    }
     fullConfig.value = config
     jsonDraft.value = JSON.stringify(config, null, 2)
     syncForm(config)
@@ -271,18 +310,7 @@ async function saveBasicConfig(): Promise<void> {
   }
   saving.value = true
   try {
-    await http.put(`${getPlatformTenantApi()}/${encodeURIComponent(props.tenantId)}`, {
-      tenantName: form.tenantName,
-      tenantCode: form.tenantCode,
-      logo: form.logo,
-      primaryColor: form.primaryColor,
-      borderRadius: form.borderRadius,
-      homePath: form.homePath,
-      logLevel: form.logLevel,
-    })
-    ElMessage.success('租户配置已保存')
-    emit('updated')
-    await loadConfig()
+    throw new Error('lowcode 企业配置写接口不满足写前镜像、journal、readback 与补偿门禁')
   } catch (error) {
     ElMessage.error(`保存失败: ${errorMessage(error)}`)
   } finally {
@@ -306,10 +334,8 @@ async function saveFullConfig(): Promise<void> {
 
   savingJson.value = true
   try {
-    await http.post(getTenantConfigApi(props.tenantId), parsed)
-    ElMessage.success('完整租户配置已保存')
-    emit('updated')
-    await loadConfig()
+    void parsed
+    throw new Error('lowcode 未提供 AppWorks 完整租户配置的受治理写入合同')
   } catch (error) {
     ElMessage.error(`保存完整配置失败: ${errorMessage(error)}`)
   } finally {

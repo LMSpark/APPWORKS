@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/lowcode-data-space-runtime",
+    "sourcePath": "src/lowcode/lowcode-data-space-runtime.ts",
+    "sourceFile": "src/lowcode/lowcode-data-space-runtime.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/lowcode-data-space-runtime",
+    "jsdoc": "app 的 lowcode/lowcode-data-space-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceRuntimeLoadInput, LowcodeDataSpaceRuntimeLoadResult, LowcodePermissionSnapshotBinding（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceRuntimeLoadInput",
+      "LowcodeDataSpaceRuntimeLoadResult",
+      "LowcodePermissionSnapshotBinding"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceRuntimeLoadInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceRuntimeLoadInput",
+      "properties": {
+        "table": {
+          "$ref": "../../packages/spark-data/src/data-table.ts.json#/$defs/DataTable"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "filter": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceRuntimeFilter"
+        },
+        "pageIndex": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceRuntimeLoadResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceRuntimeLoadResult",
+      "properties": {
+        "model": {
+          "$ref": "../../packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json#/$defs/DataSpaceFrontendModel"
+        },
+        "data": {
+          "$ref": "../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeSnapshot"
+        },
+        "permission": {
+          "$ref": "../../packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts.json#/$defs/PermissionRuntimeSnapshot"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodePermissionSnapshotBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePermissionSnapshotBinding",
+      "properties": {
+        "data": {
+          "$ref": "../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeSnapshot"
+        },
+        "permission": {
+          "$ref": "../../packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts.json#/$defs/PermissionRuntimeSnapshot"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T20:53:36.960Z",
+  "models": {
+    "LowcodeDataSpaceRuntimeLoadInput": {
+      "name": "LowcodeDataSpaceRuntimeLoadInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    table: DataTable;\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    viewId?: string;\n    filter?: DataSpaceRuntimeFilter | null;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    table: DataTable;\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    viewId?: string;\n    filter?: DataSpaceRuntimeFilter | null;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "table",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceRuntimeLoadResult": {
+      "name": "LowcodeDataSpaceRuntimeLoadResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    model: DataSpaceFrontendModel;\n    data: DataSpaceRuntimeSnapshot;\n    permission: PermissionRuntimeSnapshot;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    model: DataSpaceFrontendModel;\n    data: DataSpaceRuntimeSnapshot;\n    permission: PermissionRuntimeSnapshot;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permission",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodePermissionSnapshotBinding": {
+      "name": "LowcodePermissionSnapshotBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    data: DataSpaceRuntimeSnapshot;\n    permission: PermissionRuntimeSnapshot;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    data: DataSpaceRuntimeSnapshot;\n    permission: PermissionRuntimeSnapshot;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permission",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

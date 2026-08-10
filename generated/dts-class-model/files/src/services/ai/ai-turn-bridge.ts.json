@@ -7,7 +7,7 @@
     "sourceFile": "src/services/ai/ai-turn-bridge.ts",
     "packageName": "app",
     "modulePath": "services/ai/ai-turn-bridge",
-    "jsdoc": "@module app:services/ai-turn-bridge\n职责：提供应用运行时 service 层的 ai turn bridge 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP-owned AI turn bridge.\nHTTP commands and APP SSE subscription stay in src/services; spark-ai only\nreceives callbacks and aggregates events.",
+    "jsdoc": "@module app:services/ai-turn-bridge\n职责：把 spark-ai 的本地工具循环语义映射到 lowcode-jdk17 Agent turn 与 SSE 合同。\n边界：Agent、会话和模型配置由 lowcode 后端持有；前端只执行已注册的前端工具并回传结果。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "AiTurnBridgeDiagnostic",
@@ -47,37 +47,28 @@
       "type": "object",
       "title": "AiAgentTurnBridgeOptions",
       "properties": {
-        "transport": {
-          "enum": [
-            "app-sse",
-            "session-turn"
-          ]
-        },
         "timeoutMs": {
           "type": "number"
         },
         "idleTimeoutMs": {
-          "type": "number"
-        },
-        "windowSize": {
           "type": "number"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T22:54:33.754Z",
+  "generatedAt": "2026-08-09T22:51:40.570Z",
   "models": {
     "AiTurnBridgeDiagnostic": {
       "name": "AiTurnBridgeDiagnostic",
-      "jsdoc": "Ai Turn Bridge Diagnostic 的诊断信息。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 诊断记录时间戳（毫秒）。 */\n    at: number;\n    /** 诊断事件类型标识。 */\n    type: string;\n    /** 关联的 AI 会话 id。 */\n    sessionId?: string;\n    /** 关联的 turn id。 */\n    turnId?: string;\n    /** 可选的错误或状态描述。 */\n    message?: string;\n    /** 附加结构化诊断详情。 */\n    details?: Record<string, unknown>;\n}>",
+        "declarationTypeText": "Readonly<{\n    at: number;\n    type: string;\n    sessionId?: string;\n    turnId?: string;\n    message?: string;\n    details?: Record<string, unknown>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 诊断记录时间戳（毫秒）。 */\n    at: number;\n    /** 诊断事件类型标识。 */\n    type: string;\n    /** 关联的 AI 会话 id。 */\n    sessionId?: string;\n    /** 关联的 turn id。 */\n    turnId?: string;\n    /** 可选的错误或状态描述。 */\n    message?: string;\n    /** 附加结构化诊断详情。 */\n    details?: Record<string, unknown>;\n}>",
+            "typeText": "Readonly<{\n    at: number;\n    type: string;\n    sessionId?: string;\n    turnId?: string;\n    message?: string;\n    details?: Record<string, unknown>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -85,37 +76,31 @@
           "attributes": [
             {
               "name": "at",
-              "jsdoc": "诊断记录时间戳（毫秒）。",
               "readable": true,
               "writable": false
             },
             {
               "name": "type",
-              "jsdoc": "诊断事件类型标识。",
               "readable": true,
               "writable": false
             },
             {
               "name": "sessionId",
-              "jsdoc": "关联的 AI 会话 id。",
               "readable": true,
               "writable": false
             },
             {
               "name": "turnId",
-              "jsdoc": "关联的 turn id。",
               "readable": true,
               "writable": false
             },
             {
               "name": "message",
-              "jsdoc": "可选的错误或状态描述。",
               "readable": true,
               "writable": false
             },
             {
               "name": "details",
-              "jsdoc": "附加结构化诊断详情。",
               "readable": true,
               "writable": false
             }
@@ -125,40 +110,26 @@
     },
     "AiAgentTurnBridgeOptions": {
       "name": "AiAgentTurnBridgeOptions",
-      "jsdoc": "Ai Agent Turn Bridge Options 的调用配置。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 传输模式：app-sse（SSE 流式）或 session-turn（同步回合）。 */\n    transport?: 'app-sse' | 'session-turn';\n    /** turn 事件总超时（毫秒）。 */\n    timeoutMs?: number;\n    /** 流式 idle 超时（毫秒）。 */\n    idleTimeoutMs?: number;\n    /** 上下文窗口大小（消息条数上限）。 */\n    windowSize?: number;\n}>",
+        "declarationTypeText": "Readonly<{\n    timeoutMs?: number;\n    idleTimeoutMs?: number;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 传输模式：app-sse（SSE 流式）或 session-turn（同步回合）。 */\n    transport?: 'app-sse' | 'session-turn';\n    /** turn 事件总超时（毫秒）。 */\n    timeoutMs?: number;\n    /** 流式 idle 超时（毫秒）。 */\n    idleTimeoutMs?: number;\n    /** 上下文窗口大小（消息条数上限）。 */\n    windowSize?: number;\n}>",
+            "typeText": "Readonly<{\n    timeoutMs?: number;\n    idleTimeoutMs?: number;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "transport",
-              "jsdoc": "传输模式：app-sse（SSE 流式）或 session-turn（同步回合）。",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "timeoutMs",
-              "jsdoc": "turn 事件总超时（毫秒）。",
               "readable": true,
               "writable": false
             },
             {
               "name": "idleTimeoutMs",
-              "jsdoc": "流式 idle 超时（毫秒）。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "windowSize",
-              "jsdoc": "上下文窗口大小（消息条数上限）。",
               "readable": true,
               "writable": false
             }

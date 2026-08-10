@@ -28,8 +28,8 @@ export type ProjectPlanningRunInput = Readonly<{
   requirement: string
   /** 项目级策划详细说明附件引用。 */
   planningAttachmentRef?: string
-  /** 各导航节点策划输入（含模块/页面）。 */
-  navigationNodes: readonly NavigationPlanningRunInput[]
+  /** 当前项目蓝图节点的策划输入。 */
+  blueprintNodes: readonly BlueprintPlanningRunInput[]
 }>
 
 /** Host inputContract 用可变数组，满足 AiJsonParams。 */
@@ -44,33 +44,37 @@ export type ProjectPlanningAgentInput = Readonly<{
   requirement: string
   /** 项目级策划详细说明附件引用。 */
   planningAttachmentRef?: string
-  /** 各导航节点的策划输入列表。 */
-  navigationNodes: NavigationPlanningAgentInput[]
+  /** 各项目蓝图节点的策划输入列表。 */
+  blueprintNodes: BlueprintPlanningAgentInput[]
 }>
 
-/** Navigation Planning Agent Input 的输入数据。 */
-export type NavigationPlanningAgentInput = Readonly<{
-  /** 导航节点 id。 */
+/** Blueprint Planning Agent Input 的输入数据。 */
+export type BlueprintPlanningAgentInput = Readonly<{
+  /** 蓝图节点 id。 */
   nodeId: string
   /** 节点显示标题。 */
   title: string
-  /** 节点类型（module/page 等）。 */
+  /** 蓝图业务类型。 */
+  blueprintKind: string
+  /** 可选运行交付投影类型。 */
   nodeKind: string
-  /** 节点短需求（navigation description）。 */
+  /** 节点短需求。 */
   requirement: string
   /** 节点策划详细说明附件引用。 */
   planningAttachmentRef?: string
 }>
 
-/** Navigation Planning Run Input 的输入数据。 */
-export type NavigationPlanningRunInput = Readonly<{
-  /** 导航节点 id。 */
+/** Blueprint Planning Run Input 的输入数据。 */
+export type BlueprintPlanningRunInput = Readonly<{
+  /** 蓝图节点 id。 */
   nodeId: string
   /** 节点显示标题。 */
   title: string
-  /** 节点类型（module/page 等）。 */
+  /** 蓝图业务类型。 */
+  blueprintKind: string
+  /** 可选运行交付投影类型。 */
   nodeKind: string
-  /** 节点短需求，即 navigation description。 */
+  /** 节点短需求。 */
   requirement: string
   /** 节点策划详细说明附件引用。 */
   planningAttachmentRef?: string
@@ -78,14 +82,14 @@ export type NavigationPlanningRunInput = Readonly<{
 
 /** Resolve Project Planning Run Input Options 的调用配置。 */
 export type ResolveProjectPlanningRunInputOptions = Readonly<{
-  /** Host Run 可注入一次性需求，不写回 ProjectModel。 */
+  /** Agent Run 可注入一次性需求，不写回 ProjectModel。 */
   requirementOverride?: string
-  /** Host Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */
+  /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */
   planningAttachmentRef?: string
 }>
 
-/** Filter Navigation Planning Nodes Options 的调用配置。 */
-export type FilterNavigationPlanningNodesOptions = Readonly<{
+/** Filter Blueprint Planning Nodes Options 的调用配置。 */
+export type FilterBlueprintPlanningNodesOptions = Readonly<{
   /** 仅包含这些 nodeId；未传则按 includeEmptyRequirement 规则过滤。 */
   scopeNodeIds?: readonly string[]
   /** 默认 false：跳过 requirement 与 planningAttachmentRef 均为空的节点。 */
@@ -94,7 +98,7 @@ export type FilterNavigationPlanningNodesOptions = Readonly<{
 
 /** Resolve Scoped Project Planning Run Input Options 的调用配置。 */
 export type ResolveScopedProjectPlanningRunInputOptions =
-  ResolveProjectPlanningRunInputOptions & FilterNavigationPlanningNodesOptions
+  ResolveProjectPlanningRunInputOptions & FilterBlueprintPlanningNodesOptions
 
 /** Project Planning Agent Workflow Binding Options 的调用配置。 */
 export type ProjectPlanningAgentWorkflowBindingOptions = Readonly<{
@@ -122,12 +126,13 @@ export function resolveProjectPlanningRunInput(
         ? ''
         : '请读取项目策划附件，基于附件内容生成项目模块与页面策划概要。'))
   if (requirement.length === 0 && planningAttachmentRef === undefined) {
-    throw new Error('projectPlanning: requirement is empty; set navigation root description, project.description, or planningAttachmentRef.')
+    throw new Error('projectPlanning: requirement is empty; set blueprint root description, project.description, or planningAttachmentRef.')
   }
-  const navigationNodes = project.readNavigationPlanningInputs().map((node) => {
+  const blueprintNodes = project.readBlueprintPlanningInputs().map((node) => {
     return {
       nodeId: node.nodeId,
       title: node.title,
+      blueprintKind: node.blueprintKind,
       nodeKind: node.nodeKind,
       requirement: node.requirement,
       ...(node.planningAttachmentRef === undefined ? {} : { planningAttachmentRef: node.planningAttachmentRef }),
@@ -139,18 +144,19 @@ export function resolveProjectPlanningRunInput(
     projectId: project.projectId,
     requirement,
     ...(planningAttachmentRef === undefined ? {} : { planningAttachmentRef }),
-    navigationNodes,
+    blueprintNodes,
   }
 }
 
-export function resolveNavigationPlanningRunInput(
+export function resolveBlueprintPlanningRunInput(
   project: ProjectModel,
   nodeId: string,
-): NavigationPlanningRunInput {
-  const node = project.readNavigationNodePlanningInput(nodeId)
+): BlueprintPlanningRunInput {
+  const node = project.readBlueprintNodePlanningInput(nodeId)
   return {
     nodeId: node.nodeId,
     title: node.title,
+    blueprintKind: node.blueprintKind,
     nodeKind: node.nodeKind,
     requirement: node.requirement,
     ...(node.planningAttachmentRef === undefined ? {} : { planningAttachmentRef: node.planningAttachmentRef }),
@@ -160,7 +166,7 @@ export function resolveNavigationPlanningRunInput(
 export function formatProjectPlanningPromptContext(input: ProjectPlanningRunInput): string {
   const lines = [
     '项目策划输入（短需求 + 附件详细说明）：',
-    '策划阶段不涉及四文件，只产出导航/页面概要。',
+    '策划阶段不涉及页面四文件，只产出完整项目蓝图。',
     ...(input.tenantId === undefined ? [] : [`tenantId: ${input.tenantId}`]),
     `projectId: ${input.projectId}`,
     'projectRequirement:',
@@ -169,10 +175,10 @@ export function formatProjectPlanningPromptContext(input: ProjectPlanningRunInpu
   if (input.planningAttachmentRef !== undefined) {
     lines.push(`projectPlanningAttachmentRef: ${input.planningAttachmentRef}`)
   }
-  if (input.navigationNodes.length > 0) {
-    lines.push('', 'navigationNodes:')
-    for (const node of input.navigationNodes) {
-      lines.push(`- ${node.nodeId} (${node.nodeKind}) ${node.title}`)
+  if (input.blueprintNodes.length > 0) {
+    lines.push('', 'blueprintNodes:')
+    for (const node of input.blueprintNodes) {
+      lines.push(`- ${node.nodeId} (${node.blueprintKind}; delivery=${node.nodeKind}) ${node.title}`)
       if (node.requirement.length > 0) lines.push(`  requirement: ${node.requirement}`)
       if (node.planningAttachmentRef !== undefined) {
         lines.push(`  planningAttachmentRef: ${node.planningAttachmentRef}`)
@@ -183,10 +189,10 @@ export function formatProjectPlanningPromptContext(input: ProjectPlanningRunInpu
   return lines.join('\n')
 }
 
-export function filterNavigationPlanningRunNodes(
-  nodes: readonly NavigationPlanningRunInput[],
-  options: FilterNavigationPlanningNodesOptions = {},
-): readonly NavigationPlanningRunInput[] {
+export function filterBlueprintPlanningRunNodes(
+  nodes: readonly BlueprintPlanningRunInput[],
+  options: FilterBlueprintPlanningNodesOptions = {},
+): readonly BlueprintPlanningRunInput[] {
   const scopeNodeIds = options.scopeNodeIds
   if (scopeNodeIds !== undefined && scopeNodeIds.length > 0) {
     const allowed = new Set(scopeNodeIds)
@@ -209,7 +215,7 @@ export function resolveScopedProjectPlanningRunInput(
   const base = resolveProjectPlanningRunInput(project, options)
   return {
     ...base,
-    navigationNodes: filterNavigationPlanningRunNodes(base.navigationNodes, options),
+    blueprintNodes: filterBlueprintPlanningRunNodes(base.blueprintNodes, options),
   }
 }
 
@@ -224,9 +230,10 @@ export function buildProjectPlanningAgentInput(
     projectId: scoped.projectId,
     requirement: scoped.requirement,
     ...(scoped.planningAttachmentRef === undefined ? {} : { planningAttachmentRef: scoped.planningAttachmentRef }),
-    navigationNodes: scoped.navigationNodes.map((node) => ({
+    blueprintNodes: scoped.blueprintNodes.map((node) => ({
       nodeId: node.nodeId,
       title: node.title,
+      blueprintKind: node.blueprintKind,
       nodeKind: node.nodeKind,
       requirement: node.requirement,
       ...(node.planningAttachmentRef === undefined ? {} : { planningAttachmentRef: node.planningAttachmentRef }),
@@ -254,7 +261,7 @@ export function resolveProjectPlanningDomainRoot(
 export function createProjectPlanningSystemPrompt(input: ProjectPlanningAgentInput): string {
   const context = formatProjectPlanningPromptContext({
     ...input,
-    navigationNodes: input.navigationNodes,
+    blueprintNodes: input.blueprintNodes,
   })
   return [
     `当前 projectPlanning 项目: ${input.projectId}`,
@@ -263,10 +270,10 @@ export function createProjectPlanningSystemPrompt(input: ProjectPlanningAgentInp
     '知识索引: DTS ClassModel（ProjectModel 根模型）；只把 ClassModel 当作模型知识索引，项目策划语义只在 App 层本业务内编排。',
     '职责边界: LLM 只负责发出 model_script({ script }) tool_call；script 必须是 JavaScript async function body；禁止 TS/TSX/JSX、类型注解、import/export、函数包裹；运行时负责把 this 绑定到 ProjectModel 并执行脚本。',
     '执行规则: 不要把脚本写成普通文本回答；最终必须通过 model_script 的 script 字符串调用 this.xxx。',
-    '知识查询规则: action 只用 model_action_guide({ kind: "ProjectModel", actionName }) 查询；attribute 才用 model_attribute_guide；replaceNavigationChildren/readProjectPlanningInput/readNavigationPlanningInputs 都是 action。',
-    '参数契约规则: 不要查询 ProjectNodeData 当作 attribute；children 的结构来自 model_action_guide({ kind: "ProjectModel", actionName: "replaceNavigationChildren" }) 的 paramsSchema.children。',
-    '执行前查询: model_action_guide({ kind: "ProjectModel", actionName: "readProjectPlanningInput" }) + model_action_guide({ kind: "ProjectModel", actionName: "readNavigationPlanningInputs" }) + model_action_guide({ kind: "ProjectModel", actionName: "replaceNavigationChildren" })，然后 model_script 读取输入并写入 navigation children 概要。',
-    '导航结构规则: 顶层按业务域生成 module；每个主要 module 至少包含 1 个 nodeKind="page" 的 children 页面概要；禁止只生成一组 module 壳。',
+    '知识查询规则: action 只用 model_action_guide({ kind: "ProjectModel", actionName }) 查询；attribute 才用 model_attribute_guide；replaceBlueprintChildren/readProjectPlanningInput/readBlueprintPlanningInputs 都是 action。',
+    '参数契约规则: 不要查询 ProjectBlueprintTreeNodeData 当作 attribute；children 的结构来自 model_action_guide({ kind: "ProjectModel", actionName: "replaceBlueprintChildren" }) 的 paramsSchema.children。',
+    '执行前查询: model_action_guide({ kind: "ProjectModel", actionName: "readProjectPlanningInput" }) + model_action_guide({ kind: "ProjectModel", actionName: "readBlueprintPlanningInputs" }) + model_action_guide({ kind: "ProjectModel", actionName: "replaceBlueprintChildren" })，然后 model_script 读取输入并写入 blueprint children。',
+    '蓝图结构规则: 按真实产品语义生成 requirement/prototype/data-space/page/sub-page/report/workflow/integration/action/external/permission-management 等节点；module 可任意分级，不强制每个 module 直接包含 page。',
     '完成自检: agent_complete 会调用 ProjectModel.completeProjectPlanning({ summary })；如果返回失败，按 tool result 的 missingFacts/requiredCapabilities/知识恢复提示补查或补执行后再次 agent_complete。',
     '不要在 model_script 中直接调用 completeProjectPlanning；完成只通过 agent_complete FC 触发。',
     ...projectPlanningScriptSopLines(input.projectId),
@@ -285,9 +292,9 @@ export function createProjectPlanningToolLoopNudge(context: {
     case 'plan_without_tool':
       return `projectId="${projectId}"；禁止只输出计划，下一回合必须发起 tool_call（见 model_action_guide / RECOVERY_HINT）。`
     case 'execution_phase':
-      return `projectId="${projectId}"；目录/指南阶段已完成，直接 model_script：根对象是 this（ProjectModel），先 await this.readProjectPlanningInput() / await this.readNavigationPlanningInputs()，完成后 await this.replaceNavigationChildren({ children })；children 必须包含 module 及其 page 子节点，不能只有 module 壳。`
+      return `projectId="${projectId}"；目录/指南阶段已完成，直接 model_script：根对象是 this（ProjectModel），先 await this.readProjectPlanningInput() / await this.readBlueprintPlanningInputs()，完成后 await this.replaceBlueprintChildren({ children })；每个节点必须声明真实 blueprintKind，nodeKind 只用于可选运行交付投影。`
     case 'model_script_retry':
-      return `projectId="${projectId}"；按 RECOVERY_HINT 修正后重试 model_script；导航策划必须包含至少一个 nodeKind="page" 的页面概要。`
+      return `projectId="${projectId}"；按 RECOVERY_HINT 修正后重试 model_script；项目蓝图必须包含至少一个有明确 blueprintKind 的业务节点。`
     default:
       return undefined
   }
@@ -330,12 +337,12 @@ const FORBIDDEN_SCRIPT_MARKERS = [
 
 const PROJECT_ACTION_NAMES = [
   'readProjectPlanningInput',
-  'readNavigationPlanningInputs',
-  'replaceNavigationChildren',
+  'readBlueprintPlanningInputs',
+  'replaceBlueprintChildren',
 ] as const
 
 const PROJECT_PARAM_TYPE_NAMES = [
-  'ProjectNodeData',
+  'ProjectBlueprintTreeNodeData',
 ] as const
 
 export function evaluateProjectPlanningToolGate(
@@ -357,33 +364,36 @@ export function evaluateProjectPlanningToolGate(
   }
   return {
     ok: false,
-    reason: `projectPlanning: model_script 禁止调用 ${marker}；本阶段只处理 navigation 策划，不涉及四文件或 openPageDesign。`,
-    fix: '改用 readProjectPlanningInput / readNavigationPlanningInputs / replaceNavigationChildren 等 ProjectModel action；完成概要后 agent_complete。',
+    reason: `projectPlanning: model_script 禁止调用 ${marker}；本阶段只处理项目蓝图策划，不涉及四文件或 openPageDesign。`,
+    fix: '改用 readProjectPlanningInput / readBlueprintPlanningInputs / replaceBlueprintChildren 等 ProjectModel action；完成概要后 agent_complete。',
   }
 }
 
 function projectPlanningScriptSopLines(projectId: string): readonly string[] {
   return [
     'model_script 标准写法：以下内容必须作为 tool_call 参数 script 的 JavaScript 函数体交给运行时执行；不要作为自然语言回答。',
-    '根对象就是 this（ProjectModel）；通过 this.replaceNavigationChildren({ children }) 写入导航策划。',
-    '业务功能不要只写 module；module 必须带 children page，页面概要必须使用 nodeKind: "page"。',
+    '根对象就是 this（ProjectModel）；通过 this.replaceBlueprintChildren({ children }) 写入项目蓝图。',
+    '每个节点必须写 blueprintKind；nodeKind 仅表达该节点是否投影为 module/page/system-page/action/external 等运行交付表面。',
     'const projectInput = await this.readProjectPlanningInput()',
-    'const existingNodes = await this.readNavigationPlanningInputs()',
+    'const existingNodes = await this.readBlueprintPlanningInputs()',
     'const children = [',
     '  {',
     '    id: "core-module",',
     '    title: "核心模块",',
+    '    blueprintKind: "module",',
     '    nodeKind: "module",',
     '    path: "/core",',
     '    description: projectInput.requirement,',
     '    children: [',
-    '      { id: "core-overview", title: "核心总览", nodeKind: "page", path: "/core/overview", description: "核心模块总览与关键任务入口" }',
+    '      { id: "core-requirement", title: "核心需求", blueprintKind: "requirement", nodeKind: "module", description: projectInput.requirement },',
+    '      { id: "core-scenario", title: "核心数据空间", blueprintKind: "data-space", nodeKind: "module", description: "核心业务场景与前端模型边界" },',
+    '      { id: "core-overview", title: "核心总览", blueprintKind: "page", nodeKind: "page", path: "/core/overview", description: "核心模块总览与关键任务入口" }',
     '    ]',
     '  }',
     ']',
-    'const navigationRoot = await this.replaceNavigationChildren({ children })',
-    'if (!JSON.stringify(navigationRoot.children).includes(\'"nodeKind":"page"\')) throw new Error("projectPlanning requires page nodes")',
-    `return { kind: "projectPlanningResult", projectId: "${projectId}", navigationRoot, previousNodeCount: existingNodes.length }`,
+    'const blueprintTree = await this.replaceBlueprintChildren({ children })',
+    'if (!JSON.stringify(blueprintTree.children).includes(\'"blueprintKind"\')) throw new Error("projectPlanning requires typed blueprint nodes")',
+    `return { kind: "projectPlanningResult", projectId: "${projectId}", blueprintTree, previousNodeCount: existingNodes.length }`,
   ]
 }
 
@@ -400,7 +410,7 @@ function evaluateProjectActionLookupGate(
       return {
         ok: false,
         reason: `projectPlanning: ${attributeName} 是参数结构名，不是 project attribute。`,
-        fix: '改用 model_action_guide({ kind: "project", actionName: "replaceNavigationChildren" }) 查看 paramsSchema.children，然后在 model_script 中构造 children 数组。',
+        fix: '改用 model_action_guide({ kind: "project", actionName: "replaceBlueprintChildren" }) 查看 paramsSchema.children，然后在 model_script 中构造 children 数组。',
       }
     }
     return { ok: true }

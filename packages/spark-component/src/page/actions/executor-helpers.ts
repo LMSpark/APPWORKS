@@ -25,9 +25,16 @@ import { isDataRow, resolveDataViewKey, type DataView, type DataRow } from '@spa
 import type { PageMessageType } from '../../components/internal'
 import type { SparkNode } from '../../components/internal'
 import { nodeInputProps } from '../../components/internal'
-import type { ActionDescriptor, ActionExecutionContext, ActionExecutionScope, ActionUiDecorator } from './action-types'
+import type {
+  ActionDescriptor,
+  ActionExecutionContext,
+  ActionExecutionScope,
+  ActionRowTarget,
+  ActionUiDecorator,
+} from './action-types'
 import { Logger } from '@spark-appworks/spark-utils'
 import { copyOwnEnumerableProperties } from '@spark-appworks/spark-utils/internal'
+import { canCreate, canDelete, canEdit, isFieldEditable } from '../../permission/PermissionChecker'
 
 const _notifierLogger = Logger('action-executor')
 
@@ -467,6 +474,153 @@ function _matchesRowCondition(
   return true
 }
 
+function _targetRows(
+  descriptor: Extract<ActionDescriptor, { target: ActionRowTarget }>,
+  view: DataView,
+  scope: ActionExecutionScope | undefined,
+): DataRow[] {
+  if (descriptor.target === 'scope') return scope?.row ? [scope.row] : []
+  if (descriptor.target === 'current') return view.currentRow ? [view.currentRow] : []
+  return getSelectedRows(view)
+}
+
+function _patchFields(descriptor: Extract<ActionDescriptor, { action: 'patch' }>): string[] {
+  const fields = new Set(Object.keys(descriptor.patch ?? {}))
+  if (descriptor.field) fields.add(descriptor.field)
+  if (descriptor.prompt?.field) fields.add(descriptor.prompt.field)
+  return [...fields]
+}
+
+function _canEditFields(row: DataRow, fields: readonly string[]): boolean {
+  return canEdit(row) && fields.every(field => isFieldEditable(field, row))
+}
+
+export type DataViewSavePermissionInput = Readonly<{
+  view: DataView
+  ids?: ReadonlyArray<string | number>
+  applyEditingRows?: boolean
+}>
+
+export function createDataViewSavePermissionInput(
+  view: DataView,
+  ids: ReadonlyArray<string | number> | undefined,
+  applyEditingRows: boolean | undefined,
+): DataViewSavePermissionInput {
+  const input: { view: DataView; ids?: ReadonlyArray<string | number>; applyEditingRows?: boolean } = { view }
+  if (ids !== undefined) input.ids = ids
+  if (applyEditingRows !== undefined) input.applyEditingRows = applyEditingRows
+  return input
+}
+
+/**
+ * 按 DataView 实际待提交的新增、编辑和删除集合校验后端最终权限。
+ * 所有目标操作必须同时获准；任何缺失行权限、字段权限或 allowAdd 都会失败关闭。
+ */
+export function isDataViewSavePermitted(input: DataViewSavePermissionInput): boolean {
+  const { view } = input
+  const allowedIds = input.ids ? new Set(input.ids) : null
+  const includesId = (id: string | number): boolean => allowedIds === null || allowedIds.has(id)
+
+  if (input.applyEditingRows !== false) {
+    for (const row of view.editingRows) {
+      const id = view.getPkKey(row)
+      if (id === undefined || !includesId(id)) continue
+      const patch = view.getEditingPatch(id)
+      if (!patch || !_canEditFields(row, Object.keys(patch))) return false
+    }
+  }
+
+  for (const id of view.dirtyTracking.pendingCreateIds) {
+    if (includesId(id) && !canCreate(view.permissionSnapshot)) return false
+  }
+
+  for (const id of view.dirtyTracking.dirtyRowIds) {
+    if (!includesId(id)) continue
+    const row = view.rows.find(candidate => view.getPkKey(candidate) === id)
+    const fields = Object.keys(view.getDirtyChanges(id))
+    if (!row || fields.length === 0 || !_canEditFields(row, fields)) return false
+  }
+
+  for (const id of view.dirtyTracking.pendingDeleteIds) {
+    if (!includesId(id)) continue
+    const row = view.dirtyTracking.getPendingDeleteSnapshot(id)
+    if (!row || !canDelete(row)) return false
+  }
+
+  return true
+}
+
+/**
+ * 判断一个声明式动作在当前视图和行作用域中是否获得后端最终权限。
+ * UI 动作与只读刷新不制造数据 mutation；所有数据 mutation 均失败关闭。
+ */
+export function isActionDescriptorPermitted(
+  descriptor: ActionDescriptor,
+  view: DataView | null | undefined,
+  scope?: ActionExecutionScope,
+): boolean {
+  switch (descriptor.action) {
+    case 'show-message':
+    case 'confirm':
+    case 'alert':
+    case 'navigate':
+    case 'open':
+    case 'message-row':
+    case 'refresh':
+      return true
+    case 'set-field': {
+      const row = view?.currentRow
+      return row !== null && row !== undefined && isFieldEditable(descriptor.field, row)
+    }
+    case 'append-row':
+      return view !== null && view !== undefined && canCreate(view.permissionSnapshot)
+    case 'delete': {
+      if (!view) return false
+      const rows = _targetRows(descriptor, view, scope)
+      return rows.length > 0 && rows.every(row => canDelete(row))
+    }
+    case 'patch': {
+      if (!view) return false
+      const rows = _targetRows(descriptor, view, scope)
+      const fields = _patchFields(descriptor)
+      return rows.length > 0 && fields.length > 0 && rows.every(row => _canEditFields(row, fields))
+    }
+    case 'move': {
+      if (!view) return false
+      const rows = _targetRows(descriptor, view, scope)
+      return rows.length > 0 && rows.every(row => canEdit(row))
+    }
+    case 'clear-rows':
+      return view !== null && view !== undefined
+        && view.rows.length > 0
+        && view.rows.every(row => canDelete(row))
+    case 'submit-current-form': {
+      if (!view) return false
+      const row = scope?.formApi?.getCurrentRow() ?? view.currentRow
+      if (!row) return false
+      const draft = scope?.formApi?.getFormData()
+      const idField = descriptor.idField ?? 'id'
+      const fields = draft
+        ? Object.entries(draft)
+          .filter(([field, value]) => (
+            field !== idField
+            && field !== '_pk'
+            && !field.startsWith('lingma_sys_')
+            && !Object.is(row[field], value)
+          ))
+          .map(([field]) => field)
+        : []
+      return fields.length > 0 && _canEditFields(row, fields)
+    }
+    case 'save-dataset':
+      return view !== null && view !== undefined && isDataViewSavePermitted(
+        createDataViewSavePermissionInput(view, undefined, descriptor.applyEditingRows),
+      )
+    default:
+      return false
+  }
+}
+
 /**
  * 根据 descriptor 动作语义、DataView 当前状态及执行作用域，判断按钮是否应禁用。
  *
@@ -484,6 +638,7 @@ export function isActionDescriptorDisabled(
   view: DataView | null | undefined,
   scope?: ActionExecutionScope,
 ): boolean {
+  if (!isActionDescriptorPermitted(descriptor, view, scope)) return true
   if (!view) return false
 
   const disabledWhenRow = 'disabledWhenRow' in descriptor ? descriptor.disabledWhenRow : undefined
@@ -498,9 +653,11 @@ export function isActionDescriptorDisabled(
     case 'alert':
     case 'navigate':
     case 'open':
+    case 'refresh':
+      return false
+
     case 'set-field':
     case 'append-row':
-    case 'refresh':
     case 'save-dataset':
       return false
 

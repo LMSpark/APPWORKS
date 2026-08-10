@@ -7,11 +7,57 @@
     "sourceFile": "src/views/app/WorkflowDesigns.vue",
     "packageName": "app",
     "modulePath": "views/app/WorkflowDesigns",
-    "jsdoc": "@module app:views/app/WorkflowDesigns\n鑱岃矗锛氭彁渚涘伐浣滄祦璁捐绋跨殑鍙鍖栫紪杈戝叆鍙ｏ紝杩炴帴 Dify-like JSON graph銆佹枃浠朵繚瀛?API 涓?workflow definition 鍙戝竷銆?杈圭晫锛氬彧澶勭悊璁捐鎬?JSON锛屼笉鎵ц Agent workflow 杩愯鏃躲€?AI鐢ㄩ€旓細闇€瑕侀獙璇?workflow 缂栬緫鍣ㄥ浣曢厤缃笟鍔¤妭鐐广€丆lassModel model context 鎴栨楠ょ嚎鎶曞奖鏃讹紝鐢ㄦ湰椤甸潰瀹氫綅銆?",
+    "jsdoc": "@module app:views/app/WorkflowDesigns\n职责：提供工作流设计稿的可视化编辑入口，连接 Dify-like JSON graph、文件保存 API 与 workflow definition 发布。\n边界：只处理设计态 JSON，不执行 Agent workflow 运行时。\nAI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel model context 或步骤线投影时，用本页面定位。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": []
+    "symbols": [
+      "WorkflowLineRuntimeStatus"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-06-22T07:29:25.178Z",
-  "models": {}
+  "$defs": {
+    "WorkflowLineRuntimeStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WorkflowLineRuntimeStatus",
+      "enum": [
+        "idle",
+        "running",
+        "completed",
+        "failed",
+        "skipped"
+      ]
+    }
+  },
+  "generatedAt": "2026-07-20T01:11:25.495Z",
+  "models": {
+    "WorkflowLineRuntimeStatus": {
+      "name": "WorkflowLineRuntimeStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'running' | 'completed' | 'failed' | 'skipped'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'running'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'completed'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'failed'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'skipped'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
 }

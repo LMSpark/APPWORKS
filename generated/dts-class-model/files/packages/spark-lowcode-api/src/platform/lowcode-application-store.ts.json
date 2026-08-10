@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-application-store",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-application-store",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-application-store 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApplicationContext, LowcodeApplicationStoreOptions, LowcodeApplicationStore（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeApplicationContext",
+      "LowcodeApplicationStoreOptions",
+      "LowcodeApplicationStore"
+    ]
+  },
+  "$defs": {
+    "LowcodeApplicationContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationContext",
+      "properties": {
+        "application": {
+          "$ref": "lowcode-application.ts.json#/$defs/LowcodeApplication"
+        },
+        "navigationRootId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeApplicationStoreOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationStoreOptions",
+      "properties": {
+        "storage": {
+          "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStorage"
+        },
+        "applicationKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeApplicationStore": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationStore",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeApplicationStoreOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LowcodeApplicationContext"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/LowcodeApplicationContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": true,
+        "method.clear.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T10:26:55.676Z",
+  "models": {
+    "LowcodeApplicationContext": {
+      "name": "LowcodeApplicationContext",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    application: LowcodeApplication;\n    navigationRootId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    application: LowcodeApplication;\n    navigationRootId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationRootId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApplicationStoreOptions": {
+      "name": "LowcodeApplicationStoreOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    applicationKey?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    applicationKey?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "storage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApplicationStore": {
+      "name": "LowcodeApplicationStore",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options?: LowcodeApplicationStoreOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeApplicationStoreOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "get",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeApplicationContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeApplicationContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clear",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

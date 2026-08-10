@@ -37,9 +37,18 @@ import type {
 } from './action-types'
 import { isCancellableControl, type CancellableControl } from '../../components/containers/support/interactionControl.js'
 import { Logger } from '@spark-appworks/spark-utils'
-import type { DataRow } from '@spark-appworks/spark-data'
+import type { DataRow, DataView } from '@spark-appworks/spark-data'
 import type { PageMessageType } from '../../components/internal'
-import { extractErrorMessage, interpolate, createActionNotifier, isRowLike } from './executor-helpers'
+import {
+  extractErrorMessage,
+  interpolate,
+  createActionNotifier,
+  createDataViewSavePermissionInput,
+  isActionDescriptorPermitted,
+  isDataViewSavePermitted,
+  isRowLike,
+  resolveActionDataCapabilities,
+} from './executor-helpers'
 
 import {
   executeAppendRow,
@@ -200,8 +209,14 @@ export async function executeActionDescriptor(
   options: ActionExecutionOptions = {},
 ): Promise<void> {
   const eventArgs = options.eventArgs
-  const control = options.control
+  const control = options.control ?? extractActionExecutionControl(eventArgs)
   const effectiveScope = options.scope
+
+  if (!isActionExecutionPermitted(descriptor, ctx, effectiveScope)) {
+    if (control) control.cancel = true
+    ctx.getPageService()?.showMessage(`后端权限不允许执行 ${descriptor.action}`, 'warning')
+    return
+  }
 
   if (descriptor.cancelDefault && control) {
     control.cancel = true
@@ -221,6 +236,78 @@ export async function executeActionDescriptor(
     if (effectiveScope !== undefined) opts.scope = effectiveScope
     await executeActionDescriptor(descriptor.then, ctx, opts)
   }
+}
+
+function isActionExecutionPermitted(
+  descriptor: ActionDescriptor,
+  ctx: ActionExecutionContext,
+  scope: ActionExecutionScope | undefined,
+): boolean {
+  if (descriptor.action === 'save-dataset') {
+    return isDataSetSavePermitted(descriptor, ctx)
+  }
+  const { dataSource } = resolveActionDataCapabilitiesForGuard(descriptor, ctx)
+  return isActionDescriptorPermitted(descriptor, dataSource, scope)
+}
+
+type ActionGuardDataSource = Readonly<{
+  dataSource: DataView | null
+}>
+
+function resolveActionDataCapabilitiesForGuard(
+  descriptor: ActionDescriptor,
+  ctx: ActionExecutionContext,
+): ActionGuardDataSource {
+  switch (descriptor.action) {
+    case 'set-field':
+    case 'append-row':
+    case 'delete':
+    case 'patch':
+    case 'move':
+    case 'message-row':
+    case 'refresh':
+    case 'clear-rows':
+    case 'submit-current-form':
+      return resolveActionDataCapabilities(descriptor.dataViewKey, ctx)
+    case 'show-message':
+    case 'confirm':
+    case 'alert':
+    case 'navigate':
+    case 'open':
+    case 'save-dataset':
+      return { dataSource: null }
+    default:
+      return { dataSource: null }
+  }
+}
+
+function isDataSetSavePermitted(
+  descriptor: Extract<ActionDescriptor, { action: 'save-dataset' }>,
+  ctx: ActionExecutionContext,
+): boolean {
+  const dataSet = ctx.getDataSet()
+  if (!dataSet) return false
+
+  if (descriptor.views === undefined) {
+    return Object.values(dataSet.tables).every(table => Object.values(table.views).every(view => (
+      isDataViewSavePermitted(
+        createDataViewSavePermissionInput(view, undefined, descriptor.applyEditingRows),
+      )
+    )))
+  }
+
+  for (const selector of descriptor.views) {
+    const table = dataSet.tables[selector.tableName]
+    if (!table) return false
+    const views = selector.viewId ? [table.views[selector.viewId]].filter(Boolean) : Object.values(table.views)
+    if (views.length === 0) return false
+    for (const view of views) {
+      if (!view || !isDataViewSavePermitted(
+        createDataViewSavePermissionInput(view, selector.ids, descriptor.applyEditingRows),
+      )) return false
+    }
+  }
+  return true
 }
 
 /** 提取 descriptor 上的 UI 装饰字段（data-mutating 类型才有，其他类型安全转型取 undefined）。 */

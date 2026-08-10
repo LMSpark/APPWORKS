@@ -1,211 +1,105 @@
 /**
  * @module @spark-appworks/spark-project-model:io/page-content-loader
- * 职责：提供项目模型和页面配置域中的 page content loader 能力，支撑 navigation、page content、project session 或远程 IO。
- * 边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。
- * AI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。
+ * 职责：按项目与页面身份读取四文件，并维护当前前端会话内的内容缓存。
+ * 边界：只依赖注入的语义读取器，不拥有任何服务器 URL 或认证协议。
  */
 
 import type { PageContentLoadResult, PageNodeLoadOptions } from '../page/page-file'
-import {
-  Logger,
-  createFileLoader,
-  createRequest
-} from '@spark-appworks/spark-utils'
-import type { FileLoader, HttpClientBase } from '@spark-appworks/spark-utils'
-import {
-  pageFilePath,
-  pageFilePaths,
-  type PageNodeFileName,
-} from '../page/page-file'
-import { trimTrailingSlash, installHeaderInterceptor } from './http'
+import { pageFilePath, pageFilePaths, type PageNodeFileName } from '../page/page-file'
 
-const pageLogger = Logger('PageContentLoader')
+export type PageFileReadCommand = Readonly<{
+  projectId: string
+  pageId: string
+  fileName: PageNodeFileName
+}>
 
-const REQUEST_TIMEOUT = 10_000
+export type PageFileReader = (command: PageFileReadCommand) => Promise<string>
 
-/** Page Content Loader Options 的调用配置。 */
-export type PageContentLoaderOptions = {
-    /** api Base Url 地址。 */
-apiBaseUrl?: string
-    /** http Client 字段。 */
-httpClient?: HttpClientBase
-    /** pages Config Base Url 地址。 */
-pagesConfigBaseUrl?: string | (() => string)
-    /** file Storage 字段。 */
-fileStorage?: 'localStorage' | 'sessionStorage' | 'memory'
-    /** 超时时间。 */
-timeout?: number
-    /** get Headers 回调。 */
-getHeaders?: () => Record<string, string>
+export type PageContentLoaderOptions = Readonly<{
+  getProjectId?: () => string
+  projectId?: string
+  readPageFile?: PageFileReader
+}>
+
+function requiredText(value: string, name: string): string {
+  const normalized = value.trim()
+  if (!normalized) throw new Error(`${name} 不能为空`)
+  return normalized
 }
 
-// ═══ 选项解析：加载器构造参数的默认值与归一化 ═══
-
-/** 必填字段默认值（getHeaders / pagesConfigBaseUrl 可选，不在此列） */
-const DEFAULT_OPTIONS = {
-  apiBaseUrl: '/api',
-  fileStorage: 'localStorage',
-  timeout: REQUEST_TIMEOUT,
-} satisfies Omit<Required<PageContentLoaderOptions>, 'getHeaders' | 'pagesConfigBaseUrl' | 'httpClient'>
-
-/** 已解析的加载器选项：所有必填字段均有值，可选字段保持可选。 */
-type ResolvedPageContentLoaderOptions =
-  Omit<Required<PageContentLoaderOptions>, 'getHeaders' | 'pagesConfigBaseUrl' | 'httpClient'>
-  & Pick<PageContentLoaderOptions, 'getHeaders' | 'pagesConfigBaseUrl' | 'httpClient'>
-
-/** 为缓存前缀生成作用域标识符，避免不同后端路径之间的缓存冲突。 */
-function cacheScopePrefix(baseUrl: string): string {
-  const scope = baseUrl.replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')
-  return `spark_page_${scope}_`
-}
-
-/** 解析页面配置基础 URL：优先使用显式配置，否则从 apiBaseUrl 推导。 */
-function resolvePagesConfigBaseUrl(options: ResolvedPageContentLoaderOptions): string {
-  const baseUrl = options.pagesConfigBaseUrl
-  if (baseUrl !== undefined) {
-    return trimTrailingSlash(typeof baseUrl === 'function' ? baseUrl() : baseUrl)
-  }
-  return `${trimTrailingSlash(options.apiBaseUrl)}/pages-config`
-}
-
-// ═══ PageContentLoader 构造与配置 ═══════════════════════════
-
-/** Page Content Loader 的语义模型。 */
+/** 页面四文件加载器；远端合同由宿主注入，缓存不跨应用身份。 */
 export class PageContentLoader {
-  private opts: ResolvedPageContentLoaderOptions
-  private fileLoader!: FileLoader
-  /** 共享 axios 请求实例（远程 API 调用统一通道，自动注入 auth/tenant headers） */
-  private request: HttpClientBase
-  private pagesConfigBase = ''
+  private readonly cache = new Map<string, string>()
+  private readonly getProjectIdOption: (() => string) | undefined
+  private readonly projectId: string | undefined
+  private readonly reader: PageFileReader | undefined
 
-    /** 创建 Page Content Loader 实例。 */
-constructor(options: Partial<PageContentLoaderOptions> = {}) {
-    this.opts = { ...DEFAULT_OPTIONS, ...options }
-    // 创建共享 Request 实例（远程 API 调用的统一 axios 通道）
-    this.request = this.opts.httpClient ?? createRequest({
-      baseURL: this.opts.apiBaseUrl,
-      timeout: this.opts.timeout,
-    })
-    // 动态请求头注入（auth / tenant headers）
-    installHeaderInterceptor(this.request, this.opts.getHeaders)
-    // 函数型 pagesConfigBaseUrl 可能依赖登录态或当前项目，首次真实读取前不提前解析。
-    if (typeof this.opts.pagesConfigBaseUrl === 'function') return
-    this.resetPageFileContext(resolvePagesConfigBaseUrl(this.opts))
+  public constructor(options: PageContentLoaderOptions = {}) {
+    this.getProjectIdOption = options.getProjectId
+    this.projectId = options.projectId
+    this.reader = options.readPageFile
   }
 
-  private resetPageFileContext(pagesConfigBase: string): void {
-    this.pagesConfigBase = pagesConfigBase
-
-    this.fileLoader = createFileLoader({
-      baseUrl: this.pagesConfigBase,
-      ...(this.opts.httpClient !== undefined && { request: this.opts.httpClient }),
-      storage: this.opts.fileStorage,
-      cachePrefix: cacheScopePrefix(this.pagesConfigBase),
-      fallbackToCache: false,
-      timeout: this.opts.timeout,
-      // 动态请求头（认证 / 租户上下文）
-      ...(this.opts.getHeaders && { getHeaders: this.opts.getHeaders }),
-      // 分级过期策略配置（可选，使用默认值）
-      defaultExpirationLevel: 3,  // 默认15天
-      maxCacheSize: 50             // 最多缓存 50 个页面配置
-    })
-  }
-
-  private ensurePageFileContext(): void {
-    const pagesConfigBase = resolvePagesConfigBaseUrl(this.opts)
-    if (pagesConfigBase === this.pagesConfigBase) return
-    pageLogger.info('页面配置项目作用域变更，重建文件加载上下文', {
-      previousBase: this.pagesConfigBase,
-      nextBase: pagesConfigBase,
-    })
-    this.resetPageFileContext(pagesConfigBase)
-  }
-
-  // ── 公开 API ──────────────────────────────────────────────────────
-
-    /** 加载 Page File Content。 */
-async loadPageFileContent(
+  public async loadPageFileContent(
     pageId: string,
     filename: PageNodeFileName,
     options?: PageNodeLoadOptions,
   ): Promise<PageContentLoadResult<string>> {
-    this.ensurePageFileContext()
-    const path = this.toPageFilePath(pageId, filename)
-    const result = await this.fileLoader.load(path, {
-      parseJSON: false,
-      forceRefresh: options?.forceReload === true,
-    })
-    return this.pageFileContentResultFromData(result, path)
+    const projectId = this.resolveProjectId()
+    const normalizedPageId = requiredText(pageId, 'pageId')
+    const cacheKey = this.cacheKey(projectId, normalizedPageId, filename)
+    if (options?.forceReload !== true && this.cache.has(cacheKey)) {
+      return { success: true, data: this.cache.get(cacheKey) ?? '', source: 'remote', fromCache: true }
+    }
+    if (this.reader === undefined) {
+      return { success: false, error: '未注入页面文件读取器' }
+    }
+    try {
+      const data = await this.reader({ projectId, pageId: normalizedPageId, fileName: filename })
+      this.cache.set(cacheKey, data)
+      return { success: true, data, source: 'remote', fromCache: false }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      }
+    }
   }
 
-  // ═══ 缓存管理 ═══════════════════════════════════════════
-
-    /** 清空 Cache。 */
-clearCache(key?: string): void {
-    this.ensurePageFileContext()
-    this.fileLoader.clearCache(key)
+  public clearCache(key?: string): void {
+    if (key === undefined) {
+      this.cache.clear()
+      return
+    }
+    const projectId = this.resolveProjectId()
+    const normalizedKey = key.startsWith('/') ? key : `/${key}`
+    this.cache.delete(`${projectId}${normalizedKey}`)
   }
 
-    /** 清空 All Cache。 */
-clearAllCache(): { size: number; keys: string[] } {
-    this.clearCache()
+  public clearAllCache(): { size: number; keys: string[] } {
+    this.cache.clear()
     return this.getCacheStats()
   }
 
-    /** 读取 Cache Stats。 */
-getCacheStats(): { size: number; keys: string[] } {
-    this.ensurePageFileContext()
-    return this.fileLoader.getCacheStats()
+  public getCacheStats(): { size: number; keys: string[] } {
+    return { size: this.cache.size, keys: [...this.cache.keys()] }
   }
 
-    /** 读取 Http Client。 */
-getHttpClient(): HttpClientBase {
-    return this.request
-  }
-
-    /** 清空 Page Cache。 */
-clearPageCache(pageId: string): void {
+  public clearPageCache(pageId: string): void {
     const normalized = pageId.trim()
     if (!normalized) return
     for (const path of pageFilePaths(normalized)) this.clearCache(path)
   }
 
-  // ── 私有辅助 ──────────────────────────────────────────────────────
-
-  private pageFileContentResultFromData(
-    result: { success: boolean; data?: string; error?: string; reason?: string; timestamp?: string; fromCache?: boolean; notModified?: boolean },
-    path: string,
-  ): PageContentLoadResult<string> {
-    const timestamp = this.resultTimestamp(result.timestamp)
-    if (result.success) {
-      return {
-        success: true,
-        data: result.data ?? '',
-        source: 'remote',
-        ...(timestamp !== undefined && { timestamp }),
-        ...(result.timestamp !== undefined && { sourceTimestamp: result.timestamp }),
-        ...(result.fromCache !== undefined && { fromCache: result.fromCache }),
-        ...(result.notModified !== undefined && { notModified: result.notModified }),
-      }
-    }
-
-    return {
-      success: false,
-      error: result.error ?? `${path} 加载失败`,
-      ...(result.reason !== undefined && { reason: result.reason }),
-      ...(timestamp !== undefined && { timestamp }),
-    }
+  public getPageFileReader(): PageFileReader | undefined {
+    return this.reader
   }
 
-  private resultTimestamp(sourceTimestamp: string | undefined): number | undefined {
-    if (sourceTimestamp === undefined || sourceTimestamp.trim() === '') return undefined
-    const numeric = Number(sourceTimestamp)
-    if (Number.isFinite(numeric)) return numeric
-    const parsed = Date.parse(sourceTimestamp)
-    return Number.isFinite(parsed) ? parsed : undefined
+  private resolveProjectId(): string {
+    return requiredText(this.getProjectIdOption?.() ?? this.projectId ?? '', 'projectId')
   }
 
-  private toPageFilePath(pageId: string, filename: string): string {
-    return pageFilePath(pageId, filename)
+  private cacheKey(projectId: string, pageId: string, fileName: PageNodeFileName): string {
+    return `${projectId}${pageFilePath(pageId, fileName)}`
   }
 }

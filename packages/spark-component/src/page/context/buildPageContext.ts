@@ -27,7 +27,7 @@ import {
   filterFields, getEditableFields, getVisibleFields,
   filterDisplayableFields,
   computeFieldState,
-  extractModelPermission,
+  extractPermissionSnapshot,
   isModelScopedPermAction, isRowScopedPermAction,
 } from '../../permission/index.js'
 import { pageLogger } from '../services/pageLogger'
@@ -148,7 +148,7 @@ export function buildPageContext(deps: PageContextDeps): PageContext {
       filterFields, getEditableFields, getVisibleFields,
       filterDisplayableFields,
       computeFieldState,
-      extractModelPermission,
+      extractPermissionSnapshot,
       isModelScopedPermAction, isRowScopedPermAction,
     },
     console: scriptConsole,
@@ -162,6 +162,5 @@ export function buildPageContext(deps: PageContextDeps): PageContext {
     clearInterval: (id?: number) => { window.clearInterval(id) },
   }
 }
-
 
 

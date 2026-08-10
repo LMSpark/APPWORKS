@@ -7,8 +7,8 @@
 /**
  * APP 公共 SSE 事件总线。
  *
- * 本文件只维护 `/api/events` 的单例连接、v4 envelope 解包和按事件名分发。
- * 页面配置、数据任务、通知、AI Host Run 等业务动作在各自订阅方处理。
+ * 本文件只维护 lowcode `/api/sse/connect` 的单例连接、v4 envelope 解包和按事件名分发。
+ * 页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。
  */
 
 import { Logger, isRecord, type ApiEnvelopeContext, type ApiEnvelopeEvent } from '@spark-appworks/spark-utils'
@@ -18,6 +18,8 @@ import type {
   AiAgentAppSseEventName,
   AiAgentAppSseEventSource,
 } from '@spark-appworks/spark-ai/agent'
+import type { LowcodeRealtimeEvent, LowcodeRealtimeSubscription } from '@spark-appworks/spark-lowcode-api'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 
 const logger = Logger('SSE')
 
@@ -28,8 +30,6 @@ const ServerEventType = Object.freeze({
   DATA_BATCH_JOB: 'data-batch-job',
   DATA_CHANGE: 'data-change',
   NOTIFICATION: 'notification',
-  AI_HOST_RUN_REQUEST: 'ai-host-run-request',
-  AI_HOST_RUN_RESULT: 'ai-host-run-result',
 })
 
 // Payload contracts ---------------------------------------------------------
@@ -102,77 +102,19 @@ source?: string
 actionUrl?: string
 }
 
-/** Ai Host Run Request Event 的事件载荷。 */
-export type AiHostRunRequestEvent = {
-    /** request Id 标识。 */
-requestId: string
-    /** alias 字段。 */
-alias: string
-    /** args 字段。 */
-args: Record<string, unknown>
-    /** 事件时间戳。 */
-timestamp: number
-    /** timeout Ms 字段。 */
-timeoutMs?: number
-    /** reason 字段。 */
-reason?: string
-}
-
-/** Ai Host Run Result Status 的语义模型。 */
-export type AiHostRunResultStatus =
-  | 'completed'
-  | 'failed'
-  | 'timeout'
-  | 'busy'
-  | 'unknown_alias'
-  | 'non_runnable'
-  | 'invalid_args'
-  | 'cancelled'
-
-/** Ai Host Run Result Event 的事件载荷。 */
-export type AiHostRunResultEvent = {
-    /** request Id 标识。 */
-requestId: string
-    /** alias 字段。 */
-alias: string
-    /** 当前状态。 */
-status: AiHostRunResultStatus
-    /** duration Ms 字段。 */
-durationMs?: number
-    /** client Timestamp 字段。 */
-clientTimestamp?: number
-    /** server Timestamp 字段。 */
-serverTimestamp?: number
-    /** session Id 标识。 */
-sessionId?: string
-    /** business Registration Id 标识。 */
-businessRegistrationId?: string
-    /** business Instance Id 标识。 */
-businessInstanceId?: string
-    /** 展示文本。 */
-text?: string
-    /** reasoning 字段。 */
-reasoning?: string
-    /** tool Calls 字段。 */
-toolCalls?: unknown
-    /** 错误对象或错误信息。 */
-error?: unknown
-}
-
 type EventNormalizer<T> = (data: unknown) => T | null
 
 // Shared connection state ---------------------------------------------------
 
-const SSE_URL = '/api/events'
-const MAX_RETRIES = 5
-
 const eventSubscribers = new Map<string, Set<(data: unknown) => void>>()
 const envelopeEventSubscribers = new Map<string, Set<(event: AiAgentAppSseEvent) => void>>()
-const eventListeners = new Map<string, EventListener>()
+const allEnvelopeEventSubscribers = new Set<(event: AiAgentAppSseEvent) => void>()
 const legacyProtocolWarnings = new Set<string>()
 
-let sharedEventSource: EventSource | null = null
-let retryCount = 0
+let sharedSubscription: LowcodeRealtimeSubscription | null = null
+let sharedReadyPromise: Promise<void> | null = null
+let resolveSharedReady: (() => void) | null = null
+let rejectSharedReady: ((error: Error) => void) | null = null
 
 /** 畸形事件计数保留在模块内，方便诊断日志定位协议接入质量。 */
 let malformedEventCount = 0
@@ -191,9 +133,6 @@ export function onServerEvent(
   subscribers.add(callback)
 
   ensureConnection()
-  if (sharedEventSource !== null) {
-    addEventSourceListener(sharedEventSource, eventType)
-  }
 
   return () => {
     subscribers.delete(callback)
@@ -219,9 +158,6 @@ export function onServerEnvelopeEvent(
   subscribers.add(callback)
 
   ensureConnection()
-  if (sharedEventSource !== null) {
-    addEventSourceListener(sharedEventSource, eventKey)
-  }
 
   return () => {
     subscribers.delete(callback)
@@ -240,54 +176,38 @@ export function createAppSseEventSource(): AiAgentAppSseEventSource {
   }
 }
 
+/**
+ * 订阅所有 lowcode SparkEnvelope 事件。
+ *
+ * Agent 错误信封不一定携带 event.name，因此 AI turn 适配器必须先按
+ * context.session/context.turn 识别归属，再解释具体事件语义。
+ */
+export function onAnyServerEnvelopeEvent(
+  callback: (event: AiAgentAppSseEvent) => void,
+): () => void {
+  allEnvelopeEventSubscribers.add(callback)
+  ensureConnection()
+  return () => {
+    allEnvelopeEventSubscribers.delete(callback)
+    if (totalSubscribers() === 0) teardownConnection()
+  }
+}
+
 const DEFAULT_APP_SSE_READY_TIMEOUT_MS = 15_000
 
 /**
- * 等待浏览器侧 `/api/events` 单例连接进入 OPEN。
- * Host Run / AI turn 下发前必须先就绪，否则后端会返回 APP_SSE_NOT_CONNECTED。
+ * 等待 lowcode SSE 返回 connected 事件。
  */
 export function waitForAppSseConnection(timeoutMs = DEFAULT_APP_SSE_READY_TIMEOUT_MS): Promise<void> {
   ensureConnection()
-  let eventSource = sharedEventSource
-  if (eventSource === null) {
-    return Promise.reject(new Error('APP SSE connection was not initialized.'))
-  }
-  if (eventSource.readyState === EventSource.CLOSED) {
-    teardownConnection()
-    ensureConnection()
-    eventSource = sharedEventSource
-    if (eventSource === null) {
-      return Promise.reject(new Error('APP SSE connection was not initialized.'))
-    }
-  }
-  if (eventSource.readyState === EventSource.OPEN) {
-    return Promise.resolve()
-  }
-
-  return new Promise((resolve, reject) => {
-    const activeSource = sharedEventSource
-    if (activeSource === null) {
-      reject(new Error('APP SSE connection was not initialized.'))
-      return
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      cleanup()
-      reject(new Error(`Timed out waiting for APP SSE connection (${timeoutMs}ms).`))
-    }, timeoutMs)
-
-    const onOpen = (): void => {
-      cleanup()
-      resolve()
-    }
-
-    const cleanup = (): void => {
-      window.clearTimeout(timeoutId)
-      activeSource.removeEventListener('open', onOpen)
-    }
-
-    activeSource.addEventListener('open', onOpen)
-  })
+  const ready = sharedReadyPromise
+  if (ready === null) return Promise.reject(new Error('lowcode SSE connection was not initialized.'))
+  return Promise.race([
+    ready,
+    new Promise<void>((_, reject) => {
+      window.setTimeout(() => reject(new Error(`Timed out waiting for lowcode SSE connection (${timeoutMs}ms).`)), timeoutMs)
+    }),
+  ])
 }
 
 export function onPageConfigChange(
@@ -334,77 +254,79 @@ export function onNotificationEvent(
   })
 }
 
-export function onAiHostRunRequest(
-  callback: (event: AiHostRunRequestEvent) => void,
-): () => void {
-  return onTypedServerEvent({
-    eventType: ServerEventType.AI_HOST_RUN_REQUEST,
-    normalize: normalizeAiHostRunRequestEvent,
-    label: 'AI Host Run 请求',
-    callback,
-  })
-}
-
-export function onAiHostRunResult(
-  callback: (event: AiHostRunResultEvent) => void,
-): () => void {
-  return onTypedServerEvent({
-    eventType: ServerEventType.AI_HOST_RUN_RESULT,
-    normalize: normalizeAiHostRunResultEvent,
-    label: 'AI Host Run 回执',
-    callback,
-  })
-}
-
 // Connection lifecycle ------------------------------------------------------
 
 function ensureConnection(): void {
-  if (sharedEventSource !== null) return
-
-  retryCount = 0
-  const eventSource = new EventSource(SSE_URL)
-  sharedEventSource = eventSource
-
-  for (const eventType of eventSubscribers.keys()) {
-    addEventSourceListener(eventSource, eventType)
-  }
-
-  eventSource.onerror = () => {
-    retryCount += 1
-    if (retryCount <= MAX_RETRIES) return
+  if (sharedSubscription !== null) return
+  sharedReadyPromise = new Promise<void>((resolve, reject) => {
+    resolveSharedReady = resolve
+    rejectSharedReady = reject
+  })
+  try {
+    sharedSubscription = lowcodeApi.realtime.connect({
+      scope: 'spark-appworks',
+      onEvent: dispatchLowcodeRealtimeEvent,
+    })
+    void sharedSubscription.closed.catch((error: unknown) => {
+      rejectSharedReady?.(error instanceof Error ? error : new Error(String(error)))
+      teardownConnection()
+      logger.warn('lowcode SSE 连接已关闭', { error: errorMessage(error) })
+    })
+  } catch (error) {
+    rejectSharedReady?.(error instanceof Error ? error : new Error(String(error)))
     teardownConnection()
-    logger.warn('已达最大重连次数，停止监听 APP SSE')
+    throw error
   }
 }
 
-function addEventSourceListener(eventSource: EventSource, eventType: string): void {
-  if (eventListeners.has(eventType)) return
-
-  const listener: EventListener = (event) => {
-    retryCount = 0
-    try {
-      dispatchMessageEvent(eventType, event)
-    } catch (error: unknown) {
-      malformedEventCount += 1
-      logger.warn('丢弃畸形 SSE 事件', {
-        eventType,
-        totalMalformed: malformedEventCount,
-        error: errorMessage(error),
-      })
-    }
+function dispatchLowcodeRealtimeEvent(event: LowcodeRealtimeEvent): void {
+  if (event.event === 'connected') {
+    resolveSharedReady?.()
+    resolveSharedReady = null
+    rejectSharedReady = null
+    return
   }
-
-  eventListeners.set(eventType, listener)
-  eventSource.addEventListener(eventType, listener)
+  try {
+    const message = isRecord(event.data) ? event.data : null
+    const content = message !== null && typeof message['content'] === 'string'
+      ? parseEventContent(message['content'])
+      : event.data
+    const envelopeName = readEnvelopeName(content)
+    const eventType = envelopeName
+      ?? (message !== null && typeof message['title'] === 'string' && message['title'].trim() !== ''
+        ? message['title']
+        : event.event)
+    dispatchPayload(eventType, content)
+  } catch (error) {
+    malformedEventCount += 1
+    logger.warn('丢弃畸形 lowcode SSE 事件', {
+      eventType: event.event,
+      totalMalformed: malformedEventCount,
+      error: errorMessage(error),
+    })
+  }
 }
 
-function dispatchMessageEvent(eventType: string, event: Event): void {
-  if (!(event instanceof MessageEvent) || typeof event.data !== 'string') {
-    throw new Error('SSE event payload must be a string')
+function parseEventContent(content: string): unknown {
+  const normalized = content.trim()
+  if (normalized === '') return ''
+  try {
+    return JSON.parse(normalized)
+  } catch {
+    return content
   }
+}
 
-  const parsed: unknown = JSON.parse(event.data)
-  const envelopeEvent = normalizeServerEnvelopeEvent(eventType, event.data, parsed)
+function readEnvelopeName(payload: unknown): string | null {
+  if (!isRecord(payload) || !isRecord(payload['event'])) return null
+  return typeof payload['event']['name'] === 'string' && payload['event']['name'].trim() !== ''
+    ? payload['event']['name']
+    : null
+}
+
+function dispatchPayload(eventType: string, parsed: unknown): void {
+  const rawData = typeof parsed === 'string' ? parsed : JSON.stringify(parsed)
+  const envelopeEvent = normalizeServerEnvelopeEvent(eventType, rawData, parsed)
   dispatchEnvelopeEvent(eventType, envelopeEvent)
 
   if (!eventSubscribers.has(eventType)) return
@@ -418,13 +340,15 @@ function dispatchMessageEvent(eventType: string, event: Event): void {
 }
 
 function teardownConnection(): void {
-  sharedEventSource?.close()
-  sharedEventSource = null
-  eventListeners.clear()
+  sharedSubscription?.close()
+  sharedSubscription = null
+  sharedReadyPromise = null
+  resolveSharedReady = null
+  rejectSharedReady = null
 }
 
 function totalSubscribers(): number {
-  let count = 0
+  let count = allEnvelopeEventSubscribers.size
   for (const subscribers of eventSubscribers.values()) {
     count += subscribers.size
   }
@@ -462,6 +386,7 @@ function unwrapServerEventPayload(eventType: string, payload: unknown): unknown 
 }
 
 function dispatchEnvelopeEvent(eventType: string, event: AiAgentAppSseEvent): void {
+  for (const callback of allEnvelopeEventSubscribers) callback(event)
   const subscribers = envelopeEventSubscribers.get(eventType)
   if (subscribers === undefined) return
 
@@ -665,63 +590,6 @@ function normalizeNotificationEvent(data: unknown): ServerNotificationEvent | nu
   return event
 }
 
-function normalizeAiHostRunRequestEvent(data: unknown): AiHostRunRequestEvent | null {
-  if (!isRecord(data)) return null
-
-  const requestId = readRequiredString(data, 'requestId')
-  const alias = readRequiredString(data, 'alias')
-  const args = isRecord(data['args']) ? data['args'] : null
-  if (requestId === null || alias === null || args === null) return null
-
-  const event: AiHostRunRequestEvent = {
-    requestId,
-    alias,
-    args,
-    timestamp: normalizeTimestamp(data['timestamp']),
-  }
-  const timeoutMs = normalizePositiveNumber(data['timeoutMs'])
-  const reason = readNonEmptyStringProperty(data, 'reason')
-
-  if (timeoutMs !== undefined) event.timeoutMs = timeoutMs
-  if (reason !== undefined) event.reason = reason
-  return event
-}
-
-function normalizeAiHostRunResultEvent(data: unknown): AiHostRunResultEvent | null {
-  if (!isRecord(data)) return null
-
-  const requestId = readRequiredString(data, 'requestId')
-  const alias = readRequiredString(data, 'alias')
-  const status = readAiHostRunStatus(data['status'])
-  if (requestId === null || alias === null || status === null) return null
-
-  const event: AiHostRunResultEvent = {
-    requestId,
-    alias,
-    status,
-  }
-  const durationMs = normalizePositiveNumber(data['durationMs'])
-  const clientTimestamp = normalizeOptionalTimestamp(data['clientTimestamp'])
-  const serverTimestamp = normalizeOptionalTimestamp(data['serverTimestamp'])
-  const sessionId = readNonEmptyStringProperty(data, 'sessionId')
-  const businessRegistrationId = readNonEmptyStringProperty(data, 'businessRegistrationId')
-  const businessInstanceId = readNonEmptyStringProperty(data, 'businessInstanceId')
-  const text = readNonEmptyStringProperty(data, 'text')
-  const reasoning = readNonEmptyStringProperty(data, 'reasoning')
-
-  if (durationMs !== undefined) event.durationMs = durationMs
-  if (clientTimestamp !== undefined) event.clientTimestamp = clientTimestamp
-  if (serverTimestamp !== undefined) event.serverTimestamp = serverTimestamp
-  if (sessionId !== undefined) event.sessionId = sessionId
-  if (businessRegistrationId !== undefined) event.businessRegistrationId = businessRegistrationId
-  if (businessInstanceId !== undefined) event.businessInstanceId = businessInstanceId
-  if (text !== undefined) event.text = text
-  if (reasoning !== undefined) event.reasoning = reasoning
-  if ('toolCalls' in data) event.toolCalls = data['toolCalls']
-  if ('error' in data) event.error = data['error']
-  return event
-}
-
 // Scalar readers ------------------------------------------------------------
 
 
@@ -741,33 +609,6 @@ function normalizeNumber(value: unknown, fallback = 0): number {
     if (Number.isFinite(parsed)) return parsed
   }
   return fallback
-}
-
-function normalizePositiveNumber(value: unknown): number | undefined {
-  const number = normalizeNumber(value, Number.NaN)
-  return Number.isFinite(number) && number > 0 ? number : undefined
-}
-
-function normalizeOptionalTimestamp(value: unknown): number | undefined {
-  if (value === undefined || value === null) return undefined
-  return normalizeTimestamp(value)
-}
-
-function readAiHostRunStatus(value: unknown): AiHostRunResultStatus | null {
-  if (typeof value !== 'string') return null
-  switch (value) {
-    case 'completed':
-    case 'failed':
-    case 'timeout':
-    case 'busy':
-    case 'unknown_alias':
-    case 'non_runnable':
-    case 'invalid_args':
-    case 'cancelled':
-      return value
-    default:
-      return null
-  }
 }
 
 function readRequiredString(data: Record<string, unknown>, key: string): string | null {

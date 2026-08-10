@@ -27,11 +27,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 </template>
 
 <script setup lang="ts">
-import type { NavContextState } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigationContextState } from '@spark-appworks/spark-app'
 import { useNav } from '@spark-appworks/spark-app'
 
 const props = defineProps<{
-  state: NavContextState
+  state: RuntimeNavigationContextState
 }>()
 
 const nav = useNav()

@@ -3,7 +3,7 @@
 ```text
 navigation/           ProjectNode、kinds、tree、index、edit（节点工具包，不依赖 page）
 page/                 ConfigPageNode、四文件、compile-files、canonicalize-page-data、content/*
-project/              ProjectModel、ProjectDesign、ProjectSession、ProjectWorkspace
+project/              ProjectModel、ProjectBlueprintDesign、ProjectSession、ProjectWorkspace
 io/                   HTTP、NavigationClient、PageFileApi、PageContentLoader、ProjectReferenceClient
 ```
 

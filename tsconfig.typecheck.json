@@ -39,6 +39,8 @@
       "@spark-appworks/spark-component/runtime": ["./packages/spark-component/src/runtime/index.ts"],
       "@spark-appworks/spark-component": ["./packages/spark-component/src/index.ts"],
       "@spark-appworks/spark-data": ["./packages/spark-data/src/index.ts"],
+      "@spark-appworks/spark-lowcode-api": ["./packages/spark-lowcode-api/src/index.ts"],
+      "@spark-appworks/spark-lowcode-api/contracts": ["./packages/spark-lowcode-api/src/contracts/index.ts"],
       "@spark-appworks/spark-project-model": ["./packages/spark-project-model/src/index.ts"],
       "@spark-appworks/spark-json-document": ["./packages/spark-json-document/src/index.ts"],
       // during development we prefer to resolve to source so that new exports
@@ -58,6 +60,7 @@
     "src/**/*.d.ts",
     "tests/**/*.ts",
     "tests/**/*.d.ts",
+    "backend-api-contracts/**/*.ts",
     "scripts/lib/**/*.d.ts",
     "packages/spark-ai/src/**/*.ts",
     "packages/spark-json-document/src/**/*.ts",

@@ -15,8 +15,6 @@ import type { Component } from 'vue'
 import {
   createRuntimePageNode,
   type PageContentLoader,
-  type ProjectModelData,
-  type ProjectNodeData,
 } from '@spark-appworks/spark-project-model'
 import { createLogger } from '../logger'
 import { readProperty } from '@spark-appworks/spark-utils/internal'
@@ -26,6 +24,7 @@ import { ExternalLinkFramePage } from './external-link-frame-page'
 import { InvalidSystemPage } from './invalid-system-page'
 import { resolveNavNodeRuntimeTarget } from '../navigation/runtime-target'
 import { resolveCrossProjectRefPageId, resolveNavRoutePageId } from './route-helpers'
+import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
 
 function isUnauthorizedError(error: unknown): boolean {
   return readProperty(error, 'status') === 401
@@ -80,9 +79,9 @@ export type DynamicRouterOptions = {
    * 导航数据加载函数 — 导航树作为路由的唯一来源。
    *
    * 已认证时 `registerRoutes()` 使用此函数加载远程导航树并派生路由。
-   * 返回的 ProjectModelData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。
+   * 返回的 ProjectBlueprintTreeData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。
    */
-  loadNavigation?: (() => Promise<ProjectModelData>) | undefined
+  loadNavigation?: (() => Promise<RuntimeNavigation>) | undefined
 
   /**
    * 平台工作台导航加载函数。
@@ -90,7 +89,7 @@ export type DynamicRouterOptions = {
    * 返回的节点 path 仍保持相对形态（如 /dashboard、/tenants），
    * 注册路由时统一映射到 platformPathPrefix 下（默认 /platform）。
    */
-  loadPlatformNavigation?: (() => Promise<ProjectModelData>) | undefined
+  loadPlatformNavigation?: (() => Promise<RuntimeNavigation>) | undefined
 
   /** 平台工作台路由前缀（默认 /platform）。 */
   platformPathPrefix?: string | undefined
@@ -105,7 +104,7 @@ export type DynamicRouterOptions = {
    * 使用此本地导航树注册路由（如 / 和 /login）。
    * 登录后 `refreshRoutes()` 会用远程导航树替换。
    */
-  preAuthNavTree?: ProjectModelData | undefined
+  preAuthNavTree?: RuntimeNavigation | undefined
 
   /**
    * 认证状态检查回调。
@@ -136,21 +135,21 @@ export class DynamicRouter {
   /** tenantPathPrefix 的实体路径匹配（如 '^/t/[^/]+'） */
   private tenantPathRegex: RegExp | null
   /** 导航数据加载函数（提供后从导航树派生路由） */
-  private _loadNavigation: (() => Promise<ProjectModelData>) | undefined
+  private _loadNavigation: (() => Promise<RuntimeNavigation>) | undefined
   /** 平台工作台导航数据加载函数 */
-  private _loadPlatformNavigation: (() => Promise<ProjectModelData>) | undefined
+  private _loadPlatformNavigation: (() => Promise<RuntimeNavigation>) | undefined
   private platformPathPrefix: string
   private _isPlatformNavigationEnabled: () => boolean
   /** 登录前本地导航树 */
-  private _preAuthNavTree: ProjectModelData | null = null
-  private _tenantNavTree: ProjectModelData | null = null
-  private _platformNavTree: ProjectModelData | null = null
+  private _preAuthNavTree: RuntimeNavigation | null = null
+  private _tenantNavTree: RuntimeNavigation | null = null
+  private _platformNavTree: RuntimeNavigation | null = null
   /** 认证状态检查回调 */
   private _isAuthenticated: () => boolean
   /** 已加载的导航树（UI 侧栏/顶栏共享此数据） */
-  private _navTree: ProjectModelData | null = null
-  /** ProjectNodeData → 注册路由路径追踪（弱引用，导航树刷新后自动 GC） */
-  private _navRouteMap = new WeakMap<ProjectNodeData, string>()
+  private _navTree: RuntimeNavigation | null = null
+  /** ProjectBlueprintTreeNodeData → 注册路由路径追踪（弱引用，导航树刷新后自动 GC） */
+  private _navRouteMap = new WeakMap<RuntimeNavigationItem, string>()
 
     /** 创建 Dynamic Router 实例。 */
 constructor(options: DynamicRouterOptions) {
@@ -224,7 +223,7 @@ constructor(options: DynamicRouterOptions) {
     return currentPath === this.platformPathPrefix || currentPath.startsWith(`${this.platformPathPrefix}/`)
   }
 
-  private activeNavTree(): ProjectModelData | null {
+  private activeNavTree(): RuntimeNavigation | null {
     if (this.isCurrentPlatformRoute() && this._platformNavTree !== null) {
       return this._platformNavTree
     }
@@ -278,7 +277,7 @@ constructor(options: DynamicRouterOptions) {
     this.registeredRoutes.add(routePath)
   }
 
-  private resolveCrossProjectRefUrl(node: ProjectNodeData): string | null {
+  private resolveCrossProjectRefUrl(node: RuntimeNavigationItem): string | null {
     const refPath = typeof node.refPath === 'string' ? node.refPath.trim() : ''
     if (refPath === '') return null
 
@@ -304,7 +303,7 @@ constructor(options: DynamicRouterOptions) {
 
     // preAuthNavTree 只服务未登录入口和 401 回退。登录后导航路由必须完全来自远端导航树。
     if (!authenticated && this._preAuthNavTree) {
-      this.registerRoutesFromNav(this._preAuthNavTree.children, { skipTenantPrefix: true, routeNamePrefix: 'public' })
+      this.registerRoutesFromNav(this._preAuthNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public' })
     }
 
     if (this._loadNavigation && authenticated) {
@@ -318,11 +317,11 @@ constructor(options: DynamicRouterOptions) {
         if (isUnauthorizedError(error) && this._preAuthNavTree) {
           routerLogger.warn('远程导航加载返回 401，回退到 preAuthNavTree', {
             reason: 'unauthorized',
-            fallbackNodeCount: this._preAuthNavTree.children.length,
+            fallbackNodeCount: this._preAuthNavTree.items.length,
           })
           this._navTree = this._preAuthNavTree
           this._navRouteMap = new WeakMap()
-          this.registerRoutesFromNav(this._preAuthNavTree.children, { skipTenantPrefix: true, routeNamePrefix: 'public' })
+          this.registerRoutesFromNav(this._preAuthNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public' })
         } else {
           throw error
         }
@@ -330,7 +329,7 @@ constructor(options: DynamicRouterOptions) {
     } else if (this._preAuthNavTree) {
       this._navTree = this._preAuthNavTree
       this._navRouteMap = new WeakMap()
-      routerLogger.info('预认证导航树路由注册完成', { nodeCount: this._preAuthNavTree.children.length })
+      routerLogger.info('预认证运行导航路由注册完成', { nodeCount: this._preAuthNavTree.items.length })
     }
 
     routerLogger.info('动态路由注册完成', { count: this.registeredRoutes.size })
@@ -345,8 +344,8 @@ constructor(options: DynamicRouterOptions) {
     this._tenantNavTree = navRoot
     this._navTree = navRoot
     this._navRouteMap = new WeakMap()
-    this.registerRoutesFromNav(navRoot.children)
-    routerLogger.info('导航树路由注册完成', { nodeCount: navRoot.children.length })
+    this.registerRoutesFromNav(navRoot.items)
+    routerLogger.info('运行导航路由注册完成', { nodeCount: navRoot.items.length })
   }
 
   private async loadAndRegisterPlatformNav(): Promise<void> {
@@ -355,12 +354,12 @@ constructor(options: DynamicRouterOptions) {
     }
     const navRoot = await this._loadPlatformNavigation()
     this._platformNavTree = navRoot
-    this.registerRoutesFromNav(navRoot.children, {
+    this.registerRoutesFromNav(navRoot.items, {
       routePathPrefix: this.platformPathPrefix,
       routeNamePrefix: 'platform',
     })
     routerLogger.info('平台导航树路由注册完成', {
-      nodeCount: navRoot.children.length,
+      nodeCount: navRoot.items.length,
       prefix: this.platformPathPrefix,
     })
   }
@@ -380,7 +379,7 @@ constructor(options: DynamicRouterOptions) {
    * - 其他页面类节点 → pageComponent (PageRenderer)
    * @param options 路由注册作用域；public 跳过租户前缀，platform 使用 /platform 前缀
    */
-  private registerRoutesFromNav(nodes: ProjectNodeData[], options: RouteRegistrationOptions = {}): void {
+  private registerRoutesFromNav(nodes: RuntimeNavigationItem[], options: RouteRegistrationOptions = {}): void {
     const skipTenantPrefix = options.skipTenantPrefix === true
     const routePathPrefix = options.routePathPrefix
     this.registerCrossProjectRefHostRoute(skipTenantPrefix || routePathPrefix !== undefined)
@@ -388,7 +387,7 @@ constructor(options: DynamicRouterOptions) {
     for (const node of nodes) {
       const target = resolveNavNodeRuntimeTarget(node)
 
-      // external / action / container / hidden 节点不注册路由
+      // external / action / container 节点不注册路由；hidden 只控制菜单可见性。
       if (target.kind !== 'route') {
         // 仍然递归子节点
         if (node.children?.length) {
@@ -404,8 +403,11 @@ constructor(options: DynamicRouterOptions) {
       const nodePath = typeof node.path === 'string' ? node.path.trim() : ''
       const relativePath = this.normalizePath(rawNodePath)
       const component = this.staticComponentMap.get(relativePath)
-      const useStaticComponent = target.routeKind === 'page' && (node.nodeKind === 'system-page' || component !== undefined)
+      const useStaticComponent = target.routeKind === 'page' && (node.itemKind === 'system-page' || component !== undefined)
       const pageId = resolveNavRoutePageId(node, rawNodePath)
+      const dataSpaceBinding = node.formKey && node.dataSpaceId && node.modelId
+        ? { formKey: node.formKey, dataSpaceId: node.dataSpaceId, modelId: node.modelId }
+        : null
       const refPageId = isCrossProjectRefNode ? resolveCrossProjectRefPageId(node.refPath) : null
       // 平台级路由（preAuth）不加前缀，远程导航树路由统一加租户前缀
       const routePath = routePathPrefix !== undefined
@@ -422,7 +424,7 @@ constructor(options: DynamicRouterOptions) {
           ? 'cross-project-ref'
           : useStaticComponent && component !== undefined
             ? 'system-page'
-            : node.nodeKind === 'system-page'
+            : node.itemKind === 'system-page'
               ? 'invalid-system-page'
               : 'config-page'
 
@@ -536,7 +538,7 @@ constructor(options: DynamicRouterOptions) {
           if (shouldLogDynamicRouteDetails()) {
             routerLogger.debug(`Vue 组件路由已注册(nav): ${routePath}`)
           }
-      } else if (node.nodeKind === 'system-page') {
+      } else if (node.itemKind === 'system-page') {
         routerLogger.warn('system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页', {
           path: node.path,
           nodeId: node.id,
@@ -567,12 +569,21 @@ constructor(options: DynamicRouterOptions) {
           name: routeName,
           component: this.pageComponent,
           props: {
-            pageNode: createRuntimePageNode(pageId, this.pageContentLoader),
+            pageNode: createRuntimePageNode(pageId, this.pageContentLoader, {
+              id: node.id,
+              title: node.title,
+              nodeKind: node.itemKind ?? 'page',
+              ...(node.path === undefined ? {} : { path: node.path }),
+              ...(node.formKey === undefined ? {} : { formKey: node.formKey }),
+              ...(node.dataSpaceId === undefined ? {} : { dataSpaceId: node.dataSpaceId }),
+              ...(node.modelId === undefined ? {} : { modelId: node.modelId }),
+            }),
             pageId,
           },
           meta: {
             type: 'config-page',
             pageId,
+            dataSpaceBinding,
             title: node.title,
             ...(node.description !== undefined && { description: node.description }),
             ...(node.icon !== undefined && { icon: node.icon }),
@@ -607,7 +618,7 @@ constructor(options: DynamicRouterOptions) {
   }
 
   /** 刷新路由（重新加载导航树，保留静态组件映射），返回加载后的导航树 */
-  async refreshRoutes(): Promise<ProjectModelData | null> {
+  async refreshRoutes(): Promise<RuntimeNavigation | null> {
     routerLogger.info('刷新动态路由')
 
     // 保存旧路由集合；先注册新路由再删除旧路由，避免 Vue Router 内部
@@ -623,7 +634,7 @@ constructor(options: DynamicRouterOptions) {
       if (this._preAuthNavTree) {
         this._navTree = this._preAuthNavTree
         this._navRouteMap = new WeakMap()
-        this.registerRoutesFromNav(this._preAuthNavTree.children, { skipTenantPrefix: true, routeNamePrefix: 'public' })
+        this.registerRoutesFromNav(this._preAuthNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public' })
       }
       throw error
     }
@@ -643,7 +654,7 @@ constructor(options: DynamicRouterOptions) {
   }
 
   /** 获取已加载的导航树（导航模式下可用） */
-  getNavTree(): ProjectModelData | null {
+  getNavTree(): RuntimeNavigation | null {
     this._navTree = this.activeNavTree()
     return this._navTree
   }

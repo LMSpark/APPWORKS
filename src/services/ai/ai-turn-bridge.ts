@@ -1,144 +1,187 @@
 /**
  * @module app:services/ai-turn-bridge
- * 职责：提供应用运行时 service 层的 ai turn bridge 能力，连接项目模型、AI Host、租户上下文或页面设计流程。
- * 边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。
- * AI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。
- */
-/**
- * APP-owned AI turn bridge.
- *
- * HTTP commands and APP SSE subscription stay in src/services; spark-ai only
- * receives callbacks and aggregates events.
+ * 职责：把 spark-ai 的本地工具循环语义映射到 lowcode-jdk17 Agent turn 与 SSE 合同。
+ * 边界：Agent、会话和模型配置由 lowcode 后端持有；前端只执行已注册的前端工具并回传结果。
  */
 
 import {
   createAiAgentHost,
-  createAiAgentTransportTurn,
-  createTurnEventCollector,
-  toAiAgentRuntimeScope,
+  type AiAgentAppSseEvent,
+  type AiAgentStreamTurnInput,
+  type AiAgentStreamTurnResult,
+  type AiAgentTransportToolCall,
   type AiAgentTurnCallbacks,
 } from '@spark-appworks/spark-ai/agent'
-import type * as SparkAiAgent from '@spark-appworks/spark-ai/agent'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { http } from '@/services/http'
-import { createAppSseEventSource } from '@/services/sse-events'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { onAnyServerEnvelopeEvent, waitForAppSseConnection } from '@/services/sse-events'
 
-const AI_TURN_PROTOCOL_VERSION = 4
 const AI_TURN_EVENT_TIMEOUT_MS = 300_000
 const AI_TURN_IDLE_TIMEOUT_MS = 90_000
-const AI_SESSION_TURN_SAFE_RETRIES = 2
-const AI_SESSION_TURN_RETRY_BASE_MS = 800
-const AI_SESSION_API_BASE = '/api/ai/sessions'
-const AI_TURN_API = '/api/ai/turns'
+const TOOL_CALL_SETTLE_MS = 40
+const MAX_UNBOUND_EVENTS = 100
 const MAX_AI_TURN_DIAGNOSTICS = 300
 
-/** Ai Turn Bridge Diagnostic 的诊断信息。 */
 type AiTurnBridgeDiagnostic = Readonly<{
-  /** 诊断记录时间戳（毫秒）。 */
   at: number
-  /** 诊断事件类型标识。 */
   type: string
-  /** 关联的 AI 会话 id。 */
   sessionId?: string
-  /** 关联的 turn id。 */
   turnId?: string
-  /** 可选的错误或状态描述。 */
   message?: string
-  /** 附加结构化诊断详情。 */
   details?: Record<string, unknown>
+}>
+
+type AiTurnTimeouts = Readonly<{
+  timeoutMs: number
+  idleTimeoutMs: number
+}>
+
+type LowcodeTurnIdentity = Readonly<{
+  sessionId: string
+  turnId: string
+}>
+
+type LowcodeTurnOutcome = Readonly<{
+  result: AiAgentStreamTurnResult
+  sessionId: string
+  pendingTurnId?: string
+  toolNames: ReadonlyMap<string, string>
+}>
+
+type LowcodeTurnCollector = Readonly<{
+  result: Promise<LowcodeTurnOutcome>
+  bind(identity: LowcodeTurnIdentity): void
+  close(): void
+}>
+
+type LowcodeToolBinding = Readonly<{
+  input: AiAgentStreamTurnInput
+  sessionId: string
+  pendingTurnId: string
+  toolNames: ReadonlyMap<string, string>
+}>
+
+type PendingContinuation = Readonly<{
+  collector: LowcodeTurnCollector
+}>
+
+export type AiAgentTurnBridgeOptions = Readonly<{
+  timeoutMs?: number
+  idleTimeoutMs?: number
 }>
 
 const aiTurnDiagnostics: AiTurnBridgeDiagnostic[] = []
 
-/** Ai Agent Turn Bridge Options 的调用配置。 */
-export type AiAgentTurnBridgeOptions = Readonly<{
-  /** 传输模式：app-sse（SSE 流式）或 session-turn（同步回合）。 */
-  transport?: 'app-sse' | 'session-turn'
-  /** turn 事件总超时（毫秒）。 */
-  timeoutMs?: number
-  /** 流式 idle 超时（毫秒）。 */
-  idleTimeoutMs?: number
-  /** 上下文窗口大小（消息条数上限）。 */
-  windowSize?: number
-}>
-
 export function createAiAgentTurnCallbacks(options: AiAgentTurnBridgeOptions = {}): AiAgentTurnCallbacks {
-  const transport = options.transport ?? 'app-sse'
-  const timeoutMs = options.timeoutMs ?? AI_TURN_EVENT_TIMEOUT_MS
-  const idleTimeoutMs = options.idleTimeoutMs ?? AI_TURN_IDLE_TIMEOUT_MS
-  const windowSize = normalizeWindowSize(options.windowSize)
+  const timeouts = readTimeouts(options)
+  const toolBindings = new Map<string, LowcodeToolBinding>()
+  const continuations = new Map<string, PendingContinuation>()
 
   return {
-    prepareSession: async (input) => {
-      // The backend owns session lifecycle and persistence; APP only ensures it before a turn.
-      recordAiTurnDiagnostic({ type: 'prepare-session-request', sessionId: input.sessionId })
-      const body = await http.post(AI_SESSION_API_BASE, {
-        protocolVersion: AI_TURN_PROTOCOL_VERSION,
+    prepareSession: (input) => {
+      recordAiTurnDiagnostic({
+        type: 'prepare-session-lowcode-owned',
         sessionId: input.sessionId,
-        systemPrompt: input.systemPrompt,
-        messages: [],
-        tools: input.tools,
-        mode: 'function',
-        scope: toAiAgentRuntimeScope(input.scope),
-        reuseScopeSession: false,
-        ...(windowSize === undefined ? {} : { windowSize }),
-      }, signalConfig(input.signal))
-      assertPreparedSession(body, input)
-      recordAiTurnDiagnostic({ type: 'prepare-session-ok', sessionId: input.sessionId })
+        details: {
+          agentId: input.scope.businessRegistrationId,
+          toolCount: input.tools.length,
+        },
+      })
+      return Promise.resolve()
     },
     executeTurn: async (input) => {
-      if (transport === 'session-turn') {
-        return executeSessionTurn(input, windowSize)
+      const continuation = continuations.get(input.sessionId)
+      if (continuation !== undefined) {
+        continuations.delete(input.sessionId)
+        recordAiTurnDiagnostic({
+          type: 'turn-continue-wait',
+          sessionId: input.sessionId,
+          turnId: input.turn.turnId,
+        })
+        const outcome = await continuation.collector.result
+        retainToolBinding(toolBindings, input, outcome)
+        return outcome.result
       }
 
-      const diagnosticInput = withTurnDiagnostics(input)
-      const collector = createTurnEventCollector({
-        input: diagnosticInput,
-        source: createAppSseEventSource(),
-        timeoutMs,
-        idleTimeoutMs,
-      })
+      const agentId = input.scope.businessRegistrationId.trim()
+      const message = readCurrentUserMessage(input)
+      if (agentId === '') throw new Error('lowcode Agent 缺少业务注册 ID，无法解析后端 agentId')
+      if (message === undefined) throw new Error('lowcode Agent turn 缺少当前用户消息')
+
+      const collector = createLowcodeTurnCollector(input, timeouts)
       try {
+        await waitForAppSseConnection()
         recordAiTurnDiagnostic({
           type: 'turn-start-request',
           sessionId: input.sessionId,
           turnId: input.turn.turnId,
-          details: { messageCount: input.messages.length },
+          details: { agentId },
         })
-        const body = await http.post(AI_TURN_API, {
-          sessionId: input.sessionId,
-          turnId: input.turn.turnId,
-          messages: input.messages,
-          systemPrompt: input.systemPrompt,
-          ...(windowSize === undefined ? {} : { windowSize }),
-        }, signalConfig(input.signal))
-        assertTurnStart(body, input)
+        // lowcode /api/ai/turns 每次创建一段新的持久会话；不复用 spark-ai
+        // 的本地业务 sessionId，避免覆盖或重复创建已有后端会话。
+        const ack = await lowcodeApi.realtime.startAgentTurn({ agentId, message })
+        collector.bind(ack)
+        const outcome = await collector.result
+        retainToolBinding(toolBindings, input, outcome)
         recordAiTurnDiagnostic({
-          type: 'turn-start-accepted',
-          sessionId: input.sessionId,
-          turnId: input.turn.turnId,
-          details: { started: isRecord(body) ? body['started'] : undefined },
+          type: 'turn-complete',
+          sessionId: ack.sessionId,
+          turnId: ack.turnId,
+          details: { toolCallCount: outcome.result.toolCalls.length },
         })
-        return await collector.result
+        return outcome.result
       } catch (error) {
+        collector.close()
         recordAiTurnDiagnostic({
           type: 'turn-error',
           sessionId: input.sessionId,
           turnId: input.turn.turnId,
           message: errorMessage(error),
         })
-        collector.close()
         throw error
       }
     },
     appendMessages: async (input) => {
-      const body = await http.post(`${AI_SESSION_API_BASE}/${encodeURIComponent(input.sessionId)}/turn/append`, {
-        protocolVersion: AI_TURN_PROTOCOL_VERSION,
-        scope: toAiAgentRuntimeScope(input.scope),
-        turn: createAiAgentTransportTurn(input),
-        messages: input.messages,
-      })
-      assertAppendMessages(body, input)
+      const bindingKey = toToolBindingKey(input.sessionId, input.turn.turnId)
+      const binding = toolBindings.get(bindingKey)
+      if (binding === undefined) {
+        throw new Error(`lowcode Agent 工具回传缺少真实 turn 绑定：${input.turn.turnId}`)
+      }
+      toolBindings.delete(bindingKey)
+      const toolResults = input.messages
+        .filter(message => message.role === 'tool')
+        .map((message) => {
+          const toolCallId = message.tool_call_id?.trim() ?? ''
+          const toolName = binding.toolNames.get(toolCallId)
+          if (toolCallId === '' || toolName === undefined) {
+            throw new Error(`lowcode Agent 工具结果无法匹配真实工具调用：${toolCallId || '(empty)'}`)
+          }
+          return { toolCallId, toolName, result: message.content }
+        })
+      if (toolResults.length === 0) {
+        throw new Error('lowcode Agent append 只接受真实前端工具结果')
+      }
+
+      const collector = createLowcodeTurnCollector(binding.input, timeouts)
+      collector.bind({ sessionId: binding.sessionId, turnId: binding.pendingTurnId })
+      continuations.set(input.sessionId, { collector })
+      try {
+        recordAiTurnDiagnostic({
+          type: 'tool-results-append',
+          sessionId: binding.sessionId,
+          turnId: binding.pendingTurnId,
+          details: { toolResultCount: toolResults.length },
+        })
+        await lowcodeApi.realtime.appendAgentToolResults({
+          sessionId: binding.sessionId,
+          turnId: binding.pendingTurnId,
+          toolResults,
+        })
+      } catch (error) {
+        continuations.delete(input.sessionId)
+        collector.close()
+        throw error
+      }
     },
   }
 }
@@ -151,21 +194,255 @@ export function clearAiTurnBridgeDiagnostics(): void {
   aiTurnDiagnostics.length = 0
 }
 
-function withTurnDiagnostics(
-  input: SparkAiAgent.AiAgentStreamTurnInput,
-): SparkAiAgent.AiAgentStreamTurnInput {
+function createLowcodeTurnCollector(
+  input: AiAgentStreamTurnInput,
+  timeouts: AiTurnTimeouts,
+): LowcodeTurnCollector {
+  let identity: LowcodeTurnIdentity | null = null
+  let settled = false
+  let text = ''
+  const toolCalls: AiAgentTransportToolCall[] = []
+  let pendingTurnId: string | undefined
+  const unboundEvents: AiAgentAppSseEvent[] = []
+  let resolveResult: ((outcome: LowcodeTurnOutcome) => void) | null = null
+  let rejectResult: ((error: unknown) => void) | null = null
+  let absoluteTimer: ReturnType<typeof setTimeout> | null = null
+  let idleTimer: ReturnType<typeof setTimeout> | null = null
+  let toolSettleTimer: ReturnType<typeof setTimeout> | null = null
+
+  const clearTimers = (): void => {
+    if (absoluteTimer !== null) clearTimeout(absoluteTimer)
+    if (idleTimer !== null) clearTimeout(idleTimer)
+    if (toolSettleTimer !== null) clearTimeout(toolSettleTimer)
+    absoluteTimer = null
+    idleTimer = null
+    toolSettleTimer = null
+  }
+  const stop = onAnyServerEnvelopeEvent((event) => {
+    if (settled) return
+    if (identity === null) {
+      unboundEvents.push(event)
+      if (unboundEvents.length > MAX_UNBOUND_EVENTS) unboundEvents.shift()
+      return
+    }
+    handleEvent(event)
+  })
+  const cleanup = (): void => {
+    stop()
+    clearTimers()
+    input.signal?.removeEventListener('abort', handleAbort)
+  }
+  const fail = (error: unknown): void => {
+    if (settled) return
+    settled = true
+    cleanup()
+    rejectResult?.(error)
+  }
+  const complete = (): void => {
+    if (settled || identity === null) return
+    settled = true
+    cleanup()
+    const toolNames = new Map(toolCalls.map(call => [call.id, call.function.name]))
+    resolveResult?.({
+      result: {
+        text: toolCalls.length > 0 ? '' : text,
+        toolCalls,
+        assistantMessagePersisted: true,
+      },
+      sessionId: identity.sessionId,
+      ...(pendingTurnId === undefined ? {} : { pendingTurnId }),
+      toolNames,
+    })
+  }
+  const resetIdleTimer = (): void => {
+    if (idleTimer !== null) clearTimeout(idleTimer)
+    idleTimer = setTimeout(() => {
+      fail(new Error(`lowcode Agent turn 空闲超时：${identity?.turnId ?? input.turn.turnId}`))
+    }, timeouts.idleTimeoutMs)
+  }
+  const scheduleToolCompletion = (): void => {
+    if (toolSettleTimer !== null) clearTimeout(toolSettleTimer)
+    toolSettleTimer = setTimeout(complete, TOOL_CALL_SETTLE_MS)
+  }
+  const handleEvent = (event: AiAgentAppSseEvent): void => {
+    const bound = identity
+    if (bound === null) return
+    const context = readEventContext(event)
+    if (context?.sessionId !== bound.sessionId) return
+    const isRootTurn = context.turnId === bound.turnId
+    const isChildTurn = context.turnId.startsWith(`${bound.turnId}_`)
+    if (!isRootTurn && !isChildTurn) return
+    resetIdleTimer()
+    if (!event.ok) {
+      emitStreamEvent(input, 'error', event.data)
+      fail(new Error(readLowcodeEventError(event.data)))
+      return
+    }
+    if (event.name === 'tool_call') {
+      const call = readLowcodeToolCall(event.data)
+      if (call === null) {
+        fail(new Error('lowcode tool_call 事件缺少有效工具调用'))
+        return
+      }
+      if (!toolCalls.some(item => item.id === call.id)) toolCalls.push(call)
+      pendingTurnId ??= context.turnId
+      emitStreamEvent(input, 'result', event.data)
+      scheduleToolCompletion()
+      return
+    }
+    if (event.name !== 'llm-frame' || !isRootTurn) return
+    const delta = readLowcodeDelta(event.data)
+    if (delta !== '') {
+      text += delta
+      input.onDelta?.(delta)
+      emitStreamEvent(input, 'delta', event.data)
+    }
+    if (event.event?.terminal === true) {
+      emitStreamEvent(input, 'done', event.data)
+      complete()
+    }
+  }
+  const handleAbort = (): void => fail(new Error('lowcode Agent turn 已取消'))
+  const result = new Promise<LowcodeTurnOutcome>((resolve, reject) => {
+    resolveResult = resolve
+    rejectResult = reject
+    absoluteTimer = setTimeout(() => {
+      fail(new Error(`lowcode Agent turn 总超时：${identity?.turnId ?? input.turn.turnId}`))
+    }, timeouts.timeoutMs)
+    resetIdleTimer()
+    input.signal?.addEventListener('abort', handleAbort, { once: true })
+  })
+  result.catch(() => undefined)
+
   return {
-    ...input,
-    onStreamEvent: (event) => {
-      recordAiTurnDiagnostic({
-        type: 'turn-frame',
-        sessionId: input.sessionId,
-        turnId: input.turn.turnId,
-        details: { frameType: event.type },
-      })
-      input.onStreamEvent?.(event)
+    result,
+    bind(nextIdentity) {
+      if (identity !== null) throw new Error('lowcode Agent collector 已绑定真实 turn')
+      identity = nextIdentity
+      for (const event of unboundEvents.splice(0)) handleEvent(event)
+    },
+    close() {
+      fail(new Error('lowcode Agent collector 已关闭'))
     },
   }
+}
+
+function retainToolBinding(
+  bindings: Map<string, LowcodeToolBinding>,
+  input: AiAgentStreamTurnInput,
+  outcome: LowcodeTurnOutcome,
+): void {
+  if (outcome.result.toolCalls.length === 0) return
+  if (outcome.pendingTurnId === undefined) {
+    throw new Error('lowcode Agent 工具调用缺少后端 pending turnId')
+  }
+  bindings.set(toToolBindingKey(input.sessionId, input.turn.turnId), {
+    input,
+    sessionId: outcome.sessionId,
+    pendingTurnId: outcome.pendingTurnId,
+    toolNames: outcome.toolNames,
+  })
+}
+
+function readTimeouts(options: AiAgentTurnBridgeOptions): AiTurnTimeouts {
+  return {
+    timeoutMs: readPositiveTimeout(options.timeoutMs, AI_TURN_EVENT_TIMEOUT_MS, 'timeoutMs'),
+    idleTimeoutMs: readPositiveTimeout(options.idleTimeoutMs, AI_TURN_IDLE_TIMEOUT_MS, 'idleTimeoutMs'),
+  }
+}
+
+function readPositiveTimeout(value: number | undefined, fallback: number, name: string): number {
+  if (value === undefined) return fallback
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new Error(`createAiAgentTurnCallbacks.${name} 必须是正数`)
+  }
+  return Math.floor(value)
+}
+
+function readCurrentUserMessage(input: AiAgentStreamTurnInput): string | undefined {
+  for (let index = input.messages.length - 1; index >= 0; index -= 1) {
+    const message = input.messages[index]
+    if (message?.role !== 'user') continue
+    const content = message.content.trim()
+    if (content !== '') return content
+  }
+  return undefined
+}
+
+function readEventContext(event: AiAgentAppSseEvent): LowcodeTurnIdentity | null {
+  if (!isRecord(event.context)) return null
+  const session = event.context['session']
+  const turn = event.context['turn']
+  if (!isRecord(session) || !isRecord(turn)) return null
+  const sessionId = readText(session['sessionId'])
+  const turnId = readText(turn['turnId'])
+  return sessionId === undefined || turnId === undefined ? null : { sessionId, turnId }
+}
+
+function readLowcodeDelta(data: unknown): string {
+  return isRecord(data) && typeof data['content'] === 'string' ? data['content'] : ''
+}
+
+function readLowcodeToolCall(data: unknown): AiAgentTransportToolCall | null {
+  if (!isRecord(data)) return null
+  const toolCallId = readText(data['toolCallId'])
+  const toolName = readText(data['toolName'])
+  const toolCallJson = readText(data['toolCallJson'])
+  if (toolCallId === undefined || toolName === undefined || toolCallJson === undefined) return null
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(toolCallJson)
+  } catch {
+    return null
+  }
+  const fn = isRecord(parsed) && isRecord(parsed['function']) ? parsed['function'] : null
+  const rawArguments = fn?.['arguments']
+  return {
+    id: toolCallId,
+    type: 'function',
+    function: {
+      name: toolName,
+      arguments: typeof rawArguments === 'string' ? rawArguments : JSON.stringify(rawArguments ?? {}),
+    },
+  }
+}
+
+function readLowcodeEventError(data: unknown): string {
+  if (!isRecord(data)) return 'lowcode Agent turn 失败'
+  const message = readText(data['message']) ?? 'lowcode Agent turn 失败'
+  const code = readText(data['code'])
+  return code === undefined ? message : `${message}（${code}）`
+}
+
+function emitStreamEvent(input: AiAgentStreamTurnInput, type: 'delta' | 'result' | 'error' | 'done', data: unknown): void {
+  input.onStreamEvent?.({
+    type,
+    data,
+    turnKey: '',
+    streamKey: '',
+    scope: {
+      businessRegistrationId: input.scope.businessRegistrationId,
+      businessInstanceId: input.scope.businessInstanceId,
+      eventModuleId: 'llm',
+      turnId: input.turn.turnId,
+    },
+  })
+  recordAiTurnDiagnostic({
+    type: 'turn-frame',
+    sessionId: input.sessionId,
+    turnId: input.turn.turnId,
+    details: { frameType: type },
+  })
+}
+
+function toToolBindingKey(sessionId: string, turnId: string): string {
+  return `${sessionId}\u0000${turnId}`
+}
+
+function readText(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const normalized = value.trim()
+  return normalized === '' ? undefined : normalized
 }
 
 type RecordAiTurnDiagnosticCommand = Readonly<{
@@ -185,211 +462,15 @@ function recordAiTurnDiagnostic(command: RecordAiTurnDiagnosticCommand): void {
     ...(command.message === undefined ? {} : { message: command.message }),
     ...(command.details === undefined ? {} : { details: command.details }),
   })
-  while (aiTurnDiagnostics.length > MAX_AI_TURN_DIAGNOSTICS) {
-    aiTurnDiagnostics.shift()
-  }
-}
-
-async function executeSessionTurn(
-  input: SparkAiAgent.AiAgentStreamTurnInput,
-  windowSize: number | undefined,
-): Promise<SparkAiAgent.AiAgentStreamTurnResult> {
-  for (let attempt = 0; ; attempt += 1) {
-    try {
-      return await executeSessionTurnOnce(input, windowSize)
-    } catch (error) {
-      if (attempt >= AI_SESSION_TURN_SAFE_RETRIES || !isSafeRetryableTurnError(error)) throw error
-      await delay(AI_SESSION_TURN_RETRY_BASE_MS * 2 ** attempt, input.signal)
-    }
-  }
-}
-
-async function executeSessionTurnOnce(
-  input: SparkAiAgent.AiAgentStreamTurnInput,
-  windowSize: number | undefined,
-): Promise<SparkAiAgent.AiAgentStreamTurnResult> {
-  const body = await http.post(`${AI_SESSION_API_BASE}/${encodeURIComponent(input.sessionId)}/turn`, {
-    protocolVersion: AI_TURN_PROTOCOL_VERSION,
-    scope: toAiAgentRuntimeScope(input.scope),
-    turn: createAiAgentTransportTurn(input),
-    messages: input.messages,
-    ...(windowSize === undefined ? {} : { windowSize }),
-  }, signalConfig(input.signal))
-  const result = readSessionTurnResult(body, input)
-  emitSyntheticSessionTurnEvent(input, body)
-  if (result.reasoning !== undefined && result.reasoning.length > 0) {
-    input.onReasoning?.(result.reasoning)
-  }
-  if (result.toolCalls.length === 0 && result.text.length > 0) {
-    input.onDelta?.(result.text)
-  }
-  return result
-}
-
-function isSafeRetryableTurnError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : ''
-  const record = isRecord(error) ? error : {}
-  const code = typeof record['code'] === 'string' ? record['code'] : ''
-  const response = record['response']
-  const retryPolicy = readNestedString(response, ['error', 'retryPolicy'])
-    ?? readNestedString(response, ['error', 'details', 'error', 'retryPolicy'])
-  const envelopeCode = readNestedString(response, ['error', 'code'])
-    ?? readNestedString(response, ['error', 'details', 'error', 'code'])
-  return retryPolicy === 'safe-retry'
-    || code === 'LLM_CALL_FAILED'
-    || envelopeCode === 'LLM_CALL_FAILED'
-    || message.includes('LLM_CALL_FAILED')
-}
-
-function readNestedString(value: unknown, path: readonly string[]): string | undefined {
-  let current = value
-  for (const key of path) {
-    if (!isRecord(current)) return undefined
-    current = current[key]
-  }
-  return typeof current === 'string' && current.trim().length > 0 ? current.trim() : undefined
-}
-
-async function delay(ms: number, signal: AbortSignal | undefined): Promise<void> {
-  if (signal?.aborted) throw new Error('AI session turn retry aborted')
-  await new Promise<void>((resolve, reject) => {
-    let onAbort = (): void => undefined
-    const cleanup = (): void => signal?.removeEventListener('abort', onAbort)
-    const timer = window.setTimeout(() => {
-      cleanup()
-      resolve()
-    }, ms)
-    onAbort = (): void => {
-      window.clearTimeout(timer)
-      cleanup()
-      reject(new Error('AI session turn retry aborted'))
-    }
-    signal?.addEventListener('abort', onAbort, { once: true })
-  })
-}
-
-function signalConfig(signal: AbortSignal | undefined): { signal: AbortSignal } | undefined {
-  return signal === undefined ? undefined : { signal }
-}
-
-function normalizeWindowSize(value: number | undefined): number | undefined {
-  if (value === undefined) return undefined
-  if (!Number.isFinite(value) || value <= 0) {
-    throw new Error('createAiAgentTurnCallbacks.windowSize must be a positive number')
-  }
-  return Math.floor(value)
-}
-
-function assertPreparedSession(body: unknown, input: SparkAiAgent.AiAgentPrepareSessionInput): void {
-  const sessionId = readString(body, 'sessionId') ?? input.sessionId
-  if (sessionId !== input.sessionId) {
-    throw new Error(`AI prepare sessionId mismatch: expected=${input.sessionId}, actual=${sessionId}`)
-  }
-}
-
-function assertTurnStart(body: unknown, input: SparkAiAgent.AiAgentStreamTurnInput): void {
-  if (!isRecord(body)) {
-    throw new Error('AI turn start response missing body')
-  }
-  if (body['accepted'] !== true) {
-    throw new Error('AI turn start response was not accepted')
-  }
-  const sessionId = readString(body, 'sessionId')
-  const turnId = readString(body, 'turnId')
-  if (sessionId !== input.sessionId) {
-    throw new Error('AI turn start response sessionId mismatch')
-  }
-  if (turnId !== input.turn.turnId) {
-    throw new Error('AI turn start response turnId mismatch')
-  }
-}
-
-function assertAppendMessages(body: unknown, input: SparkAiAgent.AiAgentAppendMessagesInput): void {
-  if (!isRecord(body)) {
-    throw new Error('AI append response missing body')
-  }
-  const sessionId = readString(body, 'sessionId')
-  const turnId = readString(body, 'turnId')
-  if (sessionId !== input.sessionId) {
-    throw new Error('AI append response sessionId mismatch')
-  }
-  if (turnId !== input.turn.turnId) {
-    throw new Error('AI append response turnId mismatch')
-  }
-}
-
-function readSessionTurnResult(
-  body: unknown,
-  input: SparkAiAgent.AiAgentStreamTurnInput,
-): SparkAiAgent.AiAgentStreamTurnResult {
-  if (!isRecord(body)) {
-    throw new Error('AI session turn response missing body')
-  }
-  const sessionId = readString(body, 'sessionId')
-  if (sessionId !== input.sessionId) {
-    throw new Error('AI session turn response sessionId mismatch')
-  }
-  const turnId = readString(body, 'turnId')
-  if (turnId !== undefined && turnId !== input.turn.turnId) {
-    throw new Error('AI session turn response turnId mismatch')
-  }
-  return {
-    text: typeof body['text'] === 'string' ? body['text'] : '',
-    ...(typeof body['reasoning'] === 'string' ? { reasoning: body['reasoning'] } : {}),
-    toolCalls: readToolCalls(body['toolCalls']),
-    assistantMessagePersisted: true,
-  }
-}
-
-function readToolCalls(value: unknown): readonly SparkAiAgent.AiAgentTransportToolCall[] {
-  if (!Array.isArray(value)) return []
-  return value
-    .map(normalizeToolCall)
-    .filter((call): call is SparkAiAgent.AiAgentTransportToolCall => call !== null)
-}
-
-function normalizeToolCall(value: unknown): SparkAiAgent.AiAgentTransportToolCall | null {
-  if (!isRecord(value)) return null
-  const fn = isRecord(value['function']) ? value['function'] : null
-  if (fn === null || typeof fn['name'] !== 'string' || fn['name'].trim() === '') return null
-  if (typeof value['id'] !== 'string' || value['id'].trim() === '') return null
-  const rawArguments = fn['arguments']
-  return {
-    id: value['id'],
-    type: 'function',
-    function: {
-      name: fn['name'],
-      arguments: typeof rawArguments === 'string' ? rawArguments : JSON.stringify(rawArguments ?? {}),
-    },
-  }
-}
-
-function emitSyntheticSessionTurnEvent(input: SparkAiAgent.AiAgentStreamTurnInput, body: unknown): void {
-  const event: SparkAiAgent.AiAgentStreamEvent = {
-    type: 'result',
-    data: body,
-    turnKey: '',
-    streamKey: '',
-    scope: {
-      businessRegistrationId: input.scope.businessRegistrationId,
-      businessInstanceId: input.scope.businessInstanceId,
-      eventModuleId: 'llm',
-      turnId: input.turn.turnId,
-    },
-  }
-  input.onStreamEvent?.(event)
-}
-
-function readString(value: unknown, key: string): string | undefined {
-  return isRecord(value) && typeof value[key] === 'string' ? value[key] : undefined
+  while (aiTurnDiagnostics.length > MAX_AI_TURN_DIAGNOSTICS) aiTurnDiagnostics.shift()
 }
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-/** 生产 AiAgentHost 单例：session-turn + app SSE transport。 */
+/** 生产 Agent Host：工具与页面能力仍由前端注册，模型与会话由 lowcode 持久化。 */
 export const appAiAgent = createAiAgentHost({
-  turnCallbacks: createAiAgentTurnCallbacks({ transport: 'app-sse' }),
+  turnCallbacks: createAiAgentTurnCallbacks(),
   maxToolRounds: 16,
 })

@@ -1,12 +1,11 @@
 import type {
   AjaxResult, BaseCondition, BaseImportConfig, BatchJsonData,
   CanAutoSubmitAfterInput, CodeNodesList, CrudModelRequest,
-  DataManagerRequest, FileInfo, FlowBackInput, FlowDesignSaveInput,
-  FlowExecObjInput, GroupDataParam, JsonObject, JsonSseMessage,
+  DataManagerRequest, FlowDesignSaveInput,
+  FlowExecObjInput, GroupDataParam, JsonSseMessage,
   Login, MigrateTableFieldRequest, OfflineMessageVo, PageParam,
   Register, SendCodeCommand, ServerInfo, Sm2PublicKeyResult,
   SyncDataRequest, TableInput, ViewDataVo, WFMWORKFORM,
-  WorkflowTestRequest,
 } from "./common";
 
 // ============================================================================
@@ -1087,18 +1086,40 @@ export const backendApiEndpoints = [
     responseType: "AjaxResult<unknown>",
   },
   {
+    id: "file.exportSRS",
+    controller: "DocExportController",
+    method: "GET",
+    path: "/api/File/exportSRS",
+    summary: "异步提交需求规格说明书生成任务；完成态由 SSE SYSTEM_DOWNLOAD 返回。",
+    parameters: [
+      p("sysId", "query", "string", true, "系统 ID。"),
+    ],
+    responseType: "AjaxResult<string> (async acknowledgement)",
+  },
+  {
     id: "file.exportDesignDoc",
     controller: "FileController",
     method: "GET",
     path: "/api/File/exportDesignDoc",
-    summary: "导出系统设计文档。",
+    summary: "异步提交功能设计文档生成任务；完成态由 SSE SYSTEM_DOWNLOAD 返回。",
     parameters: [
       p("sysId", "query", "string", true, "系统 ID。"),
       p("level", "query", "number", false, "导出层级。"),
       p("isText", "query", "boolean", false, "是否包含文本输出。", true),
       p("isHtml", "query", "boolean", false, "是否包含 HTML 输出。", true),
     ],
-    responseType: "binary/void",
+    responseType: "AjaxResult<string> (async acknowledgement)",
+  },
+  {
+    id: "file.exportSDD",
+    controller: "DocExportController",
+    method: "GET",
+    path: "/api/File/exportSDD",
+    summary: "异步提交系统详细设计说明书生成任务；完成态由 SSE SYSTEM_DOWNLOAD 返回。",
+    parameters: [
+      p("sysId", "query", "string", true, "系统 ID。"),
+    ],
+    responseType: "AjaxResult<string> (async acknowledgement)",
   },
   {
     id: "file.auth",

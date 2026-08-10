@@ -4,12 +4,12 @@ import { createNavigationActionRegistry } from '../navigation/action-registry'
 
 describe('resolveNavNodeRuntimeTarget', () => {
   it('maps SPA route-like nodes to their runtime routes', () => {
-    expect(resolveNavNodeRuntimeTarget({ id: 'page', title: 'Page', nodeKind: 'page', path: '/orders' })).toMatchObject({
+    expect(resolveNavNodeRuntimeTarget({ id: 'page', title: 'Page', itemKind: 'page', path: '/orders' })).toMatchObject({
       kind: 'route',
       routeKind: 'page',
       path: '/orders',
     })
-    expect(resolveNavNodeRuntimeTarget({ id: 'ref-node', title: 'Ref', nodeKind: 'ref', refId: 'remote' })).toMatchObject({
+    expect(resolveNavNodeRuntimeTarget({ id: 'ref-node', title: 'Ref', itemKind: 'ref', refId: 'remote' })).toMatchObject({
       kind: 'route',
       routeKind: 'cross-project-ref',
       path: '/__ref/ref-node',
@@ -17,7 +17,7 @@ describe('resolveNavNodeRuntimeTarget', () => {
     expect(resolveNavNodeRuntimeTarget({
       id: 'docs',
       title: 'Docs',
-      nodeKind: 'link',
+      itemKind: 'link',
       linkTarget: 'iframe',
       path: 'https://example.com/docs',
     })).toMatchObject({
@@ -27,11 +27,11 @@ describe('resolveNavNodeRuntimeTarget', () => {
     })
   })
 
-  it('keeps external links, actions and sub-pages out of router targets', () => {
+  it('keeps external links and actions out of router targets while hidden pages remain routable', () => {
     expect(resolveNavNodeRuntimeTarget({
       id: 'docs-tab',
       title: 'Docs',
-      nodeKind: 'link',
+      itemKind: 'link',
       linkTarget: 'new-tab',
       path: 'https://example.com/docs',
     })).toMatchObject({ kind: 'external', mode: 'new-tab' })
@@ -39,7 +39,7 @@ describe('resolveNavNodeRuntimeTarget', () => {
     expect(resolveNavNodeRuntimeTarget({
       id: 'same-window',
       title: 'Same Window',
-      nodeKind: 'link',
+      itemKind: 'link',
       linkTarget: 'self',
       path: '/local',
     })).toMatchObject({ kind: 'external', mode: 'self' })
@@ -47,16 +47,17 @@ describe('resolveNavNodeRuntimeTarget', () => {
     expect(resolveNavNodeRuntimeTarget({
       id: 'settings-action',
       title: 'Settings',
-      nodeKind: 'system-action',
+      itemKind: 'system-action',
       path: 'settings',
     })).toEqual({ kind: 'action', command: 'settings' })
 
     expect(resolveNavNodeRuntimeTarget({
       id: 'sub',
       title: 'Sub',
-      nodeKind: 'page',
+      itemKind: 'page',
+      path: '/sub',
       hidden: true,
-    })).toEqual({ kind: 'hidden', reason: 'sub-page' })
+    })).toEqual({ kind: 'route', routeKind: 'page', path: '/sub' })
   })
 })
 

@@ -12,7 +12,7 @@
  * 2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：
  *    MODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE
  * 3. 页面 UI 服务与权限键（从 spark-utils 迁入）：
- *    PAGE_SERVICE / PAGE_PERMISSION_MODE / NavPermissionMode
+ *    PAGE_SERVICE / PAGE_PERMISSION_MODE / PagePermissionMode
  * 4. 字段渲染局部策略：
  *    SUBTREE_FIELD_POLICY
  *
@@ -23,15 +23,11 @@
 import { defineCapability, isCallable, isRecord } from '@spark-appworks/spark-utils'
 import { DataView, isDataRow, type DataRow, type DataSetContract } from '@spark-appworks/spark-data'
 import type {
-  NavPermissionMode,
-} from '@spark-appworks/spark-project-model'
-import type {
   PageServiceCapability,
 } from '../runtime'
 
-export type {
-  NavPermissionMode,
-} from '@spark-appworks/spark-project-model'
+/** 页面组件在完整后端权限快照改造完成前使用的三态过渡模式。 */
+export type PagePermissionMode = 'none' | 'masked' | 'invisible'
 
 /** 子树级字段输入策略 — 仅描述子树内字段输入行为，不改变全局 permissionMode。 */
 export type SubtreeFieldPolicy = 'unrestricted'
@@ -161,7 +157,7 @@ declare module '@spark-appworks/spark-utils' {
     'spark:capability:module-context': ModuleContextCapability
     'spark:capability:css-scope': PageCssScopeCapability
     'spark:capability:page-service': PageServiceCapability
-    'spark:capability:permission-mode': NavPermissionMode
+    'spark:capability:permission-mode': PagePermissionMode
     'spark:capability:subtree-field-policy': SubtreeFieldPolicy
   }
 }
@@ -229,7 +225,7 @@ function isPageServiceCapability(value: unknown): value is PageServiceCapability
     && hasCallable(value, 'navigate')
 }
 
-function isNavPermissionMode(value: unknown): value is NavPermissionMode {
+function isPagePermissionMode(value: unknown): value is PagePermissionMode {
   return value === 'none' || value === 'masked' || value === 'invisible'
 }
 
@@ -248,5 +244,5 @@ export const PAGE_COMPONENT_REGISTRY = defineCapability<PageComponentRegistry>('
 export const CSS_SCOPE = defineCapability<PageCssScopeCapability>('spark:capability:css-scope', isPageCssScopeCapability)
 
 export const PAGE_SERVICE = defineCapability<PageServiceCapability>('spark:capability:page-service', isPageServiceCapability)
-export const PAGE_PERMISSION_MODE = defineCapability<NavPermissionMode>('spark:capability:permission-mode', isNavPermissionMode)
+export const PAGE_PERMISSION_MODE = defineCapability<PagePermissionMode>('spark:capability:permission-mode', isPagePermissionMode)
 export const SUBTREE_FIELD_POLICY = defineCapability<SubtreeFieldPolicy>('spark:capability:subtree-field-policy', isSubtreeFieldPolicy)

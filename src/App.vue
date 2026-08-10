@@ -129,8 +129,8 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { computed, onMounted, onUnmounted, provide, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
+import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { AI_AGENT_HOST } from '@spark-appworks/spark-ai/agent'
-import type { ProjectModelData } from '@spark-appworks/spark-project-model'
 import { PAGE_RUNTIME_SERVICES } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
@@ -139,19 +139,14 @@ import {
   type ModuleContextCapability,
 } from '@spark-appworks/spark-component'
 import {
-  getToken,
-  getUser,
-  isAuthenticated,
-  isPlatformAdminUser,
-  markLogoutPending,
-  switchProject,
-} from '@/services/auth'
+  activateLowcodeApplication,
+  enterLowcodeApplicationCatalog,
+  hasLowcodeSession,
+  lowcodeApi,
+  lowcodeRequestHeaders,
+  readLowcodePrincipal,
+} from '@/lowcode/lowcode-runtime'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
-import {
-  readAppProjectNavigationRoot,
-  resetAppProjectModel,
-  syncAppProjectModelFromNav,
-} from '@/services/project/project-shell'
 import {
   registerShellNavRootListener,
   reloadAndSyncNavigation,
@@ -166,15 +161,8 @@ import AppTabBar from '@/layout/AppTabBar.vue'
 import NavHeaderBar from '@/layout/NavHeaderBar.vue'
 import NavContextSelector from '@/layout/NavContextSelector.vue'
 import ThemeConfigurator from '@/layout/ThemeConfigurator.vue'
-import { createAiHostRunBridge } from '@/services/ai/ai-host-run-bridge'
-import { appAiAgent } from '@/services/ai/ai-turn-bridge'
-import { createAuthHeaders } from '@/services/http'
-import { chainAiHostRunPrepare } from '@/services/ai/ai-host-run-bridge'
-import { preparePageDesignHostRun } from '@/services/page-design/page-design-host-run-provider'
-import { preparePageDataDesignHostRun } from '@/services/page-data-design/page-data-design-host-run-provider'
-import { prepareProjectPlanningHostRun } from '@/services/project-planning/project-planning-host-run-provider'
-import { runAiHostRunSmokeLauncherFromUrl } from '@/services/ai/ai-host-run-smoke-launcher'
 import { onPageConfigChange, type FileChangeEvent } from '@/services/sse-events'
+import { appAiAgent } from '@/services/ai/ai-turn-bridge'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import type { ProjectSwitchService } from '@/services/project/project-shell'
 import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project/project-settings'
@@ -187,7 +175,6 @@ const {
   appPageUiService,
   createNavigationActionRegistry,
   getPageCacheHandle,
-  getNavHomePath,
   getNavTree,
   getPageCacheStats,
   NAVIGATION_ACTION_REGISTRY_KEY,
@@ -206,10 +193,9 @@ const router = useRouter()
 const isLoginPage = computed(() => route.path === '/login' || route.path === '/')
 const publicPaths = getPublicPaths()
 const PLATFORM_PATH_PREFIX = '/platform'
-const PLATFORM_HOME_PATH = '/platform/dashboard'
 const currentUsername = computed(() => {
-  const user = getUser()
-  return user?.displayName ?? user?.username ?? '管理员'
+  const principal = readLowcodePrincipal()
+  return principal?.displayName ?? principal?.username ?? '管理员'
 })
 
 function isPlatformWorkspacePath(path: string): boolean {
@@ -218,7 +204,7 @@ function isPlatformWorkspacePath(path: string): boolean {
 
 function resolveActiveProjectId(): string {
   if (isPlatformWorkspacePath(route.path)) return 'platform'
-  return parseTenantScope(route.path)?.projectId ?? getUser()?.defaultProjectId ?? 'homepage'
+  return parseTenantScope(route.path)?.projectId ?? readLowcodePrincipal()?.applicationId ?? 'homepage'
 }
 
 const activeProjectId = ref(resolveActiveProjectId())
@@ -239,7 +225,6 @@ useColorScheme()
 const activeSettingsScope = ref<string | null>(null)
 let isApplyingProjectUiSettings = false
 let _stopPageConfigChange: (() => void) | null = null
-let _stopAiHostRunBridge: (() => void) | null = null
 const pageNodeRefreshRevision = ref(0)
 const sparkRendererRouteKey = computed(() => {
   const base = mode.value === 'multi' ? route.path : route.fullPath
@@ -255,14 +240,14 @@ function resolveActiveSettingsScope(): string | null {
   if (isPlatformWorkspacePath(route.path)) return 'platform:platform'
   const scoped = parseTenantScope(route.path)
   if (scoped !== null) return toTenantProjectSettingsScope(scoped.tenantId, scoped.projectId)
-  const user = getUser()
-  return toTenantProjectSettingsScope(user?.tenantId, user?.defaultProjectId)
+  const principal = readLowcodePrincipal()
+  return toTenantProjectSettingsScope(principal?.enterpriseName, principal?.applicationId ?? 'homepage')
 }
 
 function resolveProjectSettingsScope(projectId: string): string | null {
   if (projectId === 'platform') return 'platform:platform'
-  const user = getUser()
-  return toTenantProjectSettingsScope(user?.tenantId, projectId)
+  const principal = readLowcodePrincipal()
+  return toTenantProjectSettingsScope(principal?.enterpriseName, projectId)
 }
 
 function normalizeSettingsScope(scopeKey: string | null): string | null {
@@ -314,54 +299,42 @@ const contextGuard = computed<AppContextGuardState | null>(() => {
 
   const currentPath = route.path
   const scoped = parseTenantScope(currentPath)
-  const token = getToken()
-  const user = getUser()
+  const authenticated = hasLowcodeSession()
+  const principal = readLowcodePrincipal()
 
   if (scoped === null) {
     if (publicPaths.has(currentPath)) return null
-    if (isPlatformWorkspacePath(currentPath) && token && user && isPlatformAdminUser(user)) return null
-    const expectedPath = user?.tenantId && user.defaultProjectId
-      ? buildTenantPath({ tenantId: user.tenantId, projectId: user.defaultProjectId }, currentPath)
+    const projectId = principal?.applicationId ?? 'homepage'
+    const expectedPath = principal?.enterpriseName
+      ? buildTenantPath({ tenantId: principal.enterpriseName, projectId }, currentPath)
       : undefined
     return {
       title: '当前页面缺少租户作用域',
       message: '这个业务页需要在 /t/{tenantId}/{projectId}/... 作用域下运行。外部浏览器有数据而内嵌浏览器没数据，通常就是当前浏览器上下文没有进入正确租户路径或未完成登录。',
-      primaryActionLabel: user ? '进入当前项目首页' : '前往登录页',
+      primaryActionLabel: principal ? '进入当前应用首页' : '前往登录页',
       ...(expectedPath !== undefined ? { expectedPath } : {}),
     }
   }
 
-  if (!token || !user) {
+  if (!authenticated || !principal) {
     return {
       title: '当前浏览器上下文未登录',
-      message: '该页面的数据请求依赖 localStorage 中的 spark_token 和 spark_user。VS Code 内嵌浏览器与外部浏览器不共享登录态，所以这里需要单独登录。',
+      message: '该页面依赖当前浏览器中的 lowcode 会话。内嵌浏览器与外部浏览器不共享登录态，所以这里需要单独登录。',
       primaryActionLabel: '前往登录页',
       expectedPath: '/login',
     }
   }
 
-  if (!user.tenantId || !user.defaultProjectId) {
-    return {
-      title: '当前浏览器上下文缺少项目信息',
-      message: '已检测到登录态，但 spark_user 中缺少 tenantId 或 defaultProjectId，后续请求无法带出 X-Tenant-Id / X-Project-Id，页面会表现为空数据。',
-      primaryActionLabel: '前往登录页',
-      expectedPath: '/login',
-    }
-  }
-
-  if (isPlatformAdminUser(user)) {
-    return null
-  }
-
-  if (scoped.tenantId !== user.tenantId || scoped.projectId !== user.defaultProjectId) {
+  const applicationId = principal.applicationId ?? 'homepage'
+  if (scoped.tenantId !== principal.enterpriseName || scoped.projectId !== applicationId) {
     const restPath = stripTenantScope(currentPath)
     const expectedPath = restPath
-      ? buildTenantPath({ tenantId: user.tenantId, projectId: user.defaultProjectId }, restPath)
-      : buildTenantRootPath({ tenantId: user.tenantId, projectId: user.defaultProjectId })
+      ? buildTenantPath({ tenantId: principal.enterpriseName, projectId: applicationId }, restPath)
+      : buildTenantRootPath({ tenantId: principal.enterpriseName, projectId: applicationId })
     return {
       title: 'URL 作用域与本地上下文不一致',
-      message: '当前 URL 的 tenant/project 与浏览器 localStorage 中保存的 spark_user 不一致。继续渲染会导致接口上下文错位，出现空数据或错误数据。',
-      primaryActionLabel: '切回当前项目',
+      message: '当前 URL 的企业/应用与 lowcode 会话上下文不一致。继续渲染会导致场景身份错位。',
+      primaryActionLabel: '切回当前应用',
       expectedPath,
     }
   }
@@ -386,7 +359,8 @@ function jumpToExpectedContext(): void {
 /* ── 项目切换服务（供子组件注入） ── */
 const projectSwitchService: ProjectSwitchService = {
   async switchAndReload(projectId: string) {
-    switchProject(projectId)
+    if (projectId === 'homepage') enterLowcodeApplicationCatalog()
+    else await activateLowcodeApplication(projectId)
     activeProjectId.value = projectId
     applyProjectSettingsScope(resolveProjectSettingsScope(projectId))
     try {
@@ -422,25 +396,23 @@ navigationActionRegistry.register('settings', () => {
   showConfigurator.value = true
 })
 navigationActionRegistry.register('home', () => {
-  const user = getUser()
-  if (isPlatformAdminUser(user)) {
-    void router.push(PLATFORM_HOME_PATH)
-  } else if (user && user.defaultProjectId !== 'homepage') {
+  const principal = readLowcodePrincipal()
+  if (principal && principal.applicationId !== null) {
     void projectSwitchService.switchAndReload('homepage').then(() => {
-      void router.push(buildTenantPath({ tenantId: user.tenantId, projectId: 'homepage' }, getNavHomePath()))
+      void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: 'homepage' }, '/app-list'))
     })
-  } else if (user) {
-    void router.push(buildTenantPath({ tenantId: user.tenantId, projectId: user.defaultProjectId }, getNavHomePath()))
+  } else if (principal) {
+    void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: 'homepage' }, '/app-list'))
   } else {
     void router.push('/')
   }
 })
 navigationActionRegistry.register('logout', () => {
-  markLogoutPending()
   resetAppProjectWorkspace()
-  resetAppProjectModel()
   clearAllPageCache()
-  window.location.replace(router.resolve('/').href)
+  void lowcodeApi.platform.logout().finally(() => {
+    window.location.replace(router.resolve('/').href)
+  })
 })
 navigationActionRegistry.register('search', () => {
   emitNavigationAction('search')
@@ -456,10 +428,10 @@ navigationActionRegistry.register('theme-toggle', () => {
 })
 
 /* ── 导航模型（预认证时使用 preAuthNavTree，登录后使用远程导航树） ── */
-const _navRoot = reactive<ProjectModelData>({ title: '', childPlacement: 'header', children: [] })
+const _navRoot = reactive<RuntimeNavigation>({ title: '', childPlacement: 'header', items: [] })
 const nav = useNavigation(_navRoot, {
   onCrossAppNavigate: handleCrossAppNavigate,
-  getHeaders: createAuthHeaders,
+  getHeaders: lowcodeRequestHeaders,
   actionRegistry: navigationActionRegistry,
 })
 const pageUiService = appPageUiService
@@ -572,47 +544,43 @@ watch(
 let unregisterShellNavListener: (() => void) | null = null
 
 /** 将导航树数据写入 _navRoot 响应对象（驱动 useNavigation UI） */
-function applyNavTree(navData: ProjectModelData | null): void {
-  const safeChildren = Array.isArray(navData?.children) ? navData.children : []
-  if (navData && safeChildren.length > 0) {
+function applyNavTree(navData: RuntimeNavigation | null): void {
+  const safeItems = Array.isArray(navData?.items) ? navData.items : []
+  if (navData && safeItems.length > 0) {
     _navRoot.childPlacement = navData.childPlacement
-    _navRoot.children = safeChildren
+    _navRoot.items = safeItems
   } else if (import.meta.env.DEV) {
     console.warn('[Nav] ⚠️ 导航树为空')
   }
 }
 
 function syncAppNavProjectionFromRouter(): void {
-  syncAppProjectModelFromNav(getNavTree())
-  applyNavTree(readAppProjectNavigationRoot())
+  applyNavTree(getNavTree())
 }
 
 async function reloadNavigation(): Promise<void> {
   await reloadAndSyncNavigation()
 }
 
-onMounted(() => {
-  // APP 公共 SSE 在壳层接入：页面配置刷新和 Host Run 桥接共用同一条 /api/events。
+function syncPageConfigSubscription(): void {
+  if (!hasLowcodeSession() || isLoginPage.value) {
+    _stopPageConfigChange?.()
+    _stopPageConfigChange = null
+    return
+  }
   if (_stopPageConfigChange === null) {
     _stopPageConfigChange = onPageConfigChange(handlePageConfigChange)
   }
-  if (_stopAiHostRunBridge === null) {
-    _stopAiHostRunBridge = createAiHostRunBridge({
-      host: appAiAgent,
-      prepareRun: chainAiHostRunPrepare(
-        preparePageDesignHostRun,
-        preparePageDataDesignHostRun,
-        prepareProjectPlanningHostRun,
-      ),
-    }).start()
-  }
-  runAiHostRunSmokeLauncherFromUrl()
+}
 
+onMounted(() => {
+  // APP 公共 SSE 在壳层接入 lowcode 页面配置事件。
+  syncPageConfigSubscription()
   unregisterShellNavListener = registerShellNavRootListener(applyNavTree)
 
   // start.ts 已在 mount 前调用 registerRoutes() 注册路由 + 加载导航树
   // 此处同步读取已加载的导航树并写入 _navRoot + editor.project，不发起重复 HTTP 请求
-  if (isAuthenticated()) {
+  if (hasLowcodeSession()) {
     syncCommittedNavigationFromRouter()
   } else {
     syncAppNavProjectionFromRouter()
@@ -635,13 +603,12 @@ onUnmounted(() => {
   moduleContextListeners.clear()
   _stopPageConfigChange?.()
   _stopPageConfigChange = null
-  _stopAiHostRunBridge?.()
-  _stopAiHostRunBridge = null
 })
 
 // ── 登录后自动同步导航 UI ──
 watch(isLoginPage, (isLogin, wasLogin) => {
-  if (wasLogin && !isLogin && isAuthenticated()) {
+  syncPageConfigSubscription()
+  if (wasLogin && !isLogin && hasLowcodeSession()) {
     // LoginView 已在跳转前 reloadAndSyncNavigation
     syncCommittedNavigationFromRouter()
   }
@@ -701,11 +668,11 @@ async function handleCrossAppNavigate(projectIdOrFullPath: string, pathArg?: str
     targetPath = match[2] ?? '/'
   }
 
-  const user = getUser()
-  if (!user) return
+  const principal = readLowcodePrincipal()
+  if (!principal) return
 
   await projectSwitchService.switchAndReload(targetProjectId)
-  void router.push(buildTenantPath({ tenantId: user.tenantId, projectId: targetProjectId }, targetPath))
+  void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: targetProjectId }, targetPath))
 }
 
 </script>

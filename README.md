@@ -44,7 +44,7 @@ pnpm run dev
 ```
 
 - `pnpm run dev:fe`：只启动 Vite，适合先看组件系统和前端页面
-- `pnpm run dev`：启动 Java 后端 + Vite，适合体验页面配置、AI 配置生成、SSE 调试链路
+- `pnpm run dev`：启动 Vite 前端；运行 API 由 `LOWCODE_GATEWAY_URL` 指向只读的 lowcode-jdk17 宿主
 - 完整模式需要 JDK 17+
 
 ## 核心特性
@@ -66,14 +66,15 @@ packages/
 ├── spark-app/                   # 🏗️ 应用层基础设施（路由、认证、配置、插件系统）
 ├── spark-component/             # ⚙️ 组件核心系统（注册表、能力管理、上下文、页面渲染器）
 ├── spark-data/                  # 📊 数据空间（DataSet、DataView、TreeManager、关系与聚合）
-├── spark-project-model/           # 📄 软件项目模型（ProjectModel、项目节点、配置页内容子模型）
+├── spark-project-model/         # 📄 软件项目模型（ProjectModel、项目蓝图节点、配置页内容子模型）
+├── spark-lowcode-api/           # 🔌 可发布的 lowcode-jdk17 前端 API 合同、领域入口与治理计划
 ├── spark-utils/                 # 🛠️ 共享工具（Logger、HTTP、能力键、基础类型）
 ├── vite-plugin-spark-catalog/   # 组件扫描配置与命名工具
 └── vxe-table/                   # 📋 表格插件工作区（VXE Table 集成与适配）
 ```
 
 - 运行时主线：`spark-app` + `spark-component` + `spark-data` + `spark-project-model`
-- AI 主线：`spark-ai` + `generated/dts-class-model` + `spark-ai-server`
+- AI 主线：`spark-ai` + `generated/dts-class-model`；Agent 在前端运行并通过治理后的 lowcode API 消费平台能力
 - 公共基础：`spark-utils`
 - 目录索引： [packages/README.md](packages/README.md) 、 [scripts/README.md](scripts/README.md) 、 [tools/README.md](tools/README.md)
 
@@ -86,7 +87,7 @@ pnpm install
 # 只启动前端
 pnpm run dev:fe
 
-# 启动完整开发环境（Java 后端 + Vite）
+# 启动前端开发环境（需配置 lowcode-jdk17 网关）
 pnpm run dev
 
 # 构建生产版本

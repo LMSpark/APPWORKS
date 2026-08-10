@@ -6,9 +6,8 @@ import path from 'node:path'
 const WORKFLOW_ROOT = path.resolve(
   import.meta.dirname,
   '..',
-  'spark-ai-server',
-  'data',
-  'workflow-designs',
+  'config',
+  'agent-workflows',
   'lmspark',
   'homepage',
 )

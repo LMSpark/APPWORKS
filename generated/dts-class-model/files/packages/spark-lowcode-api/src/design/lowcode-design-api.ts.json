@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:design/lowcode-design-api",
+    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "design/lowcode-design-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 design/lowcode-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeFileLocator, LowcodeFileDirectory, LowcodeFileEntry, LowcodeDesignApi（共 4 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeFileLocator",
+      "LowcodeFileDirectory",
+      "LowcodeFileEntry",
+      "LowcodeDesignApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeFileLocator": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileLocator",
+      "properties": {
+        "appType": {
+          "type": "string"
+        },
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "isCrossEnterprise": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeFileDirectory": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileDirectory",
+      "properties": {
+        "appType": {
+          "type": "string"
+        },
+        "folderPath": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeFileEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileEntry",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDesignApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDesignApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTextFile.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTextFile.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.listFiles.params": {
+          "type": "object",
+          "properties": {
+            "directory": {
+              "$ref": "#/$defs/LowcodeFileDirectory"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listFiles.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeFileEntry[]>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T10:52:07.212Z",
+  "models": {
+    "LowcodeFileLocator": {
+      "name": "LowcodeFileLocator",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    appType: string;\n    customPath: string;\n    fileName: string;\n    isCrossEnterprise?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    appType: string;\n    customPath: string;\n    fileName: string;\n    isCrossEnterprise?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "appType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isCrossEnterprise",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileDirectory": {
+      "name": "LowcodeFileDirectory",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    appType: string;\n    folderPath: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    appType: string;\n    folderPath: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "appType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "folderPath",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileEntry": {
+      "name": "LowcodeFileEntry",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    lastModified: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    lastModified: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDesignApi": {
+      "name": "LowcodeDesignApi",
+      "jsdoc": "lowcode 文件服务的稳定只读设计资产门面。写入需由具备 journal 的治理通道另行实现。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "readTextFile",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listFiles",
+              "parameters": [
+                {
+                  "name": "directory",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileDirectory",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeFileEntry[]"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

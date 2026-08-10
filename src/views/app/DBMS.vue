@@ -9,11 +9,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
     <div class="dbms-header">
       <div class="header-info">
         <h2>数据库管理</h2>
-        <span class="subtitle">服务器 → 数据库 → schema → 表/视图 → 列 → 关系</span>
+        <span class="subtitle">lowcode 已注册服务器 → 数据库 → 表 → 字段（只读）</span>
       </div>
       <div class="header-actions">
-        <el-button v-if="selectedServer" :icon="Refresh" @click="openSyncCatalog">同步服务器</el-button>
-        <el-button type="primary" :icon="Plus" @click="openCreateServer">注册服务器</el-button>
+        <el-button v-if="selectedServer" :icon="Refresh" :disabled="catalogMutationsDisabled" @click="openSyncCatalog">同步服务器</el-button>
+        <el-button type="primary" :icon="Plus" :disabled="catalogMutationsDisabled" @click="openCreateServer">注册服务器</el-button>
       </div>
     </div>
 
@@ -25,9 +25,9 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         <span v-if="selectedTable">{{ selectedTable.physicalTableName || selectedTable.tableName }}</span>
       </div>
       <div class="toolbar-actions">
-        <el-button v-if="selectedServer" size="small" :icon="Refresh" @click="openSyncCatalog">同步服务器</el-button>
-        <el-button v-if="selectedServer" size="small" :icon="Plus" @click="openCreateDatabase">注册数据库</el-button>
-        <el-button v-if="selectedDatabase" size="small" type="primary" :icon="Plus" @click="openCreateTable">创建表</el-button>
+        <el-button v-if="selectedServer" size="small" :icon="Refresh" :disabled="catalogMutationsDisabled" @click="openSyncCatalog">同步服务器</el-button>
+        <el-button v-if="selectedServer" size="small" :icon="Plus" :disabled="catalogMutationsDisabled" @click="openCreateDatabase">注册数据库</el-button>
+        <el-button v-if="selectedDatabase" size="small" type="primary" :icon="Plus" :disabled="catalogMutationsDisabled" @click="openCreateTable">创建表</el-button>
       </div>
     </div>
 
@@ -92,7 +92,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                     <button type="button" class="tree-node folder-node">
                       <span class="tree-expander">▾</span>
                       <el-icon><FolderOpened /></el-icon>
-                      <span class="tree-label">Views</span>
+                      <span class="tree-label">Views（后端未提供类型判别）</span>
                       <span class="tree-count">{{ viewObjects.length }}</span>
                     </button>
                     <div v-if="!loading.tables && !viewObjects.length" class="tree-empty">暂无视图</div>
@@ -158,8 +158,8 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             <div class="grid-title">
               <strong>数据库</strong>
               <div class="grid-actions">
-                <el-button size="small" :icon="Refresh" @click="openSyncCatalog">同步服务器</el-button>
-                <el-button size="small" type="primary" :icon="Plus" @click="openCreateDatabase">注册数据库</el-button>
+                <el-button size="small" :icon="Refresh" :disabled="catalogMutationsDisabled" @click="openSyncCatalog">同步服务器</el-button>
+                <el-button size="small" type="primary" :icon="Plus" :disabled="catalogMutationsDisabled" @click="openCreateDatabase">注册数据库</el-button>
               </div>
             </div>
             <div v-if="loading.databases" class="loading"><el-icon class="is-loading"><Loading /></el-icon></div>
@@ -168,9 +168,9 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
               <thead>
                 <tr>
                   <th>名称</th>
-                  <th>连接模式</th>
-                  <th>隔离模式</th>
-                  <th>JNDI</th>
+                  <th>数据库类型</th>
+                  <th>服务器</th>
+                  <th>Schema</th>
                   <th class="operation-col">操作</th>
                 </tr>
               </thead>
@@ -182,11 +182,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                   @click="selectDatabase(db)"
                 >
                   <td class="object-name"><el-icon><Coin /></el-icon>{{ db.DATABASE_NAME }}</td>
-                  <td>{{ db.CONNECTION_MODE === 'JNDI_XA' ? 'JNDI XA' : 'DIRECT' }}</td>
-                  <td><el-tag size="small" :type="isolationTagType(db.ISOLATION_MODE)">{{ isolationModeLabel(db.ISOLATION_MODE) }}</el-tag></td>
-                  <td class="mono-cell">{{ db.JNDI_NAME || '-' }}</td>
+                  <td>{{ db.DB_TYPE || '-' }}</td>
+                  <td>{{ db.SERVER_NAME || '-' }}</td>
+                  <td class="mono-cell">{{ db.SCHEMA_NAME || '-' }}</td>
                   <td class="operation-col">
-                    <el-button size="small" text type="danger" @click.stop="deleteDatabaseConfirm(db)">删除</el-button>
+                    <el-button size="small" text type="danger" :disabled="catalogMutationsDisabled" @click.stop="deleteDatabaseConfirm(db)">删除</el-button>
                   </td>
                 </tr>
               </tbody>
@@ -196,8 +196,8 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             <div class="grid-title">
               <strong>物理对象</strong>
               <div class="grid-actions">
-                <el-button size="small" :icon="Refresh" @click="openSyncCatalog">同步服务器</el-button>
-                <el-button size="small" type="primary" :icon="Plus" @click="openCreateTable">创建表</el-button>
+                <el-button size="small" :icon="Refresh" :disabled="catalogMutationsDisabled" @click="openSyncCatalog">同步服务器</el-button>
+                <el-button size="small" type="primary" :icon="Plus" :disabled="catalogMutationsDisabled" @click="openCreateTable">创建表</el-button>
               </div>
             </div>
             <div v-if="loading.tables" class="loading"><el-icon class="is-loading"><Loading /></el-icon></div>
@@ -209,7 +209,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                   <th>显示别名</th>
                   <th>类型</th>
                   <th>Schema</th>
-                  <th>隔离模式</th>
+                  <th>多租户字段</th>
                   <th>字段数</th>
                   <th class="operation-col">操作</th>
                 </tr>
@@ -225,11 +225,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                   <td>{{ tbl.tableName }}</td>
                   <td><el-tag size="small" :type="tbl.objectType === 'VIEW' ? 'info' : 'primary'">{{ objectTypeLabel(tbl.objectType) }}</el-tag></td>
                   <td class="mono-cell">{{ tbl.schemaName || '-' }}</td>
-                  <td><el-tag size="small" :type="isolationTagType(tbl.isolationMode)">{{ isolationModeLabel(tbl.isolationMode) }}</el-tag></td>
+                  <td>{{ tbl.multiTenancy === null ? '未知' : tbl.multiTenancy ? '启用' : '未启用' }}</td>
                   <td>{{ tableColumnCount(tbl) }}</td>
                   <td class="operation-col">
                     <el-button size="small" text @click.stop="viewTableRelation(tbl)">关系</el-button>
-                    <el-button size="small" text type="danger" @click.stop="deleteTableConfirm(tbl)">删除</el-button>
+                    <el-button size="small" text type="danger" :disabled="catalogMutationsDisabled" @click.stop="deleteTableConfirm(tbl)">删除</el-button>
                   </td>
                 </tr>
               </tbody>
@@ -275,7 +275,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                 <strong>关系</strong>
                 <span class="section-count">{{ selectedTableRelations.length }} 条</span>
               </div>
-              <div v-if="!selectedTableRelations.length" class="empty">暂无关系</div>
+              <div v-if="!selectedTableRelations.length" class="empty">lowcode 当前公开接口未返回物理外键关系；不以数据模型关系冒充物理关系</div>
               <table v-else class="dbms-table relation-structure-table">
                 <thead>
                   <tr>
@@ -323,16 +323,16 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         </div>
         <div v-else-if="activeWorkspaceTab === 'data'" class="data-grid">
           <div v-if="!selectedTable" class="empty large-empty">请选择表或视图浏览数据</div>
-          <div v-else class="data-section">
+            <div v-else class="data-section">
             <div class="grid-title">
               <strong>数据浏览</strong>
               <div class="grid-actions">
-                <span class="section-count">只读 · {{ objectData?.total ?? 0 }} 行</span>
-                <el-button size="small" :icon="Refresh" :loading="loading.data" @click="loadObjectData()">刷新</el-button>
+                <span class="section-count">需要数据空间 + 唯一 modelId + 后端权限响应</span>
+                <el-button size="small" :icon="Refresh" disabled>刷新</el-button>
               </div>
             </div>
             <div v-if="loading.data" class="loading"><el-icon class="is-loading"><Loading /></el-icon></div>
-            <div v-else-if="!objectData?.rows.length" class="empty">暂无数据</div>
+            <div v-else-if="!objectData?.rows.length" class="empty">物理表身份不足以读取业务数据；请从绑定真实 FormKey 和唯一 modelId 的运行页面进入</div>
             <div v-else class="data-table-scroll">
               <table class="dbms-table data-table">
                 <thead>
@@ -359,7 +359,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           </div>
         </div>
         <div v-else class="sql-grid">
-          <div v-if="!selectedTable" class="empty large-empty">请选择表或视图查看只读 DDL</div>
+            <div v-if="!selectedTable" class="empty large-empty">请选择表查看 SQL 能力状态</div>
           <div v-else-if="loading.sql" class="loading"><el-icon class="is-loading"><Loading /></el-icon></div>
           <template v-else>
             <div class="sql-section">
@@ -367,14 +367,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                 <strong>DDL</strong>
                 <el-tag size="small" type="info">{{ objectSql?.dialect || 'UNKNOWN' }}</el-tag>
               </div>
-              <pre class="sql-code">{{ objectSql?.ddl || '暂无 DDL' }}</pre>
+              <pre class="sql-code">{{ objectSql?.ddl || 'lowcode 当前公开接口未提供只读 DDL，前端不根据字段元数据伪造 SQL。' }}</pre>
             </div>
             <div class="sql-section">
               <div class="grid-title">
                 <strong>关系 SQL</strong>
                 <el-tag size="small" type="info">只读</el-tag>
               </div>
-              <pre class="sql-code">{{ objectSql?.relationSql || '暂无关系 SQL' }}</pre>
+              <pre class="sql-code">{{ objectSql?.relationSql || 'lowcode 当前公开接口未提供物理外键 SQL。' }}</pre>
             </div>
           </template>
         </div>
@@ -393,7 +393,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             <dt>物理表名</dt><dd>{{ selectedTable.physicalTableName || '-' }}</dd>
             <dt>显示别名</dt><dd>{{ selectedTable.tableName }}</dd>
             <dt>Schema</dt><dd>{{ selectedTable.schemaName || '-' }}</dd>
-            <dt>隔离模式</dt><dd>{{ isolationModeLabel(selectedTable.isolationMode) }}</dd>
+            <dt>多租户字段</dt><dd>{{ selectedTable.multiTenancy === null ? '未知' : selectedTable.multiTenancy ? '启用' : '未启用' }}</dd>
             <dt>字段数量</dt><dd>{{ tableColumnCount(selectedTable) }}</dd>
             <template v-for="col in selectedTableColumns" :key="col.physicalColumnName || col.name">
               <dt>列</dt><dd class="mono-cell">{{ col.physicalColumnName || col.name }}</dd>
@@ -402,8 +402,8 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           <template v-else-if="selectedDatabase">
             <dt>对象类型</dt><dd>数据库</dd>
             <dt>数据库名</dt><dd>{{ selectedDatabase.DATABASE_NAME }}</dd>
-            <dt>连接模式</dt><dd>{{ selectedDatabase.CONNECTION_MODE === 'JNDI_XA' ? 'JNDI XA' : 'DIRECT' }}</dd>
-            <dt>隔离模式</dt><dd>{{ isolationModeLabel(selectedDatabase.ISOLATION_MODE) }}</dd>
+            <dt>数据库类型</dt><dd>{{ selectedDatabase.DB_TYPE || '-' }}</dd>
+            <dt>Schema</dt><dd>{{ selectedDatabase.SCHEMA_NAME || '-' }}</dd>
             <dt>数据表</dt><dd>{{ tableObjects.length }} 张</dd>
             <dt>视图</dt><dd>{{ viewObjects.length }} 个</dd>
           </template>
@@ -412,7 +412,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             <dt>名称</dt><dd>{{ selectedServer.SERVER_NAME }}</dd>
             <dt>地址</dt><dd>{{ selectedServer.HOST }}:{{ selectedServer.PORT }}</dd>
             <dt>类型</dt><dd>{{ selectedServer.DB_TYPE }}</dd>
-            <dt>隔离模式</dt><dd>{{ isolationModeLabel(selectedServer.ISOLATION_MODE) }}</dd>
+            <dt>说明</dt><dd>{{ selectedServer.DESCRIPTION || '-' }}</dd>
           </template>
           <template v-else>
             <dt>服务器</dt><dd>{{ servers.length }} 个</dd>
@@ -421,10 +421,10 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           </template>
         </dl>
         <div class="property-actions">
-          <el-button v-if="selectedServer" size="small" @click="testServerConnection(selectedServer)" :loading="testingId === selectedServer.ID">测试连接</el-button>
-          <el-button v-if="selectedServer" size="small" @click="openSyncCatalog">同步服务器</el-button>
+          <el-button v-if="selectedServer" size="small" @click="testServerConnection(selectedServer)">测试连接</el-button>
+          <el-button v-if="selectedServer" size="small" :disabled="catalogMutationsDisabled" @click="openSyncCatalog">同步服务器</el-button>
           <el-button v-if="selectedTable" size="small" @click="viewTableRelation(selectedTable)">表关系</el-button>
-          <el-button v-if="selectedDatabase" size="small" type="primary" @click="openCreateTable">创建表</el-button>
+          <el-button v-if="selectedDatabase" size="small" type="primary" :disabled="catalogMutationsDisabled" @click="openCreateTable">创建表</el-button>
         </div>
       </aside>
     </div>
@@ -452,7 +452,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <template #footer>
         <el-button @click="dlgServer.visible = false">取消</el-button>
         <el-button @click="testNewConnection" :loading="testingNew">测试连接</el-button>
-        <el-button type="primary" @click="submitCreateServer" :loading="dlgServer.loading">注册</el-button>
+        <el-button type="primary" :disabled="catalogMutationsDisabled" @click="submitCreateServer" :loading="dlgServer.loading">注册</el-button>
       </template>
     </el-dialog>
 
@@ -516,7 +516,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       </el-form>
       <template #footer>
         <el-button @click="dlgDb.visible = false">取消</el-button>
-        <el-button type="primary" @click="submitCreateDatabase" :loading="dlgDb.loading">注册</el-button>
+        <el-button type="primary" :disabled="catalogMutationsDisabled" @click="submitCreateDatabase" :loading="dlgDb.loading">注册</el-button>
       </template>
     </el-dialog>
 
@@ -567,7 +567,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <template #footer>
         <el-button @click="dlgSync.visible = false">关闭</el-button>
         <el-button @click="loadServerCatalog" :loading="dlgSync.loading">重新扫描</el-button>
-        <el-button type="primary" @click="submitSyncServer" :loading="dlgSync.syncing">同步元数据</el-button>
+        <el-button type="primary" :disabled="catalogMutationsDisabled" @click="submitSyncServer" :loading="dlgSync.syncing">同步元数据</el-button>
       </template>
     </el-dialog>
 
@@ -600,7 +600,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       </el-form>
       <template #footer>
         <el-button @click="dlgTable.visible = false">取消</el-button>
-        <el-button type="primary" @click="submitCreateTable" :loading="dlgTable.loading">创建</el-button>
+        <el-button type="primary" :disabled="catalogMutationsDisabled" @click="submitCreateTable" :loading="dlgTable.loading">创建</el-button>
       </template>
     </el-dialog>
 
@@ -611,7 +611,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         <div v-for="rel in relations" :key="rel.ID" class="relation-row">
           <span class="rel-name">{{ rel.RELATION_NAME }}</span>
           <span class="rel-arrow">{{ rel.parentPhysicalTableName || rel.parentTableName }}.{{ rel.PARENT_FIELD }} → {{ rel.childPhysicalTableName || rel.childTableName }}.{{ rel.CHILD_FIELD }}</span>
-          <el-button size="small" type="danger" text @click="deleteRelation(rel.ID)">删除</el-button>
+          <el-button size="small" type="danger" text :disabled="catalogMutationsDisabled" @click="deleteRelation(rel.ID)">删除</el-button>
         </div>
       </div>
       <div v-else class="empty">暂无表关系</div>
@@ -634,7 +634,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           <el-select v-model="dlgRelation.form.childField" placeholder="字段" size="small" style="width: 140px">
             <el-option v-for="col in childColumns" :key="col.physicalColumnName || col.name" :label="col.physicalColumnName || col.name" :value="col.physicalColumnName || col.name" />
           </el-select>
-          <el-button size="small" type="primary" @click="submitCreateRelation" :loading="dlgRelation.loading">创建</el-button>
+          <el-button size="small" type="primary" :disabled="catalogMutationsDisabled" @click="submitCreateRelation">创建</el-button>
         </div>
       </div>
       <template #footer>
@@ -648,25 +648,31 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Plus, Loading, Delete, Connection, Coin, FolderOpened, Grid, Refresh } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { getUser, isPlatformAdminUser } from '@/services/auth'
-import { http } from '@/services/http'
+import type { LowcodeDatabaseCatalog, RuntimeNavigationItem } from '@spark-appworks/spark-lowcode-api'
+import { lowcodeApi, lowcodeHttp as http, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { parseTenantScope } from '@/services/tenant-scope'
 
 type DbmsServer = {
-  ID: number
+  ID: string
   SERVER_NAME: string
   HOST: string
-  PORT: number
+  PORT: string
   DB_TYPE: string
-  ISOLATION_MODE: IsolationMode}
+  DESCRIPTION: string
+  ISOLATION_MODE?: IsolationMode}
 
 type DbmsDatabase = {
-  ID: number
-  SERVER_ID: number
+  ID: string
+  SERVER_ID: string
   DATABASE_NAME: string
-  ISOLATION_MODE: IsolationMode
+  DB_TYPE: string
+  SERVER_NAME: string
+  SCHEMA_NAME: string
+  STATE: number | null
+  REMARK: string
+  ISOLATION_MODE?: IsolationMode
   CONNECTION_MODE?: 'DIRECT' | 'JNDI_XA'
   JNDI_NAME?: string | null
   canonicalDatabaseId?: number
@@ -688,49 +694,29 @@ type DbmsColumn = {
 type DbmsObjectType = 'TABLE' | 'VIEW'
 
 type PhysicalObjectKey = {
-  databaseId: number | null
+  databaseId: string | null
   objectType: DbmsObjectType
   schemaName: string | null
   physicalName: string}
 
-function isDbmsObjectType(value: unknown): value is DbmsObjectType {
-  return value === 'TABLE' || value === 'VIEW'
-}
-
-function parsePhysicalObjectKey(text: string): PhysicalObjectKey {
-  const parsed: unknown = JSON.parse(text)
-  if (!isRecord(parsed)
-    || !(typeof parsed['databaseId'] === 'number' || parsed['databaseId'] === null)
-    || !isDbmsObjectType(parsed['objectType'])
-    || !(typeof parsed['schemaName'] === 'string' || parsed['schemaName'] === null)
-    || typeof parsed['physicalName'] !== 'string') {
-    throw new Error('Invalid physical object key')
-  }
-  return {
-    databaseId: parsed['databaseId'],
-    objectType: parsed['objectType'],
-    schemaName: parsed['schemaName'],
-    physicalName: parsed['physicalName'],
-  }
-}
-
 type DbmsTable = {
-  id: number
+  id: string
   tableName: string
   objectType?: DbmsObjectType
   schemaName?: string | null
   physicalTableName?: string
   physicalName?: string
-  isolationMode: IsolationMode
+  isolationMode?: IsolationMode
+  multiTenancy: boolean | null
   columnCount?: number
   physicalObjectKey?: PhysicalObjectKey
   columns?: DbmsColumn[]}
 
 type DbmsRelation = {
-  ID: number
+  ID: string
   RELATION_NAME: string
-  PARENT_TABLE_ID?: number
-  CHILD_TABLE_ID?: number
+  PARENT_TABLE_ID?: string
+  CHILD_TABLE_ID?: string
   parentTableName: string
   parentPhysicalTableName?: string
   parentSchemaName?: string | null
@@ -741,7 +727,7 @@ type DbmsRelation = {
   CHILD_FIELD: string}
 
 type DbmsObjectSql = {
-  objectId: number
+  objectId: string
   objectType: DbmsObjectType
   dialect: string
   ddl: string
@@ -749,7 +735,7 @@ type DbmsObjectSql = {
   readOnly: boolean}
 
 type DbmsObjectData = {
-  objectId: number
+  objectId: string
   objectType: DbmsObjectType
   dialect: string
   columns: DbmsColumn[]
@@ -760,8 +746,8 @@ type DbmsObjectData = {
   readOnly: boolean}
 
 type DbmsCatalogObject = {
-  databaseId: number | null
-  objectId: number | null
+  databaseId: string | null
+  objectId: string | null
   objectType: DbmsObjectType
   schemaName: string | null
   physicalName: string
@@ -778,40 +764,17 @@ type DbmsCatalogSchema = {
 
 type DbmsCatalogDatabase = {
   databaseName: string
-  databaseId: number | null
+  databaseId: string | null
   registered: boolean
   schemas: DbmsCatalogSchema[]
   relations: unknown[]}
 
 type DbmsCatalog = {
-  serverId: number
+  serverId: string
   serverName: string
   databases: DbmsCatalogDatabase[]}
 
-type ApiMessage = {
-  success?: boolean
-  message?: string
-  error?: string}
-
-type DatabaseCreatePayload = {
-  serverId: number
-  databaseName: string
-  isolationMode: IsolationMode
-  createNew: boolean
-  connectionMode: string
-  jndiName?: string
-  charset?: string
-  collation?: string}
-
-type TableCreatePayload = {
-  tableName: string
-  databaseId: number
-  isolationMode: IsolationMode
-  columns: ColumnForm[]
-  physicalTableName?: string}
-
 type IsolationMode = 'TENANT_SHARED' | 'TENANT_ISOLATED' | 'PROJECT_SHARED' | 'PROJECT_ISOLATED'
-type TagType = 'primary' | 'success' | 'warning' | 'info' | 'danger'
 type WorkspaceTab = 'object' | 'structure' | 'data' | 'sql'
 
 const isolationModeOptions: Array<{ value: IsolationMode; label: string }> = [
@@ -835,19 +798,6 @@ function isIsolationMode(value: string): value is IsolationMode {
     || value === 'PROJECT_ISOLATED'
 }
 
-function isolationModeLabel(mode: string | undefined): string {
-  const option = isolationModeOptions.find((item) => item.value === mode)
-  return option?.label ?? `未知模式: ${mode ?? '空'}`
-}
-
-function isolationTagType(mode: string | undefined): TagType {
-  if (mode === 'TENANT_SHARED') return 'success'
-  if (mode === 'TENANT_ISOLATED') return 'warning'
-  if (mode === 'PROJECT_SHARED') return 'info'
-  if (mode === 'PROJECT_ISOLATED') return 'primary'
-  return 'danger'
-}
-
 function isolationRank(mode: string | undefined): number | null {
   if (!mode || !isIsolationMode(mode)) return null
   return isolationModeRanks[mode]
@@ -859,33 +809,32 @@ function childIsolationOptions(parentMode: string | undefined) {
   return isolationModeOptions.filter((option) => isolationModeRanks[option.value] >= parentRank)
 }
 
-function canContainIsolation(parentMode: string | undefined, childMode: string | undefined): boolean {
-  const parentRank = isolationRank(parentMode)
-  const childRank = isolationRank(childMode)
-  return parentRank !== null && childRank !== null && childRank >= parentRank
-}
-
 const databaseIsolationOptions = computed(() => childIsolationOptions(selectedServer.value?.ISOLATION_MODE))
 const tableIsolationOptions = computed(() => childIsolationOptions(selectedDatabase.value?.ISOLATION_MODE))
 
 // ── 当前上下文 ──
 const route = useRoute()
-const user = computed(() => getUser())
-const isPlatformAdmin = computed(() => isPlatformAdminUser(user.value))
+const catalogMutationsDisabled = true
+const principal = computed(() => readLowcodePrincipal())
+const isPlatformAdmin = computed(() => principal.value?.roles.includes('SUPER_ADMIN') === true)
 const currentTenant = computed(() => {
   const scoped = parseTenantScope(route.path)
-  if (isPlatformAdmin.value && scoped) return scoped.tenantId
-  if (!user.value?.tenantId) throw new Error('缺少 tenantId，无法加载 DBMS')
-  return user.value.tenantId
+  if (scoped) return scoped.tenantId
+  if (!principal.value?.enterpriseName) throw new Error('缺少企业身份，无法加载 DBMS')
+  return principal.value.enterpriseName
 })
 const currentProject = computed(() => {
   const scoped = parseTenantScope(route.path)
-  if (isPlatformAdmin.value && scoped) return scoped.projectId
-  if (!user.value?.defaultProjectId) throw new Error('缺少 projectId，无法加载 DBMS')
-  return user.value.defaultProjectId
+  if (scoped) return scoped.projectId
+  if (!principal.value?.applicationId) throw new Error('缺少应用身份，无法加载 DBMS')
+  return principal.value.applicationId
 })
 
-const scopePath = computed(() => `/api/tenants/${currentTenant.value}/projects/${currentProject.value}`)
+const governanceBlockedMessage = 'lowcode mutation 尚无写前镜像、幂等、短事务、journal、readback 与补偿合同，当前只读'
+
+function reportGovernanceBlocked(): void {
+  ElMessage.warning(governanceBlockedMessage)
+}
 
 function apiErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message.trim().length > 0) return error.message
@@ -899,11 +848,42 @@ function apiErrorMessage(error: unknown): string {
   return String(error)
 }
 
+const databaseCatalogNavigationTitles = new Set(['数据库管理', '数据资源管理', '结构化配置'])
+
+function collectDatabaseCatalogFormKeys(
+  nodes: readonly RuntimeNavigationItem[],
+  result = new Set<string>(),
+): Set<string> {
+  for (const node of nodes) {
+    if (
+      node.formKey !== null
+      && (
+        databaseCatalogNavigationTitles.has(node.title)
+        || node.target.toLowerCase().includes('databasecodelist')
+      )
+    ) result.add(node.formKey)
+    collectDatabaseCatalogFormKeys(node.children, result)
+  }
+  return result
+}
+
+async function resolveDatabaseCatalogFormKeys(): Promise<readonly string[]> {
+  const application = lowcodeApi.application.get()
+  if (application === null) throw new Error('缺少 lowcode 应用上下文，无法定位数据库管理数据空间')
+  const navigation = await lowcodeApi.blueprint.readRuntimeNavigation(
+    application.application.id,
+    application.navigationRootId,
+  )
+  const formKeys = [...collectDatabaseCatalogFormKeys(navigation.items)]
+  if (formKeys.length === 0) throw new Error('当前应用导航没有绑定数据库目录 FormKey，不能读取系统元数据')
+  return formKeys
+}
+
 // ── 状态 ──
 const loading = reactive({ servers: false, databases: false, tables: false, data: false, sql: false })
-const testingId = ref<number | null>(null)
 const testingNew = ref(false)
 
+const catalogSnapshot = ref<LowcodeDatabaseCatalog | null>(null)
 const servers = ref<DbmsServer[]>([])
 const databases = ref<DbmsDatabase[]>([])
 const tables = ref<DbmsTable[]>([])
@@ -984,9 +964,9 @@ function tableColumnCount(table: DbmsTable): number | string {
   return table.columnCount ?? table.columns?.length ?? '-'
 }
 
-function relationTableId(rel: DbmsRelation, side: 'parent' | 'child'): number | null {
+function relationTableId(rel: DbmsRelation, side: 'parent' | 'child'): string | null {
   const value = side === 'parent' ? rel.PARENT_TABLE_ID : rel.CHILD_TABLE_ID
-  return typeof value === 'number' ? value : null
+  return typeof value === 'string' && value.length > 0 ? value : null
 }
 
 function relationTableLabel(rel: DbmsRelation, side: 'parent' | 'child'): string {
@@ -1015,7 +995,34 @@ function dataCellValue(row: Record<string, unknown>, column: DbmsColumn): string
 async function loadServers() {
   loading.servers = true
   try {
-    servers.value = await http.get<DbmsServer[]>('/api/servers')
+    const formKeys = await resolveDatabaseCatalogFormKeys()
+    const snapshot = await lowcodeApi.catalog.getDatabaseCatalog(formKeys)
+    catalogSnapshot.value = snapshot
+    const normalizedServers = snapshot.servers.map((server) => ({
+      ID: server.id,
+      SERVER_NAME: server.name || server.id,
+      HOST: server.host,
+      PORT: server.port,
+      DB_TYPE: server.type,
+      DESCRIPTION: server.description,
+    }))
+    const knownServerIds = new Set(normalizedServers.map((server) => server.ID))
+    const databaseServers = snapshot.databases.flatMap((database) => {
+      if (!database.serverId || knownServerIds.has(database.serverId)) return []
+      knownServerIds.add(database.serverId)
+      return [{
+        ID: database.serverId,
+        SERVER_NAME: database.serverName || database.serverId,
+        HOST: '',
+        PORT: '',
+        DB_TYPE: database.type,
+        DESCRIPTION: '由已授权数据库模型返回；服务器详情不可见',
+      }]
+    })
+    servers.value = [...normalizedServers, ...databaseServers]
+    if (snapshot.sourceErrors.length > 0) {
+      ElMessage.warning(`部分元数据模型不可见：${snapshot.sourceErrors.map((item) => item.source).join('、')}`)
+    }
     if (selectedServer.value && !servers.value.some((srv) => srv.ID === selectedServer.value?.ID)) {
       selectedServer.value = null
       selectedDatabase.value = null
@@ -1037,7 +1044,18 @@ async function loadDatabases() {
   const serverId = selectedServer.value.ID
   loading.databases = true
   try {
-    const rows = await http.get<DbmsDatabase[]>(`${scopePath.value}/databases`, { serverId })
+    const rows: DbmsDatabase[] = (catalogSnapshot.value?.databases ?? [])
+      .filter((database) => database.serverId === serverId)
+      .map((database) => ({
+        ID: database.id,
+        SERVER_ID: database.serverId,
+        DATABASE_NAME: database.name,
+        DB_TYPE: database.type,
+        SERVER_NAME: database.serverName,
+        SCHEMA_NAME: database.schemaName,
+        STATE: database.state,
+        REMARK: database.remark,
+      }))
     if (selectedServer.value?.ID === serverId) databases.value = rows
   } catch (error) {
     if (selectedServer.value?.ID === serverId) {
@@ -1052,7 +1070,36 @@ async function loadTables() {
   const databaseId = selectedDatabase.value.ID
   loading.tables = true
   try {
-    const rows = await http.get<DbmsTable[]>(`${scopePath.value}/data-model/tables`, { databaseId })
+    const fields = catalogSnapshot.value?.fields ?? []
+    const rows: DbmsTable[] = (catalogSnapshot.value?.tables ?? [])
+      .filter((table) => table.databaseId === databaseId)
+      .map((table) => {
+        const columns: DbmsColumn[] = fields
+          .filter((field) => field.tableId === table.id)
+          .sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER))
+          .map((field) => ({
+            name: field.label || field.name,
+            physicalColumnName: field.name,
+            type: field.dataTypeName,
+            sqlType: field.dataType,
+            maxLength: field.length === '' || !Number.isFinite(Number(field.length)) ? null : Number(field.length),
+            primaryKey: field.primaryKey === true,
+            ...(field.nullable === null ? {} : { nullable: field.nullable }),
+            required: field.nullable === false,
+            defaultValue: field.defaultValue || null,
+            ...(field.order === null ? {} : { ordinalPosition: field.order }),
+          }))
+        return {
+          id: table.id,
+          tableName: table.description || table.name,
+          physicalTableName: table.name,
+          objectType: 'TABLE',
+          schemaName: table.schemaName || null,
+          multiTenancy: table.multiTenancy,
+          columnCount: columns.length,
+          columns,
+        }
+      })
     if (selectedDatabase.value?.ID === databaseId) {
       tables.value = rows
       if (selectedTable.value && !rows.some((tbl) => tbl.id === selectedTable.value?.id)) {
@@ -1075,17 +1122,7 @@ async function loadTables() {
 }
 
 async function loadRelations() {
-  if (!selectedDatabase.value) return
-  const databaseId = selectedDatabase.value.ID
-  try {
-    const rows = await http.get<DbmsRelation[]>(`${scopePath.value}/table-relations`, { databaseId })
-    if (selectedDatabase.value?.ID === databaseId) relations.value = rows
-  } catch (error) {
-    if (selectedDatabase.value?.ID === databaseId) {
-      ElMessage.error(`加载表关系失败: ${apiErrorMessage(error)}`)
-      relations.value = []
-    }
-  }
+  relations.value = []
 }
 
 // ── 选择 ──
@@ -1132,15 +1169,7 @@ function selectTable(tbl: DbmsTable) {
 }
 
 async function loadTableDetail(tbl: DbmsTable) {
-  try {
-    const full = await http.get<DbmsTable>(`${scopePath.value}/data-model/tables/by-id/${tbl.id}`)
-    if (selectedTable.value?.id === tbl.id) {
-      selectedTable.value = { ...tbl, ...full }
-      selectedTableColumns.value = full.columns ?? []
-    }
-  } catch (error) {
-    ElMessage.error(`加载对象详情失败: ${apiErrorMessage(error)}`)
-  }
+  if (selectedTable.value?.id === tbl.id) selectedTableColumns.value = tbl.columns ?? []
 }
 
 async function loadObjectSql(objectId = selectedTable.value?.id) {
@@ -1148,22 +1177,8 @@ async function loadObjectSql(objectId = selectedTable.value?.id) {
     objectSql.value = null
     return
   }
-  loading.sql = true
-  try {
-    const payload = await http.get<DbmsObjectSql>(`${scopePath.value}/dbms/objects/${objectId}/sql`)
-    if (selectedTable.value?.id === objectId) {
-      objectSql.value = payload
-    }
-  } catch (error) {
-    if (selectedTable.value?.id === objectId) {
-      objectSql.value = null
-      ElMessage.error(`加载 SQL 失败: ${apiErrorMessage(error)}`)
-    }
-  } finally {
-    if (selectedTable.value?.id === objectId) {
-      loading.sql = false
-    }
-  }
+  loading.sql = false
+  objectSql.value = null
 }
 
 async function loadObjectData(objectId = selectedTable.value?.id) {
@@ -1171,25 +1186,8 @@ async function loadObjectData(objectId = selectedTable.value?.id) {
     objectData.value = null
     return
   }
-  loading.data = true
-  try {
-    const payload = await http.get<DbmsObjectData>(`${scopePath.value}/dbms/objects/${objectId}/data`, {
-      page: dataPage.value,
-      pageSize: dataPageSize.value,
-    })
-    if (selectedTable.value?.id === objectId) {
-      objectData.value = payload
-    }
-  } catch (error) {
-    if (selectedTable.value?.id === objectId) {
-      objectData.value = null
-      ElMessage.error(`加载数据失败: ${apiErrorMessage(error)}`)
-    }
-  } finally {
-    if (selectedTable.value?.id === objectId) {
-      loading.data = false
-    }
-  }
+  loading.data = false
+  objectData.value = null
 }
 
 function changeDataPage(page: number) {
@@ -1236,50 +1234,12 @@ async function openSyncCatalog() {
 }
 
 async function loadServerCatalog() {
-  const server = selectedServer.value
-  if (!server) return
-  dlgSync.loading = true
-  mutatePhysicalObjectKeys.value = new Set()
-  try {
-    dlgSync.catalog = await http.get<DbmsCatalog>(`${scopePath.value}/dbms/servers/${server.ID}/catalog`)
-  } catch (error) {
-    dlgSync.catalog = null
-    ElMessage.error(`扫描 catalog 失败: ${apiErrorMessage(error)}`)
-  } finally {
-    dlgSync.loading = false
-  }
+  dlgSync.catalog = null
+  reportGovernanceBlocked()
 }
 
 async function submitSyncServer() {
-  const server = selectedServer.value
-  if (!server) {
-    ElMessage.warning('请先选择服务器')
-    return
-  }
-  dlgSync.syncing = true
-  try {
-    const mutateKeys = Array.from(mutatePhysicalObjectKeys.value).map(parsePhysicalObjectKey)
-    await http.post(`${scopePath.value}/dbms/servers/${server.ID}/sync`, {
-      scopeMode: 'PLATFORM_SHARED',
-      includeTables: true,
-      includeViews: true,
-      includeRelations: true,
-      mutatePhysicalObjectKeys: mutateKeys,
-    })
-    ElMessage.success('服务器元数据同步完成')
-    await loadDatabases()
-    if (selectedDatabase.value) {
-      await loadTables()
-      await loadRelations()
-      if (activeWorkspaceTab.value === 'data' && selectedTable.value) await loadObjectData()
-      if (activeWorkspaceTab.value === 'sql' && selectedTable.value) await loadObjectSql()
-    }
-    await loadServerCatalog()
-  } catch (error) {
-    ElMessage.error(`同步失败: ${apiErrorMessage(error)}`)
-  } finally {
-    dlgSync.syncing = false
-  }
+  reportGovernanceBlocked()
 }
 
 // ── 服务器 Dialog ──
@@ -1315,34 +1275,27 @@ function openCreateServer() {
 async function testNewConnection() {
   testingNew.value = true
   try {
-    const data = await http.post<ApiMessage>('/api/servers/test-new', dlgServer.form)
-    if (data.success) ElMessage.success('连接成功')
-    else ElMessage.warning(data.message || '连接失败')
+    const connected = await http.post<boolean>('/api/Db/testConnection', {
+      Type: dlgServer.form.dbType.toUpperCase(),
+      ServerName: dlgServer.form.serverName,
+      ip_address: dlgServer.form.host,
+      UserName: dlgServer.form.username,
+      Password: dlgServer.form.password,
+      Port: String(dlgServer.form.port),
+    })
+    if (connected) ElMessage.success('连接成功')
+    else ElMessage.warning('连接失败')
   } catch (error) { ElMessage.error(`测试请求失败: ${apiErrorMessage(error)}`) }
   finally { testingNew.value = false }
 }
 
 async function submitCreateServer() {
-  dlgServer.loading = true
-  try {
-    await http.post<DbmsServer>('/api/servers', dlgServer.form)
-    ElMessage.success('服务器注册成功')
-    dlgServer.visible = false
-    void loadServers()
-  } catch (error) {
-    ElMessage.error(`注册失败: ${apiErrorMessage(error)}`)
-  } finally { dlgServer.loading = false }
+  reportGovernanceBlocked()
 }
 
 async function testServerConnection(srv: DbmsServer) {
-  testingId.value = srv.ID
-  try {
-    const data = await http.post<ApiMessage>(`/api/servers/${srv.ID}/test`)
-    if (data.success) ElMessage.success('连接成功')
-    else ElMessage.warning(data.message || '连接失败')
-  } catch (error) {
-    ElMessage.error(`测试失败: ${apiErrorMessage(error)}`)
-  } finally { testingId.value = null }
+  void srv
+  ElMessage.warning('安全只读目录不会读取数据库密码；请选择“注册服务器”填写临时凭据后测试')
 }
 
 // ── 数据库 Dialog ──
@@ -1394,7 +1347,7 @@ async function loadPhysicalDatabases() {
   const serverId = server.ID
   physicalDatabasesLoading.value = true
   try {
-    const names = await http.get<string[]>(`${scopePath.value}/databases/catalog/physical-names`, { serverId })
+    const names = await http.get<string[]>(`/api/Db/getUnregisteredDb/${encodeURIComponent(serverId)}`)
     if (selectedServer.value?.ID === serverId) {
       physicalDatabaseNames.value = names
     }
@@ -1409,61 +1362,12 @@ async function loadPhysicalDatabases() {
 }
 
 async function submitCreateDatabase() {
-  dlgDb.loading = true
-  try {
-    const server = selectedServer.value
-    if (!server) {
-      ElMessage.warning('请先选择服务器')
-      return
-    }
-    if (!canContainIsolation(server.ISOLATION_MODE, dlgDb.form.isolationMode)) {
-      ElMessage.error('数据库隔离模式不能比服务器更宽')
-      return
-    }
-    const body: DatabaseCreatePayload = {
-      serverId: server.ID,
-      databaseName: dlgDb.form.databaseName,
-      isolationMode: dlgDb.form.isolationMode,
-      createNew: dlgDb.form.createNew,
-      connectionMode: dlgDb.form.connectionMode
-    }
-    if (dlgDb.form.connectionMode === 'JNDI_XA') body.jndiName = dlgDb.form.jndiName
-    if (dlgDb.form.createNew) {
-      body.charset = dlgDb.form.charset
-      body.collation = dlgDb.form.collation
-    }
-    await http.post<DbmsDatabase>(`${scopePath.value}/databases`, body)
-    ElMessage.success('数据库注册成功')
-    dlgDb.visible = false
-    void loadDatabases()
-  } catch (error) {
-    ElMessage.error(`注册失败: ${apiErrorMessage(error)}`)
-  } finally { dlgDb.loading = false }
+  reportGovernanceBlocked()
 }
 
 async function deleteDatabaseConfirm(db: DbmsDatabase) {
-  try {
-    await ElMessageBox.confirm(
-      `确定删除数据库 "${db.DATABASE_NAME}"？`,
-      '确认删除',
-      { type: 'warning' }
-    )
-    await http.delete(`${scopePath.value}/databases/${db.ID}`, { dropPhysical: false })
-    ElMessage.success('已删除')
-    if (selectedDatabase.value?.ID === db.ID) {
-      selectedDatabase.value = null
-      selectedTable.value = null
-      selectedTableColumns.value = []
-      tables.value = []
-      relations.value = []
-      objectSql.value = null
-      objectData.value = null
-    }
-    void loadDatabases()
-  } catch (error) {
-    if (error instanceof Error && error.message === 'cancel') return
-    ElMessage.error(`删除失败: ${apiErrorMessage(error)}`)
-  }
+  void db
+  reportGovernanceBlocked()
 }
 
 // ── 表 Dialog ──
@@ -1501,50 +1405,12 @@ function openCreateTable() {
 }
 
 async function submitCreateTable() {
-  dlgTable.loading = true
-  try {
-    const database = selectedDatabase.value
-    if (!database) {
-      ElMessage.warning('请先选择数据库')
-      return
-    }
-    if (!canContainIsolation(database.ISOLATION_MODE, dlgTable.form.isolationMode)) {
-      ElMessage.error('表隔离模式不能比数据库更宽')
-      return
-    }
-    const body: TableCreatePayload = {
-      tableName: dlgTable.form.tableName,
-      databaseId: database.ID,
-      isolationMode: dlgTable.form.isolationMode,
-      columns: dlgTable.form.columns.map(c => ({ name: c.name, type: c.type, maxLength: c.maxLength, primaryKey: c.primaryKey, required: c.required }))
-    }
-    if (dlgTable.form.physicalTableName) body.physicalTableName = dlgTable.form.physicalTableName
-    await http.post<DbmsTable>(`${scopePath.value}/data-model/tables`, body)
-    ElMessage.success('表创建成功')
-    dlgTable.visible = false
-    void loadTables()
-  } catch (error) {
-    ElMessage.error(`创建失败: ${apiErrorMessage(error)}`)
-  } finally { dlgTable.loading = false }
+  reportGovernanceBlocked()
 }
 
 async function deleteTableConfirm(tbl: DbmsTable) {
-  try {
-    await ElMessageBox.confirm(`确定删除表 "${tbl.tableName}"？`, '确认删除', { type: 'warning' })
-    await http.delete(`${scopePath.value}/data-model/tables/${encodeURIComponent(tbl.tableName)}`, { dropPhysical: false })
-    ElMessage.success('已删除')
-    if (selectedTable.value?.id === tbl.id) {
-      selectedTable.value = null
-      selectedTableColumns.value = []
-      objectSql.value = null
-      objectData.value = null
-    }
-    void loadTables()
-    void loadRelations()
-  } catch (error) {
-    if (error instanceof Error && error.message === 'cancel') return
-    ElMessage.error(`删除失败: ${apiErrorMessage(error)}`)
-  }
+  void tbl
+  reportGovernanceBlocked()
 }
 
 // ── 表关系 Dialog ──
@@ -1578,58 +1444,27 @@ async function viewTableRelation(_tbl: DbmsTable) {
   dlgRelation.visible = true
 }
 
-async function fetchTableColumns(tableId: number): Promise<DbmsColumn[]> {
+async function fetchTableColumns(tableId: string): Promise<DbmsColumn[]> {
   const tbl = tables.value.find((t) => t.id === tableId)
   if (!tbl) return []
-  try {
-    const full = await http.get<DbmsTable>(`${scopePath.value}/data-model/tables/by-id/${tbl.id}`)
-    return full.columns ?? []
-  } catch (error) {
-    ElMessage.error(`加载字段失败: ${apiErrorMessage(error)}`)
-    return []
-  }
+  return tbl.columns ?? []
 }
 
-async function onParentTableChange(tableId: number) {
+async function onParentTableChange(tableId: string) {
   parentColumns.value = await fetchTableColumns(tableId)
 }
 
-async function onChildTableChange(tableId: number) {
+async function onChildTableChange(tableId: string) {
   childColumns.value = await fetchTableColumns(tableId)
 }
 
 async function submitCreateRelation() {
-  const database = selectedDatabase.value
-  if (!database) {
-    ElMessage.warning('请先选择数据库')
-    return
-  }
-  if (!dlgRelation.form.parentTableId || !dlgRelation.form.childTableId || !dlgRelation.form.parentField || !dlgRelation.form.childField) {
-    ElMessage.warning('请填写完整的表关系信息')
-    return
-  }
-  dlgRelation.loading = true
-  try {
-    await http.post<DbmsRelation>(`${scopePath.value}/table-relations`, {
-      ...dlgRelation.form,
-      databaseId: database.ID
-    })
-    ElMessage.success('表关系创建成功')
-    resetRelationForm()
-    void loadRelations()
-  } catch (error) {
-    ElMessage.error(`创建失败: ${apiErrorMessage(error)}`)
-  } finally { dlgRelation.loading = false }
+  reportGovernanceBlocked()
 }
 
-async function deleteRelation(id: number) {
-  try {
-    await http.delete(`${scopePath.value}/table-relations/${id}`)
-    ElMessage.success('已删除')
-    void loadRelations()
-  } catch (error) {
-    ElMessage.error(`删除失败: ${apiErrorMessage(error)}`)
-  }
+async function deleteRelation(id: string) {
+  void id
+  reportGovernanceBlocked()
 }
 
 // ── 初始化 ──

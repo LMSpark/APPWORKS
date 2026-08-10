@@ -88,13 +88,13 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 
         <el-row :gutter="20" style="margin-top: 16px">
           <el-col :span="12">
-            <el-card header="数据库统计">
+            <el-card header="lowcode 租户缓存统计">
               <el-descriptions :column="1" border size="small" v-loading="beLoading">
-                <el-descriptions-item label="页面配置数">
-                  {{ beStats?.database?.pageCount ?? '—' }}
+                <el-descriptions-item label="数据模型缓存数">
+                  {{ beStats?.dataSetModelCount ?? '—' }}
                 </el-descriptions-item>
-                <el-descriptions-item label="配置文件数">
-                  {{ beStats?.database?.fileCount ?? '—' }}
+                <el-descriptions-item label="开发文件版本缓存数">
+                  {{ beStats?.developmentFileCount ?? '—' }}
                 </el-descriptions-item>
               </el-descriptions>
             </el-card>
@@ -114,7 +114,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Coin, Refresh, Delete } from '@element-plus/icons-vue'
 import { clearAllPageCache, refreshRoutes } from '@spark-appworks/spark-app'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { http } from '@/services/http'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 
 // ── 前端缓存状态 ──────────────────────────────────────────
 const activeTab = ref('frontend')
@@ -268,17 +269,15 @@ async function handleClearAllFrontend() {
 const beLoading = ref(false)
 
 type BackendStats = {
-  database: {
-    pageCount: number
-    fileCount: number
-  }}
+  dataSetModelCount: number
+  developmentFileCount: number}
 
 const beStats = ref<BackendStats | null>(null)
 
 async function loadBackendStats() {
   beLoading.value = true
   try {
-    beStats.value = await http.get<BackendStats>('/api/cache/stats')
+    beStats.value = await lowcodeApi.platform.getCacheStats()
   } catch (e) {
     ElMessage.error(`加载后端统计失败: ${e instanceof Error ? e.message : String(e)}`)
   } finally {
@@ -289,7 +288,7 @@ async function loadBackendStats() {
 async function handleRefreshRoutes() {
   try {
     const result = await refreshRoutes()
-    ElMessage.success(`路由已刷新，共 ${result?.children?.length ?? 0} 条导航项`)
+    ElMessage.success(`路由已刷新，共 ${result?.items.length ?? 0} 条导航项`)
   } catch (e) {
     ElMessage.error(`路由刷新失败: ${e instanceof Error ? e.message : String(e)}`)
   }
@@ -297,8 +296,8 @@ async function handleRefreshRoutes() {
 
 async function handleReloadNavigation() {
   try {
-    window.dispatchEvent(new CustomEvent('spark:reloadNavigation'))
-    ElMessage.success('导航菜单已刷新')
+    const result = await reloadAndSyncNavigation()
+    ElMessage.success(`导航菜单已刷新，共 ${result?.items.length ?? 0} 个顶级入口`)
   } catch (e) {
     ElMessage.error(`导航刷新失败: ${e instanceof Error ? e.message : String(e)}`)
   }

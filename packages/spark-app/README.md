@@ -1,11 +1,11 @@
 # @spark-appworks/spark-app
 
-> SPARK 应用层基础设施 - 提供应用启动、认证、路由守卫、错误处理和日志系统
+> SPARK 应用层基础设施 - 提供应用启动、认证上下文接线、路由守卫、错误处理和日志系统
 
 ## 特性
 
 - ⚡ **SparkApp.start()** - 声明式应用启动（推荐）
-- 🔐 **Authentication** - 内置认证服务和令牌管理
+- 🔐 **Authentication Context** - 由应用宿主注入后端无关的认证上下文
 - 🛡️ **Router Guards** - 鉴权和权限检查
 - 🚨 **Error Boundary** - 全局错误处理
 - 📝 **Logger** - 多级别、多传输器日志系统
@@ -34,7 +34,8 @@ await SparkApp.start({
     apiBaseUrl: '/api',
     logLevel: 'debug',
     enableMock: import.meta.env.DEV
-  }
+  },
+  authenticate: async (config) => resolveAppContext(config)
 })
 ```
 
@@ -62,6 +63,7 @@ await SparkApp.bootstrap({
     apiBaseUrl: '/api',
     logLevel: import.meta.env.DEV ? 'debug' : 'warn'
   },
+  authenticate: async (config) => resolveAppContext(config),
   beforeMount: async (context) => {
     console.log('即将挂载', context)
   }
@@ -70,29 +72,17 @@ await SparkApp.bootstrap({
 
 ## 核心功能
 
-### 认证 API
+### 认证上下文
 
 ```typescript
-import { createAuthService } from '@spark-appworks/spark-app'
+import { SparkApp, type BootstrapAuthenticate } from '@spark-appworks/spark-app'
 
-const auth = createAuthService()
-auth.initialize({ baseURL: '/api/auth' })
-
-// 登录
-const result = await auth.login({
-  username: 'admin',
-  password: '123456'
-})
-
-if (result) {
-  console.log('登录成功', result.user)
+const authenticate: BootstrapAuthenticate = async (config) => {
+  const session = sessionStore.get()
+  return session === null ? publicContext(config) : sessionContext(session, config)
 }
 
-// 登出
-await auth.logout()
-
-// 检查认证状态
-const authResult = await auth.checkAuth()
+await SparkApp.start({ rootComponent: App, config, authenticate })
 ```
 
 ### 日志 API
@@ -211,17 +201,12 @@ const ErrorBoundary = createErrorBoundary((error) => {
 | `sparkConsume(PAGE_RUNTIME_SERVICES)` | 页面运行时服务能力 | `const services = sparkConsume(PAGE_RUNTIME_SERVICES)` |
 | `useSparkRegistry()` | 组件注册表 | `const registry = useSparkRegistry()` |
 
-### 认证服务
+### 认证接线
 
 | 方法 | 描述 |
 |------|------|
-| `createAuthService()` | 创建认证服务实例 |
-| `auth.initialize(config)` | 初始化配置 |
-| `auth.login(credentials)` | 用户登录 |
-| `auth.logout()` | 用户登出 |
-| `auth.checkAuth()` | 检查认证状态 |
-| `auth.getToken()` | 获取访问令牌 |
-| `auth.refreshToken()` | 刷新令牌 |
+| `BootstrapAuthenticate` | 应用宿主解析认证上下文的稳定契约 |
+| `authenticate(config)` | 返回当前 `AppContext`，不绑定任何后端路径 |
 
 ### 日志系统
 

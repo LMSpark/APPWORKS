@@ -19,11 +19,11 @@ export {
 
 export type {
   ProjectModel,
-  ProjectNodeLocation,
+  ProjectBlueprintTreeNodeLocation,
   PageNodeFileName,
   ProjectPageNodeSummary,
-  NavigationNodeDraft,
-  NavigationNodeDraftNode,
+  BlueprintNodeDraft,
+  BlueprintNodeDraftNode,
   ProjectWorkspace,
   ProjectPageReference,
   ProjectSummary,

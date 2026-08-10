@@ -39,6 +39,8 @@
       "@spark-appworks/spark-component/runtime": ["./packages/spark-component/src/runtime/index.ts"],
       "@spark-appworks/spark-component": ["./packages/spark-component/src/index.ts"],
       "@spark-appworks/spark-data": ["./packages/spark-data/src/index.ts"],
+      "@spark-appworks/spark-lowcode-api": ["./packages/spark-lowcode-api/src/index.ts"],
+      "@spark-appworks/spark-lowcode-api/contracts": ["./packages/spark-lowcode-api/src/contracts/index.ts"],
       "@spark-appworks/spark-app": ["./packages/spark-app/src/index.ts"],
       "@spark-appworks/spark-ai": ["./packages/spark-ai/src/index.ts"],
       "@spark-appworks/spark-ai/json": ["./packages/spark-ai/src/json/index.ts"],

@@ -1,125 +1,85 @@
+import type { LowcodeRealtimeEvent } from '@spark-appworks/spark-lowcode-api'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-class MockEventSource {
-  static readonly CONNECTING = 0
-  static readonly OPEN = 1
-  static readonly CLOSED = 2
-  static instances: MockEventSource[] = []
+const realtime = vi.hoisted(() => ({
+  connect: vi.fn(),
+  onEvent: null as ((event: LowcodeRealtimeEvent) => void) | null,
+  close: vi.fn(),
+}))
 
-  readonly url: string
-  readyState = MockEventSource.CONNECTING
-  onerror: (() => void) | null = null
-  private readonly listeners = new Map<string, Set<EventListener>>()
+vi.mock('@/lowcode/lowcode-runtime', () => ({
+  lowcodeApi: {
+    realtime: {
+      connect: realtime.connect,
+    },
+  },
+}))
 
-  constructor(url: string) {
-    this.url = url
-    MockEventSource.instances.push(this)
-  }
-
-  addEventListener(type: string, listener: EventListener): void {
-    let listeners = this.listeners.get(type)
-    if (listeners === undefined) {
-      listeners = new Set()
-      this.listeners.set(type, listeners)
-    }
-    listeners.add(listener)
-  }
-
-  removeEventListener(type: string, listener: EventListener): void {
-    this.listeners.get(type)?.delete(listener)
-  }
-
-  open(): void {
-    this.readyState = MockEventSource.OPEN
-    this.dispatch('open', new Event('open'))
-  }
-
-  emit(type: string, data: string): void {
-    this.dispatch(type, new MessageEvent(type, { data }))
-  }
-
-  close(): void {
-    this.readyState = MockEventSource.CLOSED
-  }
-
-  private dispatch(type: string, event: Event): void {
-    const listeners = this.listeners.get(type)
-    if (listeners === undefined) return
-    for (const listener of listeners) listener(event)
-  }
-}
-
-describe('waitForAppSseConnection', () => {
-  let stopHostRunSubscription: (() => void) | undefined
+describe('lowcode SSE bridge', () => {
+  let stopSubscription: (() => void) | undefined
 
   beforeEach(() => {
-    MockEventSource.instances = []
-    vi.stubGlobal('EventSource', MockEventSource)
+    realtime.onEvent = null
+    realtime.close.mockReset()
+    realtime.connect.mockReset().mockImplementation((options: { onEvent(event: LowcodeRealtimeEvent): void }) => {
+      realtime.onEvent = options.onEvent
+      return { closed: new Promise<void>(() => undefined), close: realtime.close }
+    })
   })
 
   afterEach(() => {
-    stopHostRunSubscription?.()
-    stopHostRunSubscription = undefined
-    vi.unstubAllGlobals()
+    stopSubscription?.()
+    stopSubscription = undefined
     vi.resetModules()
   })
 
-  it('resolves immediately when APP SSE is already open', async () => {
+  it('waits for the authenticated lowcode connected event', async () => {
     const sse = await import('@/services/sse-events')
-    stopHostRunSubscription = sse.onAiHostRunRequest(() => undefined)
-    MockEventSource.instances[0]?.open()
-
-    await expect(sse.waitForAppSseConnection()).resolves.toBeUndefined()
-  })
-
-  it('waits until APP SSE connection opens', async () => {
-    const sse = await import('@/services/sse-events')
-    stopHostRunSubscription = sse.onAiHostRunRequest(() => undefined)
+    stopSubscription = sse.onAnyServerEnvelopeEvent(() => undefined)
     const pending = sse.waitForAppSseConnection(1_000)
-    const source = MockEventSource.instances[0]
-    expect(source?.url).toBe('/api/events')
-    source?.open()
+
+    expect(realtime.connect).toHaveBeenCalledWith(expect.objectContaining({ scope: 'spark-appworks' }))
+    realtime.onEvent?.({ event: 'connected', data: { connectionUid: 'C1' } })
 
     await expect(pending).resolves.toBeUndefined()
   })
 
-  it('recreates a closed APP SSE connection before waiting', async () => {
-    const sse = await import('@/services/sse-events')
-    stopHostRunSubscription = sse.onAiHostRunRequest(() => undefined)
-    const closedSource = MockEventSource.instances[0]
-    closedSource?.close()
-
-    const pending = sse.waitForAppSseConnection(1_000)
-    expect(MockEventSource.instances).toHaveLength(2)
-    const nextSource = MockEventSource.instances[1]
-    nextSource?.open()
-
-    await expect(pending).resolves.toBeUndefined()
-  })
-
-  it('unwraps v4 success envelopes that only include ok and data', async () => {
+  it('unwraps SparkEnvelope messages carried by lowcode JsonSseMessage', async () => {
     const sse = await import('@/services/sse-events')
     const callback = vi.fn()
-    stopHostRunSubscription = sse.onAiHostRunRequest(callback)
-    const source = MockEventSource.instances[0]
-    source?.open()
+    stopSubscription = sse.onAnyServerEnvelopeEvent(callback)
+    realtime.onEvent?.({ event: 'connected', data: { connectionUid: 'C1' } })
 
-    source?.emit('ai-host-run-request', JSON.stringify({
-      protocolVersion: 4,
-      ok: true,
+    realtime.onEvent?.({
+      event: 'message',
       data: {
-        requestId: 'hr-sse-envelope',
-        alias: 'projectPlanning',
-        args: { projectId: 'hr-enterprise-planning-smoke' },
+        messageType: 'AI',
+        title: 'turn-1',
+        content: JSON.stringify({
+          protocolVersion: 4,
+          ok: true,
+          data: {
+            text: '完成',
+          },
+          context: { requestId: 'server-event-1' },
+          event: { channel: 'ai', name: 'llm-frame', terminal: false },
+        }),
       },
-      context: { requestId: 'server-event-1' },
-      event: { transport: 'sse', name: 'ai-host-run-request' },
-    }))
+    })
 
     expect(callback).toHaveBeenCalledWith(expect.objectContaining({
-      requestId: 'hr-sse-envelope',
-      alias: 'projectPlanning',
-      args: { projectId: 'hr-enterprise-planning-smoke' },
+      name: 'llm-frame',
+      ok: true,
+      data: { text: '完成' },
     }))
+  })
+
+  it('closes the lowcode stream when the last subscriber leaves', async () => {
+    const sse = await import('@/services/sse-events')
+    stopSubscription = sse.onAnyServerEnvelopeEvent(() => undefined)
+    stopSubscription()
+    stopSubscription = undefined
+
+    expect(realtime.close).toHaveBeenCalledOnce()
   })
 })

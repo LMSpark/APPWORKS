@@ -1,23 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const httpMock = vi.hoisted(() => ({
-  get: vi.fn(),
-  post: vi.fn(),
-  put: vi.fn(),
-  delete: vi.fn(),
+const lowcodeRuntimeMock = vi.hoisted(() => ({
+  applicationGet: vi.fn(),
+  readTextFile: vi.fn(),
 }))
 
-vi.mock('@/services/http', () => ({
-  http: httpMock,
-}))
-
-vi.mock('@/services/auth', () => ({
-  getUser: () => ({
-    tenantId: 'tenant-a',
-    defaultProjectId: 'project-a',
-    roles: [],
-  }),
-  isPlatformAdminUser: () => false,
+vi.mock('@/lowcode/lowcode-runtime', () => ({
+  lowcodeApi: {
+    application: { get: lowcodeRuntimeMock.applicationGet },
+    design: { readTextFile: lowcodeRuntimeMock.readTextFile },
+  },
 }))
 
 import {
@@ -241,6 +233,7 @@ function findRootGraphNode(design: WorkflowDesignDocument, nodeId: string) {
 describe('workflow design helpers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    lowcodeRuntimeMock.applicationGet.mockReturnValue({ application: { id: 'project-a' } })
   })
 
   it('collects business nodes from the workflow graph', () => {
@@ -795,73 +788,38 @@ describe('workflow design helpers', () => {
     ]))
   })
 
-  it('posts a generated definition to the publish endpoint', async () => {
+  it('rejects publish when the lowcode API has no governed workflow mutation', async () => {
     const definition = createAgentWorkflowDefinitionFromDesign(createDesign())
-    httpMock.post.mockResolvedValue({
-      ok: true,
-      workflowId: 'agent.workflow.test',
-      filename: 'definition.json',
-      timestamp: '1',
-    })
 
-    const result = await publishWorkflowDefinition('agent.workflow.test', definition)
-
-    expect(result.filename).toBe('definition.json')
-    expect(httpMock.post).toHaveBeenCalledWith(
-      '/api/tenants/tenant-a/projects/project-a/workflow-designs/agent.workflow.test/__publish',
-      definition,
+    await expect(publishWorkflowDefinition('agent.workflow.test', definition)).rejects.toThrow(
+      'lowcode 工作流文件写接口不满足写前镜像、journal、readback 与补偿门禁',
     )
   })
 
-  it('reads and saves definition.json through the document endpoint', async () => {
+  it('reads definition.json through the lowcode design API and rejects ungoverned saves', async () => {
     const definition = createAgentWorkflowDefinitionFromDesign(createDesign())
-    httpMock.get.mockResolvedValue({
-      workflowId: 'agent.workflow.test',
-      filename: 'definition.json',
-      timestamp: '2',
-      definition,
-    })
-    httpMock.put.mockResolvedValue({
-      ok: true,
-      workflowId: 'agent.workflow.test',
-      filename: 'definition.json',
-      timestamp: '3',
-    })
+    lowcodeRuntimeMock.readTextFile.mockResolvedValue(JSON.stringify(definition))
 
     const readResult = await readWorkflowDefinition('agent.workflow.test', '1')
-    const saveResult = await saveWorkflowDefinition('agent.workflow.test', definition)
 
-    expect(readResult.definition).toBe(definition)
-    expect(saveResult.timestamp).toBe('3')
-    expect(httpMock.get).toHaveBeenCalledWith(
-      '/api/tenants/tenant-a/projects/project-a/workflow-designs/agent.workflow.test/definition.json',
-      { timestamp: '1' },
-    )
-    expect(httpMock.put).toHaveBeenCalledWith(
-      '/api/tenants/tenant-a/projects/project-a/workflow-designs/agent.workflow.test/definition.json',
-      definition,
+    expect(readResult.definition).toStrictEqual(definition)
+    expect(lowcodeRuntimeMock.readTextFile).toHaveBeenCalledWith({
+      appType: 'designfile',
+      customPath: 'project-a/workflow-designs/agent.workflow.test',
+      fileName: 'definition.json',
+    })
+    await expect(saveWorkflowDefinition('agent.workflow.test', definition)).rejects.toThrow(
+      'lowcode 工作流文件写接口不满足写前镜像、journal、readback 与补偿门禁',
     )
   })
 
-  it('falls back to publish when the definition document endpoint is missing', async () => {
+  it('does not fall back to an ungoverned publish endpoint when save is unavailable', async () => {
     const definition = createAgentWorkflowDefinitionFromDesign(createDesign())
-    httpMock.put.mockRejectedValue(new Error(
-      'No static resource api/tenants/tenant-a/projects/project-a/workflow-designs/agent.workflow.test/definition.json.',
-    ))
-    httpMock.post.mockResolvedValue({
-      ok: true,
-      workflowId: 'agent.workflow.test',
-      filename: 'definition.json',
-      timestamp: '4',
-    })
 
-    const result = await saveWorkflowDefinition('agent.workflow.test', definition)
-
-    expect(result.timestamp).toBe('4')
-    expect(httpMock.post).toHaveBeenCalledWith(
-      '/api/tenants/tenant-a/projects/project-a/workflow-designs/agent.workflow.test/__publish',
-      definition,
+    await expect(saveWorkflowDefinition('agent.workflow.test', definition)).rejects.toThrow(
+      'lowcode 工作流文件写接口不满足写前镜像、journal、readback 与补偿门禁',
     )
+    expect(lowcodeRuntimeMock.readTextFile).not.toHaveBeenCalled()
   })
 
   it('parses definition JSON with AgentWorkflowDefinition validation', () => {

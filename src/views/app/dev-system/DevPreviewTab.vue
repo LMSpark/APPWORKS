@@ -126,7 +126,7 @@ function scheduleLiveRefresh() {
 }
 
 // 监听内存 PageNode 的可渲染输入，而不是监听通用 editor revision。
-// revision 会因选中节点、导航状态等非预览输入变化而递增；这里让相同四文件文本不会重复重建预览。
+// revision 会因选中节点、蓝图状态等非预览输入变化而递增；这里让相同四文件文本不会重复重建预览。
 watch(
   [
     () => props.state.activePageId.value,

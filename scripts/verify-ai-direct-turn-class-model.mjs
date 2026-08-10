@@ -2,18 +2,17 @@
 /**
  * Optional non-SSE LLM probe for ClassModel tool calling.
  *
- * This script only runs when AI_DIRECT_TURN_URL or AI_BACKEND_URL is provided.
+ * This script only runs when an explicit AI_DIRECT_TURN_URL is provided.
  * It verifies the direct-turn endpoint can make the LLM choose model_script
  * with a JavaScript async function body. It does not execute the script.
  */
 
-const DIRECT_TURN_PATH = '/api/ai/test/direct-turn'
 const DEFAULT_TIMEOUT_MS = 120_000
 
 async function main() {
   const options = parseOptions(process.argv.slice(2))
   if (options.url === undefined) {
-    console.log('[direct-turn] skipped: set AI_DIRECT_TURN_URL or AI_BACKEND_URL to run this optional probe.')
+    console.log('[direct-turn] skipped: set AI_DIRECT_TURN_URL to run this optional probe.')
     return
   }
 
@@ -159,22 +158,15 @@ function assertJavaScriptFunctionBody(script) {
 
 function parseOptions(args) {
   const explicitUrl = readArg(args, '--url') ?? process.env.AI_DIRECT_TURN_URL
-  const backendUrl = process.env.AI_BACKEND_URL
   const timeoutValue = readArg(args, '--timeout-ms') ?? process.env.AI_DIRECT_TURN_TIMEOUT_MS
   const timeoutMs = timeoutValue === undefined ? DEFAULT_TIMEOUT_MS : Number(timeoutValue)
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
     throw new Error(`Invalid timeout: ${timeoutValue}`)
   }
   return {
-    url: explicitUrl === undefined ? buildDirectTurnUrl(backendUrl) : explicitUrl,
+    url: explicitUrl,
     timeoutMs,
   }
-}
-
-function buildDirectTurnUrl(backendUrl) {
-  const normalized = readText(backendUrl)
-  if (normalized === undefined) return undefined
-  return new URL(DIRECT_TURN_PATH, `${normalized.replace(/\/+$/u, '')}/`).toString()
 }
 
 function readArg(args, flag) {

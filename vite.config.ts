@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { fileURLToPath } from 'node:url'
@@ -67,7 +67,14 @@ function utf8TextResponsePlugin(): Plugin {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, root, '')
+  const lowcodeGatewayUrl = env['LOWCODE_GATEWAY_URL']?.trim()
+  if (command === 'serve' && !lowcodeGatewayUrl) {
+    throw new Error('LOWCODE_GATEWAY_URL 未配置，拒绝启动：开发态 /api 必须明确代理到 lowcode gateway')
+  }
+
+  return {
   cacheDir: viteCacheDir,
   resolve: {
     alias: {
@@ -77,6 +84,7 @@ export default defineConfig({
       '@spark-appworks/spark-component/runtime': path.resolve(root, 'packages', 'spark-component', 'src', 'runtime', 'index.ts'),
       '@spark-appworks/spark-component': path.resolve(root, 'packages', 'spark-component', 'src', 'index.ts'),
       '@spark-appworks/spark-data': path.resolve(root, 'packages', 'spark-data', 'src', 'index.ts'),
+      '@spark-appworks/spark-lowcode-api': path.resolve(root, 'packages', 'spark-lowcode-api', 'src', 'index.ts'),
       '@spark-appworks/spark-utils/internal': path.resolve(root, 'packages', 'spark-utils', 'src', 'internal', 'index.ts'),
       '@spark-appworks/spark-utils': path.resolve(root, 'packages', 'spark-utils', 'src', 'index.ts'),
       '@spark-appworks/spark-json-document': path.resolve(root, 'packages', 'spark-json-document', 'src', 'index.ts'),
@@ -95,26 +103,20 @@ export default defineConfig({
     port: 5273,
     strictPort: true,
     proxy: {
-      // ── API 代理到 Java 后端 ──────────────────────────────────────────
-      // 页面配置（routes.json, rule.json 等）、AI 端点全部由 Java 后端管理。
-      // AI_BACKEND_URL 指定后端地址（默认 http://localhost:8180）。
+      // 开发态所有 /api 请求只代理到显式配置的 lowcode gateway。
       '/api': {
-        target: process.env['AI_BACKEND_URL'] ?? 'http://127.0.0.1:8180',
+        target: lowcodeGatewayUrl ?? 'http://127.0.0.1',
         changeOrigin: true,
         secure: false,
-        // APP 只有 /api/events 这一条 SSE 通道；AI turn 由 HTTP 命令启动，
-        // 模型事件同样从 /api/events 回来，代理层只为这条通道关闭缓冲。
         configure: (proxy) => {
-          const isSSE = (url?: string) => url === '/api/events'
-          // 移除 Accept-Encoding 防止后端压缩 SSE（压缩会触发代理缓冲）
           proxy.on('proxyReq', (proxyReq, req) => {
-            if (isSSE(req.url)) {
+            if (req.headers.accept?.includes('text/event-stream') === true) {
               proxyReq.removeHeader('Accept-Encoding')
             }
           })
-          // 标记 SSE 响应不缓冲（Nginx 等反向代理也会读此头）
-          proxy.on('proxyRes', (proxyRes, req) => {
-            if (isSSE(req.url)) {
+          proxy.on('proxyRes', (proxyRes) => {
+            const contentType = proxyRes.headers['content-type']
+            if (typeof contentType === 'string' && contentType.includes('text/event-stream')) {
               proxyRes.headers['X-Accel-Buffering'] = 'no'
               proxyRes.headers['Cache-Control'] = 'no-cache, no-transform'
             }
@@ -125,13 +127,6 @@ export default defineConfig({
   },
   plugins: [
     utf8TextResponsePlugin(),
-
-    // ==================== pages-config: 始终由 Java 后端提供 ====================
-    // 页面配置（routes.json, rule.json, pagedata.json 等）全部由 Java 后端管理，
-    // 种子数据打包在 JAR 内（classpath:seed-pages-config/），服务端完全自包含。
-    //
-    // 开发流程：先启动 Java 后端（mvn spring-boot:run），再启动 Vite dev server。
-    // Vite proxy 将 /api/* 全部转发到 Java 后端。
 
     vue({
       include: /\.(vue)$/,
@@ -233,6 +228,9 @@ export default defineConfig({
           if (normalizedId.includes('packages/spark-data')) {
             return 'spark-data'
           }
+          if (normalizedId.includes('packages/spark-lowcode-api')) {
+            return 'spark-lowcode-api'
+          }
           if (normalizedId.includes('packages/spark-ai')) {
             return 'spark-ai'
           }
@@ -291,5 +289,6 @@ export default defineConfig({
       }
     },
     chunkSizeWarningLimit: 1000
+  }
   }
 })

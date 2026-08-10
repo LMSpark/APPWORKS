@@ -84,6 +84,7 @@ const domainModelStatuses = new Set([
 
 const registeredDocPrefixes = [
   'ai-coding-kit/',
+  'backend-api-contracts/',
   'config/',
   'docs/',
   'knowledge/',
@@ -92,7 +93,6 @@ const registeredDocPrefixes = [
   'plans/',
   'public/',
   'scripts/',
-  'spark-ai-server/',
   'src/',
   'tests/',
   'tools/',

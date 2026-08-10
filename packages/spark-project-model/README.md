@@ -13,7 +13,7 @@
 ```text
 src/
   index.ts          唯一公开入口
-  project/          ProjectModel、ProjectDesign、ProjectSession、ProjectWorkspace
+  project/          ProjectModel、ProjectBlueprintDesign、ProjectSession、ProjectWorkspace
   navigation/       ProjectNode、节点类型、树投影/查找/规范化、导航编辑草稿
   page/             ConfigPageNode、四文件模型、compile-files、canonicalize-page-data、runtime-page
   io/               HTTP、navigation/page-file/reference 远端 client

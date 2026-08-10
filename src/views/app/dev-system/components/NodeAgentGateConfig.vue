@@ -19,7 +19,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         v-model="implGateModel"
         clearable
         placeholder="默认开放（过渡期）"
-        @change="state.markNavDirty"
+        @change="state.markBlueprintDirty"
       >
         <el-option label="关闭 closed" value="closed" />
         <el-option label="放行 open" value="open" />
@@ -27,10 +27,10 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
     </el-form-item>
     <el-form-item label="上游契约" class="fi fi--wide">
       <el-switch
-        v-model="state.navEditDto.upstreamContractsSatisfied"
+        v-model="state.blueprintDraft.upstreamContractsSatisfied"
         active-text="已就绪"
         inactive-text="未就绪"
-        @change="state.markNavDirty"
+        @change="state.markBlueprintDirty"
       />
     </el-form-item>
   </div>
@@ -49,9 +49,9 @@ const flags = useNodeKindFlags(props.state)
 const showGateFields = computed(() => flags.isPageNode.value || flags.isSubPageNode.value)
 
 const implGateModel = computed({
-  get: () => props.state.navEditDto.implGate ?? '',
+  get: () => props.state.blueprintDraft.implGate ?? '',
   set: (value: '' | 'closed' | 'open') => {
-    props.state.navEditDto.implGate = value === '' ? undefined : value
+    props.state.blueprintDraft.implGate = value === '' ? undefined : value
   },
 })
 </script>

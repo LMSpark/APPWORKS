@@ -98,11 +98,9 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { ref, onMounted, computed, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { http } from '@/services/http'
-import { getProjectApi } from '@/services/api-paths'
-import { getUser } from '@/services/auth'
+import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { buildTenantPath, parseTenantScope, stripTenantScope } from '@/services/tenant-scope'
+import { buildTenantPath, parseTenantScope } from '@/services/tenant-scope'
 import NavIcon from '@/components/NavIcon.vue'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
@@ -128,10 +126,10 @@ const settingsTarget = ref<ProjectItem | null>(null)
 
 const tenantId = computed(() => {
   const fromRoute = parseTenantScope(route.path)?.tenantId
-  return fromRoute ?? getUser()?.tenantId ?? ''
+  return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
 })
 
-const currentProjectId = computed(() => getRouteProjectId() ?? getUser()?.defaultProjectId ?? 'homepage')
+const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? 'homepage')
 
 const createForm = ref({
   projectId: '',
@@ -141,8 +139,15 @@ const createForm = ref({
 })
 
 async function loadProjects() {
-  const data = await http.get<ProjectItem[]>(getProjectApi(tenantId.value))
-  projects.value = data
+  const data = await lowcodeApi.platform.listApplications()
+  projects.value = data.map((application, order) => ({
+    projectId: application.id,
+    name: application.name,
+    projectType: 'application',
+    icon: 'Box',
+    description: application.description,
+    order,
+  }))
 }
 
 function getProjectSwitch() {
@@ -150,18 +155,8 @@ function getProjectSwitch() {
   return projectSwitch
 }
 
-function getRouteProjectId(): string | null {
-  const projectId = route.params['projectId']
-  return typeof projectId === 'string' && projectId.trim().length > 0 ? projectId : null
-}
-
-function getCurrentSubPath(): string {
-  return stripTenantScope(route.path) || '/app-list'
-}
-
 function openSettings(project: ProjectItem): void {
-  settingsTarget.value = project
-  settingsVisible.value = true
+  ElMessage.warning(`“${project.name}”设置需要 lowcode 治理写入合同；当前只读接入不会调用旧 AppWorks 后端`)
 }
 
 async function handleCreate() {
@@ -172,11 +167,10 @@ async function handleCreate() {
   }
   creating.value = true
   try {
-    await http.post(getProjectApi(tenantId.value), { projectId, name, icon, description })
-    ElMessage.success('应用创建成功')
-    showCreateDialog.value = false
-    createForm.value = { projectId: '', name: '', icon: 'Box', description: '' }
-    await loadProjects()
+    void name
+    void icon
+    void description
+    throw new Error('lowcode 现有应用写入接口未提供写前镜像、journal、readback 与补偿合同，已阻止创建')
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : '创建失败'
     ElMessage.error(msg)
@@ -186,13 +180,11 @@ async function handleCreate() {
 }
 
 async function handleSwitch(project: ProjectItem) {
-  const user = getUser()
-  if (!user) throw new Error('未登录，无法切换应用')
+  const principal = readLowcodePrincipal()
+  if (!principal) throw new Error('未登录，无法切换应用')
   await getProjectSwitch().switchAndReload(project.projectId)
   ElMessage.success(`已切换到「${project.name}」`)
-  if (user) {
-    void router.push(buildTenantPath({ tenantId: user.tenantId, projectId: project.projectId }, getNavHomePath()))
-  }
+  void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: project.projectId }, getNavHomePath()))
 }
 
 async function handleDelete(project: ProjectItem) {
@@ -202,21 +194,13 @@ async function handleDelete(project: ProjectItem) {
       confirmButtonText: '删除',
       cancelButtonText: '取消',
     })
-    await http.delete(`${getProjectApi(tenantId.value)}/${project.projectId}`)
-    ElMessage.success('已删除')
-    await loadProjects()
-  } catch {
-    // 用户取消或请求失败
+    ElMessage.error('lowcode 现有应用删除接口未提供写前镜像、journal、readback 与补偿合同，已阻止删除')
+  } catch (error) {
+    if (error instanceof Error && error.message) ElMessage.error(error.message)
   }
 }
 
 onMounted(async () => {
-  const user = getUser()
-  if (user && (user.defaultProjectId !== 'homepage' || currentProjectId.value !== 'homepage')) {
-    await getProjectSwitch().switchAndReload('homepage')
-    const homepagePath = buildTenantPath({ tenantId: user.tenantId, projectId: 'homepage' }, getCurrentSubPath())
-    if (route.path !== homepagePath) await router.replace(homepagePath)
-  }
   await loadProjects()
 })
 </script>

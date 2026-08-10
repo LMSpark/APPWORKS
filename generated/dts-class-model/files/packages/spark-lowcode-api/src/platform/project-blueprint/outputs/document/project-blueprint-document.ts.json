@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/document/project-blueprint-document",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/project-blueprint/outputs/document/project-blueprint-document",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/outputs/document/project-blueprint-document 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintDocumentKind, ProjectBlueprintDocumentCoverage, ProjectBlueprintDocumentSource, ProjectBlueprintDocumentTask, ProjectBlueprintDocumentSubmitOptions, ProjectBlueprintDocumentOutputs（共 6 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ProjectBlueprintDocumentKind",
+      "ProjectBlueprintDocumentCoverage",
+      "ProjectBlueprintDocumentSource",
+      "ProjectBlueprintDocumentTask",
+      "ProjectBlueprintDocumentSubmitOptions",
+      "ProjectBlueprintDocumentOutputs"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintDocumentKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintDocumentKind",
+      "enum": [
+        "requirements-specification",
+        "functional-design",
+        "system-detailed-design"
+      ]
+    },
+    "ProjectBlueprintDocumentCoverage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintDocumentCoverage",
+      "const": "legacy-menu-scope"
+    },
+    "ProjectBlueprintDocumentSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintDocumentSource",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ProjectBlueprintDocumentKind"
+        },
+        "coverage": {
+          "$ref": "#/$defs/ProjectBlueprintDocumentCoverage"
+        },
+        "includedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excludedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintDocumentTask": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintDocumentTask",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ProjectBlueprintDocumentKind"
+        },
+        "status": {
+          "const": "submitted"
+        },
+        "coverage": {
+          "$ref": "#/$defs/ProjectBlueprintDocumentCoverage"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintDocumentSubmitOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintDocumentSubmitOptions",
+      "properties": {
+        "level": {
+          "type": "number"
+        },
+        "includeText": {
+          "type": "boolean"
+        },
+        "includeHtml": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintDocumentOutputs": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintDocumentOutputs",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "../../project-blueprint.ts.json#/$defs/ProjectBlueprintNode"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.source.params": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/ProjectBlueprintDocumentKind"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.source.return": {
+          "$ref": "#/$defs/ProjectBlueprintDocumentSource"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T20:57:04.498Z",
+  "models": {
+    "ProjectBlueprintDocumentKind": {
+      "name": "ProjectBlueprintDocumentKind",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'requirements-specification' | 'functional-design' | 'system-detailed-design'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'requirements-specification'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'functional-design'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-detailed-design'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintDocumentCoverage": {
+      "name": "ProjectBlueprintDocumentCoverage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'legacy-menu-scope'",
+        "members": {}
+      }
+    },
+    "ProjectBlueprintDocumentSource": {
+      "name": "ProjectBlueprintDocumentSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    kind: ProjectBlueprintDocumentKind;\n    coverage: ProjectBlueprintDocumentCoverage;\n    includedNodeIds: readonly string[];\n    excludedNodeIds: readonly string[];\n    diagnostics: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    kind: ProjectBlueprintDocumentKind;\n    coverage: ProjectBlueprintDocumentCoverage;\n    includedNodeIds: readonly string[];\n    excludedNodeIds: readonly string[];\n    diagnostics: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "coverage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includedNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "excludedNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintDocumentTask": {
+      "name": "ProjectBlueprintDocumentTask",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    kind: ProjectBlueprintDocumentKind;\n    status: 'submitted';\n    coverage: ProjectBlueprintDocumentCoverage;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    kind: ProjectBlueprintDocumentKind;\n    status: 'submitted';\n    coverage: ProjectBlueprintDocumentCoverage;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "coverage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintDocumentSubmitOptions": {
+      "name": "ProjectBlueprintDocumentSubmitOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    level?: number;\n    includeText?: boolean;\n    includeHtml?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    level?: number;\n    includeText?: boolean;\n    includeHtml?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "level",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeHtml",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintDocumentOutputs": {
+      "name": "ProjectBlueprintDocumentOutputs",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(projectId: string, nodes: readonly ProjectBlueprintNode[])",
+          "parameters": [
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "nodes",
+              "type": {
+                "type": "unknown",
+                "name": "readonly ProjectBlueprintNode[]"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "source",
+              "parameters": [
+                {
+                  "name": "kind",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintDocumentKind",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintDocumentSource",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

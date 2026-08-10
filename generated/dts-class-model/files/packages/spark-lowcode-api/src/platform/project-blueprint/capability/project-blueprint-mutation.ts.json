@@ -1,0 +1,600 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/capability/project-blueprint-mutation",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/project-blueprint/capability/project-blueprint-mutation",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/capability/project-blueprint-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintMutationBase, ProjectBlueprintMutationInput, ProjectBlueprintMutationRisk, ProjectBlueprintMutationCommand, ProjectBlueprintMutationPlanner（共 5 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ProjectBlueprintMutationBase",
+      "ProjectBlueprintMutationInput",
+      "ProjectBlueprintMutationRisk",
+      "ProjectBlueprintMutationCommand",
+      "ProjectBlueprintMutationPlanner"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintMutationBase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintMutationBase",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "preimage": {
+          "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintNodeSnapshot"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintMutationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintMutationInput",
+      "anyOf": [
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "update-planning-content"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "move-node"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "parentId": {
+                      "type": "string"
+                    },
+                    "order": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "parentId",
+                    "order"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "bind-data-space"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "dataSpaceId": {
+                      "type": "string"
+                    },
+                    "modelId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "dataSpaceId",
+                    "modelId"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "update-delivery"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "formKey": {
+                      "type": "string"
+                    },
+                    "componentKey": {
+                      "type": "string"
+                    },
+                    "routePath": {
+                      "type": "string"
+                    },
+                    "runtimeNavigationCandidate": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "formKey",
+                    "componentKey",
+                    "routePath",
+                    "runtimeNavigationCandidate"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "update-feature-tags"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "featureTagIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "featureTagIds"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "update-permission-design"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "permissionDesignId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "permissionDesignId"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      ]
+    },
+    "ProjectBlueprintMutationRisk": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintMutationRisk",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "ProjectBlueprintMutationCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintMutationCommand",
+      "properties": {
+        "kind": {
+          "const": "project-blueprint-mutation"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "capability": {
+          "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintMutationCapability"
+        },
+        "risk": {
+          "$ref": "#/$defs/ProjectBlueprintMutationRisk"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "preimage": {
+          "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintNodeSnapshot"
+        },
+        "change": true,
+        "journal": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            }
+          },
+          "required": [
+            "required"
+          ],
+          "additionalProperties": false
+        },
+        "readback": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "required",
+            "nodeId"
+          ],
+          "additionalProperties": false
+        },
+        "compensation": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "restore-project-blueprint-node"
+            },
+            "preimage": {
+              "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintNodeSnapshot"
+            }
+          },
+          "required": [
+            "kind",
+            "preimage"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintMutationPlanner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintMutationPlanner",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintNode"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ProjectBlueprintMutationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "$ref": "#/$defs/ProjectBlueprintMutationCommand"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T21:02:20.927Z",
+  "models": {
+    "ProjectBlueprintMutationBase": {
+      "name": "ProjectBlueprintMutationBase",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    idempotencyKey: string;\n    preimage: ProjectBlueprintNodeSnapshot;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    idempotencyKey: string;\n    preimage: ProjectBlueprintNodeSnapshot;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintMutationInput": {
+      "name": "ProjectBlueprintMutationInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-planning-content';\n    change: Readonly<{\n        title?: string;\n        description?: string;\n    }>;\n}>) | (ProjectBlueprintMutationBase & Readonly<{\n    capability: 'move-node';\n    change: Readonly<{\n        parentId: string;\n        order: number;\n    }>;\n}>) | (ProjectBlueprintMutationBase & Readonly<{\n    capability: 'bind-data-space';\n    change: Readonly<{\n        dataSpaceId: string;\n        modelId: string;\n    }>;\n}>) | (ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-delivery';\n    change: Readonly<{\n        formKey: string;\n        componentKey: string;\n        routePath: string;\n        runtimeNavigationCandidate: boolean;\n    }>;\n}>) | (ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-feature-tags';\n    change: Readonly<{\n        featureTagIds: readonly string[];\n    }>;\n}>) | (ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-permission-design';\n    change: Readonly<{\n        permissionDesignId: string;\n    }>;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "(ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-planning-content';\n    change: Readonly<{\n        title?: string;\n        description?: string;\n    }>;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(ProjectBlueprintMutationBase & Readonly<{\n    capability: 'move-node';\n    change: Readonly<{\n        parentId: string;\n        order: number;\n    }>;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(ProjectBlueprintMutationBase & Readonly<{\n    capability: 'bind-data-space';\n    change: Readonly<{\n        dataSpaceId: string;\n        modelId: string;\n    }>;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-delivery';\n    change: Readonly<{\n        formKey: string;\n        componentKey: string;\n        routePath: string;\n        runtimeNavigationCandidate: boolean;\n    }>;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-feature-tags';\n    change: Readonly<{\n        featureTagIds: readonly string[];\n    }>;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(ProjectBlueprintMutationBase & Readonly<{\n    capability: 'update-permission-design';\n    change: Readonly<{\n        permissionDesignId: string;\n    }>;\n}>)"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintMutationRisk": {
+      "name": "ProjectBlueprintMutationRisk",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'low' | 'medium' | 'high'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'low'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'medium'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'high'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintMutationCommand": {
+      "name": "ProjectBlueprintMutationCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'project-blueprint-mutation';\n    projectId: string;\n    nodeId: string;\n    capability: ProjectBlueprintMutationCapability;\n    risk: ProjectBlueprintMutationRisk;\n    idempotencyKey: string;\n    preimage: ProjectBlueprintNodeSnapshot;\n    change: ProjectBlueprintMutationInput['change'];\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        nodeId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-project-blueprint-node';\n        preimage: ProjectBlueprintNodeSnapshot;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'project-blueprint-mutation';\n    projectId: string;\n    nodeId: string;\n    capability: ProjectBlueprintMutationCapability;\n    risk: ProjectBlueprintMutationRisk;\n    idempotencyKey: string;\n    preimage: ProjectBlueprintNodeSnapshot;\n    change: ProjectBlueprintMutationInput['change'];\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        nodeId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-project-blueprint-node';\n        preimage: ProjectBlueprintNodeSnapshot;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "risk",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "change",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "journal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readback",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "compensation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintMutationPlanner": {
+      "name": "ProjectBlueprintMutationPlanner",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(projectId: string, nodes: readonly ProjectBlueprintNode[])",
+          "parameters": [
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "nodes",
+              "type": {
+                "type": "unknown",
+                "name": "readonly ProjectBlueprintNode[]"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "prepare",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintMutationInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintMutationCommand",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

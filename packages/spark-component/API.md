@@ -285,7 +285,7 @@ cap?.doWork()
 | `PAGE_DATASET` | `DataSetContract` | 页面级 DataSet，由 PageRenderer 提供 |
 | `DATA_SOURCE` | `DataSource` | 组件级 DataView，由容器组件提供 |
 | `DATA_ROW` | `DataRow` | 当前行作用域 |
-| `PAGE_PERMISSION_MODE` | `NavPermissionMode` | 页面权限模式 |
+| `PAGE_PERMISSION_MODE` | `PagePermissionMode` | 页面权限模式 |
 
 ---
 

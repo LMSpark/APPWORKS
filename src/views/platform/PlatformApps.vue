@@ -76,13 +76,17 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { inject, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
-import { http } from '@/services/http'
-import { getPlatformTenantApi } from '@/services/api-paths'
+import {
+  lowcodeApi,
+  lowcodeEnterpriseDisplayName,
+} from '@/lowcode/lowcode-runtime'
 import { buildTenantPath } from '@/services/tenant-scope'
+import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
+import { getNavHomePath } from '@spark-appworks/spark-app'
 
 type PlatformTenant = {
   tenantId: string
@@ -97,6 +101,7 @@ type ProjectItem = {
   description: string}
 
 const router = useRouter()
+const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const tenants = ref<PlatformTenant[]>([])
 const selectedTenantId = ref('')
 const projects = ref<ProjectItem[]>([])
@@ -110,18 +115,17 @@ const form = reactive({
   description: '',
 })
 
-function selectedProjectApi(): string {
-  if (!selectedTenantId.value) throw new Error('请先选择租户')
-  return `/api/tenants/${encodeURIComponent(selectedTenantId.value)}/projects`
-}
-
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
 async function loadTenants(): Promise<void> {
-  tenants.value = (await http.get<PlatformTenant[]>(getPlatformTenantApi()))
-    .filter((tenant) => tenant.status === 'ACTIVE')
+  const session = lowcodeApi.session.get()
+  tenants.value = session === null ? [] : [{
+    tenantId: session.enterprise.shortName,
+    tenantName: lowcodeEnterpriseDisplayName(session.enterprise),
+    status: 'ACTIVE',
+  }]
   if (!selectedTenantId.value && tenants.value.length > 0) {
     selectedTenantId.value = tenants.value[0]?.tenantId ?? ''
   }
@@ -134,7 +138,13 @@ async function loadProjects(): Promise<void> {
   }
   loading.value = true
   try {
-    projects.value = await http.get<ProjectItem[]>(selectedProjectApi())
+    projects.value = (await lowcodeApi.platform.listApplications()).map((application) => ({
+      projectId: application.id,
+      name: application.name,
+      projectType: application.isDefault ? 'homepage' : 'application',
+      icon: 'Box',
+      description: application.description,
+    }))
   } catch (error) {
     ElMessage.error(`加载应用失败: ${errorMessage(error)}`)
     projects.value = []
@@ -163,10 +173,7 @@ async function submitProject(): Promise<void> {
   }
   submitting.value = true
   try {
-    await http.post(selectedProjectApi(), { ...form })
-    ElMessage.success('应用已创建')
-    dialogVisible.value = false
-    await loadProjects()
+    throw new Error('lowcode 现有应用写接口不满足写前镜像、journal、readback 与补偿门禁')
   } catch (error) {
     ElMessage.error(`创建失败: ${errorMessage(error)}`)
   } finally {
@@ -177,17 +184,24 @@ async function submitProject(): Promise<void> {
 async function deleteProject(project: ProjectItem): Promise<void> {
   try {
     await ElMessageBox.confirm(`确定删除应用「${project.name || project.projectId}」？`, '删除应用', { type: 'warning' })
-    await http.delete(`${selectedProjectApi()}/${encodeURIComponent(project.projectId)}`)
-    ElMessage.success('应用已删除')
-    await loadProjects()
+    throw new Error('lowcode 现有应用删除接口不满足写前镜像、journal、readback 与补偿门禁')
   } catch (error) {
     if (error !== 'cancel') ElMessage.error(`删除失败: ${errorMessage(error)}`)
   }
 }
 
-function enterProject(project: ProjectItem): void {
+async function enterProject(project: ProjectItem): Promise<void> {
   if (!selectedTenantId.value) return
-  void router.push(buildTenantPath({ tenantId: selectedTenantId.value, projectId: project.projectId }, '/dashboard'))
+  try {
+    if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务')
+    await projectSwitch.switchAndReload(project.projectId)
+    await router.push(buildTenantPath(
+      { tenantId: selectedTenantId.value, projectId: project.projectId },
+      getNavHomePath(),
+    ))
+  } catch (error) {
+    ElMessage.error(`进入应用失败: ${errorMessage(error)}`)
+  }
 }
 
 onMounted(() => {

@@ -5,14 +5,12 @@
  * AI用途：调整项目布局偏好或读取项目详情/导航元数据时，用本模块定位 HTTP 与 localStorage 接线。
  */
 import type { PageMode } from '@spark-appworks/spark-app'
-import {
-  normalizeNavRoot,
-  type ProjectModelData,
-  type ProjectNodeData,
-} from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation, RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { http } from '@/services/http'
-import { getProjectDetailApi, getProjectNavigationApi } from '@/services/api-paths'
+import {
+  lowcodeApi,
+  readLowcodeRuntimeNavigation,
+} from '@/lowcode/lowcode-runtime'
 
 /** Project Layout Placement 的语义模型。 */
 export type ProjectLayoutPlacement = 'header' | 'sidebar'
@@ -71,30 +69,17 @@ export type ProjectRuntimeSettingsInput = {
 
 const HOME_NODE_KINDS = new Set(['page', 'system-page', 'link'])
 
-function readProjectDetail(raw: Record<string, unknown>): ProjectDetail {
-  return {
-    tenantId: String(raw['tenantId'] ?? ''),
-    projectId: String(raw['projectId'] ?? ''),
-    name: String(raw['name'] ?? ''),
-    projectType: String(raw['projectType'] ?? ''),
-    icon: String(raw['icon'] ?? ''),
-    description: String(raw['description'] ?? ''),
-    homeNodeId: readOptionalString(raw['homeNodeId']),
-    order: typeof raw['order'] === 'number' ? raw['order'] : Number(raw['order'] ?? 0),
-  }
-}
-
 function readOptionalString(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const trimmed = value.trim()
   return trimmed.length > 0 ? trimmed : null
 }
 
-function collectHomeNodeOptions(nodes: readonly ProjectNodeData[]): ProjectHomeNodeOption[] {
+function collectHomeNodeOptions(nodes: readonly RuntimeNavigationItem[]): ProjectHomeNodeOption[] {
   const rows: ProjectHomeNodeOption[] = []
-  const walk = (list: readonly ProjectNodeData[]): void => {
+  const walk = (list: readonly RuntimeNavigationItem[]): void => {
     for (const node of list) {
-      const kind = node.nodeKind ?? 'page'
+      const kind = node.itemKind ?? 'page'
       const path = node.path?.trim() ?? ''
       if (HOME_NODE_KINDS.has(kind) && path) {
         rows.push({
@@ -111,7 +96,7 @@ function collectHomeNodeOptions(nodes: readonly ProjectNodeData[]): ProjectHomeN
   return rows
 }
 
-function resolveRootModuleId(nav: ProjectModelData): string | null {
+function resolveRootModuleId(nav: RuntimeNavigation): string | null {
   const rootId = nav.id?.trim()
   if (!rootId) return null
   return rootId
@@ -121,18 +106,30 @@ export async function loadProjectRuntimeSettings(
   tenantId: string,
   projectId: string,
 ): Promise<ProjectRuntimeSettings> {
-  const [projectRaw, navRaw] = await Promise.all([
-    http.get<Record<string, unknown>>(getProjectDetailApi(projectId, tenantId)),
-    http.get<Partial<ProjectModelData>>(getProjectNavigationApi(projectId, tenantId)),
-  ])
-  const project = readProjectDetail(projectRaw)
-  const nav = normalizeNavRoot(navRaw)
+  const session = lowcodeApi.session.get()
+  if (session?.enterprise.shortName !== tenantId) {
+    throw new Error('lowcode 当前会话无权读取该企业应用设置')
+  }
+  const applications = await lowcodeApi.platform.listApplications()
+  const application = applications.find((item) => item.id === projectId)
+  if (application === undefined) throw new Error(`lowcode 应用不存在或无权访问：${projectId}`)
+  const nav = await readLowcodeRuntimeNavigation(projectId)
+  const project: ProjectDetail = {
+    tenantId,
+    projectId,
+    name: application.name,
+    projectType: application.isDefault ? 'homepage' : 'application',
+    icon: '',
+    description: application.description,
+    homeNodeId: readOptionalString(nav.homePath),
+    order: 0,
+  }
   const placement = nav.childPlacement === 'sidebar' ? 'sidebar' : 'header'
   return {
     project,
     childPlacement: placement,
     rootModuleId: resolveRootModuleId(nav),
-    homeNodeOptions: collectHomeNodeOptions(nav.children),
+    homeNodeOptions: collectHomeNodeOptions(nav.items),
   }
 }
 
@@ -148,25 +145,15 @@ export type SaveProjectRuntimeSettingsCommand = Readonly<{
   input: ProjectRuntimeSettingsInput
 }>
 
-export async function saveProjectRuntimeSettings(command: SaveProjectRuntimeSettingsCommand): Promise<void> {
-  const { tenantId, projectId, current, input } = command
+export function saveProjectRuntimeSettings(command: SaveProjectRuntimeSettingsCommand): Promise<void> {
+  const { current, input } = command
   const homeChanged = (current.project.homeNodeId ?? '') !== (input.homeNodeId ?? '')
   const layoutChanged = current.childPlacement !== input.childPlacement
 
-  if (homeChanged) {
-    await http.put(getProjectDetailApi(projectId, tenantId), {
-      homeNodeId: input.homeNodeId ?? '',
-    })
+  if (homeChanged || layoutChanged) {
+    return Promise.reject(new Error('lowcode 应用与导航写接口不满足写前镜像、journal、readback 与补偿门禁'))
   }
-
-  if (layoutChanged) {
-    if (!current.rootModuleId) {
-      throw new Error('导航根模块未加载，无法保存项目布局')
-    }
-    await http.put(`${getProjectNavigationApi(projectId, tenantId)}/nodes/${encodeURIComponent(current.rootModuleId)}`, {
-      childPlacement: input.childPlacement,
-    })
-  }
+  return Promise.resolve()
 }
 
 /** 项目 UI 偏好设置：持久化到 localStorage，不涉及后端 API */

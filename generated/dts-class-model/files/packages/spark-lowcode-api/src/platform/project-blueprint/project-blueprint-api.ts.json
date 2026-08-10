@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/project-blueprint/project-blueprint-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/project-blueprint-api 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintApi（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ProjectBlueprintApi"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprint>"
+        },
+        "method.readRuntimeNavigation.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "beginNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRuntimeNavigation.return": {
+          "type": "object",
+          "title": "Promise<RuntimeNavigation>"
+        },
+        "method.submitDocument.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "kind": {
+              "$ref": "outputs/document/project-blueprint-document.ts.json#/$defs/ProjectBlueprintDocumentKind"
+            },
+            "options": {
+              "$ref": "outputs/document/project-blueprint-document.ts.json#/$defs/ProjectBlueprintDocumentSubmitOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.submitDocument.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintDocumentTask>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T20:57:04.499Z",
+  "models": {
+    "ProjectBlueprintApi": {
+      "name": "ProjectBlueprintApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprint",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readRuntimeNavigation",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "beginNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "submitDocument",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "kind",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintDocumentKind",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintDocumentSubmitOptions",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintDocumentTask",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,15 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import type { ProjectModelData, ProjectNodeData, NavNodeKind } from '../src/navigation/project-node'
-import { ProjectNode } from '../src/navigation/project-node'
-import type { HttpClientBase, HttpResponse } from '@spark-appworks/spark-utils'
+import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData, ProjectBlueprintDeliveryKind } from '../src/blueprint/project-blueprint-node'
+import { ProjectBlueprintNode } from '../src/blueprint/project-blueprint-node'
 import { ConfigPageNode } from '../src/page/config-page'
-import { resolveProjectPageSurface } from '../src/navigation/navigation-tree'
+import { resolveProjectPageSurface } from '../src/blueprint/project-blueprint-tree'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { createRequest } from '@spark-appworks/spark-utils'
-import { createNavigationNodePatch } from '../src/navigation/navigation-edit'
+import { createBlueprintNodePatch } from '../src/blueprint/project-blueprint-edit'
 
 describe('ProjectModel', () => {
-  function createRoot(children: ProjectNodeData[], childPlacement: 'header' | 'sidebar' = 'header'): ProjectModelData {
+  function createRoot(children: ProjectBlueprintTreeNodeData[], childPlacement: 'header' | 'sidebar' = 'header'): ProjectBlueprintTreeData {
     return {
       id: 'homepage_root',
       title: 'CRM',
@@ -20,13 +18,10 @@ describe('ProjectModel', () => {
   }
 
   function createWorkspace(): ProjectWorkspace {
-    const http = createRequest()
     return new ProjectWorkspace({
       projectId: 'crm',
-      http,
-      getPageFilesApi: () => '/api/pages-config',
-      getNavigationApi: () => '/api/navigation',
-      fileStorage: 'memory',
+      pageFiles: { readPageFile: async () => '' },
+      blueprint: { loadRoot: async () => createRoot([]) },
     })
   }
 
@@ -38,11 +33,11 @@ describe('ProjectModel', () => {
 
   it('maps system-page nodes to ProjectNode with system-page family', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([
+    p.replaceBlueprintTree(createRoot([
       { id: 'dashboard', title: '仪表盘', nodeKind: 'system-page', path: '/dashboard' },
     ]))
     const node = p.findNodeById('dashboard')
-    expect(node).toBeInstanceOf(ProjectNode)
+    expect(node).toBeInstanceOf(ProjectBlueprintNode)
     expect(node?.nodeKind).toBe('system-page')
     expect(node?.family).toBe('system-page')
     const summaries = p.readPlanningProjection()
@@ -51,7 +46,7 @@ describe('ProjectModel', () => {
 
   it('maps system-directory nodes to ProjectNode with module family', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot({
+    p.replaceBlueprintTree({
       id: 'homepage_root',
       title: 'CRM',
       nodeKind: 'module',
@@ -67,7 +62,7 @@ describe('ProjectModel', () => {
       ],
     })
     const toolbarRoot = p.findNodeById('toolbar-root')
-    expect(toolbarRoot).toBeInstanceOf(ProjectNode)
+    expect(toolbarRoot).toBeInstanceOf(ProjectBlueprintNode)
     expect(toolbarRoot?.nodeKind).toBe('system-directory')
     expect(toolbarRoot?.family).toBe('module')
   })
@@ -75,7 +70,7 @@ describe('ProjectModel', () => {
   it('exposes the design aggregate on project root', () => {
     const p = createWorkspace().project
     expect(p.design).toBeDefined()
-    p.design.replaceNavigationRoot(createRoot([
+    p.design.replaceBlueprintTree(createRoot([
       { id: 'orders', title: '订单', nodeKind: 'page', path: '/orders' },
     ]))
     expect(p.design.findConfigPageByPageId('orders')).toBeInstanceOf(ConfigPageNode)
@@ -84,14 +79,14 @@ describe('ProjectModel', () => {
 
   it('finds pages by pageId from the tree', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([{
+    p.replaceBlueprintTree(createRoot([{
       id: 'orders-node', title: '订单页面', nodeKind: 'page', path: '/orders',
       children: [{
         id: 'order-detail',
         title: '订单详情',
         nodeKind: 'sub-page',
         description: '订单详情功能',
-      } as unknown as ProjectNodeData],
+      } as unknown as ProjectBlueprintTreeNodeData],
     }]))
     const page = p.findConfigPageByPageId('orders')
     const sub = p.findConfigPageByPageId('order-detail')
@@ -109,9 +104,9 @@ describe('ProjectModel', () => {
 
   it('migrates legacy sub-page nodeKind on navigation load', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([{
+    p.replaceBlueprintTree(createRoot([{
       id: 'orders-node', title: '订单页面', nodeKind: 'page', path: '/orders',
-      children: [{ id: 'order-detail', title: '订单详情', nodeKind: 'sub-page' as unknown as NavNodeKind, description: '订单详情功能' }],
+      children: [{ id: 'order-detail', title: '订单详情', nodeKind: 'sub-page' as unknown as ProjectBlueprintDeliveryKind, description: '订单详情功能' }],
     }]))
     const sub = p.findConfigPageByPageId('order-detail')
     expect(sub?.nodeKind).toBe('page')
@@ -121,15 +116,15 @@ describe('ProjectModel', () => {
 
   it('builds tree from flat collection and finds nodes', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([
+    p.replaceBlueprintTree(createRoot([
       { id: 'sales', title: '销售模块', nodeKind: 'module', description: '销售模块', children: [
         { id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders', description: '订单页面' },
       ]},
     ]))
-    const tree = p.navigationRoot.children
+    const tree = p.blueprintTree.children
     expect(tree.length).toBeGreaterThanOrEqual(1)
     const salesNode = p.findNodeById('sales')
-    expect(salesNode).toBeInstanceOf(ProjectNode)
+    expect(salesNode).toBeInstanceOf(ProjectBlueprintNode)
     expect(salesNode?.nodeKind).toBe('module')
     expect(salesNode?.family).toBe('module')
     expect(salesNode?.description).toBe('销售模块')
@@ -137,9 +132,9 @@ describe('ProjectModel', () => {
     expect(orderNode).toBeInstanceOf(ConfigPageNode)
   })
 
-  it('keeps ProjectNodeData copies from mutating the node class', () => {
+  it('keeps ProjectBlueprintTreeNodeData copies from mutating the node class', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([
+    p.replaceBlueprintTree(createRoot([
       {
         id: 'orders',
         title: '订单页面',
@@ -162,27 +157,27 @@ describe('ProjectModel', () => {
 
   it('applies navigation edits through the model class and refreshes cached tree projections', () => {
     const workspace = createWorkspace()
-    workspace.project.replaceNavigationRoot(createRoot([
+    workspace.project.replaceBlueprintTree(createRoot([
       { id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders', order: 0 },
       { id: 'reports', title: '报表', nodeKind: 'page', path: '/reports', order: 1 },
     ]))
     workspace.project.selectNode('orders')
-    expect(workspace.project.readNavigationProjection().treeData.map(node => node.id)).toEqual(['orders', 'reports'])
+    expect(workspace.project.readBlueprintProjection().tree.map(node => node.id)).toEqual(['orders', 'reports'])
 
-    const dto = workspace.project.beginNavigationDraft()
+    const dto = workspace.project.beginBlueprintDraft()
     dto.node.title = '销售订单'
     dto.node.order = 2
-    workspace.project.applyNavigationNodeEdit(dto)
+    workspace.project.applyBlueprintNodeEdit(dto)
 
-    const projection = workspace.project.readNavigationProjection()
+    const projection = workspace.project.readBlueprintProjection()
     expect(workspace.project.findNodeById('orders')?.title).toBe('销售订单')
     expect(projection.selectedNode?.title).toBe('销售订单')
-    expect(projection.treeData.map(node => node.id)).toEqual(['reports', 'orders'])
+    expect(projection.tree.map(node => node.id)).toEqual(['reports', 'orders'])
   })
 
   it('persists agent gate fields on navigation node and planning projection', () => {
     const workspace = createWorkspace()
-    workspace.project.replaceNavigationRoot(createRoot([
+    workspace.project.replaceBlueprintTree(createRoot([
       {
         id: 'orders',
         title: '订单页面',
@@ -193,10 +188,10 @@ describe('ProjectModel', () => {
       },
     ]))
     workspace.project.selectNode('orders')
-    const dto = workspace.project.beginNavigationDraft()
+    const dto = workspace.project.beginBlueprintDraft()
     dto.node.implGate = 'open'
     dto.node.upstreamContractsSatisfied = false
-    workspace.project.applyNavigationNodeEdit(dto)
+    workspace.project.applyBlueprintNodeEdit(dto)
 
     const summary = workspace.project.readPlanningProjection().find(item => item.pageId === 'orders')
     expect(summary).toMatchObject({
@@ -220,38 +215,38 @@ describe('ProjectModel', () => {
       order: 0,
       planningStatus: 'planning_confirmed',
     }
-    workspace.project.replaceNavigationRoot(createRoot([legacyNode as ProjectNodeData]))
+    workspace.project.replaceBlueprintTree(createRoot([legacyNode as ProjectBlueprintTreeNodeData]))
     expect(workspace.project.findNodeById('orders')?.toNodeData()).not.toHaveProperty('planningStatus')
   })
 
   it('does not mark navigation dirty when opening draft without edits', () => {
     const workspace = createWorkspace()
-    workspace.project.replaceNavigationRoot(createRoot([
+    workspace.project.replaceBlueprintTree(createRoot([
       { id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders' },
     ]))
     workspace.project.selectNode('orders')
-    workspace.project.beginNavigationDraft()
+    workspace.project.beginBlueprintDraft()
     const dirty = workspace.project.readDirtyProjection()
-    expect(dirty.navigationDirty).toBe(false)
+    expect(dirty.blueprintDirty).toBe(false)
     expect(dirty.hasAnyDirty).toBe(false)
   })
 
   it('marks navigation dirty only after a real navigation edit', () => {
     const workspace = createWorkspace()
-    workspace.project.replaceNavigationRoot(createRoot([
+    workspace.project.replaceBlueprintTree(createRoot([
       { id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders' },
     ]))
     workspace.project.selectNode('orders')
-    const dto = workspace.project.beginNavigationDraft()
-    expect(workspace.project.readDirtyProjection().navigationDirty).toBe(false)
+    const dto = workspace.project.beginBlueprintDraft()
+    expect(workspace.project.readDirtyProjection().blueprintDirty).toBe(false)
     dto.node.title = '销售订单'
-    workspace.project.applyNavigationNodeEdit(dto)
-    expect(workspace.project.readDirtyProjection().navigationDirty).toBe(true)
+    workspace.project.applyBlueprintNodeEdit(dto)
+    expect(workspace.project.readDirtyProjection().blueprintDirty).toBe(true)
   })
 
   it('exposes node hierarchy instead of a flat node list', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([
+    p.replaceBlueprintTree(createRoot([
       { id: 'sales', title: '销售模块', nodeKind: 'module', children: [
         { id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders' },
       ]},
@@ -263,7 +258,7 @@ describe('ProjectModel', () => {
     const rootNodes = p.getChildNodes('')
     expect(rootNodes.map(node => node.id)).toEqual(['homepage_root'])
     expect(rootNodes.map(node => node.pid)).toEqual([''])
-    expect(rootNodes[0]).toBeInstanceOf(ProjectNode)
+    expect(rootNodes[0]).toBeInstanceOf(ProjectBlueprintNode)
     expect(rootNodes[0]?.nodeKind).toBe('module')
     expect(rootNodes[0]?.family).toBe('module')
     const root = rootNodes[0]
@@ -280,20 +275,20 @@ describe('ProjectModel', () => {
 
   it('applies project layout edit on root module', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([
+    p.replaceBlueprintTree(createRoot([
       { id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders' },
     ], 'header'))
-    expect(p.navigationRoot.childPlacement).toBe('header')
+    expect(p.blueprintTree.childPlacement).toBe('header')
 
     p.applyProjectLayoutEdit('sidebar')
-    expect(p.navigationRoot.childPlacement).toBe('sidebar')
+    expect(p.blueprintTree.childPlacement).toBe('sidebar')
     expect(p.rootNode?.toNodeData().childPlacement).toBe('sidebar')
-    expect(p.readDirtyProjection().navigationDirty).toBe(true)
+    expect(p.readDirtyProjection().blueprintDirty).toBe(true)
   })
 
   it('uses a real project node as the project home node and keeps placement on root', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot(createRoot([
+    p.replaceBlueprintTree(createRoot([
       { id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders' },
     ], 'sidebar'))
     p.replaceProjectInfo({ homeNodeId: 'orders' })
@@ -301,13 +296,13 @@ describe('ProjectModel', () => {
     expect(p.homeNodeId).toBe('orders')
     expect(p.homeNode).toBe(p.findNodeById('orders'))
     expect(p.projectInfo.homeNodeId).toBe('orders')
-    expect(p.navigationRoot.childPlacement).toBe('sidebar')
+    expect(p.blueprintTree.childPlacement).toBe('sidebar')
     expect(p.rootNode?.id).toBe('homepage_root')
   })
 
   it('promotes a persisted root node returned as the only top-level child', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot({ title: '', childPlacement: 'header', children: [{
+    p.replaceBlueprintTree({ title: '', childPlacement: 'header', children: [{
       id: 'homepage_root',
       title: 'CRM',
       nodeKind: 'module',
@@ -318,12 +313,12 @@ describe('ProjectModel', () => {
     expect(p.rootNode?.id).toBe('homepage_root')
     expect(p.getChildNodes('').map(node => node.id)).toEqual(['homepage_root'])
     expect(p.getChildNodes('homepage_root').map(node => node.id)).toEqual(['orders'])
-    expect(p.navigationRoot.children.map(node => node.id)).toEqual(['orders'])
+    expect(p.blueprintTree.children.map(node => node.id)).toEqual(['orders'])
   })
 
   it('promotes a persisted module root even when root childPlacement is missing', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot({ title: '', childPlacement: 'header', children: [{
+    p.replaceBlueprintTree({ title: '', childPlacement: 'header', children: [{
       id: 'homepage_root',
       title: 'CRM',
       nodeKind: 'module',
@@ -331,13 +326,13 @@ describe('ProjectModel', () => {
     }]})
 
     expect(p.rootNode?.id).toBe('homepage_root')
-    expect(p.navigationRoot.childPlacement).toBe('header')
-    expect(p.navigationRoot.children.map(node => node.id)).toEqual(['orders'])
+    expect(p.blueprintTree.childPlacement).toBe('header')
+    expect(p.blueprintTree.children.map(node => node.id)).toEqual(['orders'])
   })
 
   it('promotes persisted root from mixed top-level rows and merges siblings under it', () => {
     const p = createWorkspace().project
-    p.replaceNavigationRoot({ title: '', childPlacement: 'header', children: [
+    p.replaceBlueprintTree({ title: '', childPlacement: 'header', children: [
       {
         id: 'homepage_root',
         title: '',
@@ -351,7 +346,7 @@ describe('ProjectModel', () => {
     expect(p.rootNode?.id).toBe('homepage_root')
     expect(p.getChildNodes('').map(node => node.id)).toEqual(['homepage_root'])
     expect(p.getChildNodes('homepage_root').map(node => node.id)).toEqual(['app-list', 'home'])
-    expect(p.navigationRoot.children.map(node => node.id)).toEqual(['app-list', 'home'])
+    expect(p.blueprintTree.children.map(node => node.id)).toEqual(['app-list', 'home'])
   })
 
   it('supports detached config pages', () => {
@@ -366,10 +361,11 @@ describe('ProjectModel', () => {
   })
 
   it('creates full navigation patch so editable fields can be cleared', () => {
-    const result = createNavigationNodePatch({
+    const result = createBlueprintNodePatch({
       node: {
         id: 'orders',
         title: '订单',
+        blueprintKind: 'page',
         icon: '',
         nodeKind: 'page',
         dividerAfter: false,
@@ -393,6 +389,7 @@ describe('ProjectModel', () => {
 
     expect(result.patch).toMatchObject({
       title: '订单',
+      blueprintKind: 'page',
       icon: '',
       description: '',
       path: '',
@@ -404,9 +401,9 @@ describe('ProjectModel', () => {
     })
   })
 
-  it('moves mounted pages through the dedicated move endpoint', async () => {
-    const putCalls: Array<{ url: string; body: unknown }> = []
-    const root: ProjectModelData = {
+  it('moves mounted pages through the injected navigation gateway', async () => {
+    const moveCalls: Array<{ id: string; parentId: string | null; index: number }> = []
+    const root: ProjectBlueprintTreeData = {
       id: 'homepage_root',
       title: 'CRM',
       nodeKind: 'module',
@@ -415,35 +412,24 @@ describe('ProjectModel', () => {
         { id: 'orders', title: '订单', nodeKind: 'page' as const, path: '/orders' },
       ],
     }
-    const movedNode: ProjectNodeData = { id: 'orders', title: '订单', nodeKind: 'page', path: '/orders', order: 0 }
-    const http = {
-      get: async <T = unknown>() => root as T,
-      put: async <T = unknown>(url: string, body: unknown) => {
-        putCalls.push({ url, body })
-        return { node: movedNode } as T
-      },
-      post: async <T = unknown>() => ({ node: movedNode } as T),
-      delete: async <T = unknown>() => ({ deleted: { id: 'orders', title: '订单' } } as T),
-      requestFull: async <T = unknown>(): Promise<HttpResponse<T>> => ({
-        data: {} as T,
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-      }),
-      clearCache: () => {},
-    } as unknown as HttpClientBase
+    const movedNode: ProjectBlueprintTreeNodeData = { id: 'orders', title: '订单', nodeKind: 'page', path: '/orders', order: 0 }
     const workspace = new ProjectWorkspace({
       projectId: 'crm',
-      http,
-      getPageFilesApi: () => '/api/pages-config',
-      getNavigationApi: () => '/api/navigation',
+      pageFiles: { readPageFile: async () => '' },
+      blueprint: {
+        loadRoot: async () => root,
+        moveNode: async (id, parentId, index) => {
+          moveCalls.push({ id, parentId, index })
+          return movedNode
+        },
+      },
     })
 
-    await workspace.loadNavigation()
+    await workspace.loadBlueprint()
     await workspace.moveMountedPage('orders', null, 0)
 
-    expect(putCalls).toEqual([
-      { url: '/api/navigation/nodes/orders/move', body: { newParentId: null, index: 0 } },
+    expect(moveCalls).toEqual([
+      { id: 'orders', parentId: null, index: 0 },
     ])
   })
 
@@ -454,7 +440,7 @@ describe('ProjectModel', () => {
       description: '项目级描述回退',
       planningAttachmentRef: 'attachments/project-fallback.md',
     })
-    project.replaceNavigationRoot({
+    project.replaceBlueprintTree({
       ...createRoot([]),
       description: '根节点短需求',
       planningAttachmentRef: 'attachments/spec-v1.md',
@@ -469,10 +455,11 @@ describe('ProjectModel', () => {
   it('reads navigation node planning inputs with per-node attachment refs', () => {
     const workspace = createWorkspace()
     const project = workspace.project
-    project.replaceNavigationRoot(createRoot([
+    project.replaceBlueprintTree(createRoot([
       {
         id: 'orders',
         title: '订单模块',
+        blueprintKind: 'module',
         nodeKind: 'module',
         description: '订单域',
         planningAttachmentRef: 'attachments/orders.md',
@@ -480,6 +467,7 @@ describe('ProjectModel', () => {
           {
             id: 'orders-list',
             title: '订单列表',
+            blueprintKind: 'page',
             nodeKind: 'page',
             path: '/orders',
             description: '列表页需求',
@@ -489,9 +477,10 @@ describe('ProjectModel', () => {
       },
     ]))
 
-    expect(project.readNavigationNodePlanningInput('orders-list')).toEqual({
+    expect(project.readBlueprintNodePlanningInput('orders-list')).toEqual({
       nodeId: 'orders-list',
       title: '订单列表',
+      blueprintKind: 'page',
       nodeKind: 'page',
       requirement: '列表页需求',
       planningAttachmentRef: 'attachments/orders-list.md',
@@ -504,17 +493,17 @@ describe('ProjectModel', () => {
     const workspace = createWorkspace()
     const project = workspace.project
     project.replaceProjectInfo({ description: '仅项目描述' })
-    project.replaceNavigationRoot(createRoot([]))
+    project.replaceBlueprintTree(createRoot([]))
 
     expect(project.readProjectPlanningInput()).toEqual({
       requirement: '仅项目描述',
     })
   })
 
-  it('replaceNavigationChildren accepts ClassModel command object', () => {
+  it('replaceBlueprintChildren accepts ClassModel command object', () => {
     const workspace = createWorkspace()
     const project = workspace.project
-    const children: ProjectNodeData[] = [{
+    const children: ProjectBlueprintTreeNodeData[] = [{
       id: 'orders',
       title: '订单',
       nodeKind: 'page',
@@ -522,9 +511,9 @@ describe('ProjectModel', () => {
       description: '订单页',
     }]
 
-    project.replaceNavigationChildren({ children })
+    project.replaceBlueprintChildren({ children })
 
-    expect(project.navigationRoot.children.map(node => node.id)).toEqual(['orders'])
-    expect(project.readDirtyProjection().navigationDirty).toBe(true)
+    expect(project.blueprintTree.children.map(node => node.id)).toEqual(['orders'])
+    expect(project.readDirtyProjection().blueprintDirty).toBe(true)
   })
 })

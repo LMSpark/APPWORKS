@@ -7,7 +7,7 @@
     "sourceFile": "src/services/ai/ai-delivery-port.ts",
     "packageName": "app",
     "modulePath": "services/ai/ai-delivery-port",
-    "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Host Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
+    "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Agent Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "AiDeliveryMode",
@@ -34,7 +34,7 @@
         "kind": {
           "enum": [
             "page-file",
-            "navigation"
+            "project-blueprint"
           ]
         },
         "name": {
@@ -153,11 +153,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.343Z",
+  "generatedAt": "2026-08-09T22:34:22.185Z",
   "models": {
     "AiDeliveryMode": {
       "name": "AiDeliveryMode",
-      "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Host Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
+      "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Agent Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'manual' | 'auto'",
@@ -176,14 +176,14 @@
     },
     "AiDeliveryArtifact": {
       "name": "AiDeliveryArtifact",
-      "jsdoc": "单次交付涉及的文件或导航变更摘要。",
+      "jsdoc": "单次交付涉及的页面文件或项目蓝图变更摘要。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 产物类型（页面文件或导航变更）。 */\n    kind: 'page-file' | 'navigation';\n    /** 产物名称（文件名或导航标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 产物类型（页面文件或导航变更）。 */\n    kind: 'page-file' | 'navigation';\n    /** 产物名称（文件名或导航标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
+            "typeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -191,13 +191,13 @@
           "attributes": [
             {
               "name": "kind",
-              "jsdoc": "产物类型（页面文件或导航变更）。",
+              "jsdoc": "产物类型。",
               "readable": true,
               "writable": false
             },
             {
               "name": "name",
-              "jsdoc": "产物名称（文件名或导航标识）。",
+              "jsdoc": "产物名称（文件名或项目蓝图标识）。",
               "readable": true,
               "writable": false
             },
@@ -213,7 +213,7 @@
     },
     "AiDeliveryResult": {
       "name": "AiDeliveryResult",
-      "jsdoc": "Host Run 结束后的交付回执，包含模式、状态与产物列表。",
+      "jsdoc": "Agent Run 结束后的交付回执，包含模式、状态与产物列表。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    /** 交付模式（手动或自动）。 */\n    mode: AiDeliveryMode;\n    /** 交付最终状态。 */\n    status: 'saved' | 'skipped' | 'rolledBack' | 'failed';\n    /** 涉及的交付产物列表。 */\n    artifacts: readonly AiDeliveryArtifact[];\n    /** 可选的状态描述或错误信息。 */\n    message?: string;\n}>",

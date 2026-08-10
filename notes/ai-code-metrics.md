@@ -182,3 +182,14 @@
 - **30-day survival**: pending
 - **Knowledge deposition**: pending user confirmation
 - **Human intervention summary**: User clarified that all runtime-determined data must be read-only and that model/member/property choices must be loaded dynamically rather than typed manually.
+
+### 2026-08-10 AppWorks 直连 lowcode 前端 API 与项目蓝图正名
+
+- **复杂度**：复杂
+- **总耗时**：跨多轮实施与浏览器验证，约 1 个工作日
+- **返工次数**：4（物理单根假设、多顶层缺失父记录、合成根身份冲突、route 类型丢失 conid）
+- **审查轮次**：多轮领域语义校正后，2 份正式计划获用户批准
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：待用户确认
+- **人工干预**：用户明确 AppWorks 不保留后端、前端直连只读 lowcode-jdk17、项目蓝图替代导航语义、数据空间只承载前端模型线、权限由后端唯一决策并保留五稀疏集合。
+- **验证摘要**：公共包/根类型检查、Lint、单元测试、包构建、前端构建、发布 dry-run、合同/架构/文档校验和授权浏览器黑盒；未执行 live mutation。`verify:ai-codegen` 的既有 6 项基线违规单独记录，不在本轮静默豁免。

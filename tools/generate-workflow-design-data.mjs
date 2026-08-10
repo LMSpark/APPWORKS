@@ -6,9 +6,8 @@ import path from 'node:path'
 const WORKFLOW_ROOT = path.resolve(
   import.meta.dirname,
   '..',
-  'spark-ai-server',
-  'data',
-  'workflow-designs',
+  'config',
+  'agent-workflows',
   'lmspark',
   'homepage',
 )
@@ -41,7 +40,7 @@ const allowedOperationsSchema = {
     dataSet: booleanSchema,
     script: booleanSchema,
     style: booleanSchema,
-    navigation: booleanSchema,
+    blueprint: booleanSchema,
   },
 }
 
@@ -71,23 +70,24 @@ const projectPlanningParamsSchema = {
     projectId: stringSchema,
     requirement: stringSchema,
     planningAttachmentRef: stringSchema,
-    navigationNodes: {
+    blueprintNodes: {
       type: 'array',
       items: {
         type: 'object',
         properties: {
           nodeId: stringSchema,
           title: stringSchema,
+          blueprintKind: stringSchema,
           nodeKind: stringSchema,
           requirement: stringSchema,
           planningAttachmentRef: stringSchema,
         },
-        required: ['nodeId', 'title', 'nodeKind', 'requirement'],
+        required: ['nodeId', 'title', 'blueprintKind', 'nodeKind', 'requirement'],
         additionalProperties: false,
       },
     },
   },
-  required: ['projectScopeKey', 'projectId', 'requirement', 'navigationNodes'],
+  required: ['projectScopeKey', 'projectId', 'requirement', 'blueprintNodes'],
   additionalProperties: false,
 }
 
@@ -493,14 +493,14 @@ function createProjectPlanningWorkflowDesign() {
       variable('projectScopeKey', 'Project Scope Key', true, stringSchema),
       variable('projectId', 'Project ID', true, stringSchema),
       variable('requirement', 'Project Requirement', true, stringSchema),
-      variable('navigationNodes', 'Navigation Planning Nodes', true, projectPlanningParamsSchema.properties.navigationNodes),
+      variable('blueprintNodes', 'Project Blueprint Planning Nodes', true, projectPlanningParamsSchema.properties.blueprintNodes),
       variable('tenantId', 'Tenant ID', false, stringSchema),
       variable('planningAttachmentRef', 'Planning Attachment Ref', false, stringSchema),
     ],
     workflowCapability: {
       id: 'project-planning.delivery',
       title: 'Project Planning Delivery',
-      description: 'Coordinate project planning input, ClassModel runtime execution, and navigation plan delivery.',
+      description: 'Coordinate project planning input, ClassModel runtime execution, and project blueprint delivery.',
     },
     businessNode: {
       id: 'node.projectPlanning',
@@ -509,23 +509,23 @@ function createProjectPlanningWorkflowDesign() {
         projectScopeKey: '{{ start.projectScopeKey }}',
         projectId: '{{ start.projectId }}',
         requirement: '{{ start.requirement }}',
-        navigationNodes: '{{ start.navigationNodes }}',
+        blueprintNodes: '{{ start.blueprintNodes }}',
       },
       outputs: {
         result: 'projectPlanning.result',
       },
       llm: {
         task: {
-          goal: 'Compose project planning navigation from requirement and navigation inputs.',
+          goal: 'Compose the complete project blueprint from requirements and existing blueprint inputs.',
           requirements: {
             projectScopeKey: '{{ start.projectScopeKey }}',
             projectId: '{{ start.projectId }}',
             requirement: '{{ start.requirement }}',
-            navigationNodes: '{{ start.navigationNodes }}',
+            blueprintNodes: '{{ start.blueprintNodes }}',
           },
           contextInputs: {
             projectRequirement: '{{ start.requirement }}',
-            navigationNodes: '{{ start.navigationNodes }}',
+            blueprintNodes: '{{ start.blueprintNodes }}',
           },
         },
         knowledge: {
@@ -533,16 +533,16 @@ function createProjectPlanningWorkflowDesign() {
           className: 'ProjectModel',
           allowedActions: [
             'readProjectPlanningInput',
-            'readNavigationPlanningInputs',
-            'replaceNavigationChildren',
+            'readBlueprintPlanningInputs',
+            'replaceBlueprintChildren',
             'completeProjectPlanning',
           ],
-          readableAttributes: ['navigationRoot'],
+          readableAttributes: ['blueprintTree'],
         },
         functionCalling: {
           mode: 'freeWithinModelContext',
           constraints: [
-            'Runtime binding owns ClassModel knowledge lookup, script generation, and navigation mutation.',
+            'Runtime binding owns ClassModel knowledge lookup, script generation, and project blueprint mutation.',
             'Completion must go through completeProjectPlanning via agent_complete.',
           ],
         },
@@ -578,7 +578,7 @@ function createProjectPlanningWorkflowDesign() {
           messageField: 'requirement',
           paramsSchema: projectPlanningParamsSchema,
           readonlySteps: [
-            '策划输入已注入 requirement 与 navigationNodes。',
+            '策划输入已注入 requirement 与 blueprintNodes。',
             '业务契约见 DTS ClassModel 知识索引（model_query / model_action_guide）。',
           ],
         },
@@ -609,8 +609,8 @@ function createProjectPlanningWorkflowDesign() {
         executionToolNames: ['model_script'],
         planWithoutToolMarkers: [
           'readplanningprojection',
-          'readnavigationplanninginputs',
-          'replacenavigationchildren',
+          'readblueprintplanninginputs',
+          'replaceblueprintchildren',
           'readprojectplanninginput',
         ],
         agentCompleteMethodName: 'completeProjectPlanning',
@@ -622,12 +622,12 @@ function createProjectPlanningWorkflowDesign() {
       capability: {
         id: 'project-planning.compose',
         title: 'Compose Project Plan',
-        description: 'Let projectPlanning inspect model knowledge and produce navigation planning changes through runtime tools.',
+        description: 'Let projectPlanning inspect model knowledge and produce complete project blueprint changes through runtime tools.',
         inputs: {
           projectScopeKey: '{{ start.projectScopeKey }}',
           projectId: '{{ start.projectId }}',
           requirement: '{{ start.requirement }}',
-          navigationNodes: '{{ start.navigationNodes }}',
+          blueprintNodes: '{{ start.blueprintNodes }}',
         },
         outputs: {
           result: 'projectPlanning.result',

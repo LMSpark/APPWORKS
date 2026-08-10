@@ -5,8 +5,8 @@ import { DataSet } from '../dataset'
 import { TreeManager } from '../tree-manager'
 import type { FlatTreeNode } from '../types'
 
-const NAV_BASE = '/api/tenants/tenant-test/projects/homepage/navigation/nodes'
-const RELATIVE_NAV_BASE = '/navigation/nodes'
+const NAV_BASE = '/api/tree/nodes'
+const RELATIVE_NAV_BASE = '/tree/nodes'
 
 type TreeHttpMethod = {
   (url: string, dataOrParams?: unknown, config?: Partial<RequestConfig>): Promise<unknown>}
@@ -198,7 +198,7 @@ describe('DataSet Tree 4+7 interfaces', () => {
       expect(view!.rows[0]?.['id']).toBe(1)
     })
 
-    it('loadTreeChildren should prepend project scope for relative platform URLs', async () => {
+    it('loadTreeChildren should preserve the configured relative endpoint', async () => {
       const get = vi.fn().mockResolvedValue([
         { id: 1, parentId: null, name: 'Root' },
       ])
@@ -211,7 +211,7 @@ describe('DataSet Tree 4+7 interfaces', () => {
 
       expect(rows).toHaveLength(1)
       expect(get).toHaveBeenCalledOnce()
-      expect(get.mock.calls[0]?.[0]).toBe('/tenants/tenant-test/projects/homepage/navigation/nodes')
+      expect(get.mock.calls[0]?.[0]).toBe(RELATIVE_NAV_BASE)
       expect(get.mock.calls[0]?.[1]).toEqual({ parentId: '', treeMode: 'flat', limit: 20 })
     })
 
@@ -282,7 +282,7 @@ describe('DataSet Tree 4+7 interfaces', () => {
       expect(moved?.['parentId']).toBe(1)
     })
 
-    it('moveTreeNode should prepend project scope for relative move endpoint', async () => {
+    it('moveTreeNode should preserve the configured relative move endpoint', async () => {
       const get = vi.fn().mockResolvedValue([
         { id: 1, parentId: null, name: 'Root' },
         { id: 2, parentId: null, name: 'Leaf' },
@@ -297,7 +297,7 @@ describe('DataSet Tree 4+7 interfaces', () => {
       const moved = await view!.moveTreeNode(2, 1, -1)
 
       expect(put).toHaveBeenCalledOnce()
-      expect(put.mock.calls[0]?.[0]).toBe('/tenants/tenant-test/projects/homepage/navigation/nodes/2/move')
+      expect(put.mock.calls[0]?.[0]).toBe(`${RELATIVE_NAV_BASE}/2/move`)
       expect(put.mock.calls[0]?.[1]).toEqual({ newParentId: 1, index: -1 })
       expect(moved?.['parentId']).toBe(1)
     })

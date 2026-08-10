@@ -62,8 +62,15 @@
             }
           ]
         },
-        "modelPermission": {
-          "$ref": "../../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+        "permissionSnapshot": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "host": {
           "type": "object",
@@ -118,7 +125,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.599Z",
+  "generatedAt": "2026-08-09T20:39:26.880Z",
   "models": {
     "BeforeRenderContext": {
       "name": "BeforeRenderContext",
@@ -130,7 +137,7 @@
         "directory": "support"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前节点 id。 */\n    id?: string | undefined;\n    /** 当前节点组件类型。 */\n    type: string;\n    /** 当前节点 props 的安全副本，不包含 onBeforeRender 和内部标记。 */\n    props: Record<string, unknown>;\n    /** 当前节点子节点配置。 */\n    children?: SparkNodeChildren | undefined;\n    /** 当前节点所在行上下文。 */\n    row?: DataRow | null | undefined;\n    /** 当前节点绑定的任意业务数据。 */\n    data?: unknown;\n    /** 当前节点在重复渲染集合中的索引。 */\n    index?: number | undefined;\n    /** 当前节点可访问的 DataView 数据源。 */\n    dataSource?: DataView | null | undefined;\n    /** 当前节点所在模型的权限配置。 */\n    modelPermission?: ModelPermission | undefined;\n    /** 当前渲染宿主信息。 */\n    host?: {\n        /** 宿主组件类型；缺失时为空。 */\n        type: string | null;\n    } | undefined;\n}",
+        "declarationTypeText": "{\n    /** 当前节点 id。 */\n    id?: string | undefined;\n    /** 当前节点组件类型。 */\n    type: string;\n    /** 当前节点 props 的安全副本，不包含 onBeforeRender 和内部标记。 */\n    props: Record<string, unknown>;\n    /** 当前节点子节点配置。 */\n    children?: SparkNodeChildren | undefined;\n    /** 当前节点所在行上下文。 */\n    row?: DataRow | null | undefined;\n    /** 当前节点绑定的任意业务数据。 */\n    data?: unknown;\n    /** 当前节点在重复渲染集合中的索引。 */\n    index?: number | undefined;\n    /** 当前节点可访问的 DataView 数据源。 */\n    dataSource?: DataView | null | undefined;\n    /** 当前节点所在模型的后端最终权限快照。 */\n    permissionSnapshot?: DataPermissionSnapshot | null | undefined;\n    /** 当前渲染宿主信息。 */\n    host?: {\n        /** 宿主组件类型；缺失时为空。 */\n        type: string | null;\n    } | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -182,8 +189,8 @@
               "writable": false
             },
             {
-              "name": "modelPermission",
-              "jsdoc": "当前节点所在模型的权限配置。",
+              "name": "permissionSnapshot",
+              "jsdoc": "当前节点所在模型的后端最终权限快照。",
               "readable": true,
               "writable": false
             },

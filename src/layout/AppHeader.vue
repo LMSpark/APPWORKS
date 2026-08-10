@@ -157,7 +157,7 @@ import {
   User, Setting, SwitchButton, ArrowDown, HomeFilled,
 } from '@element-plus/icons-vue'
 import { useNotifications } from '@/composables/useNotifications'
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import NavIcon from '@/components/NavIcon.vue'
 
 const props = withDefaults(defineProps<{
@@ -168,9 +168,9 @@ const props = withDefaults(defineProps<{
   username?: string
   avatar?: string
   /** 工具栏导航项（由导航配置驱动，path 匹配内置按钮） */
-  toolbarItems?: ProjectNodeData[]
+  toolbarItems?: RuntimeNavigationItem[]
   /** 用户菜单导航项（由导航配置驱动，path 匹配内置命令） */
-  userMenuItems?: ProjectNodeData[]
+  userMenuItems?: RuntimeNavigationItem[]
 }>(), {
   title: 'SPARK 应用工场',
   isDark: false,
@@ -187,10 +187,10 @@ const emit = defineEmits<{
   'user-command': [command: string]
 }>()
 
-const safeToolbarItems = computed<ProjectNodeData[]>(() => Array.isArray(props.toolbarItems) ? props.toolbarItems : [])
-const safeUserMenuItems = computed<ProjectNodeData[]>(() => Array.isArray(props.userMenuItems) ? props.userMenuItems : [])
+const safeToolbarItems = computed<RuntimeNavigationItem[]>(() => Array.isArray(props.toolbarItems) ? props.toolbarItems : [])
+const safeUserMenuItems = computed<RuntimeNavigationItem[]>(() => Array.isArray(props.userMenuItems) ? props.userMenuItems : [])
 const builtInToolbarActions = new Set(['search', 'fullscreen', 'notifications', 'theme-toggle'])
-const genericToolbarItems = computed<ProjectNodeData[]>(() =>
+const genericToolbarItems = computed<RuntimeNavigationItem[]>(() =>
   safeToolbarItems.value.filter(item => !builtInToolbarActions.has(toolbarCommand(item))),
 )
 
@@ -199,7 +199,7 @@ function hasAction(action: string): boolean {
   return safeToolbarItems.value.some(item => toolbarCommand(item) === action)
 }
 
-function toolbarCommand(item: ProjectNodeData): string {
+function toolbarCommand(item: RuntimeNavigationItem): string {
   return String(item.path ?? item.redirect ?? item.id).replace(/^\/+/, '')
 }
 /* 通知（SSE 实时驱动） */

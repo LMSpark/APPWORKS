@@ -1,0 +1,379 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-enterprise",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-enterprise",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-enterprise 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeEnterpriseCatalogItem, LowcodeEnterprisePolicy, LowcodeEnterpriseInfo（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeEnterpriseCatalogItem",
+      "LowcodeEnterprisePolicy",
+      "LowcodeEnterpriseInfo"
+    ]
+  },
+  "$defs": {
+    "LowcodeEnterpriseCatalogItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeEnterpriseCatalogItem",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "shortName": {
+          "type": "string"
+        },
+        "shortCode": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeEnterprisePolicy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeEnterprisePolicy",
+      "properties": {
+        "userAudit": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "passwordMinLength": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "passwordMaxLength": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "passwordRequiresLetter": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "passwordRequiresDigit": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "passwordRequiresSpecial": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "passwordSpecialCharacters": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "verificationCodeLength": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeEnterpriseInfo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeEnterpriseInfo",
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "englishName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "chineseName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "chineseShortName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "domainKey": {
+          "type": "string"
+        },
+        "domainName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "iconUrl": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "portalUrl": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "administratorAccount": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "checkState": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "createdAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "loginPolicy": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "storageMode": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LowcodeEnterprisePolicy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T12:08:47.491Z",
+  "models": {
+    "LowcodeEnterpriseCatalogItem": {
+      "name": "LowcodeEnterpriseCatalogItem",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    shortName: string;\n    shortCode: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    shortName: string;\n    shortCode: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shortCode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeEnterprisePolicy": {
+      "name": "LowcodeEnterprisePolicy",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    userAudit: boolean | null;\n    passwordMinLength: number | null;\n    passwordMaxLength: number | null;\n    passwordRequiresLetter: boolean | null;\n    passwordRequiresDigit: boolean | null;\n    passwordRequiresSpecial: boolean | null;\n    passwordSpecialCharacters: string | null;\n    verificationCodeLength: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    userAudit: boolean | null;\n    passwordMinLength: number | null;\n    passwordMaxLength: number | null;\n    passwordRequiresLetter: boolean | null;\n    passwordRequiresDigit: boolean | null;\n    passwordRequiresSpecial: boolean | null;\n    passwordSpecialCharacters: string | null;\n    verificationCodeLength: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "userAudit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "passwordMinLength",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "passwordMaxLength",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "passwordRequiresLetter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "passwordRequiresDigit",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "passwordRequiresSpecial",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "passwordSpecialCharacters",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationCodeLength",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeEnterpriseInfo": {
+      "name": "LowcodeEnterpriseInfo",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | null;\n    englishName: string | null;\n    chineseName: string | null;\n    chineseShortName: string | null;\n    domainKey: string;\n    domainName: string | null;\n    iconUrl: string | null;\n    portalUrl: string | null;\n    administratorAccount: string | null;\n    checkState: number | null;\n    createdAt: string | null;\n    loginPolicy: string | null;\n    storageMode: number | null;\n    policy: LowcodeEnterprisePolicy | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | null;\n    englishName: string | null;\n    chineseName: string | null;\n    chineseShortName: string | null;\n    domainKey: string;\n    domainName: string | null;\n    iconUrl: string | null;\n    portalUrl: string | null;\n    administratorAccount: string | null;\n    checkState: number | null;\n    createdAt: string | null;\n    loginPolicy: string | null;\n    storageMode: number | null;\n    policy: LowcodeEnterprisePolicy | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "englishName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "chineseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "chineseShortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "domainKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "domainName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "iconUrl",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "portalUrl",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "administratorAccount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checkState",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createdAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loginPolicy",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "storageMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "policy",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

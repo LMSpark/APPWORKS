@@ -1,28 +1,30 @@
 /**
  * @module @spark-appworks/spark-project-model:project/project-types
- * 职责：提供项目模型层 project-types 能力，围绕 ProjectNavigationDirtyScope、ProjectModelEvent、ProjectModelEventListener 等 12 个公开契约 处理导航、页面文件、配置内容、工作区或远端 IO 契约。
+ * 职责：提供项目模型层 project-types 契约，处理项目蓝图、页面文件、配置内容、工作区与远端 IO。
  * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。
- * AI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-types。
+ * AI用途：规划项目蓝图、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-types。
  */
 import type {
-  ProjectModelData,
-  ProjectNodeData,
-  ProjectNodeLocation,
+  ProjectBlueprintTreeData,
+  ProjectBlueprintTreeNodeData,
+  ProjectBlueprintTreeNodeLocation,
+  ProjectBlueprintNodeKind,
+  ProjectBlueprintDeliveryKind,
   ProjectPageNodeSummary,
-} from '../navigation/project-node'
-import type { NavigationNodeDraft } from '../navigation/navigation-edit'
+} from '../blueprint/project-blueprint-node'
+import type { BlueprintNodeDraft } from '../blueprint/project-blueprint-edit'
 import type { PageNodeFileName } from '../page/page-file'
 
-/** Project Navigation Dirty Scope 的语义模型。 */
-export type ProjectNavigationDirtyScope = 'node' | 'root'
+/** Project Blueprint Dirty Scope 的语义模型。 */
+export type ProjectBlueprintDirtyScope = 'node' | 'root'
 
 /** Project Model Event 的事件载荷。 */
 export type ProjectModelEvent =
   | {
-      type: 'navigation.changed'
+      type: 'blueprint.changed'
       projectId: string
       revision: number
-      scope: ProjectNavigationDirtyScope
+      scope: ProjectBlueprintDirtyScope
       nodeId?: string
     }
   | {
@@ -59,22 +61,22 @@ export type ProjectPageFileWriteCommand = {
   text: string
 }
 
-/** Project Navigation Projection 的语义模型。 */
-export type ProjectNavigationProjection = {
-    /** navigation Root 字段。 */
-navigationRoot: ProjectModelData
-    /** tree Data 字段。 */
-treeData: ProjectNodeData[]
+/** Project Blueprint Projection 的语义模型。 */
+export type ProjectBlueprintProjection = {
+    /** 完整项目蓝图。 */
+blueprint: ProjectBlueprintTreeData
+    /** 蓝图树节点投影。 */
+tree: ProjectBlueprintTreeNodeData[]
     /** selected Node 字段。 */
-selectedNode: ProjectNodeData | null
+selectedNode: ProjectBlueprintTreeNodeData | null
     /** selected Node Id 标识。 */
 selectedNodeId: string | null
-    /** navigation Location 字段。 */
-navigationLocation: ProjectNodeLocation | null
-    /** navigation Draft 字段。 */
-navigationDraft: NavigationNodeDraft | null
-    /** page Features 字段。 */
-pageFeatures: ProjectPageNodeSummary[]
+    /** 当前节点在项目蓝图中的位置。 */
+blueprintLocation: ProjectBlueprintTreeNodeLocation | null
+    /** 当前项目蓝图节点编辑草稿。 */
+blueprintDraft: BlueprintNodeDraft | null
+    /** 可交付页面投影。 */
+pageDeliveries: ProjectPageNodeSummary[]
 }
 
 /** Project Active Page Projection 的语义模型。 */
@@ -101,29 +103,31 @@ export type ProjectDirtyProjection = {
 dirtyFiles: Set<PageNodeFileName>
     /** 是否 has Any File Dirty。 */
 hasAnyFileDirty: boolean
-    /** navigation Dirty 字段。 */
-navigationDirty: boolean
+    /** 项目蓝图是否存在未保存变更。 */
+blueprintDirty: boolean
     /** 是否 has Any Dirty。 */
 hasAnyDirty: boolean
 }
 
 /** 项目级策划输入：短需求 + 可选详细说明附件引用。 */
 export type ProjectPlanningInput = Readonly<{
-  /** 项目级短需求；优先 navigation 根节点 description，否则 project.description。 */
+  /** 项目级短需求；优先项目蓝图根节点 description，否则 project.description。 */
   requirement: string
   /** 策划详细说明附件引用；正文由工作区解析后传给 LLM。 */
   planningAttachmentRef?: string
 }>
 
-/** 单个导航节点策划输入：节点 description + 可选附件引用。 */
-export type NavigationPlanningInput = Readonly<{
-  /** 目标导航节点 ID；对应 navigation tree 中的唯一标识。 */
+/** 单个项目蓝图节点策划输入：节点 description + 可选附件引用。 */
+export type BlueprintPlanningInput = Readonly<{
+  /** 目标项目蓝图节点 ID。 */
   nodeId: string
   /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */
   title: string
-  /** 节点类型标识（如 page/group/link）；影响策划策略分支。 */
-  nodeKind: string
-  /** 节点短需求，即 navigation description。 */
+  /** 蓝图业务类型；未知时必须为 unresolved，不能按路径或层级猜测。 */
+  blueprintKind: ProjectBlueprintNodeKind
+  /** 可选运行交付投影类型，不代表蓝图业务类型。 */
+  nodeKind: ProjectBlueprintDeliveryKind
+  /** 节点短需求，即项目蓝图节点 description。 */
   requirement: string
   /** 策划详细说明附件引用；省略时仅使用 requirement。 */
   planningAttachmentRef?: string
@@ -140,8 +144,8 @@ export type ProjectPlanningCompletionResult = Readonly<{
   ok: true
   completed: true
   summary: string
-  moduleCount: number
-  pageCount: number
+  nodeCount: number
+  blueprintKinds: readonly ProjectBlueprintNodeKind[]
 }> | Readonly<{
   ok: false
   code: string
@@ -165,11 +169,11 @@ export type ProjectInfo = {
   projectType: string
   /** 项目图标名。 */
   icon?: string | undefined
-  /** 项目描述，供导航、规划和 AI 设计理解项目目标。 */
+  /** 项目描述，供项目蓝图、规划和 AI 设计理解项目目标。 */
   description: string
   /** 策划详细说明附件引用（文件 ID / 工作区路径等，由 IO 层约定）。 */
   planningAttachmentRef?: string | undefined
-  /** 项目首页导航节点 ID。 */
+  /** 项目首页交付节点 ID。 */
   homeNodeId?: string | undefined
   /** 项目排序值。 */
   order: number

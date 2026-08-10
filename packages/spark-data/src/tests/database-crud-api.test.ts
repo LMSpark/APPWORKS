@@ -28,7 +28,7 @@ describe('database CrudApi helper', () => {
 
     expect(result.success).toBe(true)
     expect(result.data).toEqual({ id: 1, name: 'Order 1' })
-    expect(postMock).toHaveBeenCalledWith('/tenants/t1/projects/p1/data/Orders/records/get', { id: 1 }, expect.any(Object))
+    expect(postMock).toHaveBeenCalledWith('/data/Orders/records/get', { id: 1 }, { headers: {} })
     expect(getMock).not.toHaveBeenCalled()
   })
 })

@@ -17,7 +17,7 @@ import process from 'node:process'
 const ROOT = path.resolve(import.meta.dirname, '..')
 
 const testFiles = [
-  'tests/services/project-planning-host-run-provider.test.ts',
+  'tests/services/project-planning-agent-run-provider.test.ts',
   'tests/services/project-planning-ai-runner.test.ts',
   'tests/scripts/project-planning-hr-artifact-assert.test.ts',
   'packages/spark-ai/src/tests/native-script-sandbox.test.ts',

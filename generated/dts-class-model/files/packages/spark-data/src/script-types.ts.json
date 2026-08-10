@@ -20,8 +20,15 @@
       "type": "object",
       "title": "PermissionActionContext",
       "properties": {
-        "modelPermission": {
-          "$ref": "types.ts.json#/$defs/ModelPermission"
+        "permissionSnapshot": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/DataPermissionSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "row": {
           "anyOf": [
@@ -71,18 +78,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.015Z",
+  "generatedAt": "2026-08-09T20:38:18.163Z",
   "models": {
     "PermissionActionContext": {
       "name": "PermissionActionContext",
       "jsdoc": "权限动作上下文（脚本可用）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** model Permission 字段。 */\n    modelPermission?: ModelPermission;\n    /** 当前行数据。 */\n    row?: DataRow | null;\n}",
+        "declarationTypeText": "{\n    /** model Permission 字段。 */\n    permissionSnapshot?: DataPermissionSnapshot | null;\n    /** 当前行数据。 */\n    row?: DataRow | null;\n}",
         "members": {
           "attributes": [
             {
-              "name": "modelPermission",
+              "name": "permissionSnapshot",
               "jsdoc": "model Permission 字段。",
               "readable": true,
               "writable": false

@@ -15,7 +15,6 @@
 import type { LogLevel } from '@spark-appworks/spark-utils'
 import type { App } from 'vue'
 import type { Router } from 'vue-router'
-import type { AuthConfig } from './auth'
 import type { ThemeCapability } from './theme'
 export type { LogLevel }
 
@@ -128,6 +127,11 @@ export type AppConfig = {
     enableOffline?: boolean
   }}
 
+/** 应用宿主提供的认证上下文解析器。认证协议由宿主拥有，spark-app 不绑定后端端点。 */
+export type BootstrapAuthenticate = (
+  config: AppConfig,
+) => AppContext | null | Promise<AppContext | null>
+
 /**
  * Bootstrap Context - 扩展 AppContext，包含 Vue 应用实例和路由
  */
@@ -149,8 +153,8 @@ export type BootstrapOptions = {
   router: Router
   /** 应用配置 */
   config: AppConfig
-  /** 认证配置（可选，不提供则使用 authenticate 函数） */
-  auth?: AuthConfig
+  /** 认证上下文解析器；生产环境必须由应用宿主显式提供。 */
+  authenticate?: BootstrapAuthenticate
   /** 挂载目标元素选择器（默认 '#app'） */
   mountTarget?: string
   /** 主题服务实例（由 start() 创建并传入，或手动传入） */

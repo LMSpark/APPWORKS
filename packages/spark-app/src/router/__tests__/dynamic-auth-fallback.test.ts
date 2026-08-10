@@ -2,36 +2,37 @@ import { describe, it, expect, vi } from 'vitest'
 import { defineComponent } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { createDynamicRouter } from '../dynamic'
-import { PageContentLoader, type ProjectModelData } from '@spark-appworks/spark-project-model'
+import { PageContentLoader } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation } from '../../navigation/runtime-navigation'
 
 const DummyPage = defineComponent({
   name: 'DummyPage',
   template: '<div />',
 })
 
-const PRE_AUTH_NAV: ProjectModelData = {
+const PRE_AUTH_NAV: RuntimeNavigation = {
   id: 'root',
   title: 'root',
   childPlacement: 'header',
-  children: [
+  items: [
     {
       id: 'login-node',
       title: 'login',
-      nodeKind: 'system-page',
+      itemKind: 'system-page',
       path: '/login',
       children: [],
     },
     {
       id: 'demo-node',
       title: 'demo',
-      nodeKind: 'system-page',
+      itemKind: 'system-page',
       path: '/demo/template-dsl',
       children: [],
     },
   ],
 }
 
-const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ fileStorage: 'memory' })
+const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ projectId: 'test' })
 
 describe('DynamicRouter unauthorized fallback', () => {
   it('falls back to preAuthNavTree when loadNavigation returns 401', async () => {

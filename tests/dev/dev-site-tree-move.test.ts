@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils'
 import { defineComponent } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
-import DevSiteTree from '@/views/app/dev-system/DevSiteTree.vue'
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
+import ProjectBlueprintTree from '@/views/app/dev-system/ProjectBlueprintTree.vue'
+import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { useDevState, type DevState } from '@/views/app/dev-system/useDevState'
 import { isolateAppProjectWorkspaceForTest, seedDevStateConfigPages } from './dev-state-test-fixture'
 
-function createState(node: ProjectNodeData): DevState {
+function createState(node: ProjectBlueprintTreeNodeData): DevState {
   isolateAppProjectWorkspaceForTest()
   const state = useDevState()
   seedDevStateConfigPages(state, [{
@@ -37,12 +37,12 @@ const ElTreeDropStub = defineComponent({
   template: '<button class="emit-drop" @click="$emit(\'node-drop\', { data: data[0] })">drop</button>',
 })
 
-describe('DevSiteTree move persistence', () => {
+describe('ProjectBlueprintTree move persistence', () => {
   it('persists drag-drop through moveNodeInTree', async () => {
-    const node: ProjectNodeData = { id: 'orders', title: 'Orders', nodeKind: 'page', path: '/orders' }
+    const node: ProjectBlueprintTreeNodeData = { id: 'orders', title: 'Orders', nodeKind: 'page', path: '/orders' }
     const state = createState(node)
 
-    const wrapper = mount(DevSiteTree, {
+    const wrapper = mount(ProjectBlueprintTree, {
       props: { state },
       global: {
         stubs: {

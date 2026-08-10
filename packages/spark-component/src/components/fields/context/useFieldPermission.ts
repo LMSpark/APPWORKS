@@ -137,6 +137,9 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
 
   const currentDisplayValue = computed(() => {
     if (shouldSuppressReadableValueWhenWritable.value) return ''
+    const state = currentFieldState.value
+    if (state?.visibility === FieldVisibility.Hidden) return ''
+    if (state?.visibility === FieldVisibility.Masked) return state.displayValue ?? '••••'
     return formatValue(sourceFieldValue.value)
   })
 
@@ -155,6 +158,9 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
 
   function getTableCellDisplayValue(row: DataRow): string {
     if (!fieldName.value) return formatValue(fallbackValue)
+    const state = perm.resolveFieldState(fieldName.value, row)
+    if (state?.visibility === FieldVisibility.Hidden) return ''
+    if (state?.visibility === FieldVisibility.Masked) return state.displayValue ?? '••••'
     return formatValue(getRowRawValue(row))
   }
 

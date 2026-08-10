@@ -15,7 +15,6 @@
       "NavNodeExternalTarget",
       "NavNodeActionTarget",
       "NavNodeContainerTarget",
-      "NavNodeHiddenTarget",
       "NavNodeRuntimeTarget"
     ]
   },
@@ -111,24 +110,6 @@
       ],
       "additionalProperties": false
     },
-    "NavNodeHiddenTarget": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "NavNodeHiddenTarget",
-      "properties": {
-        "kind": {
-          "const": "hidden"
-        },
-        "reason": {
-          "const": "sub-page"
-        }
-      },
-      "required": [
-        "kind",
-        "reason"
-      ],
-      "additionalProperties": false
-    },
     "NavNodeRuntimeTarget": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "NavNodeRuntimeTarget",
@@ -148,15 +129,11 @@
         {
           "type": "object",
           "title": "NavNodeContainerTarget"
-        },
-        {
-          "type": "object",
-          "title": "NavNodeHiddenTarget"
         }
       ]
     }
   },
-  "generatedAt": "2026-06-12T04:50:58.281Z",
+  "generatedAt": "2026-08-09T23:25:35.630Z",
   "models": {
     "NavNodeRouteTargetKind": {
       "name": "NavNodeRouteTargetKind",
@@ -289,36 +266,12 @@
         }
       }
     },
-    "NavNodeHiddenTarget": {
-      "name": "NavNodeHiddenTarget",
-      "jsdoc": "Nav Node Hidden Target 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 类型判别字段。 */\n    kind: 'hidden';\n    /** reason 字段。 */\n    reason: 'sub-page';\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "kind",
-              "jsdoc": "类型判别字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "reason",
-              "jsdoc": "reason 字段。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
     "NavNodeRuntimeTarget": {
       "name": "NavNodeRuntimeTarget",
       "jsdoc": "Nav Node Runtime Target 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "NavNodeRouteTarget | NavNodeExternalTarget | NavNodeActionTarget | NavNodeContainerTarget | NavNodeHiddenTarget",
+        "declarationTypeText": "NavNodeRouteTarget | NavNodeExternalTarget | NavNodeActionTarget | NavNodeContainerTarget",
         "declarationRelations": [
           {
             "kind": "union",
@@ -339,11 +292,6 @@
             "kind": "union",
             "typeText": "NavNodeContainerTarget",
             "targetName": "NavNodeContainerTarget"
-          },
-          {
-            "kind": "union",
-            "typeText": "NavNodeHiddenTarget",
-            "targetName": "NavNodeHiddenTarget"
           }
         ],
         "members": {}

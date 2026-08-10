@@ -22,6 +22,10 @@
       "WorkflowDesignGraph",
       "WorkflowDesignGraphNode",
       "WorkflowDesignLineEndpoint",
+      "WorkflowDesignLineType",
+      "WorkflowDesignLineControlPoint",
+      "WorkflowDesignLineVisual",
+      "WorkflowDesignLineData",
       "WorkflowDesignGraphLine",
       "WorkflowDesignNodeData",
       "WorkflowDesignNestedGraphCarrier",
@@ -33,6 +37,8 @@
       "WorkflowDesignNodeCreateInput",
       "WorkflowDesignNodeRemoveResult",
       "WorkflowDesignLinePatch",
+      "WorkflowDesignAutoLayoutGraphResult",
+      "WorkflowDesignAutoLayoutResult",
       "CreateAgentWorkflowDefinitionFromDesignOptions"
     ]
   },
@@ -428,6 +434,57 @@
       ],
       "additionalProperties": false
     },
+    "WorkflowDesignLineType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WorkflowDesignLineType",
+      "enum": [
+        "orthogonal",
+        "straight",
+        "bezier"
+      ]
+    },
+    "WorkflowDesignLineControlPoint": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineControlPoint",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignLineVisual": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineVisual",
+      "properties": {
+        "lineType": {
+          "$ref": "#/$defs/WorkflowDesignLineType"
+        },
+        "controlPoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignLineControlPoint"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignLineData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineData",
+      "properties": {
+        "visual": {
+          "$ref": "#/$defs/WorkflowDesignLineVisual"
+        }
+      },
+      "additionalProperties": false
+    },
     "WorkflowDesignGraphLine": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -446,8 +503,7 @@
           "type": "string"
         },
         "data": {
-          "type": "object",
-          "title": "JsonRecord"
+          "$ref": "#/$defs/WorkflowDesignLineData"
         }
       },
       "required": [
@@ -804,8 +860,60 @@
         },
         "relation": {
           "type": "string"
+        },
+        "lineType": {
+          "$ref": "#/$defs/WorkflowDesignLineType"
+        },
+        "controlPoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignLineControlPoint"
+          }
         }
       },
+      "additionalProperties": false
+    },
+    "WorkflowDesignAutoLayoutGraphResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignAutoLayoutGraphResult",
+      "properties": {
+        "scopePath": {
+          "type": "string"
+        },
+        "changedNodePositions": {
+          "type": "boolean"
+        },
+        "changedViewport": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "scopePath",
+        "changedNodePositions",
+        "changedViewport"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignAutoLayoutResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignAutoLayoutResult",
+      "properties": {
+        "changed": {
+          "type": "boolean"
+        },
+        "graphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignAutoLayoutGraphResult"
+          }
+        }
+      },
+      "required": [
+        "changed",
+        "graphs"
+      ],
       "additionalProperties": false
     },
     "CreateAgentWorkflowDefinitionFromDesignOptions": {
@@ -820,7 +928,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-22T07:06:03.645Z",
+  "generatedAt": "2026-08-09T22:51:49.593Z",
   "models": {
     "JsonRecord": {
       "name": "JsonRecord",
@@ -1235,12 +1343,103 @@
         }
       }
     },
+    "WorkflowDesignLineType": {
+      "name": "WorkflowDesignLineType",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'orthogonal' | 'straight' | 'bezier'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'orthogonal'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'straight'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'bezier'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowDesignLineControlPoint": {
+      "name": "WorkflowDesignLineControlPoint",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "x",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLineVisual": {
+      "name": "WorkflowDesignLineVisual",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    lineType?: WorkflowDesignLineType;\n    controlPoints?: WorkflowDesignLineControlPoint[];\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "lineType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "controlPoints",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLineData": {
+      "name": "WorkflowDesignLineData",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    visual?: WorkflowDesignLineVisual;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "visual",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "WorkflowDesignGraphLine": {
       "name": "WorkflowDesignGraphLine",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id?: string;\n    from: WorkflowDesignLineEndpoint;\n    to: WorkflowDesignLineEndpoint;\n    type?: string;\n    data?: JsonRecord;\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    id?: string;\n    from: WorkflowDesignLineEndpoint;\n    to: WorkflowDesignLineEndpoint;\n    type?: string;\n    data?: WorkflowDesignLineData;\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -1701,7 +1900,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    from?: WorkflowDesignLineEndpoint;\n    to?: WorkflowDesignLineEndpoint;\n    type?: string;\n    relation?: string;\n}",
+        "declarationTypeText": "{\n    from?: WorkflowDesignLineEndpoint;\n    to?: WorkflowDesignLineEndpoint;\n    type?: string;\n    relation?: string;\n    lineType?: WorkflowDesignLineType;\n    controlPoints?: readonly WorkflowDesignLineControlPoint[];\n}",
         "members": {
           "attributes": [
             {
@@ -1723,6 +1922,65 @@
               "name": "relation",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "lineType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "controlPoints",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignAutoLayoutGraphResult": {
+      "name": "WorkflowDesignAutoLayoutGraphResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    scopePath: string;\n    changedNodePositions: boolean;\n    changedViewport: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "scopePath",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changedNodePositions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changedViewport",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignAutoLayoutResult": {
+      "name": "WorkflowDesignAutoLayoutResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    changed: boolean;\n    graphs: WorkflowDesignAutoLayoutGraphResult[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "graphs",
+              "readable": true,
+              "writable": true
             }
           ]
         }

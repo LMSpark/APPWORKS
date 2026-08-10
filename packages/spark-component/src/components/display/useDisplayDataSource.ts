@@ -15,7 +15,15 @@
 import { computed, type ComputedRef } from 'vue'
 import { useSparkConsume, DATA_ROW, DATA_SOURCE } from '../internal'
 import { PAGE_DATASET } from '../internal'
-import { diagnoseDataViewMember, resolveDataViewMember, type DataMember } from '@spark-appworks/spark-data'
+import {
+  diagnoseDataViewMember,
+  FieldVisibility,
+  resolveDataViewKey,
+  resolveDataViewMember,
+  type DataMember,
+  type DataRow,
+} from '@spark-appworks/spark-data'
+import { usePermission } from '../../permission'
 
 /** Display Data Props 的属性契约。 */
 type DisplayDataProps = {
@@ -40,10 +48,20 @@ export function useDisplayDataSource(props: DisplayDataProps): UseDisplayDataSou
   const contextData = sparkConsume(DATA_ROW)
   const dataSource = sparkConsume(DATA_SOURCE)
   const pageDataSet = sparkConsume(PAGE_DATASET)
+  const permission = usePermission()
+
+  function permittedValue(value: unknown, row: DataRow | null, field: string | undefined): unknown {
+    if (row === null || !field) return value
+    const state = permission.resolveFieldState(field, row)
+    if (state?.visibility === FieldVisibility.Hidden) return ''
+    if (state?.visibility === FieldVisibility.Masked) return state.displayValue ?? '••••'
+    return value
+  }
 
   const resolvedValue = computed(() => {
     // 静态值优先（直接传入 value 的场景）
-    if (props.value !== undefined) return props.value
+    const activeRow = contextData ?? dataSource?.currentRow ?? null
+    if (props.value !== undefined) return permittedValue(props.value, activeRow, props.field)
 
     // DataView 输出读取：支持 aggregateResult / currentRow / rows 等成员解析。
     if (
@@ -67,14 +85,17 @@ export function useDisplayDataSource(props: DisplayDataProps): UseDisplayDataSou
         dataField: props.dataField,
       }, pageDataSet)
       if (boundValue !== undefined) {
-        return boundValue
+        const boundView = pageDataSet === null
+          ? null
+          : resolveDataViewKey(props.dataViewKey, pageDataSet)
+        const field = props.dataField ?? props.field
+        return permittedValue(boundValue, boundView?.currentRow ?? activeRow, field)
       }
     }
 
-    const activeRow = contextData ?? dataSource?.currentRow ?? null
     // 从当前行数据读取字段
     if (activeRow !== null && props.field && props.field in activeRow) {
-      return activeRow[props.field]
+      return permittedValue(activeRow[props.field], activeRow, props.field)
     }
     return undefined
   })

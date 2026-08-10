@@ -6,14 +6,14 @@ describe('router route helpers', () => {
     expect(resolveNavRoutePageId({
       id: 'orders-node',
       title: 'Orders',
-      nodeKind: 'page',
+      itemKind: 'page',
       path: '/orders',
     }, '/orders')).toBe('orders')
 
     expect(resolveNavRoutePageId({
       id: '06c56d10-4ff6-4c4d-a6ce-772536592c75',
       title: 'Tree',
-      nodeKind: 'page',
+      itemKind: 'page',
       path: '/homepage/tree-demo',
     }, '/homepage/tree-demo')).toBe('tree-demo')
   })
@@ -24,7 +24,7 @@ describe('router route helpers', () => {
     expect(resolveNavRoutePageId({
       id: 'ref-node',
       title: 'Ref',
-      nodeKind: 'ref',
+      itemKind: 'ref',
       refId: 'fallback-page',
       refPath: '@app:analytics/reporting',
     }, '/__ref/ref-node')).toBe('reporting')

@@ -5,8 +5,11 @@ import { SparkData } from '@spark-appworks/spark-data'
 import { getMountedComponentApi, mountWithPageDataSet } from '../helpers/mount-with-page-dataset'
 import { requireRecord, requireString } from '../helpers/runtime-guards'
 
-function setModelPermission(view: object, permission: Record<string, unknown>): void {
-  Reflect.set(view, '_modelPerm', permission)
+function setPermissionSnapshot(view: object, allowAdd: boolean, authorizedFeatureTags: string[] = []): void {
+  Reflect.set(view, 'permissionSnapshot', {
+    formKey: 'FORM', dataSpaceId: 'SPACE', modelId: 'MODEL', allowAdd,
+    systemKey: 'SYSTEM', originalRows: [], authorizedFeatureTags,
+  })
 }
 
 function readConfigType(config: unknown): string {
@@ -82,7 +85,11 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
           ],
           views: {
             default: {
-              rows: [{ id: 1, name: 'Alice' }],
+              rows: [{
+                id: 1,
+                name: 'Alice',
+                lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: false },
+              }],
             },
           },
         },
@@ -90,7 +97,7 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
     })
     const formView = ds.getView('Users', 'default')!
     formView.selection.setCurrentRow(formView.rows[0] ?? null)
-    setModelPermission(formView, { allowCreate: true })
+    setPermissionSnapshot(formView, true)
 
     const wrapper = mountWithPageDataSet(RendererForm, {
       dataSet: ds,
@@ -166,7 +173,11 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
           ],
           views: {
             default: {
-              rows: [{ id: 1, name: 'Alice' }],
+              rows: [{
+                id: 1,
+                name: 'Alice',
+                lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: false },
+              }],
             },
           },
         },
@@ -228,7 +239,7 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
     })
     const detailView = ds.getView('Users', 'default')!
     detailView.selection.setCurrentRow(detailView.rows[0] ?? null)
-    setModelPermission(detailView, { allowExport: true })
+    setPermissionSnapshot(detailView, false, ['export'])
 
     const wrapper = mountWithPageDataSet(RendererDetail, {
       dataSet: ds,
@@ -503,7 +514,11 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
           ],
           views: {
             default: {
-              rows: [{ id: 1, name: '张三' }],
+              rows: [{
+                id: 1,
+                name: '张三',
+                lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: false },
+              }],
             },
           },
         },
@@ -532,9 +547,9 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
       },
     })
 
-    // 此时还没有 currentRow，字段应为空
+    // 尚无后端授权行时 fail-closed，不渲染字段。
     await nextTick()
-    expect(wrapper.find('.el-input-stub').attributes('value')).toBe('')
+    expect(wrapper.find('.el-input-stub').exists()).toBe(false)
 
     // 触发 initAutoSelection（模拟运行时 PageRenderer 行为）
     ds.initAutoSelection()

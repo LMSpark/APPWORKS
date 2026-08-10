@@ -9,8 +9,7 @@ import {
   createAgentWorkflowDefinitionValidation,
 } from '@spark-appworks/spark-ai/agent'
 import type * as SparkAgent from '@spark-appworks/spark-ai/agent'
-import { http } from './http'
-import { getWorkflowDesignApi } from './api-paths'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 
 export type JsonRecord = Record<string, unknown>
 
@@ -331,64 +330,85 @@ const WORKFLOW_AUTO_LAYOUT_STEP_X = 340
 const WORKFLOW_AUTO_LAYOUT_STEP_Y = 210
 
 export async function listWorkflowDesigns(): Promise<WorkflowDesignSummary[]> {
-  return http.get<WorkflowDesignSummary[]>(`${getWorkflowDesignApi()}/__list`)
+  const entries = await lowcodeApi.design.listFiles({
+    appType: 'designfile',
+    folderPath: workflowDesignRoot(),
+  })
+  return entries.map((entry) => ({
+    workflowId: entry.name,
+    filename: 'design.json',
+    timestamp: entry.lastModified === null ? '' : String(entry.lastModified),
+  }))
 }
 
-export async function createWorkflowDesign(input: {
+export function createWorkflowDesign(input: {
   workflowId: string
   title?: string
 }): Promise<WorkflowDesignWriteResult> {
-  return http.post<WorkflowDesignWriteResult>(`${getWorkflowDesignApi()}/__create`, input)
+  void input
+  return Promise.reject(workflowMutationUnavailable())
 }
 
 export async function readWorkflowDesign(
   workflowId: string,
   timestamp?: string,
 ): Promise<WorkflowDesignReadResult> {
-  return http.get<WorkflowDesignReadResult>(
-    designDocumentUrl(workflowId),
-    timestamp !== undefined && timestamp.length > 0 ? { timestamp } : undefined,
-  )
+  void timestamp
+  const content = await readWorkflowText(workflowId, 'design.json')
+  return {
+    workflowId,
+    filename: 'design.json',
+    timestamp: '',
+    document: parseWorkflowDesignJson(content),
+  }
 }
 
-export async function saveWorkflowDesign(
+export function saveWorkflowDesign(
   workflowId: string,
   document: WorkflowDesignDocument,
 ): Promise<WorkflowDesignWriteResult> {
-  return http.put<WorkflowDesignWriteResult>(designDocumentUrl(workflowId), document)
+  void workflowId
+  void document
+  return Promise.reject(workflowMutationUnavailable())
 }
 
 export async function readWorkflowDefinition(
   workflowId: string,
   timestamp?: string,
 ): Promise<WorkflowDefinitionReadResult> {
-  return http.get<WorkflowDefinitionReadResult>(
-    workflowDefinitionDocumentUrl(workflowId),
-    timestamp !== undefined && timestamp.length > 0 ? { timestamp } : undefined,
-  )
-}
-
-export async function saveWorkflowDefinition(
-  workflowId: string,
-  definition: SparkAgent.AgentWorkflowDefinition,
-): Promise<WorkflowDesignWriteResult> {
-  try {
-    return await http.put<WorkflowDesignWriteResult>(workflowDefinitionDocumentUrl(workflowId), definition)
-  } catch (error: unknown) {
-    if (!isWorkflowDefinitionNotFoundError(error)) throw error
-    return publishWorkflowDefinition(workflowId, definition)
+  void timestamp
+  const content = await readWorkflowText(workflowId, 'definition.json')
+  const definition: unknown = JSON.parse(content)
+  assertAgentWorkflowDefinition(definition)
+  return {
+    workflowId,
+    filename: 'definition.json',
+    timestamp: '',
+    definition,
   }
 }
 
-export async function publishWorkflowDefinition(
+export function saveWorkflowDefinition(
   workflowId: string,
   definition: SparkAgent.AgentWorkflowDefinition,
 ): Promise<WorkflowDesignWriteResult> {
-  return http.post<WorkflowDesignWriteResult>(workflowDefinitionPublishUrl(workflowId), definition)
+  void workflowId
+  void definition
+  return Promise.reject(workflowMutationUnavailable())
 }
 
-export async function deleteWorkflowDesign(workflowId: string): Promise<WorkflowDesignDeleteResult> {
-  return http.delete<WorkflowDesignDeleteResult>(`${getWorkflowDesignApi()}/${encodeURIComponent(workflowId)}`)
+export function publishWorkflowDefinition(
+  workflowId: string,
+  definition: SparkAgent.AgentWorkflowDefinition,
+): Promise<WorkflowDesignWriteResult> {
+  void workflowId
+  void definition
+  return Promise.reject(workflowMutationUnavailable())
+}
+
+export function deleteWorkflowDesign(workflowId: string): Promise<WorkflowDesignDeleteResult> {
+  void workflowId
+  return Promise.reject(workflowMutationUnavailable())
 }
 
 export function createAgentWorkflowDefinitionFromDesign(
@@ -428,6 +448,12 @@ export function createAgentWorkflowDefinitionFromDesign(
 export function parseAgentWorkflowDefinitionJson(text: string): SparkAgent.AgentWorkflowDefinition {
   const parsed: unknown = JSON.parse(text)
   assertAgentWorkflowDefinition(parsed)
+  return parsed
+}
+
+export function parseWorkflowDesignJson(text: string): WorkflowDesignDocument {
+  const parsed: unknown = JSON.parse(text)
+  assertWorkflowDesignDocument(parsed)
   return parsed
 }
 
@@ -626,16 +652,24 @@ export function formatJson(value: unknown): string {
   return JSON.stringify(value ?? {}, null, 2)
 }
 
-function designDocumentUrl(workflowId: string): string {
-  return `${getWorkflowDesignApi()}/${encodeURIComponent(workflowId)}/design.json`
+function workflowDesignRoot(): string {
+  const applicationId = lowcodeApi.application.get()?.application.id
+  if (applicationId === undefined) throw new Error('缺少 lowcode 应用上下文，无法读取工作流设计')
+  return `${applicationId}/workflow-designs`
 }
 
-function workflowDefinitionPublishUrl(workflowId: string): string {
-  return `${getWorkflowDesignApi()}/${encodeURIComponent(workflowId)}/__publish`
+async function readWorkflowText(workflowId: string, fileName: string): Promise<string> {
+  const normalizedWorkflowId = workflowId.trim()
+  if (!normalizedWorkflowId) throw new Error('workflowId 不能为空')
+  return lowcodeApi.design.readTextFile({
+    appType: 'designfile',
+    customPath: `${workflowDesignRoot()}/${normalizedWorkflowId}`,
+    fileName,
+  })
 }
 
-function workflowDefinitionDocumentUrl(workflowId: string): string {
-  return `${getWorkflowDesignApi()}/${encodeURIComponent(workflowId)}/definition.json`
+function workflowMutationUnavailable(): Error {
+  return new Error('lowcode 工作流文件写接口不满足写前镜像、journal、readback 与补偿门禁')
 }
 
 function collectDefinitionPublishIssues(document: WorkflowDesignDocument): SparkAgent.AgentWorkflowDefinitionValidationIssue[] {
@@ -1917,6 +1951,27 @@ function readNonBlankText(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined
   const normalized = value.trim()
   return normalized.length > 0 ? normalized : undefined
+}
+
+function assertWorkflowDesignDocument(value: unknown): asserts value is WorkflowDesignDocument {
+  if (!isJsonRecord(value)
+    || value['kind'] !== 'agent.workflow.design'
+    || typeof value['version'] !== 'number'
+    || readNonBlankText(value['id']) === undefined
+    || !isJsonRecord(value['workflow'])
+    || !isJsonRecord(value['x_spark'])) {
+    throw new Error('Invalid workflow design document')
+  }
+
+  const workflow = value['workflow']
+  const graph = workflow['graph']
+  if (readNonBlankText(workflow['id']) === undefined
+    || typeof workflow['version'] !== 'number'
+    || !isJsonRecord(graph)
+    || !Array.isArray(graph['nodes'])
+    || !Array.isArray(graph['lines'])) {
+    throw new Error('Invalid workflow design document')
+  }
 }
 
 function isDefinitionNodeType(value: unknown): value is SparkAgent.AgentWorkflowGraphNodeType {

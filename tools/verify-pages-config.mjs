@@ -11,7 +11,7 @@ import {
   relativePath,
 } from './verifier-common.mjs'
 
-const PAGES_CONFIG_ROOT = 'spark-ai-server/data/pages-config'
+const PAGES_CONFIG_ROOT = 'backend-api-contracts/characterization-fixtures/pages-config'
 const MANIFEST_REL = `${PAGES_CONFIG_ROOT}/manifest.json`
 const DELETED_PAGES_REL = `${PAGES_CONFIG_ROOT}/deleted-pages.json`
 const REQUIRED_FILES = ['rule.json', 'pagedata.json']

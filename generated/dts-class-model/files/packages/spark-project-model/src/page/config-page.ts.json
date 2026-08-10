@@ -10,6 +10,7 @@
     "jsdoc": "@module @spark-appworks/spark-project-model:page/config-page\n职责：提供项目模型和页面配置域中的 config page 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nConfigPageNode——配置页节点，挂接 rule/dataset/script/style（纯内存领域模型）。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "PageDataSpaceBinding",
       "PageNodeRenderConfig",
       "PageNodeLike",
       "ProjectConfigPageNodeModelOptions",
@@ -17,6 +18,23 @@
     ]
   },
   "$defs": {
+    "PageDataSpaceBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceBinding",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "PageNodeRenderConfig": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -25,10 +43,20 @@
         "pageId": {
           "type": "string"
         },
-        "navigation": {
+        "blueprintNode": {
           "anyOf": [
             {
-              "$ref": "../navigation/project-node.ts.json#/$defs/ProjectNodeData"
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dataSpaceBinding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PageDataSpaceBinding"
             },
             {
               "type": "null"
@@ -53,7 +81,8 @@
       },
       "required": [
         "pageId",
-        "navigation",
+        "blueprintNode",
+        "dataSpaceBinding",
         "rule",
         "data",
         "script",
@@ -336,19 +365,53 @@
           "additionalProperties": false
         },
         "method.toSummary.return": {
-          "$ref": "../navigation/project-node.ts.json#/$defs/ProjectPageNodeSummary"
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectPageNodeSummary"
         }
       }
     }
   },
-  "generatedAt": "2026-06-14T20:06:13.022Z",
+  "generatedAt": "2026-08-09T22:37:59.552Z",
   "models": {
+    "PageDataSpaceBinding": {
+      "name": "PageDataSpaceBinding",
+      "jsdoc": "页面进入数据空间时使用的完整身份闭包。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "PageNodeRenderConfig": {
       "name": "PageNodeRenderConfig",
       "jsdoc": "Page Node Render Config 的配置结构。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** navigation 字段。 */\n    navigation: ProjectNodeData | null;\n    /** rule 字段。 */\n    rule: SparkNode[];\n    /** 业务数据载荷。 */\n    data: DataSet;\n    /** script 字段。 */\n    script: string | undefined;\n    /** css 字段。 */\n    css: string | undefined;\n}",
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 产生当前页面的项目蓝图节点。 */\n    blueprintNode: ProjectBlueprintTreeNodeData | null;\n    /** 页面消费的数据空间身份；不完整时为 null，数据读取必须失败关闭。 */\n    dataSpaceBinding: PageDataSpaceBinding | null;\n    /** rule 字段。 */\n    rule: SparkNode[];\n    /** 业务数据载荷。 */\n    data: DataSet;\n    /** script 字段。 */\n    script: string | undefined;\n    /** css 字段。 */\n    css: string | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -358,8 +421,14 @@
               "writable": true
             },
             {
-              "name": "navigation",
-              "jsdoc": "navigation 字段。",
+              "name": "blueprintNode",
+              "jsdoc": "产生当前页面的项目蓝图节点。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataSpaceBinding",
+              "jsdoc": "页面消费的数据空间身份；不完整时为 null，数据读取必须失败关闭。",
               "readable": true,
               "writable": true
             },
@@ -459,23 +528,23 @@
       "jsdoc": "Project Config Page Node Model Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ProjectNodeModelOptions & {\n    /** 配置页唯一 pageId；省略时从导航节点解析。 */\n    pageId?: string;\n}",
+        "declarationTypeText": "ProjectBlueprintNodeModelOptions & {\n    /** 配置页唯一 pageId；省略时从蓝图交付节点解析。 */\n    pageId?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "ProjectNodeModelOptions",
-            "targetName": "ProjectNodeModelOptions"
+            "typeText": "ProjectBlueprintNodeModelOptions",
+            "targetName": "ProjectBlueprintNodeModelOptions"
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 配置页唯一 pageId；省略时从导航节点解析。 */\n    pageId?: string;\n}"
+            "typeText": "{\n    /** 配置页唯一 pageId；省略时从蓝图交付节点解析。 */\n    pageId?: string;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
               "name": "pageId",
-              "jsdoc": "配置页唯一 pageId；省略时从导航节点解析。",
+              "jsdoc": "配置页唯一 pageId；省略时从蓝图交付节点解析。",
               "readable": true,
               "writable": false
             }
@@ -489,7 +558,7 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建配置页节点实例，并初始化 rule/pagedata/script/style 四文件内存模型。\n@param options 配置页导航节点、pageId 与基础 ProjectNode 初始化参数。",
+          "jsdoc": "创建配置页节点实例，并初始化 rule/pagedata/script/style 四文件内存模型。\n@param options 配置页蓝图节点、pageId 与基础 ProjectBlueprintNode 初始化参数。",
           "signatureText": "constructor(options: ProjectConfigPageNodeModelOptions)",
           "parameters": [
             {
@@ -505,8 +574,8 @@
         "declarationRelations": [
           {
             "kind": "extends",
-            "typeText": "ProjectNode",
-            "targetName": "ProjectNode"
+            "typeText": "ProjectBlueprintNode",
+            "targetName": "ProjectBlueprintNode"
           }
         ],
         "members": {
@@ -888,7 +957,7 @@
               "type": {
                 "type": "reference",
                 "name": "ProjectPageNodeSummary",
-                "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
               }
             }
           ]

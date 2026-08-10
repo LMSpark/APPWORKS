@@ -7,53 +7,17 @@
     "sourceFile": "packages/spark-project-model/src/io/project-reference-client.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "io/project-reference-client",
-    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-reference-client\n职责：提供项目模型层 project-reference-client 能力，围绕 ProjectReferenceClientOptions、ProjectSummary、ProjectPageReference 等 5 个公开契约 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 io/project-reference-client。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@spark-appworks/spark-project-model 的 io/project-reference-client 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectSummary, ProjectPageReference, ListProjectReferencesOptions, ProjectReferenceGateway, ProjectReferenceClient（共 5 个 symbol）。",
+    "jsdocSource": "inferred",
     "symbols": [
-      "ProjectReferenceClientOptions",
       "ProjectSummary",
       "ProjectPageReference",
       "ListProjectReferencesOptions",
+      "ProjectReferenceGateway",
       "ProjectReferenceClient"
     ]
   },
   "$defs": {
-    "ProjectReferenceClientOptions": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ProjectReferenceClientOptions",
-      "properties": {
-        "http": {
-          "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
-        }
-      },
-      "required": [
-        "http"
-      ],
-      "additionalProperties": false,
-      "$defs": {
-        "method.getProjectsApi.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getProjectsApi.return": {
-          "type": "string"
-        },
-        "method.getProjectNavigationApi.params": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.getProjectNavigationApi.return": {
-          "type": "string"
-        }
-      }
-    },
     "ProjectSummary": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -72,12 +36,6 @@
           "type": "string"
         }
       },
-      "required": [
-        "projectId",
-        "name",
-        "icon",
-        "description"
-      ],
       "additionalProperties": false
     },
     "ProjectPageReference": {
@@ -105,6 +63,35 @@
       },
       "additionalProperties": false
     },
+    "ProjectReferenceGateway": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectReferenceGateway",
+      "$defs": {
+        "method.listProjects.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listProjects.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.loadProjectBlueprint.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadProjectBlueprint.return": {
+          "type": "object",
+          "title": "Promise<Partial<ProjectBlueprintTreeData>>"
+        }
+      }
+    },
     "ProjectReferenceClient": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -113,8 +100,8 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "options": {
-              "$ref": "#/$defs/ProjectReferenceClientOptions"
+            "gateway": {
+              "$ref": "#/$defs/ProjectReferenceGateway"
             }
           },
           "additionalProperties": false
@@ -148,36 +135,130 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.624Z",
+  "generatedAt": "2026-08-09T21:48:29.504Z",
   "models": {
-    "ProjectReferenceClientOptions": {
-      "name": "ProjectReferenceClientOptions",
-      "jsdoc": "Project Reference Client Options 的调用配置。",
+    "ProjectSummary": {
+      "name": "ProjectSummary",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** http 字段。 */\n    http: HttpClientBase;\n    /** get Projects Api 回调。 */\n    getProjectsApi: () => string;\n    /** get Project Navigation Api 回调。 */\n    getProjectNavigationApi: (projectId: string) => string;\n}",
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    name: string;\n    icon: string;\n    description: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    name: string;\n    icon: string;\n    description: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
         "members": {
           "attributes": [
             {
-              "name": "http",
-              "jsdoc": "http 字段。",
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPageReference": {
+      "name": "ProjectPageReference",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ProjectPageNodeSummary & {\n    projectId: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ProjectPageNodeSummary",
+            "targetName": "ProjectPageNodeSummary"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    projectId: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
               "readable": true,
               "writable": true
             }
-          ],
+          ]
+        }
+      }
+    },
+    "ListProjectReferencesOptions": {
+      "name": "ListProjectReferencesOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    excludeProjectId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    excludeProjectId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "excludeProjectId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectReferenceGateway": {
+      "name": "ProjectReferenceGateway",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    listProjects(): Promise<unknown>;\n    loadProjectBlueprint(projectId: string): Promise<Partial<ProjectBlueprintTreeData>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    listProjects(): Promise<unknown>;\n    loadProjectBlueprint(projectId: string): Promise<Partial<ProjectBlueprintTreeData>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
           "methods": [
             {
-              "name": "getProjectsApi",
-              "jsdoc": "get Projects Api 回调。",
+              "name": "listProjects",
               "parameters": [],
               "type": {
-                "type": "intrinsic",
-                "name": "string"
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
               }
             },
             {
-              "name": "getProjectNavigationApi",
-              "jsdoc": "get Project Navigation Api 回调。",
+              "name": "loadProjectBlueprint",
               "parameters": [
                 {
                   "name": "projectId",
@@ -188,92 +269,22 @@
                 }
               ],
               "type": {
-                "type": "intrinsic",
-                "name": "string"
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ProjectBlueprintTreeData",
+                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                      }
+                    ]
+                  }
+                ]
               }
-            }
-          ]
-        }
-      }
-    },
-    "ProjectSummary": {
-      "name": "ProjectSummary",
-      "jsdoc": "Project Summary 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 显示或业务名称。 */\n    name: string;\n    /** icon 字段。 */\n    icon: string;\n    /** description 字段。 */\n    description: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "projectId",
-              "jsdoc": "project Id 标识。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "name",
-              "jsdoc": "显示或业务名称。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "icon",
-              "jsdoc": "icon 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "description",
-              "jsdoc": "description 字段。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "ProjectPageReference": {
-      "name": "ProjectPageReference",
-      "jsdoc": "Project Page Reference 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ProjectPageNodeSummary & {\n    /** project Id 标识。 */\n    projectId: string;\n}",
-        "declarationRelations": [
-          {
-            "kind": "intersection",
-            "typeText": "ProjectPageNodeSummary",
-            "targetName": "ProjectPageNodeSummary"
-          },
-          {
-            "kind": "intersection",
-            "typeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n}"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "projectId",
-              "jsdoc": "project Id 标识。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "ListProjectReferencesOptions": {
-      "name": "ListProjectReferencesOptions",
-      "jsdoc": "List Project References Options 的调用配置。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** exclude Project Id 标识。 */\n    excludeProjectId?: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "excludeProjectId",
-              "jsdoc": "exclude Project Id 标识。",
-              "readable": true,
-              "writable": false
             }
           ]
         }
@@ -281,18 +292,17 @@
     },
     "ProjectReferenceClient": {
       "name": "ProjectReferenceClient",
-      "jsdoc": "Project Reference Client 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建 Project Reference Client 实例。",
-          "signatureText": "constructor(options: ProjectReferenceClientOptions)",
+          "signatureText": "constructor(gateway: ProjectReferenceGateway)",
           "parameters": [
             {
-              "name": "options",
+              "name": "gateway",
               "type": {
                 "type": "reference",
-                "name": "ProjectReferenceClientOptions",
+                "name": "ProjectReferenceGateway",
                 "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
               }
             }
@@ -302,7 +312,6 @@
           "methods": [
             {
               "name": "listProjects",
-              "jsdoc": "执行 list Projects 操作。",
               "parameters": [
                 {
                   "name": "options",
@@ -333,7 +342,6 @@
             },
             {
               "name": "listProjectPages",
-              "jsdoc": "执行 list Project Pages 操作。",
               "parameters": [
                 {
                   "name": "projectId",

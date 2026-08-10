@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-data/src/types.ts",
     "packageName": "@spark-appworks/spark-data",
     "modulePath": "types",
-    "jsdoc": "@module @spark-appworks/spark-data:types\n职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                InstancePermission, ModelPermission     │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             FilterExpression, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 表关系 & 视图联动      TableRelation, ViewDependency, DataRelation │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
+    "jsdoc": "@module @spark-appworks/spark-data:types\n职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                DataPermissionSnapshot                  │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             FilterExpression, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 表关系 & 视图联动      TableRelation, ViewDependency, DataRelation │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "SparkEventEmitter",
@@ -20,8 +20,6 @@
       "TableResourceType",
       "TableBusinessCategory",
       "TableSemanticMetadata",
-      "InstancePermission",
-      "ModelPermission",
       "FieldVisibility",
       "ComponentLevel",
       "HttpEndpoint",
@@ -78,7 +76,10 @@
       "CrudResult",
       "QueryParams",
       "BatchResult",
-      "CrudOperationConfig"
+      "CrudOperationConfig",
+      "DataPermissionSets",
+      "DataPermissionSnapshot",
+      "DataPermissionSnapshotInput"
     ]
   },
   "$defs": {
@@ -160,8 +161,11 @@
       "type": "object",
       "title": "DataRow",
       "properties": {
-        "_perm": {
-          "$ref": "#/$defs/InstancePermission"
+        "lingma_sys_params": {
+          "$ref": "#/$defs/DataPermissionSets"
+        },
+        "lingma_sys_key": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -475,61 +479,6 @@
         },
         "businessCategory": {
           "$ref": "#/$defs/TableBusinessCategory"
-        }
-      },
-      "additionalProperties": false
-    },
-    "InstancePermission": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "InstancePermission",
-      "properties": {
-        "allowCreateChild": {
-          "type": "boolean"
-        },
-        "allowDelete": {
-          "type": "boolean"
-        },
-        "editableFields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "hiddenFields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "maskedFields": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "permissionToken": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "ModelPermission": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ModelPermission",
-      "properties": {
-        "allowCreate": {
-          "type": "boolean"
-        },
-        "allowImport": {
-          "type": "boolean"
-        },
-        "allowExport": {
-          "type": "boolean"
-        },
-        "permissionToken": {
-          "type": "string"
         }
       },
       "additionalProperties": false
@@ -1761,8 +1710,15 @@
             "$ref": "#/$defs/DataRow"
           }
         },
-        "_modelPerm": {
-          "$ref": "#/$defs/ModelPermission"
+        "permissionSnapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataPermissionSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "total": {
           "type": "number"
@@ -2921,12 +2877,6 @@
         },
         "limit": {
           "type": "number"
-        },
-        "modelPermission": {
-          "$ref": "#/$defs/ModelPermission"
-        },
-        "instancePermission": {
-          "$ref": "#/$defs/InstancePermission"
         }
       },
       "additionalProperties": false
@@ -2978,15 +2928,6 @@
         "retryCount": {
           "type": "number"
         },
-        "skipPermissionCheck": {
-          "type": "boolean"
-        },
-        "modelPermission": {
-          "$ref": "#/$defs/ModelPermission"
-        },
-        "instancePermission": {
-          "$ref": "#/$defs/InstancePermission"
-        },
         "validateData": {
           "type": "boolean"
         }
@@ -3010,9 +2951,123 @@
         },
         "method.transformResponse.return": true
       }
+    },
+    "DataPermissionSets": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataPermissionSets",
+      "properties": {
+        "r": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "e": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "h": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "m": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "d": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataPermissionSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataPermissionSnapshot",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "allowAdd": {
+          "type": "boolean"
+        },
+        "systemKey": {
+          "type": "string"
+        },
+        "originalRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataRow"
+          }
+        },
+        "authorizedFeatureTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataPermissionSnapshotInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataPermissionSnapshotInput",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "allowAdd": {
+          "type": "boolean"
+        },
+        "systemKey": {
+          "type": "string"
+        },
+        "originalRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataRow"
+          }
+        },
+        "authorizedFeatureTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:08:36.344Z",
+  "generatedAt": "2026-08-09T22:50:15.256Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -3190,10 +3245,10 @@
     },
     "DataRow": {
       "name": "DataRow",
-      "jsdoc": "数据行：所有数据容器的基本行形状，可选携带实例级权限",
+      "jsdoc": "数据行：所有数据容器的基本行形状，可选携带 lowcode 后端权限事实。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Record<string, unknown> & {\n    /** 实例级权限快照，由服务端计算后注入 */\n    _perm?: InstancePermission;\n}",
+        "declarationTypeText": "Record<string, unknown> & {\n    /** lowcode 后端对当前行计算出的五个稀疏权限集合。 */\n    lingma_sys_params?: DataPermissionSets;\n    /** lowcode 后端签发的当前行防篡改上下文。 */\n    lingma_sys_key?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -3202,14 +3257,20 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 实例级权限快照，由服务端计算后注入 */\n    _perm?: InstancePermission;\n}"
+            "typeText": "{\n    /** lowcode 后端对当前行计算出的五个稀疏权限集合。 */\n    lingma_sys_params?: DataPermissionSets;\n    /** lowcode 后端签发的当前行防篡改上下文。 */\n    lingma_sys_key?: string;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "_perm",
-              "jsdoc": "实例级权限快照，由服务端计算后注入",
+              "name": "lingma_sys_params",
+              "jsdoc": "lowcode 后端对当前行计算出的五个稀疏权限集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lingma_sys_key",
+              "jsdoc": "lowcode 后端签发的当前行防篡改上下文。",
               "readable": true,
               "writable": false
             }
@@ -3629,90 +3690,6 @@
             {
               "name": "businessCategory",
               "jsdoc": "业务分类：标记当前表在业务模型中的角色",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "InstancePermission": {
-      "name": "InstancePermission",
-      "jsdoc": "实例级权限（行级）- 服务端权限快照\n附加在 DataRow._perm 上，描述单行数据的操作权限。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 是否允许创建子节点 */\n    allowCreateChild?: boolean;\n    /** 是否允许删除当前行 */\n    allowDelete?: boolean;\n    /** 允许编辑的字段列表 */\n    editableFields?: string[];\n    /** 隐藏的字段列表 */\n    hiddenFields?: string[];\n    /** 脱敏的字段列表 */\n    maskedFields?: string[];\n    /** 权限令牌（后端验证有效性） */\n    permissionToken?: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "allowCreateChild",
-              "jsdoc": "是否允许创建子节点",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "allowDelete",
-              "jsdoc": "是否允许删除当前行",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "editableFields",
-              "jsdoc": "允许编辑的字段列表",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "hiddenFields",
-              "jsdoc": "隐藏的字段列表",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "maskedFields",
-              "jsdoc": "脱敏的字段列表",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "permissionToken",
-              "jsdoc": "权限令牌（后端验证有效性）",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "ModelPermission": {
-      "name": "ModelPermission",
-      "jsdoc": "模型级权限（表级）- 服务端权限快照\n附加在 DataSource._modelPerm 上，描述整张表的操作权限。\n权限信息在首次数据加载时由服务端计算并缓存，前端负责维护和传递权限状态。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 是否允许新增记录 */\n    allowCreate?: boolean;\n    /** 是否允许导入记录 */\n    allowImport?: boolean;\n    /** 是否允许导出记录 */\n    allowExport?: boolean;\n    /** 权限令牌，后端可用它校验当前权限快照是否有效 */\n    permissionToken?: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "allowCreate",
-              "jsdoc": "是否允许新增记录",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "allowImport",
-              "jsdoc": "是否允许导入记录",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "allowExport",
-              "jsdoc": "是否允许导出记录",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "permissionToken",
-              "jsdoc": "权限令牌，后端可用它校验当前权限快照是否有效",
               "readable": true,
               "writable": false
             }
@@ -5121,7 +5098,7 @@
       "jsdoc": "完整数据源全量接口，包含分页、聚合结果、权限、值序列化。\nDataView 实现此接口。可将其理解为\"UI 读取 DataView（API 视图）时看到的运行时数据结构\"。\n边界：\n- DataView 对应 table + viewId 的 API 视图（含 requestData/refresh/requestState）。\n- DataSource 只暴露 UI 消费所需的输出字段，不承载 API 配置定义本身（例如 viewId 应由 dataViewKey 解析得到）。\n1. 行级计算列：`columns[].computeExpression` 对每一行求值，结果写回该行字段。\n表达式可直接读取行字段，可通过 `ctx` 读取外部上下文，也可通过\n`$sum/$count/$avg/$min/$max/$list/$join` 读取 DataRelation 匹配到的子表行。\n2. 视图级聚合配置：定义在 `ViewMetadata.aggregates`，不是 `DataSource` 字段。\n每个输出项包含 `type / field / separator` 等后端 API 认得的规则信息。\n3. 运行时聚合结果：`aggregateResult` 基于当前 `rows` 计算，`selectionAggregateResult`\n基于当前 `selectedRows` 计算；二者都是由 aggregates 配置生成的\"聚合结果输出行\"，\n字段名来自 aggregates 的输出 key，字段值是对应聚合计算结果。\n4. UI / DataView 成员消费：组件可直接读取 `dataSource.aggregateResult`，也可通过\ndataViewKey=`Table@default` + dataMember=`aggregateResult` + dataField=`totalAmount` 引用。\n5. 序列化边界：`DataView.toJson()` 只持久化 `aggregates` 配置；`aggregateResult`、\n`selectionAggregateResult` 和计算列写回 rows 的派生值都是运行时结果，不写入配置 JSON。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前视图行集合，表格/列表/树等数据容器的主要渲染输入 */\n    rows?: readonly DataRow[];\n    /** 列定义数组（只读，来自 DataTable.columns）。UI 组件据此渲染表头 / 表单标签 */\n    columns?: readonly DataColumn[];\n    /** 表名（来自 DataView.tableName） */\n    tableName?: string;\n    /** 数据加载状态（Idle / Loading / Loaded / Failed） */\n    requestState?: RequestState;\n    /** 当前聚焦行（UI 高亮行 / 级联父行） */\n    currentRow?: DataRow | null;\n    /** 当前选中行集合（勾选行 / 级联选中行） */\n    selectedRows?: readonly DataRow[];\n    /** 模型级权限快照，供工具栏和容器判断新增、导入、导出等按钮可用性 */\n    _modelPerm?: ModelPermission;\n    /** 当前查询结果总行数，用于分页器展示总量 */\n    total?: number;\n    /** 当前页码，通常从 1 开始 */\n    page?: number;\n    /** 每页行数，用于分页查询和分页器状态同步 */\n    pageSize?: number;\n    /**\n     * 当前 `rows` 的全量聚合输出行；按视图 aggregates 配置自动计算，行变更后自动重算。\n     *\n     * 注意它不是单个标量，而是 `AggregateResultRow` 形状的结果容器：\n     * 每个字段名来自 aggregates 的输出 key，每个字段值是对应聚合计算结果。\n     * 例如 aggregates 配置了 `totalAmount`、`avgScore` 两个输出名，则结果形如：\n     * `{ totalAmount: 1234, avgScore: 87.5 }`。\n     * 当视图已配置 aggregates 且 rows 为空时，源码按类型填默认输出：\n     * `sum/count/avg` 为 `0`，`min/max` 为 `undefined`，`join` 为空字符串。\n     */\n    aggregateResult?: Readonly<AggregateResultRow>;\n    /**\n     * 当前 `selectedRows` 的选中聚合输出行；按视图 aggregates 配置自动计算，选中/数据变更后自动重算。\n     *\n     * 无选中行时源码直接返回空对象 `{}`，而不是按聚合类型填默认输出。\n     * 选中行存在时字段结构与 aggregateResult 相同。\n     */\n    selectionAggregateResult?: Readonly<AggregateResultRow>;\n    /** 选中行序列化值（按 valueField + selectionDelimiter 拼接，可 v-model 绑定） */\n    value?: string;\n    /** 当前行显示标签（按 labelField 或主键回退） */\n    label?: string | null;\n    /** 选中行标签数组 */\n    labels?: readonly string[];\n}",
+        "declarationTypeText": "{\n    /** 当前视图行集合，表格/列表/树等数据容器的主要渲染输入 */\n    rows?: readonly DataRow[];\n    /** 列定义数组（只读，来自 DataTable.columns）。UI 组件据此渲染表头 / 表单标签 */\n    columns?: readonly DataColumn[];\n    /** 表名（来自 DataView.tableName） */\n    tableName?: string;\n    /** 数据加载状态（Idle / Loading / Loaded / Failed） */\n    requestState?: RequestState;\n    /** 当前聚焦行（UI 高亮行 / 级联父行） */\n    currentRow?: DataRow | null;\n    /** 当前选中行集合（勾选行 / 级联选中行） */\n    selectedRows?: readonly DataRow[];\n    /** 后端最终权限快照；缺失时权限组件必须 fail-closed。 */\n    permissionSnapshot?: DataPermissionSnapshot | null;\n    /** 当前查询结果总行数，用于分页器展示总量 */\n    total?: number;\n    /** 当前页码，通常从 1 开始 */\n    page?: number;\n    /** 每页行数，用于分页查询和分页器状态同步 */\n    pageSize?: number;\n    /**\n     * 当前 `rows` 的全量聚合输出行；按视图 aggregates 配置自动计算，行变更后自动重算。\n     *\n     * 注意它不是单个标量，而是 `AggregateResultRow` 形状的结果容器：\n     * 每个字段名来自 aggregates 的输出 key，每个字段值是对应聚合计算结果。\n     * 例如 aggregates 配置了 `totalAmount`、`avgScore` 两个输出名，则结果形如：\n     * `{ totalAmount: 1234, avgScore: 87.5 }`。\n     * 当视图已配置 aggregates 且 rows 为空时，源码按类型填默认输出：\n     * `sum/count/avg` 为 `0`，`min/max` 为 `undefined`，`join` 为空字符串。\n     */\n    aggregateResult?: Readonly<AggregateResultRow>;\n    /**\n     * 当前 `selectedRows` 的选中聚合输出行；按视图 aggregates 配置自动计算，选中/数据变更后自动重算。\n     *\n     * 无选中行时源码直接返回空对象 `{}`，而不是按聚合类型填默认输出。\n     * 选中行存在时字段结构与 aggregateResult 相同。\n     */\n    selectionAggregateResult?: Readonly<AggregateResultRow>;\n    /** 选中行序列化值（按 valueField + selectionDelimiter 拼接，可 v-model 绑定） */\n    value?: string;\n    /** 当前行显示标签（按 labelField 或主键回退） */\n    label?: string | null;\n    /** 选中行标签数组 */\n    labels?: readonly string[];\n}",
         "members": {
           "attributes": [
             {
@@ -5161,8 +5138,8 @@
               "writable": false
             },
             {
-              "name": "_modelPerm",
-              "jsdoc": "模型级权限快照，供工具栏和容器判断新增、导入、导出等按钮可用性",
+              "name": "permissionSnapshot",
+              "jsdoc": "后端最终权限快照；缺失时权限组件必须 fail-closed。",
               "readable": true,
               "writable": false
             },
@@ -6808,7 +6785,7 @@
       "jsdoc": "分页查询参数 - 支持权限快照传递",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: Record<string, unknown> | FilterExpression;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的字段列表 */\n    fields?: string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 完整的模型级权限对象（用于提取权限令牌） */\n    modelPermission?: ModelPermission;\n    /** 完整的实例级权限对象（用于提取权限令牌） */\n    instancePermission?: InstancePermission;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: Record<string, unknown> | FilterExpression;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的字段列表 */\n    fields?: string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -6894,18 +6871,6 @@
               "jsdoc": "最大返回行数",
               "readable": true,
               "writable": false
-            },
-            {
-              "name": "modelPermission",
-              "jsdoc": "完整的模型级权限对象（用于提取权限令牌）",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "instancePermission",
-              "jsdoc": "完整的实例级权限对象（用于提取权限令牌）",
-              "readable": true,
-              "writable": false
             }
           ]
         }
@@ -6955,10 +6920,10 @@
     },
     "CrudOperationConfig": {
       "name": "CrudOperationConfig",
-      "jsdoc": "CRUD 通用运行策略配置。\n语义：描述\"调用端点时应用什么策略\"。\n这里定义超时、重试、权限校验、数据校验，以及请求/响应转换等运行期策略，不负责声明端点映射。",
+      "jsdoc": "CRUD 通用运行策略配置。\n语义：描述\"调用端点时应用什么策略\"。\n这里定义超时、重试、数据校验，以及请求/响应转换等运行期策略，不负责声明端点映射。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 请求超时（毫秒） */\n    timeout?: number;\n    /** 重试次数 */\n    retryCount?: number;\n    /** 是否跳过权限校验 */\n    skipPermissionCheck?: boolean;\n    /** 完整的模型级权限对象（用于提取权限令牌） */\n    modelPermission?: ModelPermission;\n    /** 完整的实例级权限对象（用于提取权限令牌） */\n    instancePermission?: InstancePermission;\n    /** 是否校验数据 */\n    validateData?: boolean;\n    /** 请求数据转换函数 */\n    transformRequest?: (data: unknown) => unknown;\n    /** 响应数据转换函数 */\n    transformResponse?: (data: unknown) => unknown;\n}",
+        "declarationTypeText": "{\n    /** 请求超时（毫秒） */\n    timeout?: number;\n    /** 重试次数 */\n    retryCount?: number;\n    /** 是否校验数据 */\n    validateData?: boolean;\n    /** 请求数据转换函数 */\n    transformRequest?: (data: unknown) => unknown;\n    /** 响应数据转换函数 */\n    transformResponse?: (data: unknown) => unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -6970,24 +6935,6 @@
             {
               "name": "retryCount",
               "jsdoc": "重试次数",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "skipPermissionCheck",
-              "jsdoc": "是否跳过权限校验",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "modelPermission",
-              "jsdoc": "完整的模型级权限对象（用于提取权限令牌）",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "instancePermission",
-              "jsdoc": "完整的实例级权限对象（用于提取权限令牌）",
               "readable": true,
               "writable": false
             },
@@ -7032,6 +6979,138 @@
                 "type": "intrinsic",
                 "name": "unknown"
               }
+            }
+          ]
+        }
+      }
+    },
+    "DataPermissionSets": {
+      "name": "DataPermissionSets",
+      "jsdoc": "后端最终返回的五个稀疏权限集合；字段集合互相独立，不得压缩为枚举。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    r: readonly string[];\n    e: readonly string[];\n    h: readonly string[];\n    m: readonly string[];\n    d: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    r: readonly string[];\n    e: readonly string[];\n    h: readonly string[];\n    m: readonly string[];\n    d: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "r",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "e",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "h",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "m",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "d",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataPermissionSnapshot": {
+      "name": "DataPermissionSnapshot",
+      "jsdoc": "一次运行查询原子登记的权限事实、原始行和稳定身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    allowAdd: boolean;\n    systemKey: string;\n    originalRows: ReadonlyArray<Readonly<DataRow>>;\n    authorizedFeatureTags: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    allowAdd: boolean;\n    systemKey: string;\n    originalRows: ReadonlyArray<Readonly<DataRow>>;\n    authorizedFeatureTags: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAdd",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authorizedFeatureTags",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataPermissionSnapshotInput": {
+      "name": "DataPermissionSnapshotInput",
+      "jsdoc": "DataTable/DataView 登记后端运行查询结果的唯一输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataPermissionSnapshot & Readonly<{\n    rows: readonly DataRow[];\n    total: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataPermissionSnapshot",
+            "targetName": "DataPermissionSnapshot"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    rows: readonly DataRow[];\n    total: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
             }
           ]
         }

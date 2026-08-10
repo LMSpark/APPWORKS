@@ -329,7 +329,7 @@ function absoluteIndex(page: number, index: number): number {
 function scopeBase() {
   return {
     dataSource: dataState.resolvedView.value,
-    modelPermission: dataState.modelPermission.value,
+    permissionSnapshot: dataState.permissionSnapshot.value,
     moduleContext: moduleContext.value,
   }
 }
@@ -665,4 +665,3 @@ defineExpose({
   }
 }
 </style>
-

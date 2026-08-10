@@ -94,7 +94,7 @@ constructor(
    * 获取"可变业务列"名集合（排除主键、计算列、权限元字段）。
    *
    * 快照和 diff 只关注这些字段，避免把主键变更、计算列中间值、
-   * `_perm` 权限快照混入脏数据对比。
+   * `lingma_sys_*` 后端权限字段混入脏数据对比。
    *
    * 无列定义时回退到 null（getDiff/snapshot 降级为全字段对比）。
    */
@@ -187,14 +187,17 @@ constructor(
   markDirty(id: string | number, original: DataRow): void {
     if (this._createRows.has(id)) return   // pending create 不需要 dirty 追踪
     if (!this._dirtyIds.has(id)) {
-      // 只快照可变业务列（排除 pk、计算列、_perm）
+      // 只快照可变业务列（排除 pk、计算列、lingma_sys_*）
       const fields = this._getEditableFields()
       if (fields) {
         const snapshot: DataRow = {}
         for (const f of fields) snapshot[f] = original[f]
         this._dirtySnapshots.set(id, new WeakRef(snapshot))
       } else {
-        this._dirtySnapshots.set(id, new WeakRef({ ...original }))
+        const snapshot = Object.fromEntries(
+          Object.entries(original).filter(([field]) => !field.startsWith('lingma_sys_')),
+        )
+        this._dirtySnapshots.set(id, new WeakRef(snapshot))
       }
     }
     this._dirtyIds.add(id)

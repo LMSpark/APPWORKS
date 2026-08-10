@@ -1,0 +1,1515 @@
+{
+  "kind": "agent.workflow",
+  "version": 1,
+  "workflowId": "agent.workflow.pageDesign",
+  "source": {
+    "designKind": "agent.workflow.design",
+    "designId": "agent.workflow.pageDesign",
+    "designVersion": 1
+  },
+  "workflow": {
+    "runtimeBinding": {
+      "registration": {
+        "alias": "pageDesign",
+        "moduleId": "pageDesign",
+        "businessId": "pageDesign"
+      },
+      "inputContract": {
+        "identityField": "pageId",
+        "messageField": "description",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "effectiveDescription": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "planningTitle": {
+              "type": "string"
+            },
+            "planningPath": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "create",
+                "update",
+                "fix"
+              ]
+            },
+            "allowedOperations": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "nodeTree": {
+                  "type": "boolean"
+                },
+                "dataSet": {
+                  "type": "boolean"
+                },
+                "script": {
+                  "type": "boolean"
+                },
+                "style": {
+                  "type": "boolean"
+                },
+                "blueprint": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "preserveExistingInteractions": {
+              "type": "boolean"
+            },
+            "strictImplGate": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "pageId",
+            "description",
+            "effectiveDescription"
+          ],
+          "additionalProperties": false
+        },
+        "readonlySteps": [
+          "策划约束已注入 effectiveDescription（来自 readPlanningProjection）。",
+          "业务契约见 ClassModel 知识索引（model_query / model_class_guide / model_action_guide）。"
+        ]
+      },
+      "systemPrompt": {
+        "template": "pageDesign system prompt is interpolated by app binding.",
+        "conditionalHints": [
+          {
+            "when": {
+              "allowedOperations": "dataSetOnly"
+            },
+            "template": "pageDataDesign preset: only pagedata.json/DataSet changes are allowed."
+          }
+        ]
+      },
+      "modelProjectionRef": {
+        "kind": "dts-class-model",
+        "rootClassName": "ProjectModel",
+        "manifestUrlRef": "dts-class-model"
+      },
+      "executableRef": {
+        "kind": "js-module",
+        "moduleSpecifier": "@spark-appworks/spark-project-model",
+        "exportName": "ProjectModel"
+      },
+      "toolLoopNudge": {
+        "templates": {
+          "plan_without_tool": "pageId=\"{{moduleInstanceId}}\"；禁止只输出计划，下一回合必须发起真实 tool_call。",
+          "execution_phase": "pageId=\"{{moduleInstanceId}}\"；目录/指南阶段已完成，直接 model_script。",
+          "model_script_retry": "pageId=\"{{moduleInstanceId}}\"；按 RECOVERY_HINT 修正后重试 model_script。"
+        },
+        "contextFields": [
+          "moduleInstanceId"
+        ]
+      },
+      "beforeFunctionCall": {
+        "gateRules": [
+          {
+            "kind": "pageDesignMutationGate"
+          },
+          {
+            "kind": "allowedOperations"
+          },
+          {
+            "kind": "forbiddenScriptMarkers",
+            "markers": [
+              "editNodeTree",
+              "editDataSet",
+              "setFileText",
+              "writePageFile"
+            ]
+          }
+        ]
+      },
+      "executionToolNames": [
+        "model_script"
+      ],
+      "planWithoutToolMarkers": [
+        "openpagedesign",
+        "editnodetree",
+        "editdataset"
+      ],
+      "resolveInstance": {
+        "editorSource": "pageDesign",
+        "identityField": "pageId"
+      }
+    },
+    "variables": [
+      {
+        "name": "pageId",
+        "title": "Page ID",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "description",
+        "title": "Requirement",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "effectiveDescription",
+        "title": "Planning Description",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "projectId",
+        "title": "Project ID",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "planningTitle",
+        "title": "Planning Title",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "planningPath",
+        "title": "Planning Path",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "mode",
+        "title": "Run Mode",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "create",
+            "update",
+            "fix"
+          ]
+        }
+      },
+      {
+        "name": "allowedOperations",
+        "title": "Allowed Operations",
+        "required": false,
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "nodeTree": {
+              "type": "boolean"
+            },
+            "dataSet": {
+              "type": "boolean"
+            },
+            "script": {
+              "type": "boolean"
+            },
+            "style": {
+              "type": "boolean"
+            },
+            "blueprint": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      {
+        "name": "preserveExistingInteractions",
+        "title": "Preserve Existing Interactions",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "strictImplGate",
+        "title": "Strict Implementation Gate",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "page-design.delivery",
+        "title": "Page Design Delivery",
+        "description": "Coordinate page design input, ClassModel runtime execution, and page file delivery.",
+        "scope": "workflow",
+        "constraints": [
+          "Workflow definition declares runtime binding; app layer injects executable capabilities."
+        ]
+      }
+    ],
+    "graph": {
+      "nodes": [
+        {
+          "id": "start",
+          "type": "start",
+          "data": {
+            "type": "start",
+            "title": "Start"
+          }
+        },
+        {
+          "id": "node.pageEntry",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Page Entry and Intent",
+            "desc": "100-step stages 1-10: normalize intent, page id, and workflow entry facts.",
+            "models": [
+              {
+                "id": "node.pageEntry.project",
+                "rootClassName": "ProjectModel",
+                "className": "ProjectModel",
+                "sourceRef": "$"
+              },
+              {
+                "id": "node.pageEntry.page",
+                "rootClassName": "ProjectModel",
+                "className": "ConfigPageNode",
+                "sourceRef": "node.pageEntry.project",
+                "via": [
+                  {
+                    "memberName": "openPageDesign",
+                    "kind": "method",
+                    "sourceRef": "node.pageEntry.project"
+                  }
+                ]
+              }
+            ],
+            "inputs": {
+              "pageId": "{{ start.pageId }}",
+              "description": "{{ start.description }}",
+              "effectiveDescription": "{{ start.effectiveDescription }}"
+            },
+            "outputs": {
+              "pageId": "{{ node.pageEntry.page.pageId }}",
+              "pageNode": "node.pageEntry.page"
+            },
+            "llm": {
+              "task": {
+                "goal": "Open the target page through ProjectModel.openPageDesign and normalize the incoming design intent.",
+                "requirements": {
+                  "pageId": "{{ start.pageId }}",
+                  "description": "{{ start.description }}",
+                  "effectiveDescription": "{{ start.effectiveDescription }}"
+                },
+                "contextInputs": {
+                  "pageId": "{{ start.pageId }}",
+                  "description": "{{ start.description }}",
+                  "effectiveDescription": "{{ start.effectiveDescription }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "ProjectModel",
+                "allowedActions": [
+                  "openPageDesign"
+                ],
+                "readableAttributes": [
+                  "activePage"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Node declares model context and member-level IO only; runtime knowledge/function orchestration stays in the registered binding."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "node.pageEntry.page"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": [
+                {
+                  "level": "warn",
+                  "code": "COMPLETION_MEMBER_NOT_BOUND",
+                  "message": "No projected no-arg completion member exists for this page design stage yet."
+                }
+              ]
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "page-design.pageEntry.stage",
+                "title": "Page Entry and Intent",
+                "description": "100-step stages 1-10: normalize intent, page id, and workflow entry facts.",
+                "inputs": {
+                  "pageId": "{{ start.pageId }}",
+                  "description": "{{ start.description }}",
+                  "effectiveDescription": "{{ start.effectiveDescription }}"
+                },
+                "outputs": {
+                  "pageId": "{{ node.pageEntry.page.pageId }}",
+                  "pageNode": "node.pageEntry.page"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 90,
+            "y": 40
+          }
+        },
+        {
+          "id": "node.pageInventory",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Page File Inventory",
+            "desc": "100-step stages 11-20: inspect page files and existing rule/data/script/style state.",
+            "models": [
+              {
+                "id": "node.pageInventory.page",
+                "rootClassName": "ProjectModel",
+                "className": "ConfigPageNode",
+                "sourceRef": "node.pageEntry.page"
+              },
+              {
+                "id": "node.pageInventory.ruleFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageRuleFile",
+                "sourceRef": "node.pageInventory.page",
+                "via": [
+                  {
+                    "memberName": "rule",
+                    "kind": "attribute",
+                    "sourceRef": "node.pageInventory.page"
+                  }
+                ]
+              },
+              {
+                "id": "node.pageInventory.dataSetFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageDataSetFile",
+                "sourceRef": "node.pageInventory.page",
+                "via": [
+                  {
+                    "memberName": "dataSet",
+                    "kind": "attribute",
+                    "sourceRef": "node.pageInventory.page"
+                  }
+                ]
+              },
+              {
+                "id": "node.pageInventory.scriptFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageTextFile",
+                "sourceRef": "node.pageInventory.page",
+                "via": [
+                  {
+                    "memberName": "script",
+                    "kind": "attribute",
+                    "sourceRef": "node.pageInventory.page"
+                  }
+                ]
+              },
+              {
+                "id": "node.pageInventory.styleFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageTextFile",
+                "sourceRef": "node.pageInventory.page",
+                "via": [
+                  {
+                    "memberName": "style",
+                    "kind": "attribute",
+                    "sourceRef": "node.pageInventory.page"
+                  }
+                ]
+              }
+            ],
+            "inputs": {
+              "pageNode": "{{ node.pageEntry.pageNode }}"
+            },
+            "outputs": {
+              "ruleFile": "node.pageInventory.ruleFile",
+              "dataSetFile": "node.pageInventory.dataSetFile",
+              "scriptFile": "node.pageInventory.scriptFile",
+              "styleFile": "node.pageInventory.styleFile"
+            },
+            "llm": {
+              "task": {
+                "goal": "Inventory existing page rule, pagedata, script, and style models before planning mutations.",
+                "requirements": {
+                  "pageNode": "{{ node.pageEntry.pageNode }}"
+                },
+                "contextInputs": {
+                  "pageNode": "{{ node.pageEntry.pageNode }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "ConfigPageNode",
+                "allowedActions": [
+                  "load",
+                  "toRenderConfig"
+                ],
+                "readableAttributes": [
+                  "rule",
+                  "dataSet",
+                  "script",
+                  "style",
+                  "isLoaded"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Node declares model context and member-level IO only; runtime knowledge/function orchestration stays in the registered binding."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "node.pageInventory"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": [
+                {
+                  "level": "warn",
+                  "code": "COMPLETION_MEMBER_NOT_BOUND",
+                  "message": "No projected no-arg completion member exists for this page design stage yet."
+                }
+              ]
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "page-design.pageInventory.stage",
+                "title": "Page File Inventory",
+                "description": "100-step stages 11-20: inspect page files and existing rule/data/script/style state.",
+                "inputs": {
+                  "pageNode": "{{ node.pageEntry.pageNode }}"
+                },
+                "outputs": {
+                  "ruleFile": "node.pageInventory.ruleFile",
+                  "dataSetFile": "node.pageInventory.dataSetFile",
+                  "scriptFile": "node.pageInventory.scriptFile",
+                  "styleFile": "node.pageInventory.styleFile"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 180,
+            "y": 220
+          }
+        },
+        {
+          "id": "node.dataShape",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Data Shape Planning",
+            "desc": "100-step stages 21-40: plan minimal DataSet tables and metadata.",
+            "models": [
+              {
+                "id": "node.dataShape.dataSetFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageDataSetFile",
+                "sourceRef": "node.pageInventory.dataSetFile"
+              },
+              {
+                "id": "node.dataShape.dataSet",
+                "rootClassName": "ProjectModel",
+                "className": "DataSet",
+                "sourceRef": "node.dataShape.dataSetFile",
+                "via": [
+                  {
+                    "memberName": "value",
+                    "kind": "attribute",
+                    "sourceRef": "node.dataShape.dataSetFile"
+                  }
+                ]
+              },
+              {
+                "id": "node.dataShape.crudTool",
+                "rootClassName": "ProjectModel",
+                "className": "DataSetCrudTool",
+                "sourceRef": "node.dataShape.dataSet",
+                "via": [
+                  {
+                    "memberName": "fromDataSet",
+                    "kind": "method",
+                    "sourceRef": "node.dataShape.dataSet"
+                  }
+                ]
+              }
+            ],
+            "inputs": {
+              "dataSetFile": "{{ node.pageInventory.dataSetFile }}"
+            },
+            "outputs": {
+              "dataSet": "node.dataShape.dataSet",
+              "tables": "{{ node.dataShape.dataSet.tables }}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Plan and shape the minimal DataSet tables required by the page design intent.",
+                "requirements": {
+                  "dataSetFile": "{{ node.pageInventory.dataSetFile }}"
+                },
+                "contextInputs": {
+                  "dataSetFile": "{{ node.pageInventory.dataSetFile }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "PageDataSetFile",
+                "allowedActions": [
+                  "fromDataSet",
+                  "createTable",
+                  "updateTable",
+                  "toJson"
+                ],
+                "readableAttributes": [
+                  "tables",
+                  "dataSetName",
+                  "schemaVersion"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Node declares model context and member-level IO only; runtime knowledge/function orchestration stays in the registered binding."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "node.dataShape"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": [
+                {
+                  "level": "warn",
+                  "code": "COMPLETION_MEMBER_NOT_BOUND",
+                  "message": "No projected no-arg completion member exists for this page design stage yet."
+                }
+              ]
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "page-design.dataShape.stage",
+                "title": "Data Shape Planning",
+                "description": "100-step stages 21-40: plan minimal DataSet tables and metadata.",
+                "inputs": {
+                  "dataSetFile": "{{ node.pageInventory.dataSetFile }}"
+                },
+                "outputs": {
+                  "dataSet": "node.dataShape.dataSet",
+                  "tables": "{{ node.dataShape.dataSet.tables }}"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 270,
+            "y": 40
+          }
+        },
+        {
+          "id": "node.tableRelations",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Table Relations",
+            "desc": "100-step stages 41-50: connect tables with TableRelation definitions.",
+            "models": [
+              {
+                "id": "node.tableRelations.dataSet",
+                "rootClassName": "ProjectModel",
+                "className": "DataSet",
+                "sourceRef": "node.dataShape.dataSet"
+              },
+              {
+                "id": "node.tableRelations.relations",
+                "rootClassName": "ProjectModel",
+                "className": "TableRelation",
+                "sourceRef": "node.tableRelations.dataSet",
+                "via": [
+                  {
+                    "memberName": "tableRelations",
+                    "kind": "attribute",
+                    "sourceRef": "node.tableRelations.dataSet"
+                  }
+                ]
+              }
+            ],
+            "inputs": {
+              "tables": "{{ node.dataShape.tables }}"
+            },
+            "outputs": {
+              "tableRelations": "{{ node.tableRelations.dataSet.tableRelations }}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Design parent-child table relations that preserve DataSet integrity and downstream view usage.",
+                "requirements": {
+                  "tables": "{{ node.dataShape.tables }}"
+                },
+                "contextInputs": {
+                  "tables": "{{ node.dataShape.tables }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "DataSet",
+                "allowedActions": [
+                  "addRelation",
+                  "updateRelation",
+                  "removeRelation",
+                  "getTableChildRelations",
+                  "getTableParentRelations"
+                ],
+                "readableAttributes": [
+                  "tableRelations",
+                  "tables"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Node declares model context and member-level IO only; runtime knowledge/function orchestration stays in the registered binding."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "node.tableRelations"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": [
+                {
+                  "level": "warn",
+                  "code": "COMPLETION_MEMBER_NOT_BOUND",
+                  "message": "No projected no-arg completion member exists for this page design stage yet."
+                }
+              ]
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "page-design.tableRelations.stage",
+                "title": "Table Relations",
+                "description": "100-step stages 41-50: connect tables with TableRelation definitions.",
+                "inputs": {
+                  "tables": "{{ node.dataShape.tables }}"
+                },
+                "outputs": {
+                  "tableRelations": "{{ node.tableRelations.dataSet.tableRelations }}"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 360,
+            "y": 220
+          }
+        },
+        {
+          "id": "node.viewDesign",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Data Views and Dependencies",
+            "desc": "100-step stages 51-88: plan page data usage, DataViews, and viewDependencies.",
+            "models": [
+              {
+                "id": "node.viewDesign.dataSet",
+                "rootClassName": "ProjectModel",
+                "className": "DataSet",
+                "sourceRef": "node.tableRelations.dataSet"
+              },
+              {
+                "id": "node.viewDesign.dataView",
+                "rootClassName": "ProjectModel",
+                "className": "DataView",
+                "sourceRef": "node.viewDesign.dataSet",
+                "via": [
+                  {
+                    "memberName": "getView",
+                    "kind": "method",
+                    "sourceRef": "node.viewDesign.dataSet"
+                  }
+                ]
+              },
+              {
+                "id": "node.viewDesign.dependencies",
+                "rootClassName": "ProjectModel",
+                "className": "ViewDependency",
+                "sourceRef": "node.viewDesign.dataSet",
+                "via": [
+                  {
+                    "memberName": "viewDependencies",
+                    "kind": "attribute",
+                    "sourceRef": "node.viewDesign.dataSet"
+                  }
+                ]
+              }
+            ],
+            "inputs": {
+              "tableRelations": "{{ node.tableRelations.tableRelations }}"
+            },
+            "outputs": {
+              "dataViews": "{{ node.viewDesign.dataSet.getView }}",
+              "viewDependencies": "{{ node.viewDesign.dataSet.viewDependencies }}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Plan renderer-facing DataViews and view dependency links from the shaped DataSet.",
+                "requirements": {
+                  "tableRelations": "{{ node.tableRelations.tableRelations }}"
+                },
+                "contextInputs": {
+                  "tableRelations": "{{ node.tableRelations.tableRelations }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "DataSet",
+                "allowedActions": [
+                  "getView",
+                  "createView",
+                  "updateView",
+                  "addDependency",
+                  "updateDependency"
+                ],
+                "readableAttributes": [
+                  "viewDependencies",
+                  "tables"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Node declares model context and member-level IO only; runtime knowledge/function orchestration stays in the registered binding."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "node.viewDesign"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": [
+                {
+                  "level": "warn",
+                  "code": "COMPLETION_MEMBER_NOT_BOUND",
+                  "message": "No projected no-arg completion member exists for this page design stage yet."
+                }
+              ]
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "page-design.viewDesign.stage",
+                "title": "Data Views and Dependencies",
+                "description": "100-step stages 51-88: plan page data usage, DataViews, and viewDependencies.",
+                "inputs": {
+                  "tableRelations": "{{ node.tableRelations.tableRelations }}"
+                },
+                "outputs": {
+                  "dataViews": "{{ node.viewDesign.dataSet.getView }}",
+                  "viewDependencies": "{{ node.viewDesign.dataSet.viewDependencies }}"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 450,
+            "y": 40
+          }
+        },
+        {
+          "id": "node.ruleBehaviorAssets",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Rule Behavior and Assets",
+            "desc": "100-step stages 89-96: align structure, behavior, script, and style assets.",
+            "models": [
+              {
+                "id": "node.ruleBehaviorAssets.page",
+                "rootClassName": "ProjectModel",
+                "className": "ConfigPageNode",
+                "sourceRef": "node.pageInventory.page"
+              },
+              {
+                "id": "node.ruleBehaviorAssets.ruleFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageRuleFile",
+                "sourceRef": "node.pageInventory.ruleFile"
+              },
+              {
+                "id": "node.ruleBehaviorAssets.scriptFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageTextFile",
+                "sourceRef": "node.pageInventory.scriptFile"
+              },
+              {
+                "id": "node.ruleBehaviorAssets.styleFile",
+                "rootClassName": "ProjectModel",
+                "className": "PageTextFile",
+                "sourceRef": "node.pageInventory.styleFile"
+              }
+            ],
+            "inputs": {
+              "dataViews": "{{ node.viewDesign.dataViews }}",
+              "viewDependencies": "{{ node.viewDesign.viewDependencies }}"
+            },
+            "outputs": {
+              "rule": "{{ node.ruleBehaviorAssets.page.rule }}",
+              "script": "{{ node.ruleBehaviorAssets.page.script }}",
+              "style": "{{ node.ruleBehaviorAssets.page.style }}"
+            },
+            "llm": {
+              "task": {
+                "goal": "Bind DataSet planning into rule, script, and style assets without inventing runtime behavior outside ClassModel.",
+                "requirements": {
+                  "dataViews": "{{ node.viewDesign.dataViews }}",
+                  "viewDependencies": "{{ node.viewDesign.viewDependencies }}"
+                },
+                "contextInputs": {
+                  "dataViews": "{{ node.viewDesign.dataViews }}",
+                  "viewDependencies": "{{ node.viewDesign.viewDependencies }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "ConfigPageNode",
+                "allowedActions": [
+                  "toRenderConfig"
+                ],
+                "readableAttributes": [
+                  "rule",
+                  "script",
+                  "style"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Node declares model context and member-level IO only; runtime knowledge/function orchestration stays in the registered binding."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "node.ruleBehaviorAssets"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": [
+                {
+                  "level": "warn",
+                  "code": "COMPLETION_MEMBER_NOT_BOUND",
+                  "message": "No projected no-arg completion member exists for this page design stage yet."
+                }
+              ]
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "page-design.ruleBehaviorAssets.stage",
+                "title": "Rule Behavior and Assets",
+                "description": "100-step stages 89-96: align structure, behavior, script, and style assets.",
+                "inputs": {
+                  "dataViews": "{{ node.viewDesign.dataViews }}",
+                  "viewDependencies": "{{ node.viewDesign.viewDependencies }}"
+                },
+                "outputs": {
+                  "rule": "{{ node.ruleBehaviorAssets.page.rule }}",
+                  "script": "{{ node.ruleBehaviorAssets.page.script }}",
+                  "style": "{{ node.ruleBehaviorAssets.page.style }}"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 540,
+            "y": 220
+          }
+        },
+        {
+          "id": "node.renderCloseout",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Render Validation and Closeout",
+            "desc": "100-step stages 97-100: cross-check render config, preview fix loop, and closeout result.",
+            "models": [
+              {
+                "id": "node.renderCloseout.page",
+                "rootClassName": "ProjectModel",
+                "className": "ConfigPageNode",
+                "sourceRef": "node.ruleBehaviorAssets.page"
+              }
+            ],
+            "inputs": {
+              "rule": "{{ node.ruleBehaviorAssets.rule }}",
+              "script": "{{ node.ruleBehaviorAssets.script }}",
+              "style": "{{ node.ruleBehaviorAssets.style }}"
+            },
+            "outputs": {
+              "renderConfig": "{{ node.renderCloseout.page.toRenderConfig }}",
+              "result": "pageDesign.result"
+            },
+            "llm": {
+              "task": {
+                "goal": "Use ConfigPageNode.toRenderConfig as the final projected render snapshot for preview and closeout.",
+                "requirements": {
+                  "rule": "{{ node.ruleBehaviorAssets.rule }}",
+                  "script": "{{ node.ruleBehaviorAssets.script }}",
+                  "style": "{{ node.ruleBehaviorAssets.style }}"
+                },
+                "contextInputs": {
+                  "rule": "{{ node.ruleBehaviorAssets.rule }}",
+                  "script": "{{ node.ruleBehaviorAssets.script }}",
+                  "style": "{{ node.ruleBehaviorAssets.style }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "ConfigPageNode",
+                "allowedActions": [
+                  "toRenderConfig"
+                ],
+                "readableAttributes": [
+                  "pageId",
+                  "isLoaded"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Node declares model context and member-level IO only; runtime knowledge/function orchestration stays in the registered binding."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "pageDesign.result"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "status": "draft",
+              "issues": [
+                {
+                  "level": "warn",
+                  "code": "COMPLETION_MEMBER_NOT_BOUND",
+                  "message": "No projected no-arg completion member exists for this page design stage yet."
+                }
+              ]
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "page-design.renderCloseout.stage",
+                "title": "Render Validation and Closeout",
+                "description": "100-step stages 97-100: cross-check render config, preview fix loop, and closeout result.",
+                "inputs": {
+                  "rule": "{{ node.ruleBehaviorAssets.rule }}",
+                  "script": "{{ node.ruleBehaviorAssets.script }}",
+                  "style": "{{ node.ruleBehaviorAssets.style }}"
+                },
+                "outputs": {
+                  "renderConfig": "{{ node.renderCloseout.page.toRenderConfig }}",
+                  "result": "pageDesign.result"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 630,
+            "y": 40
+          }
+        },
+        {
+          "id": "output",
+          "type": "output",
+          "data": {
+            "type": "output",
+            "title": "Output",
+            "outputs": {
+              "result": "{{ node.renderCloseout.result }}"
+            },
+            "capabilities": []
+          }
+        }
+      ],
+      "lines": [
+        {
+          "id": "line.start.pageId",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "pageId"
+          },
+          "to": {
+            "nodeId": "node.pageEntry",
+            "modelId": "node.pageEntry.project",
+            "memberName": "openPageDesign"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.start.description",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "description"
+          },
+          "to": {
+            "nodeId": "node.pageEntry",
+            "modelId": "node.pageEntry.project",
+            "memberName": "openPageDesign"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.start.effectiveDescription",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "effectiveDescription"
+          },
+          "to": {
+            "nodeId": "node.pageEntry",
+            "modelId": "node.pageEntry.project",
+            "memberName": "openPageDesign"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.pageEntry.pageId",
+          "from": {
+            "nodeId": "node.pageEntry",
+            "modelId": "node.pageEntry.page",
+            "memberName": "pageId"
+          },
+          "to": {
+            "nodeId": "node.pageInventory",
+            "modelId": "node.pageInventory.page",
+            "memberName": "pageId"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.inventory.dataSet",
+          "from": {
+            "nodeId": "node.pageInventory",
+            "modelId": "node.pageInventory.page",
+            "memberName": "dataSet"
+          },
+          "to": {
+            "nodeId": "node.dataShape",
+            "modelId": "node.dataShape.dataSetFile",
+            "memberName": "value"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.inventory.rule",
+          "from": {
+            "nodeId": "node.pageInventory",
+            "modelId": "node.pageInventory.page",
+            "memberName": "rule"
+          },
+          "to": {
+            "nodeId": "node.ruleBehaviorAssets",
+            "modelId": "node.ruleBehaviorAssets.ruleFile",
+            "memberName": "value"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.inventory.script",
+          "from": {
+            "nodeId": "node.pageInventory",
+            "modelId": "node.pageInventory.page",
+            "memberName": "script"
+          },
+          "to": {
+            "nodeId": "node.ruleBehaviorAssets",
+            "modelId": "node.ruleBehaviorAssets.scriptFile",
+            "memberName": "js"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.inventory.style",
+          "from": {
+            "nodeId": "node.pageInventory",
+            "modelId": "node.pageInventory.page",
+            "memberName": "style"
+          },
+          "to": {
+            "nodeId": "node.ruleBehaviorAssets",
+            "modelId": "node.ruleBehaviorAssets.styleFile",
+            "memberName": "css"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.dataShape.tables",
+          "from": {
+            "nodeId": "node.dataShape",
+            "modelId": "node.dataShape.dataSet",
+            "memberName": "tables"
+          },
+          "to": {
+            "nodeId": "node.tableRelations",
+            "modelId": "node.tableRelations.dataSet",
+            "memberName": "tables"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.dataShape.tableRelations",
+          "from": {
+            "nodeId": "node.dataShape",
+            "modelId": "node.dataShape.dataSet",
+            "memberName": "tableRelations"
+          },
+          "to": {
+            "nodeId": "node.tableRelations",
+            "modelId": "node.tableRelations.relations",
+            "memberName": "tableRelations"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.relations.getView",
+          "from": {
+            "nodeId": "node.tableRelations",
+            "modelId": "node.tableRelations.dataSet",
+            "memberName": "getView"
+          },
+          "to": {
+            "nodeId": "node.viewDesign",
+            "modelId": "node.viewDesign.dataView",
+            "memberName": "getView"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.relations.viewDependencies",
+          "from": {
+            "nodeId": "node.tableRelations",
+            "modelId": "node.tableRelations.dataSet",
+            "memberName": "viewDependencies"
+          },
+          "to": {
+            "nodeId": "node.viewDesign",
+            "modelId": "node.viewDesign.dependencies",
+            "memberName": "viewDependencies"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.viewDesign.rule",
+          "from": {
+            "nodeId": "node.viewDesign",
+            "modelId": "node.viewDesign.dataSet",
+            "memberName": "getView"
+          },
+          "to": {
+            "nodeId": "node.ruleBehaviorAssets",
+            "modelId": "node.ruleBehaviorAssets.page",
+            "memberName": "rule"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.ruleBehavior.render",
+          "from": {
+            "nodeId": "node.ruleBehaviorAssets",
+            "modelId": "node.ruleBehaviorAssets.page",
+            "memberName": "rule"
+          },
+          "to": {
+            "nodeId": "node.renderCloseout",
+            "modelId": "node.renderCloseout.page",
+            "memberName": "toRenderConfig"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.render.output",
+          "from": {
+            "nodeId": "node.renderCloseout",
+            "modelId": "node.renderCloseout.page",
+            "memberName": "toRenderConfig"
+          },
+          "to": {
+            "nodeId": "output",
+            "modelId": "$workflow",
+            "memberName": "result"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        }
+      ]
+    }
+  },
+  "x_spark": {
+    "schema": "spark.agent.workflow.definition.v1",
+    "publishedAt": "2026-06-20T00:00:00.000Z",
+    "validation": {
+      "status": "invalid",
+      "issues": [
+        {
+          "severity": "error",
+          "code": "AGENT_WORKFLOW_MODEL_COMPLETION_MISSING",
+          "message": "Business node \"node.pageEntry\" must bind a projected models[0].completion.memberName before publishing.",
+          "nodeId": "node.pageEntry",
+          "path": "workflow.graph.nodes.node.pageEntry.data.models[0].completion.memberName"
+        },
+        {
+          "severity": "error",
+          "code": "AGENT_WORKFLOW_MODEL_COMPLETION_MISSING",
+          "message": "Business node \"node.pageInventory\" must bind a projected models[0].completion.memberName before publishing.",
+          "nodeId": "node.pageInventory",
+          "path": "workflow.graph.nodes.node.pageInventory.data.models[0].completion.memberName"
+        },
+        {
+          "severity": "error",
+          "code": "AGENT_WORKFLOW_MODEL_COMPLETION_MISSING",
+          "message": "Business node \"node.dataShape\" must bind a projected models[0].completion.memberName before publishing.",
+          "nodeId": "node.dataShape",
+          "path": "workflow.graph.nodes.node.dataShape.data.models[0].completion.memberName"
+        },
+        {
+          "severity": "error",
+          "code": "AGENT_WORKFLOW_MODEL_COMPLETION_MISSING",
+          "message": "Business node \"node.tableRelations\" must bind a projected models[0].completion.memberName before publishing.",
+          "nodeId": "node.tableRelations",
+          "path": "workflow.graph.nodes.node.tableRelations.data.models[0].completion.memberName"
+        },
+        {
+          "severity": "error",
+          "code": "AGENT_WORKFLOW_MODEL_COMPLETION_MISSING",
+          "message": "Business node \"node.viewDesign\" must bind a projected models[0].completion.memberName before publishing.",
+          "nodeId": "node.viewDesign",
+          "path": "workflow.graph.nodes.node.viewDesign.data.models[0].completion.memberName"
+        },
+        {
+          "severity": "error",
+          "code": "AGENT_WORKFLOW_MODEL_COMPLETION_MISSING",
+          "message": "Business node \"node.ruleBehaviorAssets\" must bind a projected models[0].completion.memberName before publishing.",
+          "nodeId": "node.ruleBehaviorAssets",
+          "path": "workflow.graph.nodes.node.ruleBehaviorAssets.data.models[0].completion.memberName"
+        },
+        {
+          "severity": "error",
+          "code": "AGENT_WORKFLOW_MODEL_COMPLETION_MISSING",
+          "message": "Business node \"node.renderCloseout\" must bind a projected models[0].completion.memberName before publishing.",
+          "nodeId": "node.renderCloseout",
+          "path": "workflow.graph.nodes.node.renderCloseout.data.models[0].completion.memberName"
+        }
+      ]
+    }
+  }
+}

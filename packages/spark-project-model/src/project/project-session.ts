@@ -4,10 +4,10 @@
  * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。
  * AI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-session。
  */
-import type { NavigationNodeDraft } from '../navigation/navigation-edit'
-import type { ProjectNode } from '../navigation/project-node'
+import type { BlueprintNodeDraft } from '../blueprint/project-blueprint-edit'
+import type { ProjectBlueprintNode } from '../blueprint/project-blueprint-node'
 import type { ConfigPageNode } from '../page/config-page'
-import type { ProjectNavigationDirtyScope } from './project-types'
+import type { ProjectBlueprintDirtyScope } from './project-types'
 
 /** Project Session State 的运行状态。 */
 export type ProjectSessionState = {
@@ -16,15 +16,15 @@ selectedNodeId: string | null
     /** active Page Id 标识。 */
 activePageId: string | null
     /** navigation Dirty 字段。 */
-navigationDirty: boolean
+blueprintDirty: boolean
     /** navigation Dirty Scope 字段。 */
-navigationDirtyScope: ProjectNavigationDirtyScope | null
+blueprintDirtyScope: ProjectBlueprintDirtyScope | null
 }
 
 /** Project Session Owner 的语义模型。 */
 type ProjectSessionOwner = {
   /** 按 nodeId 在导航树中查找项目节点；未找到返回 null */
-  findNodeById(nodeId: string): ProjectNode | null
+  findNodeById(nodeId: string): ProjectBlueprintNode | null
   /** 按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 ConfigPageNode，未找到返回 null */
   findConfigPageByPageId(pageId: string): ConfigPageNode | null
 }
@@ -36,11 +36,11 @@ export class ProjectSession {
   private readonly state: ProjectSessionState = {
     selectedNodeId: null,
     activePageId: null,
-    navigationDirty: false,
-    navigationDirtyScope: null,
+    blueprintDirty: false,
+    blueprintDirtyScope: null,
   }
 
-  private navigationDraftValue: NavigationNodeDraft | null = null
+  private blueprintDraftValue: BlueprintNodeDraft | null = null
 
     /** 创建 Project Session 实例。 */
 constructor(private readonly owner: ProjectSessionOwner) {}
@@ -49,48 +49,48 @@ constructor(private readonly owner: ProjectSessionOwner) {}
     return this.state
   }
 
-  get navigationDraft(): NavigationNodeDraft | null {
-    return this.navigationDraftValue
+  get blueprintDraft(): BlueprintNodeDraft | null {
+    return this.blueprintDraftValue
   }
 
-  get isNavigationEditing(): boolean {
-    return this.navigationDraftValue !== null
+  get isBlueprintEditing(): boolean {
+    return this.blueprintDraftValue !== null
   }
 
-  get navigationDirty(): boolean {
-    return this.state.navigationDirty
+  get blueprintDirty(): boolean {
+    return this.state.blueprintDirty
   }
 
     /** 设置 Navigation Draft。 */
-setNavigationDraft(draft: NavigationNodeDraft | null): void {
-    this.navigationDraftValue = draft
+setBlueprintDraft(draft: BlueprintNodeDraft | null): void {
+    this.blueprintDraftValue = draft
   }
 
     /** 执行 begin Navigation Draft 操作。 */
-beginNavigationDraft(draft: NavigationNodeDraft): NavigationNodeDraft {
-    this.navigationDraftValue = draft
-    return this.navigationDraftValue
+beginBlueprintDraft(draft: BlueprintNodeDraft): BlueprintNodeDraft {
+    this.blueprintDraftValue = draft
+    return this.blueprintDraftValue
   }
 
     /** 执行 discard Navigation Draft 操作。 */
-discardNavigationDraft(): void {
-    this.navigationDraftValue = null
-    this.markNavigationClean()
+discardBlueprintDraft(): void {
+    this.blueprintDraftValue = null
+    this.markBlueprintClean()
   }
 
     /** 执行 mark Navigation Dirty 操作。 */
-markNavigationDirty(scope: ProjectNavigationDirtyScope): void {
-    this.state.navigationDirty = true
-    this.state.navigationDirtyScope = scope === 'root'
+markBlueprintDirty(scope: ProjectBlueprintDirtyScope): void {
+    this.state.blueprintDirty = true
+    this.state.blueprintDirtyScope = scope === 'root'
       ? 'root'
-      : (this.state.navigationDirtyScope ?? 'node')
+      : (this.state.blueprintDirtyScope ?? 'node')
   }
 
     /** 执行 mark Navigation Clean 操作。 */
-markNavigationClean(): void {
-    this.state.navigationDirty = false
-    this.state.navigationDirtyScope = null
-    this.navigationDraftValue = null
+markBlueprintClean(): void {
+    this.state.blueprintDirty = false
+    this.state.blueprintDirtyScope = null
+    this.blueprintDraftValue = null
   }
 
     /** set Selected Node Id 标识。 */
@@ -140,4 +140,3 @@ syncWithModel(): void {
     }
   }
 }
-

@@ -36,7 +36,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
               :value="project.projectId"
             />
           </el-select>
-          <el-button size="small" :loading="state.navLoading.value" @click="() => state.openProjectPickerScope()">
+          <el-button size="small" :loading="state.blueprintLoading.value" @click="() => state.openProjectPickerScope()">
             <NavIcon name="FolderOpen" :size="14" /> 打开
           </el-button>
         </div>
@@ -69,7 +69,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           v-if="canSaveFromHeader"
           size="small"
           type="success"
-          :loading="state.navSaving.value || state.pageIoBusy.value"
+          :loading="state.blueprintSaving.value || state.pageIoBusy.value"
           @click="saveAll"
         >
           <NavIcon name="FolderChecked" :size="14" /> {{ headerSaveLabel }}
@@ -78,10 +78,10 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
     </div>
 
     <!-- ═══ 主体三栏布局 ═══ -->
-    <div class="dev-body" v-loading="state.navLoading.value">
-      <!-- 左栏：站点树 -->
+    <div class="dev-body" v-loading="state.blueprintLoading.value">
+      <!-- 左栏：项目蓝图树 -->
       <div class="dev-body__tree">
-        <DevSiteTree :state="state" />
+        <ProjectBlueprintTree :state="state" />
       </div>
 
       <!-- 中栏：工作区 -->
@@ -130,10 +130,10 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <div class="workspace-footer__left">
             <template v-if="state.selectedNode.value">
               <span class="footer-info">
-                <NavIcon name="Share" :size="13" /> {{ state.navEditDto.id }}
-                <template v-if="state.navEditDto.title"> · {{ state.navEditDto.title }}</template>
+                <NavIcon name="Share" :size="13" /> {{ state.blueprintDraft.id }}
+                <template v-if="state.blueprintDraft.title"> · {{ state.blueprintDraft.title }}</template>
               </span>
-              <el-tag v-if="state.navDirty.value" type="warning" size="small">属性已修改</el-tag>
+              <el-tag v-if="state.blueprintDirty.value" type="warning" size="small">属性已修改</el-tag>
             </template>
             <template v-if="state.activePageId.value">
               <span class="footer-info"><NavIcon name="Tickets" :size="13" /> {{ state.activePageId.value }}</span>
@@ -186,7 +186,7 @@ import { onMounted } from 'vue'
 import type { PageNodeFileName } from '@spark-appworks/spark-project-model'
 import { AiToolApprovalPanel } from '@spark-appworks/spark-component'
 import { useDevSystem } from './useDevSystem'
-import DevSiteTree from './DevSiteTree.vue'
+import ProjectBlueprintTree from './ProjectBlueprintTree.vue'
 import DevNodeProps from './DevNodeProps.vue'
 import DevFileEditor from './DevFileEditor.vue'
 import DevPreviewTab from './DevPreviewTab.vue'

@@ -4,7 +4,7 @@
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/containers/support/scopeFactories 的声明、导出和使用边界时，从本模块开始。
  */
-import type { DataRow, ModelPermission } from '@spark-appworks/spark-data'
+import type { DataPermissionSnapshot, DataRow } from '@spark-appworks/spark-data'
 import type { ModuleContext } from '../../internal'
 
 // ── 通用作用域结构 ───────────────────────────────────────────────────────────
@@ -14,7 +14,7 @@ export type BaseScopeContext<TSource> = {
     /** data Source 字段。 */
 dataSource: TSource | null | undefined
     /** model Permission 字段。 */
-modelPermission: ModelPermission | undefined
+permissionSnapshot: DataPermissionSnapshot | null
     /** module Context 字段。 */
 moduleContext?: ModuleContext | null | undefined}
 
@@ -26,7 +26,7 @@ function withBaseScopeContext<TSource, TExtra extends Record<string, unknown>>(
 ): BaseScopeContext<TSource> & TExtra {
   return {
     dataSource: base.dataSource,
-    modelPermission: base.modelPermission,
+    permissionSnapshot: base.permissionSnapshot,
     moduleContext: base.moduleContext,
     ...extra,
   }
@@ -43,7 +43,7 @@ export function createToolbarScope<TSource>(
 
 export function createRowScope<TSource>(params: {
   dataSource: TSource | null | undefined
-  modelPermission: ModelPermission | undefined
+  permissionSnapshot: DataPermissionSnapshot | null
   moduleContext?: ModuleContext | null | undefined
   row: DataRow
   index: number
@@ -58,7 +58,7 @@ export function createRowScope<TSource>(params: {
 
 export function createCurrentRowScope<TSource>(params: {
   dataSource: TSource | null | undefined
-  modelPermission: ModelPermission | undefined
+  permissionSnapshot: DataPermissionSnapshot | null
   moduleContext?: ModuleContext | null | undefined
   row: DataRow
   model?: DataRow

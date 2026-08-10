@@ -15,8 +15,8 @@ const ROOT = path.resolve(import.meta.dirname, '..')
 
 const testFiles = [
   'tests/services/page-design-ai-runner.test.ts',
-  'tests/services/page-design-host-run-provider.test.ts',
-  'tests/services/page-data-design-host-run-provider.test.ts',
+  'tests/services/page-design-agent-run-provider.test.ts',
+  'tests/services/page-data-design-agent-run-provider.test.ts',
   'tests/services/page-data-design-preset.test.ts',
   'tests/page/page-design-gates.test.ts',
   'tests/page/page-design-e2e-artifacts.test.ts',

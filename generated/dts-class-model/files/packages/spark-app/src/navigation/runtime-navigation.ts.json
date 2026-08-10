@@ -1,0 +1,815 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:navigation/runtime-navigation",
+    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+    "sourceFile": "packages/spark-app/src/navigation/runtime-navigation.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "navigation/runtime-navigation",
+    "jsdoc": "应用壳唯一可消费的运行导航合同。\n它只表达后端授权后可见的菜单、路由和动作，不是项目蓝图的持久化形状。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "RuntimeNavigationItemKind",
+      "RuntimeNavigationPlacement",
+      "RuntimeNavigationPermissionMode",
+      "RuntimeNavigationContextItem",
+      "RuntimeNavigationContextConfig",
+      "RuntimeNavigationContextState",
+      "RuntimeNavigationItem",
+      "RuntimeNavigation",
+      "RuntimeNavigationRegionItems",
+      "RuntimeNavigationRegionVisibility"
+    ]
+  },
+  "$defs": {
+    "RuntimeNavigationItemKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimeNavigationItemKind",
+      "enum": [
+        "system-directory",
+        "module",
+        "system-page",
+        "system-action",
+        "page",
+        "link",
+        "ref"
+      ]
+    },
+    "RuntimeNavigationPlacement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimeNavigationPlacement",
+      "enum": [
+        "header",
+        "sidebar",
+        "toolbar",
+        "user-menu",
+        "parent",
+        "flat"
+      ]
+    },
+    "RuntimeNavigationPermissionMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimeNavigationPermissionMode",
+      "enum": [
+        "none",
+        "masked",
+        "invisible"
+      ]
+    },
+    "RuntimeNavigationContextItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationContextItem",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RuntimeNavigationContextConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationContextConfig",
+      "properties": {
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/RuntimeNavigationContextItem"
+              }
+            }
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "paramName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RuntimeNavigationContextState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationContextState",
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/RuntimeNavigationContextConfig"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "selected": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationContextItem"
+          }
+        },
+        "loading": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "config",
+        "nodeId",
+        "selected",
+        "items",
+        "loading",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeNavigationItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationItem",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "itemKind": {
+          "$ref": "#/$defs/RuntimeNavigationItemKind"
+        },
+        "childPlacement": {
+          "$ref": "#/$defs/RuntimeNavigationPlacement"
+        },
+        "context": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/RuntimeNavigationContextItem"
+              }
+            },
+            {
+              "$ref": "#/$defs/RuntimeNavigationContextConfig"
+            }
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "dividerAfter": {
+          "type": "boolean"
+        },
+        "permissionMode": {
+          "$ref": "#/$defs/RuntimeNavigationPermissionMode"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationItem"
+          }
+        },
+        "path": {
+          "type": "string"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "linkTarget": {
+          "enum": [
+            "iframe",
+            "new-tab",
+            "self"
+          ]
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "refId": {
+          "type": "string"
+        },
+        "refPath": {
+          "type": "string"
+        },
+        "refProjectId": {
+          "type": "string"
+        },
+        "refBroken": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeNavigation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigation",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "childPlacement": {
+          "enum": [
+            "header",
+            "sidebar"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationItem"
+          }
+        },
+        "homePath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "childPlacement",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeNavigationRegionItems": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationRegionItems",
+      "properties": {
+        "header": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationItem"
+          }
+        },
+        "sidebar": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationItem"
+          }
+        },
+        "toolbar": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationItem"
+          }
+        },
+        "userMenu": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationItem"
+          }
+        }
+      },
+      "required": [
+        "header",
+        "sidebar",
+        "toolbar",
+        "userMenu"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeNavigationRegionVisibility": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationRegionVisibility",
+      "properties": {
+        "header": {
+          "type": "boolean"
+        },
+        "sidebar": {
+          "type": "boolean"
+        },
+        "toolbar": {
+          "type": "boolean"
+        },
+        "userMenu": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T21:27:23.886Z",
+  "models": {
+    "RuntimeNavigationItemKind": {
+      "name": "RuntimeNavigationItemKind",
+      "jsdoc": "应用壳唯一可消费的运行导航合同。\n它只表达后端授权后可见的菜单、路由和动作，不是项目蓝图的持久化形状。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'system-directory' | 'module' | 'system-page' | 'system-action' | 'page' | 'link' | 'ref'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'system-directory'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'module'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-action'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'link'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ref'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RuntimeNavigationPlacement": {
+      "name": "RuntimeNavigationPlacement",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'header' | 'sidebar' | 'toolbar' | 'user-menu' | 'parent' | 'flat'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'header'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'sidebar'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'toolbar'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'user-menu'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'parent'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'flat'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RuntimeNavigationPermissionMode": {
+      "name": "RuntimeNavigationPermissionMode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'none' | 'masked' | 'invisible'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'none'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'masked'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'invisible'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RuntimeNavigationContextItem": {
+      "name": "RuntimeNavigationContextItem",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    title: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | number;\n    title: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigationContextConfig": {
+      "name": "RuntimeNavigationContextConfig",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    source: string | readonly RuntimeNavigationContextItem[];\n    placeholder?: string;\n    defaultValue?: string | number;\n    paramName?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    source: string | readonly RuntimeNavigationContextItem[];\n    placeholder?: string;\n    defaultValue?: string | number;\n    paramName?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paramName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigationContextState": {
+      "name": "RuntimeNavigationContextState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    config: RuntimeNavigationContextConfig;\n    nodeId: string;\n    selected: string | number | null;\n    items: RuntimeNavigationContextItem[];\n    loading: boolean;\n    error: string | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selected",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "items",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loading",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "error",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigationItem": {
+      "name": "RuntimeNavigationItem",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: string;\n    title: string;\n    description?: string;\n    icon?: string;\n    itemKind?: RuntimeNavigationItemKind;\n    childPlacement?: RuntimeNavigationPlacement;\n    context?: string | readonly RuntimeNavigationContextItem[] | RuntimeNavigationContextConfig;\n    order?: number;\n    hidden?: boolean;\n    disabled?: boolean;\n    dividerAfter?: boolean;\n    permissionMode?: RuntimeNavigationPermissionMode;\n    children?: RuntimeNavigationItem[];\n    path?: string;\n    formKey?: string;\n    dataSpaceId?: string;\n    modelId?: string;\n    linkTarget?: 'iframe' | 'new-tab' | 'self';\n    redirect?: string;\n    refId?: string;\n    refPath?: string;\n    refProjectId?: string;\n    refBroken?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childPlacement",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hidden",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dividerAfter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "linkTarget",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "redirect",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refProjectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refBroken",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigation": {
+      "name": "RuntimeNavigation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id?: string;\n    projectId?: string;\n    title: string;\n    childPlacement: 'header' | 'sidebar';\n    items: RuntimeNavigationItem[];\n    homePath?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "childPlacement",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "items",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "homePath",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigationRegionItems": {
+      "name": "RuntimeNavigationRegionItems",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    header: RuntimeNavigationItem[];\n    sidebar: RuntimeNavigationItem[];\n    toolbar: RuntimeNavigationItem[];\n    userMenu: RuntimeNavigationItem[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "header",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sidebar",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toolbar",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "userMenu",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigationRegionVisibility": {
+      "name": "RuntimeNavigationRegionVisibility",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    header: boolean;\n    sidebar: boolean;\n    toolbar: boolean;\n    userMenu: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    header: boolean;\n    sidebar: boolean;\n    toolbar: boolean;\n    userMenu: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "header",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sidebar",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolbar",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userMenu",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

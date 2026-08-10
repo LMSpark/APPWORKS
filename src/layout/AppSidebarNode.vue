@@ -51,13 +51,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
-import { isNestedConfigPageNode } from '@spark-appworks/spark-project-model'
-import { useNav } from '@spark-appworks/spark-app'
+import { useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import NavIcon from '@/components/NavIcon.vue'
 
 const props = withDefaults(defineProps<{
-  item: ProjectNodeData
+  item: RuntimeNavigationItem
   collapsed?: boolean
   showText?: boolean
 }>(), {
@@ -68,11 +66,11 @@ const props = withDefaults(defineProps<{
 const route = useRoute()
 const nav = useNav()
 
-function menuIndex(item: ProjectNodeData): string {
+function menuIndex(item: RuntimeNavigationItem): string {
   return item.path ?? item.id
 }
 
-function shouldRenderAsSubMenu(item: ProjectNodeData): boolean {
+function shouldRenderAsSubMenu(item: RuntimeNavigationItem): boolean {
   const children = visibleChildren(item)
   if (children.length === 0) return false
   if (!isDirectoryNode(item)) return false
@@ -81,27 +79,27 @@ function shouldRenderAsSubMenu(item: ProjectNodeData): boolean {
   return children.some((child) => isDirectoryNode(child) && visibleChildren(child).length > 0)
 }
 
-function isDirectoryNode(item: ProjectNodeData): boolean {
-  return item.nodeKind === 'module' || item.nodeKind === 'system-directory'
+function isDirectoryNode(item: RuntimeNavigationItem): boolean {
+  return item.itemKind === 'module' || item.itemKind === 'system-directory'
 }
 
-function isDirectoryGroupNode(item: ProjectNodeData): boolean {
+function isDirectoryGroupNode(item: RuntimeNavigationItem): boolean {
   return isDirectoryNode(item) && visibleChildren(item).length > 0
 }
 
-function visibleChildren(item: ProjectNodeData): ProjectNodeData[] {
-  return (item.children ?? []).filter((child) => !child.hidden && !isNestedConfigPageNode(child))
+function visibleChildren(item: RuntimeNavigationItem): RuntimeNavigationItem[] {
+  return (item.children ?? []).filter((child) => !child.hidden)
 }
 
-function isActive(item: ProjectNodeData): boolean {
+function isActive(item: RuntimeNavigationItem): boolean {
   return nav?.isNodeActive(item) ?? menuIndex(item) === route.path
 }
 
-function showDividerAfter(item: ProjectNodeData): boolean {
+function showDividerAfter(item: RuntimeNavigationItem): boolean {
   return !props.collapsed && item.dividerAfter === true
 }
 
-function onItemClick(item: ProjectNodeData) {
+function onItemClick(item: RuntimeNavigationItem) {
   nav?.navigateTo(item)
 }
 </script>

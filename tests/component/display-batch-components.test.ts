@@ -174,7 +174,10 @@ describe('DisplayImage (display-image)', () => {
   })
 
   it('should resolve src from data row field', () => {
-    const dataRow = reactive({ avatar: 'https://example.com/photo.jpg' })
+    const dataRow = reactive({
+      avatar: 'https://example.com/photo.jpg',
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
+    })
     const wrapper = mountDisplayComponent(
       DisplayImage,
       { type: 'display-image', field: 'avatar', fit: 'cover' },
@@ -185,6 +188,36 @@ describe('DisplayImage (display-image)', () => {
     const stub = wrapper.find('.el-image-stub')
     expect(stub.exists()).toBe(true)
     expect(stub.attributes('data-src')).toBe('https://example.com/photo.jpg')
+  })
+
+  it('should not expose a hidden image field from the backend permission row', () => {
+    const dataRow = reactive({
+      avatar: 'https://example.com/private.jpg',
+      lingma_sys_params: { r: [], e: [], h: ['avatar'], m: [], d: false },
+    })
+    const wrapper = mountDisplayComponent(
+      DisplayImage,
+      { type: 'display-image', field: 'avatar' },
+      { 'el-image': ElImageStub, 'el-icon': ElIconStub },
+      dataRow,
+    )
+
+    expect(wrapper.find('.el-image-stub').attributes('data-src')).toBe('')
+  })
+
+  it('should replace a masked image field instead of rendering its raw URL', () => {
+    const dataRow = reactive({
+      avatar: 'https://example.com/private.jpg',
+      lingma_sys_params: { r: [], e: [], h: [], m: ['avatar'], d: false },
+    })
+    const wrapper = mountDisplayComponent(
+      DisplayImage,
+      { type: 'display-image', field: 'avatar' },
+      { 'el-image': ElImageStub, 'el-icon': ElIconStub },
+      dataRow,
+    )
+
+    expect(wrapper.find('.el-image-stub').attributes('data-src')).toBe('••••')
   })
 
   it('should default fit to cover', () => {

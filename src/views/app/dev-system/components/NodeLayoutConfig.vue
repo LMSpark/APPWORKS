@@ -8,7 +8,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
   <div v-if="flags.isDirectoryNode.value">
     <el-divider content-position="left">布局配置</el-divider>
     <el-form-item label="子项布局" class="fi fi--wide">
-      <el-radio-group v-model="state.navEditDto.childPlacement" @change="state.markNavDirty">
+      <el-radio-group v-model="state.blueprintDraft.childPlacement" @change="state.markBlueprintDirty">
         <el-radio-button
           v-for="option in CHILD_PLACEMENT_OPTIONS"
           :key="option.value || '__default__'"

@@ -11,11 +11,11 @@ import {
   type DataView,
   type DataColumn,
   type DataRow,
-  type ModelPermission,
+  type DataPermissionSnapshot,
   type TreeConfig,
 } from '@spark-appworks/spark-data'
 import type { ValueRef } from '../../shared-types.js'
-import { extractModelPermission } from '../../../permission/index.js'
+import { extractPermissionSnapshot } from '../../../permission/index.js'
 import { toDataRecord } from './data-row-utils.js'
 import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge.js'
 
@@ -52,7 +52,7 @@ export type DataViewRowsState = {
 /** DataView 显示态：用于下拉/选择器等展示场景的 value/label 信息。 */
 export type DataViewDisplayState = {
   /** 原始模型权限数据，供权限投影和兼容字段读取。 */
-  _modelPerm: ComputedRef<ModelPermission | undefined>
+  permissionSnapshot: ComputedRef<DataPermissionSnapshot | null>
   /** 当前值字段的字符串化结果。 */
   value: ComputedRef<string>
   /** 当前显示标签；没有当前行或标签字段时为空。 */
@@ -61,10 +61,9 @@ export type DataViewDisplayState = {
   labels: ComputedRef<readonly string[]>
 }
 
-/** DataView 权限投影：从 _modelPerm 解析后的统一模型权限结构。 */
+/** DataView 后端最终权限快照。 */
 export type DataViewPermissionState = {
   /** 当前 DataView 对应模型的读写权限配置。 */
-  modelPermission: ComputedRef<ModelPermission | undefined>
 }
 
 /** DataView 请求与聚合态：分页、加载状态、聚合结果等运行时动态信息。 */
@@ -244,9 +243,9 @@ export function useDataViewState(
     return resolvedView.value?.isMultiSelect ?? false
   })
 
-  const _modelPerm = computed<ModelPermission | undefined>(() => {
+  const permissionSnapshot = computed<DataPermissionSnapshot | null>(() => {
     revisions.configRevision.value
-    return extractModelPermission(resolvedView.value)
+    return extractPermissionSnapshot(resolvedView.value)
   })
   const value = computed<string>(() => {
     revisions.selectionRevision.value
@@ -311,18 +310,12 @@ export function useDataViewState(
     return resolvedView.value?.loadingError ?? null
   })
 
-  const modelPermission = computed<ModelPermission | undefined>(() => {
-    revisions.configRevision.value
-    return _modelPerm.value
-  })
-
   return {
     tableName, viewId, primaryKey, treeConfig,
     rows, columns, currentRow, selectedRows, editingRows, isMultiSelect,
-    _modelPerm, value, label, labels,
+    permissionSnapshot, value, label, labels,
     requestState, aggregateResult, selectionAggregateResult,
     total, page, pageSize,
     mutating, mutatingError, loadingError,
-    modelPermission,
   }
 }

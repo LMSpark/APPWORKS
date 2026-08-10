@@ -3,7 +3,7 @@ import {
   buildPageDesignToolLoopNudge,
   formatPageDesignSystemPrompt,
 } from '@/services/page-design/page-design-agent-workflow-binding'
-import { PAGE_DATA_DESIGN_ALLOWED_OPERATIONS } from '@/services/page-data-design/page-data-design-host-run-provider'
+import { PAGE_DATA_DESIGN_ALLOWED_OPERATIONS } from '@/services/page-data-design/page-data-design-agent-run-provider'
 
 const FIXTURE_PAGE_ID = 'leave-request-page'
 

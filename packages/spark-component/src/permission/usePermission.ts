@@ -16,8 +16,8 @@
  * - 前端权限仅为渲染层表现，真正安全由后端控制
  * - 所有权限判断收口到本模块，方便统一维护
  */
-import type { DataRow, ModelPermission } from '@spark-appworks/spark-data'
-import type { SubtreeFieldPolicy, NavPermissionMode } from '../core/capability-keys.js'
+import type { DataPermissionSnapshot, DataRow } from '@spark-appworks/spark-data'
+import type { SubtreeFieldPolicy, PagePermissionMode } from '../core/capability-keys.js'
 import type { SparkNode } from '../core/types'
 import { useSparkConsume } from '../core/useSparkComponent'
 import { SUBTREE_FIELD_POLICY, PAGE_PERMISSION_MODE } from '../core/capability-keys.js'
@@ -33,7 +33,7 @@ import type { FieldRenderConfig, FieldRenderState } from './FieldRenderHelper'
 /** Use Permission Return 的语义模型。 */
 export type UsePermissionReturn = {
   /** 当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。 */
-  readonly permissionMode: NavPermissionMode | undefined
+  readonly permissionMode: PagePermissionMode | undefined
 
   /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */
   readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined
@@ -42,7 +42,7 @@ export type UsePermissionReturn = {
   isPermitted(action: PermissionAction | undefined, context?: Omit<PermissionActionContext, 'permissionMode'>): boolean
 
   /** 判断模型级动作（create/import/export）是否允许 */
-  isModelActionAllowed(action: SparkNode, modelPerm: ModelPermission | undefined): boolean
+  isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined): boolean
 
   /** 判断行级动作（edit/delete/create-child）是否允许 */
   isRowActionAllowed(action: SparkNode, row: DataRow | undefined): boolean
@@ -72,8 +72,8 @@ export function usePermission(): UsePermissionReturn {
       return isPermittedAction(action, { ...context, permissionMode: mode })
     },
 
-    isModelActionAllowed(action, modelPerm) {
-      return isModelActionAllowed(action, modelPerm, mode)
+    isModelActionAllowed(action, snapshot) {
+      return isModelActionAllowed(action, snapshot, mode)
     },
 
     isRowActionAllowed(action, row) {

@@ -12,10 +12,10 @@
     "symbols": [
       "ProjectPlanningRunInput",
       "ProjectPlanningAgentInput",
-      "NavigationPlanningAgentInput",
-      "NavigationPlanningRunInput",
+      "BlueprintPlanningAgentInput",
+      "BlueprintPlanningRunInput",
       "ResolveProjectPlanningRunInputOptions",
-      "FilterNavigationPlanningNodesOptions",
+      "FilterBlueprintPlanningNodesOptions",
       "ResolveScopedProjectPlanningRunInputOptions",
       "ProjectPlanningAgentWorkflowBindingOptions",
       "ProjectPlanningGateValidationResult"
@@ -39,10 +39,10 @@
         "planningAttachmentRef": {
           "type": "string"
         },
-        "navigationNodes": {
+        "blueprintNodes": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/NavigationPlanningRunInput"
+            "$ref": "#/$defs/BlueprintPlanningRunInput"
           }
         }
       },
@@ -68,24 +68,27 @@
         "planningAttachmentRef": {
           "type": "string"
         },
-        "navigationNodes": {
+        "blueprintNodes": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/NavigationPlanningAgentInput"
+            "$ref": "#/$defs/BlueprintPlanningAgentInput"
           }
         }
       },
       "additionalProperties": false
     },
-    "NavigationPlanningAgentInput": {
+    "BlueprintPlanningAgentInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "NavigationPlanningAgentInput",
+      "title": "BlueprintPlanningAgentInput",
       "properties": {
         "nodeId": {
           "type": "string"
         },
         "title": {
+          "type": "string"
+        },
+        "blueprintKind": {
           "type": "string"
         },
         "nodeKind": {
@@ -100,15 +103,18 @@
       },
       "additionalProperties": false
     },
-    "NavigationPlanningRunInput": {
+    "BlueprintPlanningRunInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "NavigationPlanningRunInput",
+      "title": "BlueprintPlanningRunInput",
       "properties": {
         "nodeId": {
           "type": "string"
         },
         "title": {
+          "type": "string"
+        },
+        "blueprintKind": {
           "type": "string"
         },
         "nodeKind": {
@@ -137,10 +143,10 @@
       },
       "additionalProperties": false
     },
-    "FilterNavigationPlanningNodesOptions": {
+    "FilterBlueprintPlanningNodesOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "FilterNavigationPlanningNodesOptions",
+      "title": "FilterBlueprintPlanningNodesOptions",
       "properties": {
         "scopeNodeIds": {
           "type": "array",
@@ -164,7 +170,7 @@
         },
         {
           "type": "object",
-          "title": "FilterNavigationPlanningNodesOptions"
+          "title": "FilterBlueprintPlanningNodesOptions"
         }
       ],
       "properties": {
@@ -238,18 +244,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-20T14:11:17.924Z",
+  "generatedAt": "2026-08-09T22:34:22.184Z",
   "models": {
     "ProjectPlanningRunInput": {
       "name": "ProjectPlanningRunInput",
       "jsdoc": "Project Planning Run Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各导航节点策划输入（含模块/页面）。 */\n    navigationNodes: readonly NavigationPlanningRunInput[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各导航节点策划输入（含模块/页面）。 */\n    navigationNodes: readonly NavigationPlanningRunInput[];\n}>",
+            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -280,8 +286,8 @@
               "writable": false
             },
             {
-              "name": "navigationNodes",
-              "jsdoc": "各导航节点策划输入（含模块/页面）。",
+              "name": "blueprintNodes",
+              "jsdoc": "当前项目蓝图节点的策划输入。",
               "readable": true,
               "writable": false
             }
@@ -294,11 +300,11 @@
       "jsdoc": "Host inputContract 用可变数组，满足 AiJsonParams。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各导航节点的策划输入列表。 */\n    navigationNodes: NavigationPlanningAgentInput[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各导航节点的策划输入列表。 */\n    navigationNodes: NavigationPlanningAgentInput[];\n}>",
+            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -335,8 +341,8 @@
               "writable": false
             },
             {
-              "name": "navigationNodes",
-              "jsdoc": "各导航节点的策划输入列表。",
+              "name": "blueprintNodes",
+              "jsdoc": "各项目蓝图节点的策划输入列表。",
               "readable": true,
               "writable": false
             }
@@ -344,16 +350,16 @@
         }
       }
     },
-    "NavigationPlanningAgentInput": {
-      "name": "NavigationPlanningAgentInput",
-      "jsdoc": "Navigation Planning Agent Input 的输入数据。",
+    "BlueprintPlanningAgentInput": {
+      "name": "BlueprintPlanningAgentInput",
+      "jsdoc": "Blueprint Planning Agent Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 导航节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 节点类型（module/page 等）。 */\n    nodeKind: string;\n    /** 节点短需求（navigation description）。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 导航节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 节点类型（module/page 等）。 */\n    nodeKind: string;\n    /** 节点短需求（navigation description）。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -361,7 +367,7 @@
           "attributes": [
             {
               "name": "nodeId",
-              "jsdoc": "导航节点 id。",
+              "jsdoc": "蓝图节点 id。",
               "readable": true,
               "writable": false
             },
@@ -372,14 +378,20 @@
               "writable": false
             },
             {
+              "name": "blueprintKind",
+              "jsdoc": "蓝图业务类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "nodeKind",
-              "jsdoc": "节点类型（module/page 等）。",
+              "jsdoc": "可选运行交付投影类型。",
               "readable": true,
               "writable": false
             },
             {
               "name": "requirement",
-              "jsdoc": "节点短需求（navigation description）。",
+              "jsdoc": "节点短需求。",
               "readable": true,
               "writable": false
             },
@@ -393,16 +405,16 @@
         }
       }
     },
-    "NavigationPlanningRunInput": {
-      "name": "NavigationPlanningRunInput",
-      "jsdoc": "Navigation Planning Run Input 的输入数据。",
+    "BlueprintPlanningRunInput": {
+      "name": "BlueprintPlanningRunInput",
+      "jsdoc": "Blueprint Planning Run Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 导航节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 节点类型（module/page 等）。 */\n    nodeKind: string;\n    /** 节点短需求，即 navigation description。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 导航节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 节点类型（module/page 等）。 */\n    nodeKind: string;\n    /** 节点短需求，即 navigation description。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -410,7 +422,7 @@
           "attributes": [
             {
               "name": "nodeId",
-              "jsdoc": "导航节点 id。",
+              "jsdoc": "蓝图节点 id。",
               "readable": true,
               "writable": false
             },
@@ -421,14 +433,20 @@
               "writable": false
             },
             {
+              "name": "blueprintKind",
+              "jsdoc": "蓝图业务类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "nodeKind",
-              "jsdoc": "节点类型（module/page 等）。",
+              "jsdoc": "可选运行交付投影类型。",
               "readable": true,
               "writable": false
             },
             {
               "name": "requirement",
-              "jsdoc": "节点短需求，即 navigation description。",
+              "jsdoc": "节点短需求。",
               "readable": true,
               "writable": false
             },
@@ -447,11 +465,11 @@
       "jsdoc": "Resolve Project Planning Run Input Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** Host Run 可注入一次性需求，不写回 ProjectModel。 */\n    requirementOverride?: string;\n    /** Host Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectModel。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */\n    planningAttachmentRef?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** Host Run 可注入一次性需求，不写回 ProjectModel。 */\n    requirementOverride?: string;\n    /** Host Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */\n    planningAttachmentRef?: string;\n}>",
+            "typeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectModel。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */\n    planningAttachmentRef?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -459,13 +477,13 @@
           "attributes": [
             {
               "name": "requirementOverride",
-              "jsdoc": "Host Run 可注入一次性需求，不写回 ProjectModel。",
+              "jsdoc": "Agent Run 可注入一次性需求，不写回 ProjectModel。",
               "readable": true,
               "writable": false
             },
             {
               "name": "planningAttachmentRef",
-              "jsdoc": "Host Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。",
+              "jsdoc": "Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。",
               "readable": true,
               "writable": false
             }
@@ -473,9 +491,9 @@
         }
       }
     },
-    "FilterNavigationPlanningNodesOptions": {
-      "name": "FilterNavigationPlanningNodesOptions",
-      "jsdoc": "Filter Navigation Planning Nodes Options 的调用配置。",
+    "FilterBlueprintPlanningNodesOptions": {
+      "name": "FilterBlueprintPlanningNodesOptions",
+      "jsdoc": "Filter Blueprint Planning Nodes Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    /** 仅包含这些 nodeId；未传则按 includeEmptyRequirement 规则过滤。 */\n    scopeNodeIds?: readonly string[];\n    /** 默认 false：跳过 requirement 与 planningAttachmentRef 均为空的节点。 */\n    includeEmptyRequirement?: boolean;\n}>",
@@ -509,7 +527,7 @@
       "jsdoc": "Resolve Scoped Project Planning Run Input Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ResolveProjectPlanningRunInputOptions & FilterNavigationPlanningNodesOptions",
+        "declarationTypeText": "ResolveProjectPlanningRunInputOptions & FilterBlueprintPlanningNodesOptions",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -518,8 +536,8 @@
           },
           {
             "kind": "intersection",
-            "typeText": "FilterNavigationPlanningNodesOptions",
-            "targetName": "FilterNavigationPlanningNodesOptions"
+            "typeText": "FilterBlueprintPlanningNodesOptions",
+            "targetName": "FilterBlueprintPlanningNodesOptions"
           }
         ],
         "members": {}

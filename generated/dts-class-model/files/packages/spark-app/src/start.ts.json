@@ -35,22 +35,9 @@
       "type": "object",
       "title": "PageNodeOptions",
       "properties": {
-        "apiBaseUrl": {
-          "type": "string"
-        },
-        "pagesConfigBaseUrl": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "object",
-              "title": "() => string"
-            }
-          ]
-        },
-        "timeout": {
-          "type": "number"
+        "readPageFile": {
+          "type": "object",
+          "title": "PageFileReader"
         },
         "pageComponent": {
           "type": "object",
@@ -67,22 +54,21 @@
           "type": "string"
         },
         "preAuthNavTree": {
-          "$ref": "../../spark-project-model/src/navigation/project-node.ts.json#/$defs/ProjectModelData"
+          "$ref": "navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
         }
       },
       "required": [
-        "apiBaseUrl"
+        "readPageFile"
       ],
       "additionalProperties": false,
       "$defs": {
-        "method.getHeaders.params": {
+        "method.getProjectId.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.getHeaders.return": {
-          "type": "object",
-          "title": "Record<string, string>"
+        "method.getProjectId.return": {
+          "type": "string"
         },
         "method.isAuthenticated.params": {
           "type": "object",
@@ -99,7 +85,7 @@
         },
         "method.loadNavigation.return": {
           "type": "object",
-          "title": "Promise<ProjectModelData>"
+          "title": "Promise<RuntimeNavigation>"
         },
         "method.loadPlatformNavigation.params": {
           "type": "object",
@@ -108,7 +94,7 @@
         },
         "method.loadPlatformNavigation.return": {
           "type": "object",
-          "title": "Promise<ProjectModelData>"
+          "title": "Promise<RuntimeNavigation>"
         },
         "method.isPlatformNavigationEnabled.params": {
           "type": "object",
@@ -193,7 +179,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.951Z",
+  "generatedAt": "2026-08-09T21:27:23.899Z",
   "models": {
     "SparkOptions": {
       "name": "SparkOptions",
@@ -224,26 +210,14 @@
       "jsdoc": "PageNode 运行配置",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** API 基础路径 */\n    apiBaseUrl: string;\n    /**\n     * 页面配置四文件 API 基础路径。\n     *\n     * apiBaseUrl 保持为通用 HTTP client 基址；四文件加载在多租户项目下使用该 scoped 路径。\n     */\n    pagesConfigBaseUrl?: string | (() => string);\n    /** 请求超时时间 */\n    timeout?: number;\n    /** 动态请求头回调（每次请求时调用，注入租户上下文） */\n    getHeaders?: () => Record<string, string>;\n    /** 认证状态检查（DynamicRouter 据此决定使用远程导航树还是 preAuthNavTree） */\n    isAuthenticated?: () => boolean;\n    /** 页面组件（默认使用 PageRenderer） */\n    pageComponent?: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 路由元数据完全由后端 DB 管理，前端只提供组件解析映射。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 DynamicRouter 使用此函数加载远程导航树并派生路由。\n     * refreshRoutes() 返回加载后的导航树供 UI 直接消费。\n     */\n    loadNavigation?: () => Promise<ProjectModelData>;\n    /** 平台工作台导航加载函数；节点路径会注册到 /platform 前缀下。 */\n    loadPlatformNavigation?: () => Promise<ProjectModelData>;\n    /** 是否启用平台工作台导航注册。 */\n    isPlatformNavigationEnabled?: () => boolean;\n    /** 平台工作台路由前缀，默认 /platform。 */\n    platformPathPrefix?: string;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当用户未登录时，`registerRoutes()` 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: ProjectModelData;\n}",
+        "declarationTypeText": "{\n    /** 当前页面四文件所属项目身份。 */\n    getProjectId: () => string;\n    /** 注入式页面四文件读取器，不绑定服务器路径。 */\n    readPageFile: PageFileReader;\n    /** 认证状态检查（DynamicRouter 据此决定使用远程导航树还是 preAuthNavTree） */\n    isAuthenticated?: () => boolean;\n    /** 页面组件（默认使用 PageRenderer） */\n    pageComponent?: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 路由元数据完全由后端 DB 管理，前端只提供组件解析映射。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 DynamicRouter 使用此函数加载远程导航树并派生路由。\n     * refreshRoutes() 返回加载后的导航树供 UI 直接消费。\n     */\n    loadNavigation?: () => Promise<RuntimeNavigation>;\n    /** 平台工作台导航加载函数；节点路径会注册到 /platform 前缀下。 */\n    loadPlatformNavigation?: () => Promise<RuntimeNavigation>;\n    /** 是否启用平台工作台导航注册。 */\n    isPlatformNavigationEnabled?: () => boolean;\n    /** 平台工作台路由前缀，默认 /platform。 */\n    platformPathPrefix?: string;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当用户未登录时，`registerRoutes()` 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: RuntimeNavigation;\n}",
         "members": {
           "attributes": [
             {
-              "name": "apiBaseUrl",
-              "jsdoc": "API 基础路径",
+              "name": "readPageFile",
+              "jsdoc": "注入式页面四文件读取器，不绑定服务器路径。",
               "readable": true,
               "writable": true
-            },
-            {
-              "name": "pagesConfigBaseUrl",
-              "jsdoc": "页面配置四文件 API 基础路径。\napiBaseUrl 保持为通用 HTTP client 基址；四文件加载在多租户项目下使用该 scoped 路径。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "timeout",
-              "jsdoc": "请求超时时间",
-              "readable": true,
-              "writable": false
             },
             {
               "name": "pageComponent",
@@ -278,22 +252,12 @@
           ],
           "methods": [
             {
-              "name": "getHeaders",
-              "jsdoc": "动态请求头回调（每次请求时调用，注入租户上下文）",
+              "name": "getProjectId",
+              "jsdoc": "当前页面四文件所属项目身份。",
               "parameters": [],
               "type": {
-                "type": "reference",
-                "name": "Record",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "string"
-                  },
-                  {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                ]
+                "type": "intrinsic",
+                "name": "string"
               }
             },
             {
@@ -315,7 +279,8 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ProjectModelData"
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                   }
                 ]
               }
@@ -330,7 +295,8 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ProjectModelData"
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                   }
                 ]
               }

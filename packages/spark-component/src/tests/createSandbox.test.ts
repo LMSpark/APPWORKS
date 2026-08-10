@@ -187,7 +187,10 @@ describe('createSandbox — compileFunctions', () => {
     const script = `
       function canCreate() {
         return permission.isPermittedAction('create', {
-          modelPermission: { allowCreate: true }
+          permissionSnapshot: {
+            formKey: 'FORM-1', dataSpaceId: 'SPACE-1', modelId: 'MODEL-1',
+            allowAdd: true, systemKey: 'TABLE-KEY', originalRows: [], authorizedFeatureTags: []
+          }
         })
       }
 
@@ -197,7 +200,7 @@ describe('createSandbox — compileFunctions', () => {
           row: {
             id: 1,
             name: 'Alice',
-            _perm: { editableFields: ['name'] }
+            lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: false }
           }
         })
         return state ? state.editable : false

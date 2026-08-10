@@ -58,15 +58,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
-import { useNav } from '@spark-appworks/spark-app'
+import { useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import AppSidebarNode from './AppSidebarNode.vue'
 import NavIcon from '@/components/NavIcon.vue'
 
 const props = withDefaults(defineProps<{
   title?: string
   collapsed?: boolean
-  items?: ProjectNodeData[]
+  items?: RuntimeNavigationItem[]
 }>(), {
   title: 'SPARK',
   collapsed: false,
@@ -76,7 +75,7 @@ const props = withDefaults(defineProps<{
 const route = useRoute()
 const router = useRouter()
 const nav = useNav()
-const safeItems = computed<ProjectNodeData[]>(() => Array.isArray(props.items) ? props.items : [])
+const safeItems = computed<RuntimeNavigationItem[]>(() => Array.isArray(props.items) ? props.items : [])
 
 /** 活动高亮索引 */
 const activeIndex = computed(() => {
@@ -87,7 +86,7 @@ const activeIndex = computed(() => {
   return activeNode !== undefined ? menuIndex(activeNode) : route.path
 })
 
-function menuIndex(item: ProjectNodeData): string {
+function menuIndex(item: RuntimeNavigationItem): string {
   return item.path ?? item.id
 }
 

@@ -9,7 +9,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
     <template #reference>
       <el-button class="icon-trigger" :style="{ width: triggerWidth }">
         <el-icon v-if="resolvedIcon" :size="18"><component :is="resolvedIcon" /></el-icon>
-        <span v-else-if="props.modelValue" class="icon-fallback">{{ props.modelValue }}</span>
+        <NavIcon v-else-if="props.modelValue" :name="props.modelValue" fallback="Document" :size="18" />
         <span v-else class="icon-placeholder">{{ props.placeholder }}</span>
       </el-button>
     </template>
@@ -38,6 +38,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { computed, ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import * as Icons from '@element-plus/icons-vue'
+import NavIcon from './NavIcon.vue'
 
 /** 图标选择器属性，描述当前图标值和输入外观。 */
 type Props = {
@@ -104,11 +105,6 @@ function select(name: string) {
 .icon-placeholder {
   color: var(--el-text-color-placeholder);
   font-size: 12px;
-}
-.icon-fallback {
-  color: var(--el-text-color-regular);
-  font-size: 14px;
-  line-height: 1;
 }
 .icon-search {
   margin-bottom: 8px;

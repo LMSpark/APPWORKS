@@ -8,24 +8,22 @@ import { computed, inject, provide, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { readPrototypeProperty } from '@spark-appworks/spark-utils/internal'
-import {
-  isNestedConfigPageNode,
-  type ChildPlacement,
-  type NavContextItem,
-  type NavContextState,
-  type ProjectModelData,
-  type ProjectNodeData,
-  type RegionItems,
-  type RegionVisibility,
-} from '@spark-appworks/spark-project-model'
 import type { NavigationContext } from './nav-types'
 import { NAV_KEY } from './nav-types'
 import { refreshRoutes } from './nav-access'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../router/cross-project-ref-route'
 import { resolveNavNodeRuntimeTarget } from './runtime-target'
 import type { NavigationActionRegistry } from './action-registry'
-
-type NavContextConfig = Extract<NonNullable<ProjectNodeData['context']>, { source: unknown }>
+import type {
+  RuntimeNavigation,
+  RuntimeNavigationContextConfig,
+  RuntimeNavigationContextItem,
+  RuntimeNavigationContextState,
+  RuntimeNavigationItem,
+  RuntimeNavigationPlacement,
+  RuntimeNavigationRegionItems,
+  RuntimeNavigationRegionVisibility,
+} from './runtime-navigation'
 
 /* ══════════════════════════════════════════════════════════
  * useNavigation — 应用导航核心 composable
@@ -36,13 +34,13 @@ type NavContextConfig = Extract<NonNullable<ProjectNodeData['context']>, { sourc
 
 const CONTEXT_STORAGE_PREFIX = 'spark-nav-ctx:'
 const PLATFORM_PATH_PREFIX = '/platform'
-const _contextCache = new Map<string, NavContextItem[]>()
+const _contextCache = new Map<string, RuntimeNavigationContextItem[]>()
 
 function contextSourceKey(nodeId: string, source: string): string {
   return `${nodeId}::${source}`
 }
 
-function contextConfigSignature(config: NavContextConfig): string {
+function contextConfigSignature(config: RuntimeNavigationContextConfig): string {
   const sourcePart = Array.isArray(config.source)
     ? `static:${JSON.stringify(config.source)}`
     : `remote:${config.source}`
@@ -55,15 +53,22 @@ function contextConfigSignature(config: NavContextConfig): string {
   })
 }
 
-function isSameContextConfig(a: NavContextConfig, b: NavContextConfig): boolean {
+function isSameContextConfig(
+  a: RuntimeNavigationContextConfig,
+  b: RuntimeNavigationContextConfig,
+): boolean {
   return contextConfigSignature(a) === contextConfigSignature(b)
 }
 
-function isNavContextItem(value: unknown): value is NavContextItem {
+function isNavContextItem(value: unknown): value is RuntimeNavigationContextItem {
   if (value === null || typeof value !== 'object') return false
   const id = readPrototypeProperty(value, 'id')
   const title = readPrototypeProperty(value, 'title')
   return (typeof id === 'string' || typeof id === 'number') && typeof title === 'string'
+}
+
+function isNavContextItemArray(value: unknown): value is readonly RuntimeNavigationContextItem[] {
+  return Array.isArray(value) && value.every(isNavContextItem)
 }
 
 function parseStoredContextValue(stored: string): string | number | null {
@@ -71,18 +76,21 @@ function parseStoredContextValue(stored: string): string | number | null {
   return typeof parsed === 'string' || typeof parsed === 'number' ? parsed : null
 }
 
-/** 约定优先：将简写形式归一化为完整 NavContextConfig */
-function normalizeContextConfig(input: string | NavContextItem[] | NavContextConfig): NavContextConfig {
+/** 约定优先：将简写形式归一化为完整运行导航上下文配置。 */
+function normalizeContextConfig(
+  input: string | readonly RuntimeNavigationContextItem[] | RuntimeNavigationContextConfig,
+): RuntimeNavigationContextConfig {
   // 字符串 → URL 简写
   if (typeof input === 'string') {
     return { source: input }
   }
   // 数组 → 静态列表
-  if (Array.isArray(input)) {
+  if (isNavContextItemArray(input)) {
     return { source: input }
   }
   // 已是完整配置
-  return input
+  if ('source' in input) return input
+  throw new Error('运行导航上下文配置无效')
 }
 
 /** 将 source 解析为远程 URL（字符串直接作为 url） */
@@ -99,21 +107,21 @@ type UseNavigationOptions = {
   /** system-action 命令执行器 */
   actionRegistry?: NavigationActionRegistry}
 
-export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigationOptions): NavigationContext {
+export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigationOptions): NavigationContext {
   const route = useRoute()
   const router = useRouter()
 
   // ── 活动路径（从根到当前叶子） ──
-  const _activePath = ref<ProjectNodeData[]>([])
+  const _activePath = ref<RuntimeNavigationItem[]>([])
 
   // ── 角标动态覆写 ──
   const _badges = reactive<Record<string, string | number | undefined>>({})
 
   // ── 模块上下文（单一状态，作用域 = 模块下全部页面） ──
-  const _moduleContext = ref<NavContextState | null>(null)
+  const _moduleContext = ref<RuntimeNavigationContextState | null>(null)
 
   /** 模块节点缓存（key = moduleId），避免切换子页面时重建 */
-  const _contextByModule = new Map<string, NavContextState>()
+  const _contextByModule = new Map<string, RuntimeNavigationContextState>()
 
   // ── 路由变化 → 重算活动路径 + 模块上下文 ──
 
@@ -138,7 +146,7 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
     return normalizePath(stripWorkspacePrefix(path))
   }
 
-  function resolveNodeRoutePath(node: ProjectNodeData): string | null {
+  function resolveNodeRoutePath(node: RuntimeNavigationItem): string | null {
     const target = resolveNavNodeRuntimeTarget(node)
     return target.kind === 'route' ? target.path : null
   }
@@ -176,10 +184,10 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
   }
 
   watch(
-    [() => route.path, () => navRoot.children],
+    [() => route.path, () => navRoot.items],
     ([path]) => {
       const shortPath = stripWorkspacePrefix(path)
-      _activePath.value = findActivePath(navRoot.children, shortPath)
+      _activePath.value = findActivePath(navRoot.items, shortPath)
       syncModuleContext()
     },
     { immediate: true },
@@ -189,27 +197,22 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
    * 节点排序 & 过滤
    * ──────────────────────────────────────────── */
 
-  function sortNodes(nodes: ProjectNodeData[]): ProjectNodeData[] {
+  function sortNodes(nodes: RuntimeNavigationItem[]): RuntimeNavigationItem[] {
     return [...nodes].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   }
 
-  function isSubPageNode(node: ProjectNodeData): boolean {
-    return isNestedConfigPageNode(node)
-  }
-
-  function filterVisible(nodes: ProjectNodeData[]): ProjectNodeData[] {
-    return sortNodes(nodes).filter((n) => !n.hidden && !isSubPageNode(n))
+  function filterVisible(nodes: RuntimeNavigationItem[]): RuntimeNavigationItem[] {
+    return sortNodes(nodes).filter((n) => !n.hidden)
   }
 
   /* ────────────────────────────────────────────
    * 活动路径查找（DFS）
    * ──────────────────────────────────────────── */
 
-  function findActivePath(nodes: ProjectNodeData[], targetPath: string): ProjectNodeData[] {
+  function findActivePath(nodes: RuntimeNavigationItem[], targetPath: string): RuntimeNavigationItem[] {
     const normalizedTargetPath = normalizeComparablePath(targetPath)
 
     for (const node of sortNodes(nodes)) {
-      if (isSubPageNode(node)) continue
       const nodePath = resolveNodeRoutePath(node)
       if (nodePath !== null) {
         const normalizedNodePath = normalizeComparablePath(nodePath)
@@ -227,13 +230,13 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
    * 区域派生
    * ──────────────────────────────────────────── */
 
-  const regionItems = computed<RegionItems>(() => {
-    const regions: RegionItems = { header: [], sidebar: [], toolbar: [], userMenu: [] }
-    const claimedPlacements = new Set<ChildPlacement>()
+  const regionItems = computed<RuntimeNavigationRegionItems>(() => {
+    const regions: RuntimeNavigationRegionItems = { header: [], sidebar: [], toolbar: [], userMenu: [] }
+    const claimedPlacements = new Set<RuntimeNavigationPlacement>()
 
     // 根级子项：toolbar/user-menu 组提取到对应区域，其余放入 root childPlacement 指定区域
-    const rootVisible = filterVisible(navRoot.children)
-    const normalRoots: ProjectNodeData[] = []
+    const rootVisible = filterVisible(navRoot.items)
+    const normalRoots: RuntimeNavigationItem[] = []
     for (const child of rootVisible) {
       if (child.childPlacement === 'toolbar' && child.children?.length) {
         regions.toolbar = filterVisible(child.children)
@@ -260,7 +263,7 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
     return regions
   })
 
-  const regionVisibility = computed<RegionVisibility>(() => ({
+  const regionVisibility = computed<RuntimeNavigationRegionVisibility>(() => ({
     header: regionItems.value.header.length > 0,
     sidebar: regionItems.value.sidebar.length > 0,
     toolbar: regionItems.value.toolbar.length > 0,
@@ -268,7 +271,7 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
   }))
 
   /** 解析 childPlacement（'parent' 向上追溯到祖先的非 parent 值） */
-  function resolveChildPlacement(node: ProjectNodeData): ChildPlacement {
+  function resolveChildPlacement(node: RuntimeNavigationItem): RuntimeNavigationPlacement {
     const placement = node.childPlacement ?? 'sidebar'
     if (placement !== 'parent') return placement
 
@@ -297,7 +300,7 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
       return
     }
 
-    // 约定优先：归一化简写 → NavContextConfig
+    // 约定优先：归一化简写为完整运行导航上下文配置。
     const config = normalizeContextConfig(moduleNode.context)
 
     // 同模块复用已有状态
@@ -314,7 +317,7 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
       return
     }
 
-    const state: NavContextState = reactive({
+    const state: RuntimeNavigationContextState = reactive({
       config,
       nodeId: moduleNode.id,
       selected: restoreContextValue(moduleNode.id, config),
@@ -327,12 +330,12 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
     _moduleContext.value = state
   }
 
-  async function loadContextItems(state: NavContextState, forceReload = false) {
+  async function loadContextItems(state: RuntimeNavigationContextState, forceReload = false) {
     const { source } = state.config
 
     // 静态数据
-    if (Array.isArray(source)) {
-      state.items = source
+    if (typeof source !== 'string') {
+      state.items = [...source]
       return
     }
 
@@ -368,7 +371,10 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
     }
   }
 
-  function restoreContextValue(nodeId: string, config: NavContextConfig): string | number | null {
+  function restoreContextValue(
+    nodeId: string,
+    config: RuntimeNavigationContextConfig,
+  ): string | number | null {
     // 优先从 URL query
     if (config.paramName !== undefined && config.paramName !== '') {
       const val = route.query[config.paramName]
@@ -445,7 +451,7 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
     return existing?.meta['crossProjectRefHost'] === true && typeof defaultProps === 'function'
   }
 
-  async function navigateToRefNode(node: ProjectNodeData): Promise<void> {
+  async function navigateToRefNode(node: RuntimeNavigationItem): Promise<void> {
     const target = resolveNavNodeRuntimeTarget(node)
     if (target.kind !== 'route') return
 
@@ -538,10 +544,9 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
     navigateByPath(path)
   }
 
-  function navigateTo(node: ProjectNodeData) {
+  function navigateTo(node: RuntimeNavigationItem) {
     if (node.disabled) return
     const target = resolveNavNodeRuntimeTarget(node)
-    if (target.kind === 'hidden') return
 
     if (target.kind === 'action') {
       void _options?.actionRegistry?.execute(target.command, { node, source: 'navigation' })
@@ -616,9 +621,8 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
     }
   }
 
-  function findFirstLeaf(nodes: ProjectNodeData[]): ProjectNodeData | undefined {
+  function findFirstLeaf(nodes: RuntimeNavigationItem[]): RuntimeNavigationItem | undefined {
     for (const node of filterVisible(nodes)) {
-      if (isSubPageNode(node)) continue
       if (node.disabled) continue
       if (resolveNodeRoutePath(node) !== null) return node
       if (node.children?.length) {
@@ -645,7 +649,7 @@ export function useNavigation(navRoot: ProjectModelData, _options?: UseNavigatio
    * 活动判断
    * ──────────────────────────────────────────── */
 
-  function isNodeActive(node: ProjectNodeData): boolean {
+  function isNodeActive(node: RuntimeNavigationItem): boolean {
     return _activePath.value.some((n) => n.id === node.id)
   }
 

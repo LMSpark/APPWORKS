@@ -8,9 +8,10 @@ import {
   isolateAppProjectWorkspaceForTest,
   isDevStatePageDocumentDirty,
 } from './dev-state-test-fixture'
-import type { ProjectModelData } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { refreshRoutes } from '@spark-appworks/spark-app'
-import { http } from '@/services/http'
+import { lowcodeHttp as http } from '@/lowcode/lowcode-runtime'
 
 const httpFns = vi.hoisted(() => ({
   get: vi.fn(),
@@ -26,7 +27,7 @@ const httpFns = vi.hoisted(() => ({
 }))
 
 const navTreeState = vi.hoisted(() => ({
-  tree: null as ProjectModelData | null,
+  tree: null as ProjectBlueprintTreeData | null,
 }))
 
 vi.mock('@spark-appworks/spark-app', () => ({
@@ -58,21 +59,57 @@ vi.mock('@spark-appworks/spark-app', () => ({
   })),
 }))
 
-vi.mock('@/services/api-paths', () => ({
-  getPageApi: () => '/api/pages-config',
-  getNavApi: () => '/api/navigation',
-  getProjectApi: (tenantId?: string) => tenantId ? `/api/tenants/${tenantId}/projects` : '/api/projects',
-  getProjectNavigationApi: (projectId: string, tenantId?: string) => projectId === 'homepage'
-    ? '/api/navigation'
-    : `/api/tenants/${tenantId ?? 'tenant-a'}/projects/${projectId}/navigation`,
-  getProjectPageApi: (projectId: string, tenantId?: string) => projectId === 'homepage'
-    ? '/api/pages-config'
-    : `/api/tenants/${tenantId ?? 'tenant-a'}/projects/${projectId}/pages-config`,
-}))
-
-vi.mock('@/services/http', () => ({
-  createAuthHeaders: () => ({}),
-  http: httpFns,
+vi.mock('@/lowcode/lowcode-runtime', () => ({
+  lowcodeHttp: httpFns,
+  lowcodeRequestHeaders: () => ({}),
+  readLowcodePrincipal: () => null,
+  lowcodeApi: {
+    platform: {
+      listApplications: async () => httpFns.get('/api/tenants/tenant-b/projects'),
+    },
+  },
+  createLowcodeProjectGateways: (projectId: string) => {
+    const navigationUrl = projectId === 'homepage'
+      ? '/api/navigation'
+      : `/api/tenants/tenant-b/projects/${projectId}/navigation`
+    const pageUrl = projectId === 'homepage'
+      ? '/api/pages-config'
+      : `/api/tenants/tenant-b/projects/${projectId}/pages-config`
+    return {
+      pageFiles: {
+        readPageFile: async (command: { pageId: string; fileName: string }) => {
+          const response = await httpFns.get(`${pageUrl}/${command.pageId}/${command.fileName}`)
+          return String(response?.content ?? '')
+        },
+        saveFileContent: async (pageId: string, fileName: string, content: string) => {
+          await httpFns.put(`${pageUrl}/${pageId}/${fileName}`, { content })
+        },
+        listVersions: async (pageId: string, fileName: string) => {
+          const rows = await httpFns.get(`${pageUrl}/${pageId}/${fileName}/versions`)
+          return Array.isArray(rows)
+            ? rows.map((row) => ({
+                ...row,
+                createdAt: new Date(row.createdAt).toISOString(),
+              }))
+            : []
+        },
+        restoreVersion: async (pageId: string, fileName: string, version: number) => {
+          await httpFns.post(`${pageUrl}/${pageId}/${fileName}/versions/${version}/restore`)
+        },
+      },
+      blueprint: {
+        loadRoot: async () => httpFns.get(navigationUrl),
+        updateNode: async (id: string, patch: unknown) => {
+          const response = await httpFns.put(`${navigationUrl}/nodes/${id}`, patch)
+          return response.node ?? response
+        },
+      },
+      projectReferences: {
+        listProjects: async () => [],
+        loadProjectBlueprint: async () => ({ children: [] }),
+      },
+    }
+  },
 }))
 
 const httpMock = vi.mocked(http)
@@ -191,7 +228,7 @@ describe('DevState 页面文件闭环', () => {
     expect(state.projectRevision.value).toBeGreaterThan(0)
   })
 
-  it('切换左侧节点时触发右侧 navEditDto 订阅刷新', async () => {
+  it('切换左侧节点时触发右侧 blueprintDraft 订阅刷新', async () => {
     const state = useDevState()
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === '/api/navigation') {
@@ -207,10 +244,10 @@ describe('DevState 页面文件闭环', () => {
       return pageFileResponse(url)
     })
 
-    await state.loadNavConfig()
+    await state.loadBlueprint()
     const observedEditDtoIds: string[] = []
     const stop = watchEffect(() => {
-      observedEditDtoIds.push(state.navEditDto.id)
+      observedEditDtoIds.push(state.blueprintDraft.id)
     })
 
     await state.selectNode(state.treeData.value[1]!)
@@ -265,7 +302,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('header 保存导航属性时只提交选中节点 patch，不整树保存', async () => {
     const state = useDevState()
-    const root: ProjectModelData = {
+    const root: ProjectBlueprintTreeData = {
       title: 'root',
       childPlacement: 'header',
       children: [
@@ -281,26 +318,30 @@ describe('DevState 页面文件闭环', () => {
       node: { id: 'alpha-node', title: 'Alpha updated', nodeKind: 'page', path: '/alpha' },
     })
 
-    vi.mocked(refreshRoutes).mockImplementation(async (): Promise<ProjectModelData> => {
-      const updated: ProjectModelData = {
+    vi.mocked(refreshRoutes).mockImplementation(async (): Promise<RuntimeNavigation> => {
+      const updated: ProjectBlueprintTreeData = {
         ...root,
         children: [
           { id: 'alpha-node', title: 'Alpha updated', nodeKind: 'page', path: '/alpha' },
         ],
       }
       navTreeState.tree = updated
-      return updated
+      return {
+        title: updated.title,
+        childPlacement: updated.childPlacement,
+        items: [{ id: 'alpha-node', title: 'Alpha updated', itemKind: 'page', path: '/alpha' }],
+      }
     })
 
-    await state.loadNavConfig()
-    state.navEditDto.title = 'Alpha updated'
+    await state.loadBlueprint()
+    state.blueprintDraft.title = 'Alpha updated'
     const refreshCallsBeforeSave = vi.mocked(refreshRoutes).mock.calls.length
 
     await state.saveAll()
 
     expect(vi.mocked(refreshRoutes).mock.calls.length - refreshCallsBeforeSave).toBe(1)
     expect(navTreeState.tree?.children?.[0]?.title).toBe('Alpha updated')
-    expect(state.project.readNavigationProjection().treeData[0]?.title).toBe('Alpha updated')
+    expect(state.project.readBlueprintProjection().tree[0]?.title).toBe('Alpha updated')
 
     expect(httpMock.put).toHaveBeenCalledWith(
       '/api/navigation/nodes/alpha-node',
@@ -313,7 +354,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('可打开其他租户项目模型编辑，保存时不刷新当前 APP 导航', async () => {
     const state = useDevState()
-    const delegatedRoot: ProjectModelData = {
+    const delegatedRoot: ProjectBlueprintTreeData = {
       title: 'delegated',
       childPlacement: 'header',
       children: [
@@ -346,7 +387,7 @@ describe('DevState 页面文件闭环', () => {
     expect(state.treeData.value[0]?.id).toBe('delegated-node')
     expect(state.activePageId.value).toBe('delegated-page')
 
-    state.navEditDto.title = 'Delegated updated'
+    state.blueprintDraft.title = 'Delegated updated'
     const refreshCallsBeforeSave = vi.mocked(refreshRoutes).mock.calls.length
     await state.saveAll()
 

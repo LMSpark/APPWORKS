@@ -6,7 +6,7 @@
 
 | 层 | 做什么 |
 |----|--------|
-| **Java** (`spark-ai-server`) | 持久化 session、代理 LLM、SSE / Host Run |
+| **lowcode API** | 浏览器直接消费 lowcode-jdk17 现有接口；AppWorks 不运行自有 Java 后端 |
 | **Host** (`createAiAgentHost`) | 注册业务、`run` → ToolLoop |
 | **ClassModelRuntime** | 7 工具闭集、`executeTool` 路由 |
 | **Worker 知识** | Web Worker（Comlink）内 lazy fetch JSON shard；主线程不加载全量 manifest |
@@ -81,7 +81,7 @@ model_query → model_class_guide / model_attribute_guide / model_action_guide �
 | 场景 | 文件 |
 |------|------|
 | DevSystem 面板 | `src/services/page-design-ai-runner.ts` |
-| SSE Host Run | `src/services/ai-host-run-bridge.ts` + `page-design-host-run-provider.ts` |
+| Agent Run | `src/services/ai/ai-agent-run.ts` + `src/services/page-design/page-design-agent-run-provider.ts` |
 | Workflow 激活 | `src/services/ai/agent-workflow-bindings.ts` + `src/services/page-design/page-design-agent-workflow-binding.ts` |
 
 ## 未实现（勿假设存在）

@@ -68,11 +68,31 @@
       "source": "src/views/tenant/CacheManager.vue"
     },
     {
+      "path": "/features/system/cache-management/ui/cache-management-page",
+      "title": "缓存管理",
+      "icon": "Coin",
+      "scope": "app",
+      "source": "src/views/tenant/CacheManager.vue",
+      "description": "Metadata 项目的 lowcode 缓存管理入口",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",
       "scope": "tenant",
       "source": "src/views/tenant/AppList.vue"
+    },
+    {
+      "path": "/features/application/application-manager/ui/application-manager-page",
+      "title": "应用系统列表",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/tenant/AppList.vue",
+      "description": "Metadata 项目的 lowcode 应用目录入口",
+      "hidden": true,
+      "shellTool": false
     },
     {
       "path": "/tenants",
@@ -126,6 +146,36 @@
       "scope": "app",
       "source": "src/views/app/DBMS.vue",
       "description": "多层级数据源元数据管理（服务器→数据库→表→关系）"
+    },
+    {
+      "path": "/features/data-platform/database-management/ui/service-management-page",
+      "title": "服务器管理",
+      "icon": "DataBase",
+      "scope": "app",
+      "source": "src/views/app/DBMS.vue",
+      "description": "Metadata 项目的 lowcode 数据库服务器管理入口",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/DataBaseManage/DataBaseManage/index",
+      "title": "数据库管理",
+      "icon": "DataBase",
+      "scope": "app",
+      "source": "src/views/app/DBMS.vue",
+      "description": "Metadata 项目的 lowcode 数据库管理入口",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "title": "表和视图管理",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/app/DBMS.vue",
+      "description": "Metadata 项目的 lowcode 表和视图管理入口",
+      "hidden": true,
+      "shellTool": false
     }
   ]
 }

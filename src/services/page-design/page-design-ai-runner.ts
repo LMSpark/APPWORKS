@@ -8,7 +8,7 @@
  * DevSystem 面板内 pageDesign AI — 使用 DevSystem 当前 ProjectWorkspace。
  *
  * `command.editor` 必须与手动编辑同一 `editor.project`，保存/撤销语义一致。
- * 隔离式 SSE Host Run 见 `page-design-host-run-provider.ts`（headless 临时门面）。
+ * 隔离式 SSE Agent Run 见 `page-design-agent-run-provider.ts`（headless 临时门面）。
  */
 import { createAiRunAdapter, noopTraceSink } from '@spark-appworks/spark-app'
 import type {
@@ -36,7 +36,7 @@ import {
 } from '@/services/page-design/page-design-agent-workflow-binding'
 import { activatePageDesignAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
 import { createAiDeliveryFailureError } from '@/services/ai/ai-delivery-port'
-import { createPageDesignInlineDeliveryPort } from '@/services/page-design/page-design-host-run-provider'
+import { createPageDesignInlineDeliveryPort } from '@/services/page-design/page-design-agent-run-provider'
 import {
   bindPageDesignRunContext,
   clearPageDesignRunContext,

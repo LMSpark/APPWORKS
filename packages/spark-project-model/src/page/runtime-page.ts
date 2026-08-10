@@ -7,7 +7,7 @@
 /**
  * 运行态配置页：ConfigPageNode + PageContentLoader 绑定。
  */
-import type { ProjectNodeData } from '../navigation/project-node'
+import type { ProjectBlueprintTreeNodeData } from '../blueprint/project-blueprint-node'
 import {
   ConfigPageNode,
   type PageNodeLike,
@@ -53,13 +53,13 @@ async function loadRuntimePageFiles(
 export function createRuntimePageNode(
   pageId: string,
   loader: PageContentLoader,
-  node?: ProjectNodeData,
+  node?: ProjectBlueprintTreeNodeData,
 ): PageNodeLike {
   const normalized = pageId.trim()
   if (!normalized) {
     throw new Error('pageId 不能为空')
   }
-  const navNode: ProjectNodeData = node ?? {
+  const navNode: ProjectBlueprintTreeNodeData = node ?? {
     id: normalized,
     title: normalized,
     nodeKind: 'page',

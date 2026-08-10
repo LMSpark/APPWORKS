@@ -21,7 +21,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
               <!-- 应用设置 -->
               <el-divider content-position="left">应用设置</el-divider>
               <el-form-item label="应用名称">
-                <el-input v-model="settings.appName" placeholder="请输入应用名称" />
+                <el-input v-model="settings.appName" disabled />
               </el-form-item>
               <el-form-item label="应用版本">
                 <el-input v-model="settings.appVersion" disabled />
@@ -37,25 +37,25 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
               <!-- 渲染设置 -->
               <el-divider content-position="left">渲染设置</el-divider>
               <el-form-item label="页面渲染模式">
-                <el-checkbox-group v-model="settings.renderModes">
+                <el-checkbox-group v-model="settings.renderModes" disabled>
                   <el-checkbox value="vue-component">Vue 组件页面</el-checkbox>
                   <el-checkbox value="config-page">配置页面</el-checkbox>
                   <el-checkbox value="spark-component">SPARK 组件</el-checkbox>
                 </el-checkbox-group>
               </el-form-item>
               <el-form-item label="动态路由">
-                <el-switch v-model="settings.dynamicRouting" />
+                <el-switch v-model="settings.dynamicRouting" disabled />
                 <span class="form-hint">启用后支持运行时注册页面</span>
               </el-form-item>
               <el-form-item label="配置缓存">
-                <el-switch v-model="settings.configCache" />
+                <el-switch v-model="settings.configCache" disabled />
                 <span class="form-hint">缓存页面配置以提升性能</span>
               </el-form-item>
 
               <!-- 开发设置 -->
               <el-divider content-position="left">开发设置</el-divider>
               <el-form-item label="日志级别">
-                <el-select v-model="settings.logLevel" placeholder="选择日志级别">
+                <el-select v-model="settings.logLevel" disabled placeholder="选择日志级别">
                   <el-option label="DEBUG" value="debug" />
                   <el-option label="INFO" value="info" />
                   <el-option label="WARN" value="warn" />
@@ -63,11 +63,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                 </el-select>
               </el-form-item>
               <el-form-item label="开发工具">
-                <el-switch v-model="settings.devTools" />
+                <el-switch v-model="settings.devTools" disabled />
                 <span class="form-hint">启用 Vue DevTools 支持</span>
               </el-form-item>
               <el-form-item label="热重载">
-                <el-switch v-model="settings.hotReload" />
+                <el-switch v-model="settings.hotReload" disabled />
                 <span class="form-hint">配置文件变更时自动重载</span>
               </el-form-item>
 
@@ -209,15 +209,19 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { isThemeMode, useTheme } from '@spark-appworks/spark-app'
+import { getNavTree, isThemeMode, useTheme } from '@spark-appworks/spark-app'
+import { getVuePageOptions, hasVuePage } from '@/registries/vue-page-registry'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { reloadAndSyncNavigation } from '@/services/project/project-shell'
+import packageMetadata from '../../../package.json'
 
 const router = useRouter()
 const theme = useTheme()
 
 // 设置数据
 const settings = ref({
-  appName: 'SPARK 混合渲染系统',
-  appVersion: '1.0.0',
+  appName: 'SPARK 应用工场',
+  appVersion: packageMetadata.version,
   theme: 'light',
   renderModes: ['vue-component', 'config-page'],
   dynamicRouting: true,
@@ -229,22 +233,31 @@ const settings = ref({
 
 // 路由统计
 const routeCount = computed(() => router.getRoutes().length)
-const configPageCount = ref(8) // 从配置目录统计
-const vuePageCount = ref(3) // Vue 组件页面数
+const configPageCount = ref(0)
+const vuePageCount = ref(getVuePageOptions().length)
 
 // 操作日志
-const operationLogs = ref([
-  { id: 1, action: '启动混合渲染系统', time: '2024-01-15 14:30' },
-  { id: 2, action: '注册 Vue 组件页面', time: '2024-01-15 14:25' },
-  { id: 3, action: '加载配置页面路由', time: '2024-01-15 14:20' },
-  { id: 4, action: '初始化 SPARK 组件系统', time: '2024-01-15 14:15' }
-])
+const operationLogs = ref<Array<{ id: number; action: string; time: string }>>([])
+
+function countConfigPages(): number {
+  const root = getNavTree()
+  if (root === null) return 0
+  const visit = (nodes: typeof root.items): number => nodes.reduce((total, node) => {
+    const own = node.itemKind === 'page' && !hasVuePage(node.path ?? '') ? 1 : 0
+    return total + own + visit(node.children ?? [])
+  }, 0)
+  return visit(root.items)
+}
+
+function syncRuntimeFacts(): void {
+  settings.value.appName = lowcodeApi.application.get()?.application.name ?? 'SPARK 应用工场'
+  configPageCount.value = countConfigPages()
+  vuePageCount.value = getVuePageOptions().length
+}
 
 // 保存设置
 const saveSettings = () => {
-  // 模拟保存到本地存储
-  localStorage.setItem('spark-settings', JSON.stringify(settings.value))
-  ElMessage.success('设置已保存')
+  ElMessage.success('SPARK 主题偏好已应用；运行配置保持只读')
   
   // 添加操作日志
   operationLogs.value.unshift({
@@ -257,9 +270,9 @@ const saveSettings = () => {
 // 重置设置
 const resetSettings = () => {
   settings.value = {
-    appName: 'SPARK 混合渲染系统',
-    appVersion: '1.0.0',
-    theme: 'light',
+    appName: lowcodeApi.application.get()?.application.name ?? 'SPARK 应用工场',
+    appVersion: packageMetadata.version,
+    theme: 'auto',
     renderModes: ['vue-component', 'config-page'],
     dynamicRouting: true,
     configCache: true,
@@ -294,25 +307,24 @@ const createVuePage = () => {
 }
 
 // 重载路由
-const refreshRoutes = () => {
-  ElMessage.success('路由已重载')
-  operationLogs.value.unshift({
-    id: Date.now(),
-    action: '重载系统路由',
-    time: new Date().toLocaleString()
-  })
+const refreshRoutes = async () => {
+  try {
+    await reloadAndSyncNavigation()
+    syncRuntimeFacts()
+    ElMessage.success('已从 lowcode 重新读取导航')
+    operationLogs.value.unshift({
+      id: Date.now(),
+      action: '从 lowcode 重载导航',
+      time: new Date().toLocaleString()
+    })
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : String(error))
+  }
 }
 
 // 加载保存的设置
 onMounted(() => {
-  const saved = localStorage.getItem('spark-settings')
-  if (saved) {
-    try {
-      settings.value = { ...settings.value, ...JSON.parse(saved) }
-    } catch (e) {
-      if (import.meta.env.DEV) console.warn('加载保存的设置失败:', e)
-    }
-  }
+  syncRuntimeFacts()
   // 同步主题服务当前状态到 UI
   if (theme) {
     settings.value.theme = theme.mode

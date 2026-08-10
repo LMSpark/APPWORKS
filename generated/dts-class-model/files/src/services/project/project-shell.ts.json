@@ -7,11 +7,12 @@
     "sourceFile": "src/services/project/project-shell.ts",
     "packageName": "app",
     "modulePath": "services/project/project-shell",
-    "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectModel 缓存、ProjectWorkspace 单例、导航同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；DevSystem 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步导航或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
+    "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectModel 缓存、项目蓝图工作区单例、运行菜单同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；DevSystem 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步运行菜单或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectSwitchService",
       "ProjectWorkspaceScope",
+      "ProjectApiScope",
       "ShellNavRootListener"
     ]
   },
@@ -55,7 +56,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-19T09:58:23.258Z",
+  "generatedAt": "2026-08-09T22:34:22.179Z",
   "models": {
     "ProjectSwitchService": {
       "name": "ProjectSwitchService",
@@ -116,12 +117,28 @@
         }
       }
     },
+    "ProjectApiScope": {
+      "name": "ProjectApiScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Partial<ProjectWorkspaceScope>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Partial<ProjectWorkspaceScope>",
+            "targetName": "Partial"
+          }
+        ],
+        "members": {}
+      }
+    },
     "ShellNavRootListener": {
       "name": "ShellNavRootListener",
       "jsdoc": "Shell Nav Root Listener 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "(navData: ProjectModelData | null) => void",
+        "declarationTypeText": "(navData: RuntimeNavigation | null) => void",
         "members": {}
       }
     }

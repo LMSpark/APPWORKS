@@ -50,6 +50,9 @@
         },
         "hidden": {
           "type": "boolean"
+        },
+        "shellTool": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -71,7 +74,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:21:59.869Z",
+  "generatedAt": "2026-08-09T21:29:39.715Z",
   "models": {
     "PageScope": {
       "name": "PageScope",
@@ -101,11 +104,11 @@
       "jsdoc": "Vue Page Config Entry 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -150,6 +153,12 @@
             {
               "name": "hidden",
               "jsdoc": "是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shellTool",
+              "jsdoc": "是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。",
               "readable": true,
               "writable": false
             }

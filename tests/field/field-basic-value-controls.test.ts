@@ -99,7 +99,11 @@ function createCurrentRowDataView(row: Record<string, unknown>): DataView {
         ],
         views: {
           default: {
-            rows: [{ id: 'current', ...row }],
+            rows: [{
+              id: 'current',
+              ...row,
+              lingma_sys_params: { r: [], e: ['name', 'assignee'], h: [], m: [], d: false },
+            }],
             autoCurrentFirst: false,
             autoSelectFirst: false,
           },

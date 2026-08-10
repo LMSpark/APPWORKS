@@ -27,7 +27,7 @@
         },
         "method.refreshRoutes.return": {
           "type": "object",
-          "title": "Promise<ProjectModelData | null>"
+          "title": "Promise<RuntimeNavigation | null>"
         },
         "method.getNavTree.params": {
           "type": "object",
@@ -37,7 +37,7 @@
         "method.getNavTree.return": {
           "anyOf": [
             {
-              "$ref": "../../../spark-project-model/src/navigation/project-node.ts.json#/$defs/ProjectModelData"
+              "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigation"
             },
             {
               "type": "null"
@@ -58,14 +58,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:00:48.144Z",
+  "generatedAt": "2026-08-09T21:25:34.633Z",
   "models": {
     "DynamicRouterAccess": {
       "name": "DynamicRouterAccess",
       "jsdoc": "DynamicRouter 公共 API 子集（仅导航相关）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 清除路由缓存并重新注册，返回刷新后的导航树；DynamicRouter 未注入时由调用方处理 */\n    refreshRoutes(): Promise<ProjectModelData | null>;\n    /** 同步读取当前已加载的导航树（不发 HTTP），未加载或未注入时返回 null */\n    getNavTree(): ProjectModelData | null;\n}",
+        "declarationTypeText": "{\n    /** 清除路由缓存并重新注册，返回刷新后的导航树；DynamicRouter 未注入时由调用方处理 */\n    refreshRoutes(): Promise<RuntimeNavigation | null>;\n    /** 同步读取当前已加载的导航树（不发 HTTP），未加载或未注入时返回 null */\n    getNavTree(): RuntimeNavigation | null;\n}",
         "members": {
           "methods": [
             {
@@ -81,7 +81,8 @@
                     "types": [
                       {
                         "type": "reference",
-                        "name": "ProjectModelData"
+                        "name": "RuntimeNavigation",
+                        "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                       },
                       {
                         "type": "literal",
@@ -101,7 +102,8 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "ProjectModelData"
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                   },
                   {
                     "type": "literal",

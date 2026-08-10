@@ -59,7 +59,7 @@ export type {
   PageSelectedEntity,
   PageSelectedFile,
   PageUploadedFile,
-  NavPermissionMode,
+  PagePermissionMode,
 } from './capability-keys.js'
 
 export {

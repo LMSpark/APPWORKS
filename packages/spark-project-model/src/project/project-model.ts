@@ -1,6 +1,6 @@
 /**
  * @module @spark-appworks/spark-project-model:project/project-model
- * 职责：提供项目模型和页面配置域中的 project model 能力，支撑 navigation、page content、project session 或远程 IO。
+ * 职责：提供项目蓝图和页面配置域的 ProjectModel 门面，支撑 blueprint、page content、project session 与远程 IO。
  * 边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。
  * AI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。
  */
@@ -10,26 +10,27 @@
  * 组合 design（设计内容 class 树）与 session（编辑状态）。
  */
 import type { DataSetCrudTool, SparkNodeTree as SparkNodeTreeModel } from '@spark-appworks/spark-data'
-import type { ProjectNode } from '../navigation/project-node'
-import { ProjectDesign } from './project-design'
+import type { ProjectBlueprintNode } from '../blueprint/project-blueprint-node'
+import { ProjectBlueprintDesign } from './project-design'
 import {
   applyNodeKindPresetToDraft,
   applyNestedConfigPagePresetToDraft,
-  createNavigationNodeDraft,
-  navigationDraftContentKey,
-  type NavigationNodeDraft,
-  type NavigationNodeDraftApplyResult,
-} from '../navigation/navigation-edit'
+  createBlueprintNodeDraft,
+  blueprintDraftContentKey,
+  type BlueprintNodeDraft,
+  type BlueprintNodeDraftApplyResult,
+} from '../blueprint/project-blueprint-edit'
 import {
   readProjectNodeDescription,
-} from '../navigation/project-node'
+} from '../blueprint/project-blueprint-node'
 import type {
-  ProjectModelData,
-  ProjectNodeData,
-  ProjectNodeLocation,
+  ProjectBlueprintTreeData,
+  ProjectBlueprintTreeNodeData,
+  ProjectBlueprintTreeNodeLocation,
+  ProjectBlueprintNodeKind,
   ProjectPageNodeSummary,
-} from '../navigation/project-node'
-import type { NavNodeKind } from '../navigation/project-node'
+} from '../blueprint/project-blueprint-node'
+import type { ProjectBlueprintDeliveryKind } from '../blueprint/project-blueprint-node'
 import type { ConfigPageNode } from '../page/config-page'
 import type { PageNodeFileName } from '../page/page-file'
 import { tryParsePageDataTextError, tryParseRuleTextError } from '../page/page-file'
@@ -41,9 +42,9 @@ import type {
   ProjectModelInitOptions,
   ProjectActivePageProjection,
   ProjectDirtyProjection,
-  ProjectNavigationProjection,
+  ProjectBlueprintProjection,
   ProjectPageFileWriteCommand,
-  NavigationPlanningInput,
+  BlueprintPlanningInput,
   ProjectPlanningInput,
   ProjectPlanningCompletionInput,
   ProjectPlanningCompletionResult,
@@ -57,17 +58,17 @@ export type {
   ProjectModelInitOptions,
   ProjectActivePageProjection,
   ProjectDirtyProjection,
-  ProjectNavigationProjection,
-  ProjectNavigationDirtyScope,
+  ProjectBlueprintProjection,
+  ProjectBlueprintDirtyScope,
 } from './project-types'
 
 /**
  * 项目模型根。
  *
  */
-export class ProjectModel<TNode extends ProjectNode = ProjectNode> {
+export class ProjectModel<TNode extends ProjectBlueprintNode = ProjectBlueprintNode> {
     /** design 字段。 */
-readonly design: ProjectDesign<TNode>
+readonly design: ProjectBlueprintDesign<TNode>
     /** session 字段。 */
 readonly session: ProjectSession
 
@@ -77,10 +78,10 @@ readonly session: ProjectSession
   /**
    * 创建项目根模型实例。
    *
-   * @param options 项目导航、页面四文件与会话初始化参数。
+   * @param options 项目蓝图、页面四文件与会话初始化参数。
    */
   constructor(options: ProjectModelInitOptions) {
-    this.design = new ProjectDesign<TNode>(options)
+    this.design = new ProjectBlueprintDesign<TNode>(options)
     this.session = new ProjectSession({
       findNodeById: (nodeId) => this.design.findNodeById(nodeId),
       findConfigPageByPageId: (pageId) => this.design.findConfigPageByPageId(pageId),
@@ -106,13 +107,13 @@ readonly session: ProjectSession
   get updatedAt(): string | undefined { return this.design.updatedAt }
   get projectInfo(): ProjectInfo { return this.design.projectInfo }
 
-  /** 导航树根 DTO，含子节点树与布局元数据。
+  /** 项目蓝图根 DTO，含子节点树与输出布局元数据。
    *
    */
-  get navigationRoot(): ProjectModelData { return this.design.navigationRoot }
-  get navigationDraft(): NavigationNodeDraft | null { return this.session.navigationDraft }
-  get isNavigationEditing(): boolean { return this.session.isNavigationEditing }
-  get navigationDirty(): boolean { return this.session.navigationDirty }
+  get blueprintTree(): ProjectBlueprintTreeData { return this.design.blueprintTree }
+  get blueprintDraft(): BlueprintNodeDraft | null { return this.session.blueprintDraft }
+  get isBlueprintEditing(): boolean { return this.session.isBlueprintEditing }
+  get blueprintDirty(): boolean { return this.session.blueprintDirty }
 
     /** 执行 subscribe 操作。 */
 subscribe(listener: ProjectModelEventListener): () => void {
@@ -124,7 +125,7 @@ subscribe(listener: ProjectModelEventListener): () => void {
 
     /** 读取 Child Nodes。 */
 getChildNodes(nodeId?: string): TNode[] { return this.design.getChildNodes(nodeId) }
-  /** 导航树扁平节点列表，按遍历顺序排列。 */
+  /** 项目蓝图扁平节点列表，按遍历顺序排列。 */
   get flatRows(): TNode[] { return this.design.flatRows }
 
   /**
@@ -141,24 +142,24 @@ forEachNode(callback: (node: TNode) => void): void { this.design.forEachNode(cal
 replaceProjectInfo(project: ProjectInfoInput): ProjectInfo { return this.design.replaceProjectInfo(project) }
 
   /**
-   * 替换导航根节点的 children，返回更新后的导航根数据。
+   * 替换项目蓝图根节点的 children，返回更新后的蓝图根数据。
    *
-   * @param input 新的导航 children 树，或 `{ children }` 命令对象（与 ClassModel script 对齐）。
+   * @param input 新的蓝图 children 树，或 `{ children }` 命令对象（与 ClassModel script 对齐）。
    */
-  replaceNavigationChildren(
-    input: ProjectNodeData[] | Readonly<{ children: ProjectNodeData[] }>,
-  ): ProjectModelData {
+  replaceBlueprintChildren(
+    input: ProjectBlueprintTreeNodeData[] | Readonly<{ children: ProjectBlueprintTreeNodeData[] }>,
+  ): ProjectBlueprintTreeData {
     const children = Array.isArray(input) ? input : input.children
-    const root = this.design.replaceNavigationChildren(children)
-    this.session.markNavigationDirty('root')
-    this.emitNavigationChanged({ scope: 'root' })
+    const root = this.design.replaceBlueprintChildren(children)
+    this.session.markBlueprintDirty('root')
+    this.emitBlueprintChanged({ scope: 'root' })
     return root
   }
 
     /** find Node By Id 标识。 */
 findNodeById(nodeId: string): TNode | null { return this.design.findNodeById(nodeId) }
     /** 执行 find Node Location 操作。 */
-findNodeLocation(nodeId: string): ProjectNodeLocation | null { return this.design.findNodeLocation(nodeId) }
+findNodeLocation(nodeId: string): ProjectBlueprintTreeNodeLocation | null { return this.design.findNodeLocation(nodeId) }
     /** find Config Page By Page Id 标识。 */
 findConfigPageByPageId(pageId: string): ConfigPageNode | null {
     return this.design.findConfigPageByPageId(pageId)
@@ -179,15 +180,15 @@ closePageDesign(pageId: string): void { this.design.closePageDesign(pageId) }
   readPlanningProjection(): ProjectPageNodeSummary[] { return this.design.readPlanningProjection() }
 
   /**
-   * 读取项目级策划输入：navigation 根 description（短需求）+ 可选策划附件引用。
+   * 读取项目级策划输入：项目蓝图根 description（短需求）+ 可选策划附件引用。
    *
    */
   readProjectPlanningInput(): ProjectPlanningInput {
-    const navigationRoot = toNavigationRootNodeData(this.navigationRoot)
-    const rootRequirement = readProjectNodeDescription(navigationRoot)
+    const blueprintTree = toBlueprintTreeNodeData(this.blueprintTree)
+    const rootRequirement = readProjectNodeDescription(blueprintTree)
     const requirement = rootRequirement.length > 0 ? rootRequirement : this.description
     const planningAttachmentRef = resolvePlanningAttachmentRef(
-      navigationRoot?.planningAttachmentRef,
+      blueprintTree?.planningAttachmentRef,
       this.projectInfo.planningAttachmentRef,
     )
     return {
@@ -197,22 +198,22 @@ closePageDesign(pageId: string): void { this.design.closePageDesign(pageId) }
   }
 
   /**
-   * 读取单个导航节点策划输入。
+   * 读取单个项目蓝图节点策划输入。
    *
-   * @param nodeId 目标导航节点 id。
+   * @param nodeId 目标蓝图节点 id。
    */
-  readNavigationNodePlanningInput(nodeId: string): NavigationPlanningInput {
+  readBlueprintNodePlanningInput(nodeId: string): BlueprintPlanningInput {
     const model = this.findNodeById(nodeId)
     if (model === null) throw new Error(`项目节点未找到: ${nodeId}`)
-    return toNavigationPlanningInput(model.toNodeData())
+    return toBlueprintPlanningInput(model.toNodeData())
   }
 
   /**
-   * 读取全部导航节点策划输入（扁平遍历顺序）。
+   * 读取全部项目蓝图节点策划输入（扁平遍历顺序）。
    *
    */
-  readNavigationPlanningInputs(): readonly NavigationPlanningInput[] {
-    return this.flatRows.map(model => toNavigationPlanningInput(model.toNodeData()))
+  readBlueprintPlanningInputs(): readonly BlueprintPlanningInput[] {
+    return this.flatRows.map(model => toBlueprintPlanningInput(model.toNodeData()))
   }
 
   /**
@@ -221,48 +222,62 @@ closePageDesign(pageId: string): void { this.design.closePageDesign(pageId) }
   completeProjectPlanning(
     input: ProjectPlanningCompletionInput = {},
   ): ProjectPlanningCompletionResult {
-    const navigationRoot = this.navigationRoot
-    const children = navigationRoot.children
-    if (!this.navigationDirty) {
+    const blueprintTree = this.blueprintTree
+    const children = blueprintTree.children
+    if (!this.blueprintDirty) {
       return {
         ok: false,
-        code: 'PROJECT_PLANNING_NAVIGATION_NOT_WRITTEN',
-        msg: 'projectPlanning: navigation children 尚未写入，不能完成。',
-        fix: '需要先读取项目策划输入和导航策划输入，再替换导航 children 为 module + page 两级结构。',
+        code: 'PROJECT_PLANNING_BLUEPRINT_NOT_WRITTEN',
+        msg: 'projectPlanning: blueprint children 尚未写入，不能完成。',
+        fix: '需要先读取项目策划输入和蓝图策划输入，再写入具有明确 blueprintKind 的项目蓝图节点。',
         requiredCapabilities: [
           'readProjectPlanningInput',
-          'readNavigationPlanningInputs',
-          'replaceNavigationChildren',
+          'readBlueprintPlanningInputs',
+          'replaceBlueprintChildren',
         ],
-        missingFacts: ['navigationRoot.children'],
-        nextStep: '补齐导航 children，确保业务模块下包含页面概要。',
+        missingFacts: ['blueprintTree.children'],
+        nextStep: '补齐项目蓝图 children，并为每个节点声明真实 blueprintKind。',
       }
     }
 
-    const pageCount = countProjectNavigationNodesByKind(children, 'page')
-    if (pageCount === 0) {
+    const nodes = flattenProjectBlueprintNodes(children)
+    if (nodes.length === 0) {
       return {
         ok: false,
-        code: 'PROJECT_PLANNING_PAGE_NODES_MISSING',
-        msg: 'projectPlanning: navigation 策划只有模块壳，缺少 nodeKind="page" 的页面概要。',
-        fix: '需要替换导航 children 为 module + page 两级结构；每个主要业务 module 至少包含一个 nodeKind="page" 子节点。',
+        code: 'PROJECT_PLANNING_BLUEPRINT_NODES_MISSING',
+        msg: 'projectPlanning: 项目蓝图没有业务节点。',
+        fix: '需要写入至少一个真实业务节点；节点可以是需求、原型、数据空间、页面、报表、流程或其他已定义蓝图类型。',
         requiredCapabilities: [
-          'replaceNavigationChildren',
+          'replaceBlueprintChildren',
         ],
-        missingFacts: ['nodeKind="page" navigation children'],
-        nextStep: '补齐 page 子节点后再次请求完成。',
+        missingFacts: ['blueprintTree.children'],
+        nextStep: '补齐蓝图节点后再次请求完成。',
       }
     }
 
-    const moduleCount = (navigationRoot.nodeKind === 'module' ? 1 : 0)
-      + countProjectNavigationNodesByKind(children, 'module')
+    const unresolvedNodeIds = nodes
+      .filter(node => node.blueprintKind === undefined || node.blueprintKind === 'unresolved')
+      .map(node => node.id)
+    if (unresolvedNodeIds.length > 0) {
+      return {
+        ok: false,
+        code: 'PROJECT_PLANNING_BLUEPRINT_KIND_UNRESOLVED',
+        msg: 'projectPlanning: 项目蓝图包含未解析业务类型的节点。',
+        fix: '根据真实产品语义为节点声明 blueprintKind；不得按 URL、层级或是否有 children 猜测。',
+        requiredCapabilities: ['replaceBlueprintChildren'],
+        missingFacts: unresolvedNodeIds.map(nodeId => `blueprintKind:${nodeId}`),
+        nextStep: '补齐节点 blueprintKind 后再次请求完成。',
+      }
+    }
+
+    const blueprintKinds = [...new Set(nodes.map(readResolvedProjectBlueprintKind))]
     const summary = input.summary?.trim()
     return {
       ok: true,
       completed: true,
       summary: summary !== undefined && summary.length > 0 ? summary : '项目策划已完成。',
-      moduleCount,
-      pageCount,
+      nodeCount: nodes.length,
+      blueprintKinds,
     }
   }
 
@@ -270,54 +285,54 @@ closePageDesign(pageId: string): void { this.design.closePageDesign(pageId) }
    * 更新根模块 childPlacement（项目级 header / sidebar 布局）。
    *
    */
-  applyProjectLayoutEdit(childPlacement: 'header' | 'sidebar'): NavigationNodeDraftApplyResult {
+  applyProjectLayoutEdit(childPlacement: 'header' | 'sidebar'): BlueprintNodeDraftApplyResult {
     const root = this.design.rootNode
-    if (!root) throw new Error('导航 root 未加载')
-    const beforeKey = navigationDraftContentKey(createNavigationNodeDraft(root.toNodeData()))
-    const draft = createNavigationNodeDraft(root.toNodeData())
+    if (!root) throw new Error('项目蓝图根节点未加载')
+    const beforeKey = blueprintDraftContentKey(createBlueprintNodeDraft(root.toNodeData()))
+    const draft = createBlueprintNodeDraft(root.toNodeData())
     draft.node.childPlacement = childPlacement
-    const { node, result } = this.design.applyNavigationNodeEdit(draft)
-    const nextDraft = createNavigationNodeDraft(node.toNodeData())
-    if (navigationDraftContentKey(nextDraft) !== beforeKey) {
-      this.session.markNavigationDirty('root')
+    const { node, result } = this.design.applyBlueprintNodeEdit(draft)
+    const nextDraft = createBlueprintNodeDraft(node.toNodeData())
+    if (blueprintDraftContentKey(nextDraft) !== beforeKey) {
+      this.session.markBlueprintDirty('root')
     }
-    this.emitNavigationChanged({ scope: 'root', nodeId: node.id })
+    this.emitBlueprintChanged({ scope: 'root', nodeId: node.id })
     return result
   }
 
     /** 执行 add Root Module 操作。 */
-addRootModule(createId: () => string): ProjectNodeData {
+addRootModule(createId: () => string): ProjectBlueprintTreeNodeData {
     const node = this.design.addRootModule(createId)
-    this.session.markNavigationDirty('root')
-    this.emitNavigationChanged({ scope: 'root', nodeId: node.id })
+    this.session.markBlueprintDirty('root')
+    this.emitBlueprintChanged({ scope: 'root', nodeId: node.id })
     return node
   }
     /** 执行 add Child Page 操作。 */
-addChildPage(createId: () => string, parent?: ProjectNodeData | null): ProjectNodeData {
+addChildPage(createId: () => string, parent?: ProjectBlueprintTreeNodeData | null): ProjectBlueprintTreeNodeData {
     const node = this.design.addChildPage(createId, parent ?? null)
-    this.session.markNavigationDirty('root')
-    this.emitNavigationChanged({ scope: 'root', nodeId: node.id })
+    this.session.markBlueprintDirty('root')
+    this.emitBlueprintChanged({ scope: 'root', nodeId: node.id })
     return node
   }
     /** 删除 Node。 */
-removeNode(nodeId: string): ProjectNodeData | null {
+removeNode(nodeId: string): ProjectBlueprintTreeNodeData | null {
     const removed = this.design.removeNode(nodeId)
     this.session.syncWithModel()
-    this.session.markNavigationDirty('root')
-    this.emitNavigationChanged({ scope: 'root', nodeId })
+    this.session.markBlueprintDirty('root')
+    this.emitBlueprintChanged({ scope: 'root', nodeId })
     return removed
   }
     /** 执行 refresh Nav Refs 操作。 */
 refreshNavRefs(): void { this.design.refreshNavRefs() }
     /** 执行 to Tree 操作。 */
-toTree(): ProjectNodeData[] { return this.design.toTree() }
+toTree(): ProjectBlueprintTreeNodeData[] { return this.design.toTree() }
 
     /** 执行 replace Navigation Root 操作。 */
-replaceNavigationRoot(
-    root: ProjectModelData,
+replaceBlueprintTree(
+    root: ProjectBlueprintTreeData,
     options: { selectedNodeId?: string | null; dirty?: boolean } = {},
-  ): ProjectModelData {
-    const result = this.design.replaceNavigationRoot(root)
+  ): ProjectBlueprintTreeData {
+    const result = this.design.replaceBlueprintTree(root)
     const selectedNodeId = options.selectedNodeId ?? null
     if (selectedNodeId && this.design.findNodeById(selectedNodeId)) {
       this.session.setSelectedNodeId(selectedNodeId)
@@ -325,10 +340,10 @@ replaceNavigationRoot(
       this.session.setSelectedNodeId(null)
     }
     this.session.syncWithModel()
-    if (options.dirty === true) this.session.markNavigationDirty('root')
-    else this.session.markNavigationClean()
+    if (options.dirty === true) this.session.markBlueprintDirty('root')
+    else this.session.markBlueprintClean()
     this.design.refreshNavRefs()
-    this.emitNavigationChanged({ scope: 'root' })
+    this.emitBlueprintChanged({ scope: 'root' })
     this.emitSelectionChanged()
     return result
   }
@@ -336,7 +351,7 @@ replaceNavigationRoot(
     /** 执行 select Node 操作。 */
 selectNode(nodeId: string | null): void {
     this.session.setSelectedNodeId(nodeId)
-    this.session.setNavigationDraft(null)
+    this.session.setBlueprintDraft(null)
     this.emitSelectionChanged()
   }
 
@@ -375,61 +390,61 @@ getActivePage(): ConfigPageNode | null {
   }
 
     /** 执行 begin Navigation Draft 操作。 */
-beginNavigationDraft(): NavigationNodeDraft {
-    const node = this.requireSelectedNode('未选中导航节点，无法开始导航编辑')
-    return this.session.beginNavigationDraft(createNavigationNodeDraft(node))
+beginBlueprintDraft(): BlueprintNodeDraft {
+    const node = this.requireSelectedNode('未选中蓝图节点，无法开始蓝图编辑')
+    return this.session.beginBlueprintDraft(createBlueprintNodeDraft(node))
   }
 
     /** 执行 discard Navigation Draft 操作。 */
-discardNavigationDraft(): void {
-    this.session.discardNavigationDraft()
-    this.emitNavigationChanged({ scope: 'node' })
+discardBlueprintDraft(): void {
+    this.session.discardBlueprintDraft()
+    this.emitBlueprintChanged({ scope: 'node' })
   }
 
     /** 执行 mark Navigation Clean 操作。 */
-markNavigationClean(scope: 'root' | 'node' = 'node'): void {
-    this.session.markNavigationClean()
-    this.emitNavigationChanged({ scope })
+markBlueprintClean(scope: 'root' | 'node' = 'node'): void {
+    this.session.markBlueprintClean()
+    this.emitBlueprintChanged({ scope })
   }
 
     /** 执行 apply Navigation Node Edit 操作。 */
-applyNavigationNodeEdit(draft: NavigationNodeDraft): NavigationNodeDraftApplyResult {
-    const selected = this.requireSelectedNode('未选中导航节点，无法编辑导航属性')
+applyBlueprintNodeEdit(draft: BlueprintNodeDraft): BlueprintNodeDraftApplyResult {
+    const selected = this.requireSelectedNode('未选中蓝图节点，无法编辑蓝图属性')
     if (selected.id !== draft.node.id) {
-      throw new Error(`导航编辑节点不匹配: ${draft.node.id} != ${selected.id}`)
+      throw new Error(`蓝图编辑节点不匹配: ${draft.node.id} != ${selected.id}`)
     }
-    const beforeKey = navigationDraftContentKey(createNavigationNodeDraft(selected))
-    const { node, result } = this.design.applyNavigationNodeEdit(draft)
+    const beforeKey = blueprintDraftContentKey(createBlueprintNodeDraft(selected))
+    const { node, result } = this.design.applyBlueprintNodeEdit(draft)
     this.session.setSelectedNodeId(node.id)
-    const nextDraft = createNavigationNodeDraft(node.toNodeData())
-    this.session.setNavigationDraft(nextDraft)
-    if (navigationDraftContentKey(nextDraft) !== beforeKey) {
-      this.session.markNavigationDirty('node')
+    const nextDraft = createBlueprintNodeDraft(node.toNodeData())
+    this.session.setBlueprintDraft(nextDraft)
+    if (blueprintDraftContentKey(nextDraft) !== beforeKey) {
+      this.session.markBlueprintDirty('node')
     }
-    this.emitNavigationChanged({ scope: 'node', nodeId: node.id })
+    this.emitBlueprintChanged({ scope: 'node', nodeId: node.id })
     return result
   }
 
     /** 执行 apply Node Kind Preset 操作。 */
-applyNodeKindPreset(kind: NavNodeKind): void {
-    const node = this.requireSelectedNode('未选中导航节点，无法修改节点类型')
-    const draft = this.session.navigationDraft ?? createNavigationNodeDraft(node)
-    const nextDraft: NavigationNodeDraft = {
+applyNodeKindPreset(kind: ProjectBlueprintDeliveryKind): void {
+    const node = this.requireSelectedNode('未选中蓝图节点，无法修改运行交付投影')
+    const draft = this.session.blueprintDraft ?? createBlueprintNodeDraft(node)
+    const nextDraft: BlueprintNodeDraft = {
       ...draft,
       node: applyNodeKindPresetToDraft(draft.node, kind),
     }
-    this.applyNavigationNodeEdit(nextDraft)
+    this.applyBlueprintNodeEdit(nextDraft)
   }
 
     /** 嵌套配置页 preset：page + hidden + 无 path。 */
 applyNestedConfigPagePreset(): void {
-    const node = this.requireSelectedNode('未选中导航节点，无法修改节点类型')
-    const draft = this.session.navigationDraft ?? createNavigationNodeDraft(node)
-    const nextDraft: NavigationNodeDraft = {
+    const node = this.requireSelectedNode('未选中蓝图节点，无法修改运行交付投影')
+    const draft = this.session.blueprintDraft ?? createBlueprintNodeDraft(node)
+    const nextDraft: BlueprintNodeDraft = {
       ...draft,
       node: applyNestedConfigPagePresetToDraft(draft.node),
     }
-    this.applyNavigationNodeEdit(nextDraft)
+    this.applyBlueprintNodeEdit(nextDraft)
   }
 
   /**
@@ -532,32 +547,32 @@ markPageLoadedChanged(pageId: string, loaded: boolean): void {
   }
 
   /**
-   * 读取承载轴投影：导航树、选中节点与 pageFeatures。
+   * 读取承载轴投影：项目蓝图、选中节点与 pageDeliveries。
    *
    */
-  readNavigationProjection(): ProjectNavigationProjection {
-    const navigationRoot = this.design.navigationRoot
-    const treeData = navigationRoot.children
+  readBlueprintProjection(): ProjectBlueprintProjection {
+    const blueprintTree = this.design.blueprintTree
+    const tree = blueprintTree.children
     const selectedNodeId = this.session.session.selectedNodeId
     const selectedNode = selectedNodeId
       ? this.design.findNodeById(selectedNodeId)?.toNodeData() ?? null
       : null
-    const navigationLocation = selectedNode
+    const blueprintLocation = selectedNode
       ? this.design.findNodeLocation(selectedNode.id)
       : null
-    const navigationDraft = selectedNode
-      ? this.session.navigationDraft ?? createNavigationNodeDraft(selectedNode)
+    const blueprintDraft = selectedNode
+      ? this.session.blueprintDraft ?? createBlueprintNodeDraft(selectedNode)
       : null
-    const pageFeatures = this.design.readPlanningProjection()
+    const pageDeliveries = this.design.readPlanningProjection()
 
     return {
-      navigationRoot,
-      treeData,
+      blueprint: blueprintTree,
+      tree,
       selectedNode,
       selectedNodeId,
-      navigationLocation,
-      navigationDraft,
-      pageFeatures,
+      blueprintLocation,
+      blueprintDraft,
+      pageDeliveries,
     }
   }
 
@@ -599,16 +614,16 @@ readDirtyProjection(): ProjectDirtyProjection {
       for (const name of activePage.getDirtyFileNames()) dirtyFiles.add(name)
     }
     const hasAnyFileDirty = dirtyFiles.size > 0
-    const navigationDirty = this.session.navigationDirty
+    const blueprintDirty = this.session.blueprintDirty
     return {
       dirtyFiles,
       hasAnyFileDirty,
-      navigationDirty,
-      hasAnyDirty: hasAnyFileDirty || navigationDirty,
+      blueprintDirty,
+      hasAnyDirty: hasAnyFileDirty || blueprintDirty,
     }
   }
 
-  private requireSelectedNode(message: string): ProjectNodeData {
+  private requireSelectedNode(message: string): ProjectBlueprintTreeNodeData {
     const selectedNodeId = this.session.session.selectedNodeId
     if (!selectedNodeId) throw new Error(message)
     const node = this.design.findNodeById(selectedNodeId)?.toNodeData() ?? null
@@ -633,10 +648,10 @@ readDirtyProjection(): ProjectDirtyProjection {
     return normalized ? this.design.findConfigPageByPageId(normalized) : this.getActivePage()
   }
 
-  private emitNavigationChanged(event: { scope: 'root' | 'node'; nodeId?: string }): void {
+  private emitBlueprintChanged(event: { scope: 'root' | 'node'; nodeId?: string }): void {
     const revision = this.nextRevision()
     const modelEvent = {
-      type: 'navigation.changed' as const,
+      type: 'blueprint.changed' as const,
       projectId: this.projectId,
       revision,
       scope: event.scope,
@@ -687,7 +702,7 @@ readDirtyProjection(): ProjectDirtyProjection {
   }
 }
 
-function toNavigationRootNodeData(root: ProjectModelData): ProjectNodeData | null {
+function toBlueprintTreeNodeData(root: ProjectBlueprintTreeData): ProjectBlueprintTreeNodeData | null {
   const id = root.id?.trim()
   if (id === undefined || id.length === 0) return null
   return {
@@ -698,15 +713,25 @@ function toNavigationRootNodeData(root: ProjectModelData): ProjectNodeData | nul
   }
 }
 
-function countProjectNavigationNodesByKind(nodes: readonly ProjectNodeData[], nodeKind: string): number {
-  let count = 0
+function flattenProjectBlueprintNodes(
+  nodes: readonly ProjectBlueprintTreeNodeData[],
+): ProjectBlueprintTreeNodeData[] {
+  const flattened: ProjectBlueprintTreeNodeData[] = []
   for (const node of nodes) {
-    if (node.nodeKind === nodeKind) count += 1
+    flattened.push(node)
     if (Array.isArray(node.children)) {
-      count += countProjectNavigationNodesByKind(node.children, nodeKind)
+      flattened.push(...flattenProjectBlueprintNodes(node.children))
     }
   }
-  return count
+  return flattened
+}
+
+function readResolvedProjectBlueprintKind(node: ProjectBlueprintTreeNodeData): ProjectBlueprintNodeKind {
+  const kind = node.blueprintKind
+  if (kind === undefined || kind === 'unresolved') {
+    throw new Error(`项目蓝图节点业务类型未解析: ${node.id}`)
+  }
+  return kind
 }
 
 function resolvePlanningAttachmentRef(
@@ -719,12 +744,13 @@ function resolvePlanningAttachmentRef(
   return fallback === undefined || fallback.length === 0 ? undefined : fallback
 }
 
-function toNavigationPlanningInput(node: ProjectNodeData): NavigationPlanningInput {
+function toBlueprintPlanningInput(node: ProjectBlueprintTreeNodeData): BlueprintPlanningInput {
   const requirement = readProjectNodeDescription(node)
   const planningAttachmentRef = resolvePlanningAttachmentRef(node.planningAttachmentRef, undefined)
   return {
     nodeId: node.id,
     title: node.title,
+    blueprintKind: node.blueprintKind ?? 'unresolved',
     nodeKind: node.nodeKind ?? 'page',
     requirement,
     ...(planningAttachmentRef === undefined ? {} : { planningAttachmentRef }),

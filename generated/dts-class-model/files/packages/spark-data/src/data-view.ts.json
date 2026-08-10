@@ -165,6 +165,16 @@
             "$ref": "types.ts.json#/$defs/DataRow"
           }
         },
+        "permissionSnapshot": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/DataPermissionSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "_currentRowId": {
           "anyOf": [
             {
@@ -286,6 +296,7 @@
         "tableName",
         "viewId",
         "rows",
+        "permissionSnapshot",
         "_currentRowId",
         "_selectedRowIds",
         "selectionDelimiter",
@@ -733,6 +744,16 @@
           "additionalProperties": false
         },
         "method.replaceRows.return": true,
+        "method.ingestPermissionSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "types.ts.json#/$defs/DataPermissionSnapshotInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ingestPermissionSnapshot.return": true,
         "method.hasEditingChanges.params": {
           "type": "object",
           "properties": {
@@ -1267,7 +1288,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.009Z",
+  "generatedAt": "2026-08-09T20:36:54.974Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -1476,6 +1497,12 @@
             {
               "name": "rows",
               "jsdoc": "行数据集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "permissionSnapshot",
+              "jsdoc": "与当前 rows 同一次查询登记的后端最终权限事实。",
               "readable": true,
               "writable": true
             },
@@ -2393,6 +2420,24 @@
                       "name": "DataRow",
                       "sourcePath": "packages/spark-data/src/types.ts"
                     }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "ingestPermissionSnapshot",
+              "jsdoc": "原子登记一次后端运行查询：数据、原始行、总数、五集合权限和系统键共享同一基线。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataPermissionSnapshotInput",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
               ],

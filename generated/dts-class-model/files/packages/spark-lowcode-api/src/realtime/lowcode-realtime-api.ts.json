@@ -1,0 +1,987 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:realtime/lowcode-realtime-api",
+    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "realtime/lowcode-realtime-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 realtime/lowcode-realtime-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeRealtimeEvent, LowcodeSparkEnvelope, LowcodeAgentTurnInput, LowcodeAgentTurnAck, LowcodeAgentToolResult, LowcodeAgentToolAppendInput, LowcodeAgentEvent, LowcodeSystemDownload 等（共 13 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeRealtimeEvent",
+      "LowcodeSparkEnvelope",
+      "LowcodeAgentTurnInput",
+      "LowcodeAgentTurnAck",
+      "LowcodeAgentToolResult",
+      "LowcodeAgentToolAppendInput",
+      "LowcodeAgentEvent",
+      "LowcodeSystemDownload",
+      "LowcodeRealtimeSubscription",
+      "LowcodeRealtimeConnectOptions",
+      "LowcodeAiChatInput",
+      "LowcodeFetch",
+      "LowcodeRealtimeApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeRealtimeEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRealtimeEvent",
+      "properties": {
+        "event": {
+          "type": "string"
+        },
+        "data": true
+      },
+      "additionalProperties": false
+    },
+    "LowcodeSparkEnvelope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSparkEnvelope",
+      "properties": {
+        "protocolVersion": {
+          "type": "number"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object",
+          "title": "TData"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "context": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "event": {
+          "type": "object",
+          "properties": {
+            "channel": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "terminal": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeAgentTurnInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAgentTurnInput",
+      "properties": {
+        "agentId": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeAgentTurnAck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAgentTurnAck",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeAgentToolResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAgentToolResult",
+      "properties": {
+        "toolCallId": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeAgentToolAppendInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAgentToolAppendInput",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "toolResults": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeAgentToolResult"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeAgentEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAgentEvent",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "terminal": {
+          "type": "boolean"
+        },
+        "sequence": {
+          "type": "number"
+        },
+        "data": true,
+        "raw": {
+          "$ref": "#/$defs/LowcodeSparkEnvelope"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeSystemDownload": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSystemDownload",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "filePath": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "appType": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeRealtimeSubscription": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRealtimeSubscription",
+      "properties": {
+        "closed": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.close.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.close.return": true
+      }
+    },
+    "LowcodeRealtimeConnectOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRealtimeConnectOptions",
+      "properties": {
+        "scope": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onEvent.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/LowcodeRealtimeEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onEvent.return": true
+      }
+    },
+    "LowcodeAiChatInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAiChatInput",
+      "properties": {
+        "taskId": {
+          "type": "string"
+        },
+        "conversationId": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeRealtimeApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRealtimeApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            },
+            "session": {
+              "$ref": "../platform/lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+            },
+            "fetcher": {
+              "type": "object",
+              "title": "LowcodeFetch"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.chat.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeAiChatInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.chat.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.startAgentTurn.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeAgentTurnInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.startAgentTurn.return": {
+          "type": "object",
+          "title": "Promise<LowcodeAgentTurnAck>"
+        },
+        "method.appendAgentToolResults.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeAgentToolAppendInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendAgentToolResults.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.decodeAgentEvent.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/LowcodeRealtimeEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.decodeAgentEvent.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LowcodeAgentEvent"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.decodeSystemDownload.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/LowcodeRealtimeEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.decodeSystemDownload.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LowcodeSystemDownload"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.connect.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeRealtimeConnectOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.connect.return": {
+          "$ref": "#/$defs/LowcodeRealtimeSubscription"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T23:09:09.276Z",
+  "models": {
+    "LowcodeRealtimeEvent": {
+      "name": "LowcodeRealtimeEvent",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    event: string;\n    data: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    event: string;\n    data: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "event",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSparkEnvelope": {
+      "name": "LowcodeSparkEnvelope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    protocolVersion: number;\n    ok: boolean;\n    data?: TData;\n    error?: Readonly<{\n        code?: string;\n        message?: string;\n    }>;\n    context?: Readonly<Record<string, unknown>>;\n    event?: Readonly<{\n        channel?: string;\n        name?: string;\n        terminal?: boolean;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    protocolVersion: number;\n    ok: boolean;\n    data?: TData;\n    error?: Readonly<{\n        code?: string;\n        message?: string;\n    }>;\n    context?: Readonly<Record<string, unknown>>;\n    event?: Readonly<{\n        channel?: string;\n        name?: string;\n        terminal?: boolean;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "protocolVersion",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "event",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAgentTurnInput": {
+      "name": "LowcodeAgentTurnInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    agentId: string;\n    sessionId?: string;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    agentId: string;\n    sessionId?: string;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "agentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAgentTurnAck": {
+      "name": "LowcodeAgentTurnAck",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    sessionId: string;\n    turnId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    sessionId: string;\n    turnId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sessionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAgentToolResult": {
+      "name": "LowcodeAgentToolResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    toolCallId: string;\n    toolName: string;\n    result: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    toolCallId: string;\n    toolName: string;\n    result: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "toolCallId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "result",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAgentToolAppendInput": {
+      "name": "LowcodeAgentToolAppendInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    sessionId: string;\n    turnId: string;\n    toolResults: readonly LowcodeAgentToolResult[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    sessionId: string;\n    turnId: string;\n    toolResults: readonly LowcodeAgentToolResult[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sessionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolResults",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAgentEvent": {
+      "name": "LowcodeAgentEvent",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    sessionId: string;\n    turnId: string;\n    terminal: boolean;\n    sequence?: number;\n    data: unknown;\n    raw: LowcodeSparkEnvelope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    sessionId: string;\n    turnId: string;\n    terminal: boolean;\n    sequence?: number;\n    data: unknown;\n    raw: LowcodeSparkEnvelope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "terminal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sequence",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSystemDownload": {
+      "name": "LowcodeSystemDownload",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    title: string;\n    filePath: string;\n    fileName: string;\n    appType: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    title: string;\n    filePath: string;\n    fileName: string;\n    appType: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filePath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeRealtimeSubscription": {
+      "name": "LowcodeRealtimeSubscription",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    closed: Promise<void>;\n    close(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    closed: Promise<void>;\n    close(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "closed",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "close",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeRealtimeConnectOptions": {
+      "name": "LowcodeRealtimeConnectOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scope?: string;\n    onEvent(event: LowcodeRealtimeEvent): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scope?: string;\n    onEvent(event: LowcodeRealtimeEvent): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEvent",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeRealtimeEvent",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAiChatInput": {
+      "name": "LowcodeAiChatInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    taskId: string;\n    conversationId?: string;\n    query: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    taskId: string;\n    conversationId?: string;\n    query: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "taskId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conversationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "query",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFetch": {
+      "name": "LowcodeFetch",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>",
+        "members": {}
+      }
+    },
+    "LowcodeRealtimeApi": {
+      "name": "LowcodeRealtimeApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase, session: LowcodeSessionStore, fetcher: LowcodeFetch | undefined)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            },
+            {
+              "name": "session",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeSessionStore",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts"
+              }
+            },
+            {
+              "name": "fetcher",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "LowcodeFetch",
+                  "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "chat",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeAiChatInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "startAgentTurn",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeAgentTurnInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeAgentTurnAck",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "appendAgentToolResults",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeAgentToolAppendInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "decodeAgentEvent",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeRealtimeEvent",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeAgentEvent",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "decodeSystemDownload",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeRealtimeEvent",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeSystemDownload",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "connect",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeRealtimeConnectOptions",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeRealtimeSubscription",
+                "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -26,8 +26,15 @@
           ],
           "title": "TSource"
         },
-        "modelPermission": {
-          "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+        "permissionSnapshot": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "moduleContext": {
           "type": [
@@ -39,19 +46,19 @@
       },
       "required": [
         "dataSource",
-        "modelPermission"
+        "permissionSnapshot"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.470Z",
+  "generatedAt": "2026-08-09T20:39:26.884Z",
   "models": {
     "BaseScopeContext": {
       "name": "BaseScopeContext",
       "jsdoc": "Base Scope Context 的运行上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** data Source 字段。 */\n    dataSource: TSource | null | undefined;\n    /** model Permission 字段。 */\n    modelPermission: ModelPermission | undefined;\n    /** module Context 字段。 */\n    moduleContext?: ModuleContext | null | undefined;\n}",
+        "declarationTypeText": "{\n    /** data Source 字段。 */\n    dataSource: TSource | null | undefined;\n    /** model Permission 字段。 */\n    permissionSnapshot: DataPermissionSnapshot | null;\n    /** module Context 字段。 */\n    moduleContext?: ModuleContext | null | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -61,7 +68,7 @@
               "writable": true
             },
             {
-              "name": "modelPermission",
+              "name": "permissionSnapshot",
               "jsdoc": "model Permission 字段。",
               "readable": true,
               "writable": true

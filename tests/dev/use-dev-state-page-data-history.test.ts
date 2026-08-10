@@ -13,9 +13,8 @@ const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterce
   },
 }))
 
-vi.mock('@/services/http', () => ({
-  createAuthHeaders: () => ({}),
-  http: {
+vi.mock('@/lowcode/lowcode-runtime', () => ({
+  lowcodeHttp: {
     get: httpGet,
     post: httpPost,
     put: httpPut,
@@ -23,18 +22,28 @@ vi.mock('@/services/http', () => ({
     clearCache: httpClearCache,
     interceptors: httpInterceptors,
   },
-}))
-
-vi.mock('@/services/api-paths', () => ({
-  getPageApi: () => '/api/pages-config',
-  getNavApi: () => '/api/navigation',
-  getProjectApi: (tenantId?: string) => tenantId ? `/api/tenants/${tenantId}/projects` : '/api/projects',
-  getProjectNavigationApi: (projectId: string, tenantId?: string) => projectId === 'homepage'
-    ? '/api/navigation'
-    : `/api/tenants/${tenantId ?? 'tenant-a'}/projects/${projectId}/navigation`,
-  getProjectPageApi: (projectId: string, tenantId?: string) => projectId === 'homepage'
-    ? '/api/pages-config'
-    : `/api/tenants/${tenantId ?? 'tenant-a'}/projects/${projectId}/pages-config`,
+  lowcodeRequestHeaders: () => ({}),
+  readLowcodePrincipal: () => null,
+  lowcodeApi: {
+    platform: {
+      listApplications: async () => [],
+    },
+  },
+  createLowcodeProjectGateways: () => ({
+    pageFiles: {
+      readPageFile: async (command: { pageId: string; fileName: string }) => {
+        const response = await httpGet(`/api/pages-config/${command.pageId}/${command.fileName}`)
+        return String(response?.content ?? '')
+      },
+    },
+    blueprint: {
+      loadRoot: async () => ({ title: 'Test Project', children: [] }),
+    },
+    projectReferences: {
+      listProjects: async () => [],
+      loadProjectBlueprint: async () => ({ title: 'Test Project', children: [] }),
+    },
+  }),
 }))
 
 import { canonicalizePageDataJson } from '@spark-appworks/spark-project-model'
@@ -285,24 +294,19 @@ describe('useDevState documents SSOT', () => {
     expect(state.project.readPageFileText('style.css')).toBe('.page { color: red; }\n')
   })
 
-  it('savePageFile uploads current text and clears dirty without touching history', async () => {
+  it('savePageFile fails closed when the platform has no governed page-file mutation', async () => {
     const state = createDevStateWithConfigPages()
     state.project.writePageFile({ fileName: 'pagedata.json', text: createPageDataText('Gamma', true) })
 
     expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(true)
     const canUndoBefore = (state.project.getActivePage()?.dataSet.canUndo ?? false)
 
-    httpPut.mockResolvedValue({ ok: true })
-    httpGet.mockResolvedValue([])
-
-    await saveDevStatePageDocument(state, 'pagedata.json')
-
-    expect(httpPut).toHaveBeenCalledWith(
-      '/api/pages-config/orders-page/pagedata.json',
-      state.project.readPageFileText('pagedata.json'),
-      { headers: { 'Content-Type': 'text/plain' } },
+    await expect(saveDevStatePageDocument(state, 'pagedata.json')).rejects.toThrow(
+      '当前平台未提供受治理的页面文件保存能力',
     )
-    expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(false)
+
+    expect(httpPut).not.toHaveBeenCalled()
+    expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(true)
     expect((state.project.getActivePage()?.dataSet.canUndo ?? false)).toBe(canUndoBefore)
   })
 

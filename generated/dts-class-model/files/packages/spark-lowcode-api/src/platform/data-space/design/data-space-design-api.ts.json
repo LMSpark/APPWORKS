@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/design/data-space-design-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/design/data-space-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceInputParameter, DataSpaceDesignSnapshot, DataSpaceDesignApi（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceInputParameter",
+      "DataSpaceDesignSnapshot",
+      "DataSpaceDesignApi"
+    ]
+  },
+  "$defs": {
+    "DataSpaceInputParameter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceInputParameter",
+      "properties": {
+        "parameterId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "business": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceDesignSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignSnapshot",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "inputParameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceInputParameter"
+          }
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-space.ts.json#/$defs/DataSpaceFrontendModel"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceDesignApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceDesignSnapshot>"
+        },
+        "method.prepareMutation.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "data-space-design-mutation.ts.json#/$defs/DataSpaceDesignMutationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareMutation.return": {
+          "$ref": "data-space-design-mutation.ts.json#/$defs/DataSpaceDesignMutationCommand"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T22:50:15.256Z",
+  "models": {
+    "DataSpaceInputParameter": {
+      "name": "DataSpaceInputParameter",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    parameterId: string;\n    name: string;\n    description: string;\n    business: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    parameterId: string;\n    name: string;\n    description: string;\n    business: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parameterId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "business",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignSnapshot": {
+      "name": "DataSpaceDesignSnapshot",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    models: readonly DataSpaceFrontendModel[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    models: readonly DataSpaceFrontendModel[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParameters",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignApi": {
+      "name": "DataSpaceDesignApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceDesignSnapshot",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareMutation",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceDesignMutationInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceDesignMutationCommand",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

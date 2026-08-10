@@ -7,9 +7,10 @@
     "sourceFile": "packages/spark-component/src/core/capability-keys.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "core/capability-keys",
-    "jsdoc": "@module @spark-appworks/spark-component:core/capability-keys\n职责：提供 capability keys 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nspark-component 能力键定义。\n## 三类键：\n1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_DATASET / DATA_SOURCE / DATA_ROW\n2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：\nMODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE\n3. 页面 UI 服务与权限键（从 spark-utils 迁入）：\nPAGE_SERVICE / PAGE_PERMISSION_MODE / NavPermissionMode\n4. 字段渲染局部策略：\nSUBTREE_FIELD_POLICY\n注：PageServiceCapability 等运行时服务契约以\n@spark-appworks/spark-component/runtime 为 SSOT。",
+    "jsdoc": "@module @spark-appworks/spark-component:core/capability-keys\n职责：提供 capability keys 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nspark-component 能力键定义。\n## 三类键：\n1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_DATASET / DATA_SOURCE / DATA_ROW\n2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：\nMODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE\n3. 页面 UI 服务与权限键（从 spark-utils 迁入）：\nPAGE_SERVICE / PAGE_PERMISSION_MODE / PagePermissionMode\n4. 字段渲染局部策略：\nSUBTREE_FIELD_POLICY\n注：PageServiceCapability 等运行时服务契约以\n@spark-appworks/spark-component/runtime 为 SSOT。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "PagePermissionMode",
       "SubtreeFieldPolicy",
       "ThemeMode",
       "ThemeCapability",
@@ -23,6 +24,15 @@
     ]
   },
   "$defs": {
+    "PagePermissionMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PagePermissionMode",
+      "enum": [
+        "none",
+        "masked",
+        "invisible"
+      ]
+    },
     "SubtreeFieldPolicy": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "SubtreeFieldPolicy",
@@ -359,8 +369,31 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T22:53:49.858Z",
+  "generatedAt": "2026-08-09T22:03:57.890Z",
   "models": {
+    "PagePermissionMode": {
+      "name": "PagePermissionMode",
+      "jsdoc": "页面组件在完整后端权限快照改造完成前使用的三态过渡模式。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'none' | 'masked' | 'invisible'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'none'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'masked'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'invisible'"
+          }
+        ],
+        "members": {}
+      }
+    },
     "SubtreeFieldPolicy": {
       "name": "SubtreeFieldPolicy",
       "jsdoc": "子树级字段输入策略 — 仅描述子树内字段输入行为，不改变全局 permissionMode。",

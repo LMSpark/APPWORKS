@@ -4,8 +4,7 @@
  * 边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。
  * AI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/runtime-target。
  */
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
-import { isNestedConfigPageNode } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigationItem } from './runtime-navigation'
 
 /** Nav Node Route Target Kind 的语义模型。 */
 export type NavNodeRouteTargetKind = 'page' | 'external-link' | 'cross-project-ref'
@@ -42,20 +41,12 @@ kind: 'container'
     /** redirect 字段。 */
 redirect?: string}
 
-/** Nav Node Hidden Target 的语义模型。 */
-export type NavNodeHiddenTarget = {
-    /** 类型判别字段。 */
-kind: 'hidden'
-    /** reason 字段。 */
-reason: 'sub-page'}
-
 /** Nav Node Runtime Target 的语义模型。 */
 export type NavNodeRuntimeTarget =
   | NavNodeRouteTarget
   | NavNodeExternalTarget
   | NavNodeActionTarget
   | NavNodeContainerTarget
-  | NavNodeHiddenTarget
 
 export function normalizeNavRuntimePath(path: string): string {
   const trimmed = path.trim()
@@ -69,18 +60,14 @@ function normalizeActionCommand(value: string): string {
   return value.trim().replace(/^\/+/, '')
 }
 
-function resolveRefHostPath(node: ProjectNodeData): string {
+function resolveRefHostPath(node: RuntimeNavigationItem): string {
   const explicitPath = typeof node.path === 'string' ? normalizeNavRuntimePath(node.path) : ''
   if (explicitPath.includes('/__ref/')) return explicitPath
   return normalizeNavRuntimePath(`/__ref/${encodeURIComponent(node.id)}`)
 }
 
-export function resolveNavNodeRuntimeTarget(node: ProjectNodeData): NavNodeRuntimeTarget {
-  const nodeKind = node.nodeKind ?? 'page'
-
-  if (isNestedConfigPageNode(node)) {
-    return { kind: 'hidden', reason: 'sub-page' }
-  }
+export function resolveNavNodeRuntimeTarget(node: RuntimeNavigationItem): NavNodeRuntimeTarget {
+  const nodeKind = node.itemKind ?? 'page'
 
   if (nodeKind === 'system-action') {
     const command = typeof node.path === 'string' && node.path.trim() !== ''

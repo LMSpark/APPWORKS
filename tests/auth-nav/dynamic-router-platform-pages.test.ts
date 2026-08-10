@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { PageContentLoader, type ProjectModelData } from '@spark-appworks/spark-project-model'
+import { PageContentLoader, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation, RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { createDynamicRouter } from '../../packages/spark-app/src/router/dynamic'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../../packages/spark-app/src/router/cross-project-ref-route'
 
@@ -9,10 +10,45 @@ const DummyPage = defineComponent({
   name: 'DummyPage',
   template: '<div />',
 })
+const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ projectId: 'test' })
 
-const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ fileStorage: 'memory' })
+function runtimeNavigationItem(node: ProjectBlueprintTreeData['children'][number]): RuntimeNavigationItem {
+  return {
+    id: node.id,
+    title: node.title,
+    ...(node.description === undefined ? {} : { description: node.description }),
+    ...(node.icon === undefined ? {} : { icon: node.icon }),
+    ...(node.nodeKind === undefined ? {} : { itemKind: node.nodeKind }),
+    ...(node.childPlacement === undefined ? {} : { childPlacement: node.childPlacement }),
+    ...(node.order === undefined ? {} : { order: node.order }),
+    ...(node.hidden === undefined ? {} : { hidden: node.hidden }),
+    ...(node.disabled === undefined ? {} : { disabled: node.disabled }),
+    ...(node.dividerAfter === undefined ? {} : { dividerAfter: node.dividerAfter }),
+    ...(node.permissionMode === undefined ? {} : { permissionMode: node.permissionMode }),
+    ...(node.path === undefined ? {} : { path: node.path }),
+    ...(node.formKey === undefined ? {} : { formKey: node.formKey }),
+    ...(node.dataSpaceId === undefined ? {} : { dataSpaceId: node.dataSpaceId }),
+    ...(node.modelId === undefined ? {} : { modelId: node.modelId }),
+    ...(node.linkTarget === undefined ? {} : { linkTarget: node.linkTarget }),
+    ...(node.redirect === undefined ? {} : { redirect: node.redirect }),
+    ...(node.refId === undefined ? {} : { refId: node.refId }),
+    ...(node.refPath === undefined ? {} : { refPath: node.refPath }),
+    ...(node.refProjectId === undefined ? {} : { refProjectId: node.refProjectId }),
+    children: (node.children ?? []).map(runtimeNavigationItem),
+  }
+}
 
-const PRE_AUTH_NAV: ProjectModelData = {
+function runtimeNavigationFixture(root: ProjectBlueprintTreeData): RuntimeNavigation {
+  return {
+    ...(root.id === undefined ? {} : { id: root.id }),
+    title: root.title,
+    childPlacement: root.childPlacement,
+    ...(root.homePath === undefined ? {} : { homePath: root.homePath }),
+    items: root.children.map(runtimeNavigationItem),
+  }
+}
+
+const PRE_AUTH_NAV = runtimeNavigationFixture({
   id: 'root',
   title: 'root',
   childPlacement: 'header',
@@ -22,6 +58,7 @@ const PRE_AUTH_NAV: ProjectModelData = {
       title: 'login',
       nodeKind: 'system-page',
       path: '/login',
+      hidden: true,
       children: [],
     },
     {
@@ -32,7 +69,7 @@ const PRE_AUTH_NAV: ProjectModelData = {
       children: [],
     },
   ],
-}
+})
 
 describe('DynamicRouter platform pages', () => {
   it('falls back to preAuth routes when navigation loading returns 401', async () => {
@@ -61,7 +98,7 @@ describe('DynamicRouter platform pages', () => {
 
   it('uses only dynamic navigation routes after authenticated navigation loads', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -74,7 +111,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -98,7 +135,7 @@ describe('DynamicRouter platform pages', () => {
 
   it('resolves config-page pageId from trailing segment when node id is UUID', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -108,10 +145,13 @@ describe('DynamicRouter platform pages', () => {
           title: 'tree-demo',
           nodeKind: 'page',
           path: '/homepage/tree-demo',
+          formKey: 'FORM-TREE-DEMO',
+          dataSpaceId: 'SPACE-TREE-DEMO',
+          modelId: 'MODEL-TREE-DEMO',
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -127,12 +167,17 @@ describe('DynamicRouter platform pages', () => {
     const route = router.getRoutes().find(item => item.name === 'nav-06c56d10-4ff6-4c4d-a6ce-772536592c75')
     expect(route?.meta['type']).toBe('config-page')
     expect(route?.meta['pageId']).toBe('tree-demo')
+    expect(route?.meta['dataSpaceBinding']).toEqual({
+      formKey: 'FORM-TREE-DEMO',
+      dataSpaceId: 'SPACE-TREE-DEMO',
+      modelId: 'MODEL-TREE-DEMO',
+    })
     expect(route?.props['default']).toMatchObject({ pageId: 'tree-demo' })
   })
 
   it('keeps ref nodes on their stable host route even when node.path points at the target page', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -154,7 +199,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -179,7 +224,7 @@ describe('DynamicRouter platform pages', () => {
 
   it('registers same-project ref host routes as ref pages', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -192,7 +237,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -215,7 +260,7 @@ describe('DynamicRouter platform pages', () => {
 
   it('registers iframe links on stable virtual routes', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -229,7 +274,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -251,7 +296,7 @@ describe('DynamicRouter platform pages', () => {
 
   it('keeps permissionMode separate from route access permissions', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -265,7 +310,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -285,7 +330,7 @@ describe('DynamicRouter platform pages', () => {
 
   it('does not fall back to config pages for unresolved ref host routes', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -298,7 +343,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -321,7 +366,7 @@ describe('DynamicRouter platform pages', () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const loadNavigation = vi
       .fn()
-      .mockResolvedValueOnce({
+      .mockResolvedValueOnce(runtimeNavigationFixture({
         id: 'tenant-root',
         title: 'tenant-root',
         childPlacement: 'header',
@@ -334,8 +379,8 @@ describe('DynamicRouter platform pages', () => {
             children: [],
           },
         ],
-      } satisfies ProjectModelData)
-      .mockResolvedValueOnce({
+      } satisfies ProjectBlueprintTreeData))
+      .mockResolvedValueOnce(runtimeNavigationFixture({
         id: 'tenant-root',
         title: 'tenant-root',
         childPlacement: 'header',
@@ -350,7 +395,7 @@ describe('DynamicRouter platform pages', () => {
             children: [],
           },
         ],
-      } satisfies ProjectModelData)
+      } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -390,7 +435,7 @@ describe('DynamicRouter platform pages', () => {
         },
       ],
     })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -405,7 +450,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,
@@ -440,7 +485,7 @@ describe('DynamicRouter platform pages', () => {
         },
       ],
     })
-    const loadNavigation = vi.fn().mockResolvedValue({
+    const loadNavigation = vi.fn().mockResolvedValue(runtimeNavigationFixture({
       id: 'tenant-root',
       title: 'tenant-root',
       childPlacement: 'header',
@@ -455,7 +500,7 @@ describe('DynamicRouter platform pages', () => {
           children: [],
         },
       ],
-    } satisfies ProjectModelData)
+    } satisfies ProjectBlueprintTreeData))
 
     const dynamicRouter = createDynamicRouter({
       router,

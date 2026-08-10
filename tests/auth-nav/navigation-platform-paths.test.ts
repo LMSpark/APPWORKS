@@ -3,14 +3,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { Router } from 'vue-router'
-import { PageContentLoader, type ProjectModelData } from '@spark-appworks/spark-project-model'
+import { PageContentLoader } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { useNavigation } from '../../packages/spark-app/src/navigation/useNavigation'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../../packages/spark-app/src/router/cross-project-ref-route'
 
 type NavigateToPath = {
   (path: string): void}
 
-const refreshRoutesMock = vi.hoisted(() => vi.fn<() => Promise<ProjectModelData | null>>())
+const refreshRoutesMock = vi.hoisted(() => vi.fn<() => Promise<RuntimeNavigation | null>>())
 
 vi.mock('../../packages/spark-app/src/navigation/nav-access', () => ({
   refreshRoutes: refreshRoutesMock,
@@ -28,14 +29,14 @@ const DummyPage = defineComponent({
   },
 })
 
-const NAV_ROOT: ProjectModelData = {
+const NAV_ROOT: RuntimeNavigation = {
   id: 'root',
   title: 'root',
   childPlacement: 'header',
-  children: [],
+  items: [],
 }
 
-const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ fileStorage: 'memory' })
+const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ projectId: 'test' })
 
 async function mountNavigationProbe(initialPath: string): Promise<MountedNavigationProbe> {
   let navigateToPath: NavigateToPath | null = null
@@ -164,7 +165,7 @@ describe('useNavigation platform paths', () => {
     navigateTo({
       id: '06c56d10-4ff6-4c4d-a6ce-772536592c75',
       title: 'project list ref',
-      nodeKind: 'ref',
+      itemKind: 'ref',
       path: '/project-list',
       refPath: '@app:engineering-pm/project-list',
       refProjectId: 'engineering-pm',

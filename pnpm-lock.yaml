@@ -146,6 +146,9 @@ importers:
       '@spark-appworks/spark-data':
         specifier: workspace:*
         version: link:packages/spark-data
+      '@spark-appworks/spark-lowcode-api':
+        specifier: workspace:*
+        version: link:packages/spark-lowcode-api
       '@spark-appworks/spark-project-model':
         specifier: workspace:*
         version: link:packages/spark-project-model
@@ -461,6 +464,40 @@ importers:
       '@types/jmespath':
         specifier: 'catalog:'
         version: 0.15.2
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.0.0
+      '@typescript-eslint/eslint-plugin':
+        specifier: 'catalog:'
+        version: 8.61.1(@typescript-eslint/parser@8.61.1(eslint@10.5.0)(typescript@6.0.3))(eslint@10.5.0)(typescript@6.0.3)
+      '@typescript-eslint/parser':
+        specifier: 'catalog:'
+        version: 8.61.1(eslint@10.5.0)(typescript@6.0.3)
+      eslint:
+        specifier: 'catalog:'
+        version: 10.5.0
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.3
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@26.0.0)(jsdom@29.1.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+
+  packages/spark-lowcode-api:
+    dependencies:
+      '@spark-appworks/spark-utils':
+        specifier: workspace:*
+        version: link:../spark-utils
+    devDependencies:
+      '@eslint/js':
+        specifier: 'catalog:'
+        version: 10.0.1(eslint@10.5.0)
       '@types/node':
         specifier: 'catalog:'
         version: 26.0.0

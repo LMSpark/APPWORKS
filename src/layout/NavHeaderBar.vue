@@ -44,40 +44,38 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 </template>
 
 <script setup lang="ts">
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
-import { isNestedConfigPageNode } from '@spark-appworks/spark-project-model'
-import { useNav } from '@spark-appworks/spark-app'
+import { useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import NavIcon from '@/components/NavIcon.vue'
 
 const props = withDefaults(defineProps<{
-  items?: ProjectNodeData[]
+  items?: RuntimeNavigationItem[]
 }>(), {
   items: () => [],
 })
 
 const nav = useNav()
 
-function handleClick(node: ProjectNodeData) {
+function handleClick(node: RuntimeNavigationItem) {
   if (node.disabled) return
   nav?.navigateTo(node)
 }
 
-function isActive(node: ProjectNodeData): boolean {
+function isActive(node: RuntimeNavigationItem): boolean {
   return nav?.isNodeActive(node) ?? false
 }
 
-function badge(node: ProjectNodeData): string | number | undefined {
+function badge(node: RuntimeNavigationItem): string | number | undefined {
   return nav?.getBadge(node.id)
 }
 
-function hasDropdown(item: ProjectNodeData): boolean {
-  if (item.nodeKind !== 'module' && item.nodeKind !== 'system-directory') return false
+function hasDropdown(item: RuntimeNavigationItem): boolean {
+  if (item.itemKind !== 'module' && item.itemKind !== 'system-directory') return false
   const cp = item.childPlacement
   return Boolean(item.children?.length && (cp === 'parent' || cp === 'flat'))
 }
 
-function visibleChildren(item: ProjectNodeData): ProjectNodeData[] {
-  return (item.children ?? []).filter((c) => !c.hidden && !c.disabled && !isNestedConfigPageNode(c))
+function visibleChildren(item: RuntimeNavigationItem): RuntimeNavigationItem[] {
+  return (item.children ?? []).filter((child) => !child.hidden && !child.disabled)
 }
 </script>
 

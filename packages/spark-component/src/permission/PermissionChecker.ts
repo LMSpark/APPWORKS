@@ -1,158 +1,93 @@
-/**
- * @module @spark-appworks/spark-component:permission/PermissionChecker
- * 职责：提供 Permission Checker 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。
- * 边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。
- * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
- */
-/**
- * 权限检查器 — 纯函数集
- *
- * 提供模型级、实例级和字段级的权限验证。
- * 字段脱敏规则也统一收口于此，避免权限判断分散在 data 层与组件层。
- *
- * permissionMode 语义：
- * - 'none'      → 不控制：跳过所有权限检查，一切可见/可编辑
- * - 'masked'    → 可见+脱敏：权限数据正常应用，但字段可见性下限为 Masked（Hidden→Masked）
- * - 'invisible' → 后端控制导航可见性，前端权限检查正常执行
- */
-
-import type { DataRow, ModelPermission } from '@spark-appworks/spark-data'
+import type { DataPermissionSnapshot, DataPermissionSets, DataRow } from '@spark-appworks/spark-data'
 import { FieldVisibility } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
-import type { NavPermissionMode } from '../core/capability-keys.js'
+import type { PagePermissionMode } from '../core/capability-keys.js'
 
-// ── 模型级检查 ──
-
-// 语义：基线允许，仅在权限快照显式禁止时才拒绝（与 spark-data PermissionChecker 一致）。
-// 即 effective = max(baseline=true, snapshot)；缺省/未声明 = 允许。
-
-export function canCreate(modelPermission?: ModelPermission, permissionMode?: NavPermissionMode): boolean {
-  if (permissionMode === 'none') return true
-  return modelPermission?.allowCreate !== false
+function rowPermission(row: DataRow): DataPermissionSets | null {
+  const permission = row.lingma_sys_params
+  return permission ?? null
 }
 
-export function canImport(modelPermission?: ModelPermission, permissionMode?: NavPermissionMode): boolean {
-  if (permissionMode === 'none') return true
-  return modelPermission?.allowImport !== false
+export function canCreate(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PagePermissionMode): boolean {
+  return snapshot?.allowAdd === true
 }
 
-export function canExport(modelPermission?: ModelPermission, permissionMode?: NavPermissionMode): boolean {
-  if (permissionMode === 'none') return true
-  return modelPermission?.allowExport !== false
+export function canImport(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PagePermissionMode): boolean {
+  return snapshot?.authorizedFeatureTags.includes('import') === true
 }
 
-// ── 行级检查 ──
-
-export function canDelete(row: DataRow, permissionMode?: NavPermissionMode): boolean {
-  if (permissionMode === 'none') return true
-  return row._perm?.allowDelete !== false
+export function canExport(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PagePermissionMode): boolean {
+  return snapshot?.authorizedFeatureTags.includes('export') === true
 }
 
-export function canCreateChild(row: DataRow, permissionMode?: NavPermissionMode): boolean {
-  if (permissionMode === 'none') return true
-  return row._perm?.allowCreateChild !== false
+export function canDelete(row: DataRow, _permissionMode?: PagePermissionMode): boolean {
+  return rowPermission(row)?.d === true
 }
 
-export function canEdit(row: DataRow, permissionMode?: NavPermissionMode): boolean {
-  if (permissionMode === 'none') return true
-  // 未声明 editableFields → 基线允许；声明了空数组 → 显式禁止。
-  if (!row._perm?.editableFields) return true
-  return row._perm.editableFields.length > 0
+export function canCreateChild(
+  row: DataRow,
+  snapshot?: DataPermissionSnapshot | null,
+  _permissionMode?: PagePermissionMode,
+): boolean {
+  return rowPermission(row) !== null && snapshot?.authorizedFeatureTags.includes('create-child') === true
 }
 
-// ── 字段级检查 ──
+export function canEdit(row: DataRow, _permissionMode?: PagePermissionMode): boolean {
+  const permission = rowPermission(row)
+  return permission !== null && permission.r.length + permission.e.length > 0
+}
 
-export function isFieldVisible(field: string, row: DataRow, permissionMode?: NavPermissionMode): boolean {
+export function isFieldVisible(field: string, row: DataRow, permissionMode?: PagePermissionMode): boolean {
   return getFieldVisibility(field, row, permissionMode) !== FieldVisibility.Hidden
 }
 
-export function isFieldEditable(field: string, row: DataRow, permissionMode?: NavPermissionMode): boolean {
-  if (permissionMode === 'none') return true
-  return row._perm?.editableFields?.includes(field) ?? false
+export function isFieldEditable(field: string, row: DataRow, _permissionMode?: PagePermissionMode): boolean {
+  const permission = rowPermission(row)
+  return permission !== null && (permission.r.includes(field) || permission.e.includes(field))
 }
 
-export function getFieldVisibility(field: string, row: DataRow, permissionMode?: NavPermissionMode): FieldVisibility {
-  if (permissionMode === 'none') return FieldVisibility.Visible
+export function isFieldRequired(field: string, row: DataRow): boolean {
+  return rowPermission(row)?.r.includes(field) === true
+}
 
-  const perm = row._perm
-  if (!perm) return FieldVisibility.Visible
-
-  if (perm.hiddenFields?.includes(field)) {
-    return permissionMode === 'masked' ? FieldVisibility.Masked : FieldVisibility.Hidden
-  }
-  if (perm.maskedFields?.includes(field)) return FieldVisibility.Masked
+export function getFieldVisibility(
+  field: string,
+  row: DataRow,
+  _permissionMode?: PagePermissionMode,
+): FieldVisibility {
+  const permission = rowPermission(row)
+  if (permission === null) return FieldVisibility.Hidden
+  if (permission.h.includes(field)) return FieldVisibility.Hidden
+  if (permission.m.includes(field)) return FieldVisibility.Masked
   return FieldVisibility.Visible
 }
 
-/** Field Mask Input 的输入数据。 */
 export type FieldMaskInput = Readonly<{
-  /** 待脱敏的字段名。 */
-  field: string,
-  /** 字段原始值；脱敏规则按字段名和值类型自动选择（手机号/身份证/邮箱/银行卡/通用）。 */
-  value: unknown,
-  /** 数据行（用于读取 _perm.hiddenFields / _perm.maskedFields 判断可见性）。 */
-  row: DataRow,
-  /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */
-  permissionMode?: NavPermissionMode | undefined
+  field: string
+  value: unknown
+  row: DataRow
+  permissionMode?: PagePermissionMode
 }>
 
 export function maskFieldValue(input: FieldMaskInput): string {
-  const { field, value, row, permissionMode } = input
-  if (permissionMode === 'none') {
-    return String(value ?? '')
-  }
-  if (getFieldVisibility(field, row, permissionMode) !== FieldVisibility.Masked) {
-    return String(value ?? '')
-  }
-  return defaultMaskRule(field, value)
+  if (getFieldVisibility(input.field, input.row, input.permissionMode) === FieldVisibility.Hidden) return ''
+  if (getFieldVisibility(input.field, input.row, input.permissionMode) === FieldVisibility.Masked) return '••••'
+  return String(input.value ?? '')
 }
 
-function defaultMaskRule(field: string, value: unknown): string {
-  if (value === null || value === undefined) return ''
-
-  const text = String(value)
-  const normalizedField = field.toLowerCase()
-
-  if ((normalizedField.includes('phone') || normalizedField.includes('mobile')) && text.length === 11) {
-    return `${text.substring(0, 3)}****${text.substring(7)}`
-  }
-
-  if ((normalizedField.includes('idcard') || normalizedField.includes('idno')) && text.length === 18) {
-    return `${text.substring(0, 3)}***********${text.substring(14)}`
-  }
-
-  if (normalizedField.includes('email')) {
-    const atIndex = text.indexOf('@')
-    if (atIndex > 3) {
-      return `${text.substring(0, 3)}***${text.substring(atIndex)}`
-    }
-  }
-
-  if ((normalizedField.includes('bank') || normalizedField.includes('card')) && text.length >= 16) {
-    return `${text.substring(0, 4)} **** **** ${text.substring(text.length - 4)}`
-  }
-
-  return text.length > 4
-    ? `${text.substring(0, 2)}***${text.substring(text.length - 2)}`
-    : '***'
-}
-
-// ── 工具函数 ──
-
-function isModelPermission(value: unknown): value is ModelPermission {
+function isPermissionSnapshot(value: unknown): value is DataPermissionSnapshot {
   if (!isRecord(value)) return false
-  return (value['allowCreate'] === undefined || typeof value['allowCreate'] === 'boolean')
-    && (value['allowImport'] === undefined || typeof value['allowImport'] === 'boolean')
-    && (value['allowExport'] === undefined || typeof value['allowExport'] === 'boolean')
-    && (value['permissionToken'] === undefined || typeof value['permissionToken'] === 'string')
+  return typeof value['formKey'] === 'string'
+    && typeof value['dataSpaceId'] === 'string'
+    && typeof value['modelId'] === 'string'
+    && typeof value['allowAdd'] === 'boolean'
+    && typeof value['systemKey'] === 'string'
+    && Array.isArray(value['originalRows'])
+    && Array.isArray(value['authorizedFeatureTags'])
 }
 
-/**
- * 从数据源提取模型级权限快照。
- * 权限数据读取收口到 permission 模块，组件层不直接访问 _modelPerm。
- */
-export function extractModelPermission(dataSource: unknown): ModelPermission | undefined {
-  if (!isRecord(dataSource)) return undefined
-  const value = dataSource['_modelPerm']
-  return isModelPermission(value) ? value : undefined
+export function extractPermissionSnapshot(dataSource: unknown): DataPermissionSnapshot | null {
+  if (!isRecord(dataSource)) return null
+  const value = dataSource['permissionSnapshot']
+  return isPermissionSnapshot(value) ? value : null
 }

@@ -1,0 +1,622 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/project-blueprint-output-groups",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/project-blueprint/outputs/project-blueprint-output-groups",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/outputs/project-blueprint-output-groups 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintPlanningContext, ProjectBlueprintIdentityEvidence, ProjectBlueprintPageRuntimeClosure, ProjectBlueprintGovernanceReport, ProjectBlueprintAiPlanningInput, ProjectBlueprintPlanningOutputs, ProjectBlueprintGovernanceOutputs, ProjectBlueprintAiOutputs（共 8 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ProjectBlueprintPlanningContext",
+      "ProjectBlueprintIdentityEvidence",
+      "ProjectBlueprintPageRuntimeClosure",
+      "ProjectBlueprintGovernanceReport",
+      "ProjectBlueprintAiPlanningInput",
+      "ProjectBlueprintPlanningOutputs",
+      "ProjectBlueprintGovernanceOutputs",
+      "ProjectBlueprintAiOutputs"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintPlanningContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintPlanningContext",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "legacyContentType": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "nodeId",
+              "parentId",
+              "title",
+              "description",
+              "legacyContentType"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintIdentityEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintIdentityEvidence",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "componentKey": {
+          "type": "string"
+        },
+        "routePath": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintPageRuntimeClosure": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintPageRuntimeClosure",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "componentKey": {
+          "type": "string"
+        },
+        "routePath": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintGovernanceReport": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintGovernanceReport",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unresolvedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintAiPlanningInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintAiPlanningInput",
+      "properties": {
+        "kind": {
+          "const": "project-blueprint-planning-input"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "parentId",
+              "title",
+              "requirement"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintPlanningOutputs": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintPlanningOutputs",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintNode"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.context.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.context.return": {
+          "$ref": "#/$defs/ProjectBlueprintPlanningContext"
+        }
+      }
+    },
+    "ProjectBlueprintGovernanceOutputs": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintGovernanceOutputs",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintNode"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.audit.params": {
+          "type": "object",
+          "properties": {
+            "identityEvidence": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ProjectBlueprintIdentityEvidence"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.audit.return": {
+          "$ref": "#/$defs/ProjectBlueprintGovernanceReport"
+        },
+        "method.mutationPlanner.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.mutationPlanner.return": {
+          "$ref": "../capability/project-blueprint-mutation.ts.json#/$defs/ProjectBlueprintMutationPlanner"
+        }
+      }
+    },
+    "ProjectBlueprintAiOutputs": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintAiOutputs",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "../project-blueprint.ts.json#/$defs/ProjectBlueprintNode"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.planningInput.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.planningInput.return": {
+          "$ref": "#/$defs/ProjectBlueprintAiPlanningInput"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T22:50:15.256Z",
+  "models": {
+    "ProjectBlueprintPlanningContext": {
+      "name": "ProjectBlueprintPlanningContext",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    nodes: ReadonlyArray<Readonly<{\n        nodeId: string;\n        parentId: string;\n        title: string;\n        description: string;\n        legacyContentType: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    nodes: ReadonlyArray<Readonly<{\n        nodeId: string;\n        parentId: string;\n        title: string;\n        description: string;\n        legacyContentType: string;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintIdentityEvidence": {
+      "name": "ProjectBlueprintIdentityEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    componentKey: string;\n    routePath: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    componentKey: string;\n    routePath: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "routePath",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintPageRuntimeClosure": {
+      "name": "ProjectBlueprintPageRuntimeClosure",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ProjectBlueprintIdentityEvidence & Readonly<{\n    projectId: string;\n    title: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ProjectBlueprintIdentityEvidence",
+            "targetName": "ProjectBlueprintIdentityEvidence"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    projectId: string;\n    title: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintGovernanceReport": {
+      "name": "ProjectBlueprintGovernanceReport",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    valid: boolean;\n    diagnostics: readonly string[];\n    unresolvedNodeIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    valid: boolean;\n    diagnostics: readonly string[];\n    unresolvedNodeIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unresolvedNodeIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintAiPlanningInput": {
+      "name": "ProjectBlueprintAiPlanningInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'project-blueprint-planning-input';\n    projectId: string;\n    nodes: ReadonlyArray<Readonly<{\n        id: string;\n        parentId: string;\n        title: string;\n        requirement: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'project-blueprint-planning-input';\n    projectId: string;\n    nodes: ReadonlyArray<Readonly<{\n        id: string;\n        parentId: string;\n        title: string;\n        requirement: string;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintPlanningOutputs": {
+      "name": "ProjectBlueprintPlanningOutputs",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(projectId: string, nodes: readonly ProjectBlueprintNode[])",
+          "parameters": [
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "nodes",
+              "type": {
+                "type": "unknown",
+                "name": "readonly ProjectBlueprintNode[]"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "context",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintPlanningContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintGovernanceOutputs": {
+      "name": "ProjectBlueprintGovernanceOutputs",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(projectId: string, nodes: readonly ProjectBlueprintNode[])",
+          "parameters": [
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "nodes",
+              "type": {
+                "type": "unknown",
+                "name": "readonly ProjectBlueprintNode[]"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "audit",
+              "parameters": [
+                {
+                  "name": "identityEvidence",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ProjectBlueprintIdentityEvidence[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintGovernanceReport",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts"
+              }
+            },
+            {
+              "name": "mutationPlanner",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintMutationPlanner",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintAiOutputs": {
+      "name": "ProjectBlueprintAiOutputs",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(projectId: string, nodes: readonly ProjectBlueprintNode[])",
+          "parameters": [
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "nodes",
+              "type": {
+                "type": "unknown",
+                "name": "readonly ProjectBlueprintNode[]"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "planningInput",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintAiPlanningInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

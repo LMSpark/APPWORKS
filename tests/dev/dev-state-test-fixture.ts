@@ -1,4 +1,4 @@
-import type { PageNodeFileName, ProjectModelData } from '@spark-appworks/spark-project-model'
+import type { PageNodeFileName, ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import { useDevState } from '@/views/app/dev-system/useDevState'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
 
@@ -20,7 +20,7 @@ export const DEMO_PAGE_FIXTURE: readonly DevStateTestPage[] = [
   { pageId: 'demo', nodeId: 'demo-node', title: 'Demo' },
 ]
 
-function buildTestNavRoot(pages: readonly DevStateTestPage[]): ProjectModelData {
+function buildTestNavRoot(pages: readonly DevStateTestPage[]): ProjectBlueprintTreeData {
   return {
     title: 'Test Project',
     childPlacement: 'header',
@@ -38,7 +38,7 @@ export function seedDevStateConfigPages(
   state: DevState,
   pages: readonly DevStateTestPage[] = ORDERS_PAGE_FIXTURE,
 ): void {
-  state.project.replaceNavigationRoot(buildTestNavRoot(pages))
+  state.project.replaceBlueprintTree(buildTestNavRoot(pages))
 }
 
 /** 每个用例重置 APP ProjectWorkspace 缓存，避免跨测试污染 editor.project。 */

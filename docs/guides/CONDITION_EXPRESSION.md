@@ -121,13 +121,13 @@ export type FilterExpression =
 
 ---
 
-## 3. 后端中的 FilterExpression 语义（SQL 编译）
+## 3. 远端 FilterExpression 边界
 
-后端编译器：`spark-ai-server/src/main/java/com/spark/ai/crud/FilterExpressionSqlBuilder.java`。
+AppWorks 不再拥有 SQL 编译后端。远端过滤必须由 lowcode 已有接口明确接受并解释；前端不得根据本地求值行为推断数据库方言或 SQL 编译结果。
 
 ## 3.1 关键原则
 
-后端不会“先查全量再按行替换过滤”，而是直接把 AST 编译成 SQL 片段 + 参数。
+如果 lowcode 端点声明支持结构化过滤，适配层必须把 AST 原样转换为该端点的公开合同，不得把表达式拼成 SQL 文本。
 
 即：
 
@@ -140,43 +140,32 @@ export type FilterExpression =
 { "field": "amount", "op": ">=", "value": { "kind": "field", "field": "threshold" } }
 ```
 
-后端应生成语义等价 SQL：
+远端实现应保留“字段引用另一个字段”的语义：
 
-```sql
-AMOUNT >= THRESHOLD
-```
+`amount >= threshold`
 
 ## 3.2 字段白名单映射
 
-后端通过 `fieldSqlMap` 做字段白名单解析，不在映射中的字段直接报错。
-
-在 `FilterExpressionCaseService` 中，示例映射包含：
-
-- `amount -> AMOUNT`
-- `threshold -> THRESHOLD`
-- `amountDelta -> (AMOUNT - THRESHOLD)`
-
-这样可以支持“计算型顶层字段”的远端过滤，不需要把整表读回内存再过滤。
+字段必须来自数据空间前端模型允许引用的数据资源字段；字段映射和最终鉴权由 lowcode 后端决定，前端不维护 SQL 字段白名单。
 
 ## 3.3 SQL 编译策略
 
-- `==` 使用 `IS NOT DISTINCT FROM`（null-safe equality）。
-- `!=` 使用 `IS DISTINCT FROM`。
-- `contains/like/not like/startsWith/endsWith` 使用 `LIKE` 组合。
-- `in/not in/between/not between` 要求 `value` 为数组并做长度校验。
-- `and/or` 会递归编译子节点。
-- `!condition/!and/!or` 会编译为 `NOT (...)`。
+- 仅发送 lowcode 合同明确支持的操作符。
+- `in/not in/between/not between` 仍需在前端完成数组形状校验。
+- `and/or` 与否定节点保持 AST 层级，不降级为字符串条件。
+- 缺少远端 capability 或响应不能证明语义一致时 fail-fast。
 
 空 children 语义：
 
-- `and([])` 编译为 `1 = 1`
-- `or([])` 编译为 `1 = 0`
+- `and([])` 在本地为真。
+- `or([])` 在本地为假。
+- 远端是否接受空 children 必须由端点 characterization 证明，不能推断。
 
 ## 3.4 与前端语义的关键差异
 
-- 本地 `is null` 把空字符串当空值；后端 `IS NULL` 只匹配 SQL NULL。
-- 本地字符串比较走 JS；后端字符串匹配走 SQL `LIKE`。
-- 本地 `field ref` 是“当前行取值”；后端 `field ref` 是“列/表达式引用”。
+- 本地 `is null` 把空字符串当空值；远端空值语义由 lowcode 合同决定。
+- 本地字符串比较走 JS；远端排序规则和大小写行为由目标数据源决定。
+- 本地 `field ref` 是“当前行取值”；远端必须保留字段引用语义，不能发送本地当前值冒充字段引用。
 
 如果同一过滤条件在本地与远端结果不同，优先检查这三类差异。
 
@@ -284,6 +273,5 @@ AMOUNT >= THRESHOLD
 - 计算列委托：`packages/spark-data/src/strategies/computed-column-delegate.ts`
 - 前端过滤测试：`packages/spark-data/src/tests/data-view-filter-expression.test.ts`
 - 计算列测试：`packages/spark-data/src/tests/computed-columns.test.ts`
-- 后端 SQL 编译：`spark-ai-server/src/main/java/com/spark/ai/crud/FilterExpressionSqlBuilder.java`
-- 后端用例服务：`spark-ai-server/src/main/java/com/spark/ai/service/FilterExpressionCaseService.java`
-- 后端测试：`spark-ai-server/src/test/java/com/spark/ai/service/FilterExpressionCaseServiceTest.java`
+- lowcode 端点账本：`backend-api-contracts/lowcode-endpoint-ledger.json`
+- AppWorks 消费者账本：`backend-api-contracts/appworks-consumer-ledger.json`

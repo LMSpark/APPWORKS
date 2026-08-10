@@ -119,12 +119,12 @@ DataSet 相关实现入口：
 - DataView staged 保存：[../../packages/spark-data/src/data-view.ts](../../packages/spark-data/src/data-view.ts)
 - 事务 HTTP 调用：[../../packages/spark-data/src/crud-service.ts](../../packages/spark-data/src/crud-service.ts)
 
-## 后端事务链路
+## 远端事务边界
 
-统一事务端点是租户/项目作用域 API：
+`spark-data` 只调用页面明确配置的事务端点，不再自动添加租户/项目路径：
 
 ```text
-POST /api/tenants/{tenantId}/projects/{projectId}/data/transactions
+POST /data/transactions
 ```
 
 页面配置里通常只写相对地址：
@@ -133,26 +133,13 @@ POST /api/tenants/{tenantId}/projects/{projectId}/data/transactions
 { "url": "/data/transactions", "method": "POST" }
 ```
 
-前端平台作用域会把它解析为当前租户和项目下的事务 API。
+AppWorks 不承诺该地址在 lowcode 中存在。只有端点 characterization 同时证明短事务、幂等、journal、readback 与补偿能力时，生产页面才允许启用该 mutation；否则必须 fail-closed。
 
-后端处理流程：
-
-1. `DynamicDataController` 接收 `/transactions` 请求并转给 `DynamicDataService.executeTransaction()`。
-2. `executeTransaction()` 运行在 Spring `@Transactional` 中，任一 operation 失败会抛错并回滚整批操作。
-3. 当请求包含 `requestId` 时，后端根据规范化后的 `operations` 计算 hash，并写入 `DATA_TRANSACTION_COMMIT`。
-4. 相同 `requestId` + 相同 operations 再次提交时，返回已提交结果并标记 `replayed = true`。
-5. 相同 `requestId` + 不同 operations 会返回冲突错误，避免误重放不同事务。
-6. 数据变更事件在事务提交后再发送，避免回滚事务提前广播。
-
-后端实现入口：
-
-- Controller：[../../spark-ai-server/src/main/java/com/spark/ai/controller/DynamicDataController.java](../../spark-ai-server/src/main/java/com/spark/ai/controller/DynamicDataController.java)
-- Service：[../../spark-ai-server/src/main/java/com/spark/ai/service/DynamicDataService.java](../../spark-ai-server/src/main/java/com/spark/ai/service/DynamicDataService.java)
-- 幂等表结构：[../../spark-ai-server/src/main/java/com/spark/ai/service/DynamicDataModelService.java](../../spark-ai-server/src/main/java/com/spark/ai/service/DynamicDataModelService.java)
+前端只负责构造 staged operations、保持父子顺序并消费远端结果；事务、回滚、幂等冲突和提交后事件都必须由 lowcode 后端最终保证。
 
 ## 真实配置验证页
 
-当前有三个 0 代码事务验证页，均位于 `spark-ai-server/data/pages-config/lmspark/homepage/`：
+三个历史 0 代码事务验证页已迁入只读 characterization fixture：`backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/`。
 
 | 页面 | 验证点 |
 | --- | --- |
@@ -170,9 +157,6 @@ POST /api/tenants/{tenantId}/projects/{projectId}/data/transactions
 pnpm run typecheck
 pnpm exec vitest run packages/spark-data/src/tests/commit-mode.test.ts tests/transaction-config-pages.test.ts --reporter verbose
 pnpm exec eslint packages/spark-component/src/page/actions/action-data.ts packages/spark-component/src/page/actions/action-executor.ts packages/spark-component/src/page/actions/action-types.ts packages/spark-component/src/page/actions/button-templates.ts packages/spark-component/src/page/actions/executor-helpers.ts packages/spark-component/src/page/actions/node-to-descriptor.ts tests/transaction-config-pages.test.ts
-cd spark-ai-server
-$env:MAVEN_OPTS='-Xmx512m -XX:MaxMetaspaceSize=256m -XX:ReservedCodeCacheSize=64m -XX:+UseSerialGC'
-mvn -Dtest=DynamicDataServiceTest -DforkCount=0 -Dmaven.compiler.fork=false test
 ```
 
 回归测试覆盖：

@@ -111,7 +111,7 @@ export function resolvePageDesignPlanningContext(
     const fallback = options.fallbackDescription?.trim() ?? ''
     if (fallback.length === 0) {
       throw new Error(
-        `pageDesign: page "${pageId}" has empty effectiveDescription; set navigation description before AI run.`,
+        `pageDesign: page "${pageId}" has empty effectiveDescription; set blueprint node description before AI run.`,
       )
     }
     effectiveDescription = fallback
@@ -227,7 +227,7 @@ export function evaluatePageDesignBeforeFunctionCall(
     return {
       status: 'reject',
       reason: `pageDesign: no planning projection for pageId "${pageId}".`,
-      fix: '先 readPlanningProjection，确认 pageId 存在于 pageFeatures。',
+      fix: '先 readPlanningProjection，确认 pageId 存在于 pageDeliveries。',
     }
   }
   const runContext = readPageDesignRunContext(pageId)

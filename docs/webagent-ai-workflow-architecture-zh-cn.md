@@ -676,9 +676,9 @@ SSE Backend is the Gateway.
 
 ## 12. 当前事实源
 
-- `spark-ai-server/README.md`：后端 AI 职责和 APP 公共 SSE 接口；
+- `packages/spark-lowcode-api/README.md`：lowcode 前端 API、会话和 SSE 接入边界；
 - `packages/spark-ai/docs/transport-and-session-zh-cn.md`：浏览器 Tool Loop、HTTP/SSE 和会话追加协议；
 - `packages/spark-ai/docs/native-runtime-and-agent-flow-zh-cn.md`：ClassModel、Tool Loop、`model_script` 和业务实例执行链；
 - `packages/spark-ai/src/agent/tool-loop/README.md`：工具生产线约束；
 - `packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts`：当前 Workflow Definition 类型契约；
-- `spark-ai-server/data/workflow-designs/`：当前 Design/Definition 示例。
+- `config/agent-workflows/`：当前受版本管理的 Workflow Design/Definition 配置。

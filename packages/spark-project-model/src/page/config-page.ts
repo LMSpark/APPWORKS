@@ -12,30 +12,46 @@ import type {
 } from './page-file'
 import { PAGE_NODE_FILE_NAMES } from './page-file'
 import {
-  ProjectNode,
-  type ProjectNodeFamily,
-  type ProjectNodeData,
-  type ProjectNodeModelOptions,
+  ProjectBlueprintNode,
+  type ProjectBlueprintNodeFamily,
+  type ProjectBlueprintTreeNodeData,
+  type ProjectBlueprintNodeModelOptions,
   type ProjectPageNodeSummary,
-} from '../navigation/project-node'
+} from '../blueprint/project-blueprint-node'
 import {
   normalizeConfigPageId,
   isNestedConfigPageNode,
   resolveProjectPageSurface,
   resolvePageNodePageId,
-} from '../navigation/navigation-tree'
+} from '../blueprint/project-blueprint-tree'
 import { PageRuleFile } from './content/rule-file'
 import { PageDataSetFile } from './content/dataset-file'
 import { PageTextFile } from './content/text-file'
 
 export type { PageNodeLoadOptions } from './page-file'
 
+/** 页面进入数据空间时使用的完整身份闭包。 */
+export type PageDataSpaceBinding = Readonly<{
+  formKey: string
+  dataSpaceId: string
+  modelId: string
+}>
+
+function readPageDataSpaceBinding(node: ProjectBlueprintTreeNodeData): PageDataSpaceBinding | null {
+  const formKey = node.formKey?.trim() ?? ''
+  const dataSpaceId = node.dataSpaceId?.trim() ?? ''
+  const modelId = node.modelId?.trim() ?? ''
+  return formKey && dataSpaceId && modelId ? { formKey, dataSpaceId, modelId } : null
+}
+
 /** Page Node Render Config 的配置结构。 */
 export type PageNodeRenderConfig = {
     /** page Id 标识。 */
 pageId: string
-    /** navigation 字段。 */
-navigation: ProjectNodeData | null
+    /** 产生当前页面的项目蓝图节点。 */
+blueprintNode: ProjectBlueprintTreeNodeData | null
+    /** 页面消费的数据空间身份；不完整时为 null，数据读取必须失败关闭。 */
+dataSpaceBinding: PageDataSpaceBinding | null
     /** rule 字段。 */
 rule: SparkNode[]
     /** 业务数据载荷。 */
@@ -59,8 +75,8 @@ readonly isLoaded: boolean
 }
 
 /** Project Config Page Node Model Options 的调用配置。 */
-export type ProjectConfigPageNodeModelOptions = ProjectNodeModelOptions & {
-  /** 配置页唯一 pageId；省略时从导航节点解析。 */
+export type ProjectConfigPageNodeModelOptions = ProjectBlueprintNodeModelOptions & {
+  /** 配置页唯一 pageId；省略时从蓝图交付节点解析。 */
   pageId?: string
 }
 
@@ -78,7 +94,7 @@ type ConfigPageFileModel = {
  * 四文件持久化由 ProjectWorkspace 或 PageContentLoader 编排。
  *
  */
-export class ConfigPageNode extends ProjectNode {
+export class ConfigPageNode extends ProjectBlueprintNode {
     /** rule 字段。 */
 readonly rule: PageRuleFile
     /** data Set 字段。 */
@@ -95,7 +111,7 @@ readonly script: PageTextFile
   /**
    * 创建配置页节点实例，并初始化 rule/pagedata/script/style 四文件内存模型。
    *
-   * @param options 配置页导航节点、pageId 与基础 ProjectNode 初始化参数。
+   * @param options 配置页蓝图节点、pageId 与基础 ProjectBlueprintNode 初始化参数。
    */
   constructor(options: ProjectConfigPageNodeModelOptions) {
     super(options)
@@ -114,7 +130,7 @@ readonly script: PageTextFile
     }
   }
 
-  override get family(): ProjectNodeFamily { return 'config-page' }
+  override get family(): ProjectBlueprintNodeFamily { return 'config-page' }
 
   protected get resolvedPath(): string { return this.path ?? `/${this.pageId}` }
 
@@ -307,9 +323,11 @@ getDirtyFileNames(): PageNodeFileName[] {
     /** to Render Config 配置。 */
 toRenderConfig(): PageNodeRenderConfig {
     if (!this._isLoaded) throw new Error(`配置页面节点 ${this.pageId} 尚未加载完成`)
+    const blueprintNode = this.toNodeData()
     return {
       pageId: this.pageId,
-      navigation: null,
+      blueprintNode,
+      dataSpaceBinding: readPageDataSpaceBinding(blueprintNode),
       rule: this.rule.children,
       data: this.dataSet.value,
       script: optionalText(this.script.text),
@@ -338,4 +356,3 @@ toSummary(): ProjectPageNodeSummary {
     }
   }
 }
-

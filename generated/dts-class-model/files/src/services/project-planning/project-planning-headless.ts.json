@@ -7,7 +7,7 @@
     "sourceFile": "src/services/project-planning/project-planning-headless.ts",
     "packageName": "app",
     "modulePath": "services/project-planning/project-planning-headless",
-    "jsdoc": "@module app:services/project-planning/project-planning-headless\n职责：projectPlanning 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Host Run 或导航落盘。\nAI用途：projectPlanning Host Run 需要隔离式 ProjectWorkspace 时，用本模块获取 editor 实例。",
+    "jsdoc": "@module app:services/project-planning/project-planning-headless\n职责：projectPlanning 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Agent Run 或项目蓝图落盘。\nAI用途：projectPlanning Agent Run 需要隔离式 ProjectWorkspace 时，用本模块获取 editor 实例。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectPlanningEditorResolveContext",
@@ -41,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-19T09:58:23.266Z",
+  "generatedAt": "2026-08-09T22:34:22.182Z",
   "models": {
     "ProjectPlanningEditorResolveContext": {
       "name": "ProjectPlanningEditorResolveContext",

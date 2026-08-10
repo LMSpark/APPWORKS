@@ -68,7 +68,7 @@
           "type": "string"
         },
         "node": {
-          "$ref": "../navigation/project-node.ts.json#/$defs/ProjectNodeData"
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
         },
         "parentId": {
           "type": [
@@ -79,7 +79,7 @@
         "index": {
           "type": "number"
         },
-        "rollbackPageOnNavigationFailure": {
+        "rollbackPageOnBlueprintFailure": {
           "type": "boolean"
         }
       },
@@ -112,7 +112,7 @@
           "title": "Record<string, unknown>"
         },
         "node": {
-          "$ref": "../navigation/project-node.ts.json#/$defs/ProjectNodeData"
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
         }
       },
       "required": [
@@ -129,7 +129,7 @@
         "deletedNode": {
           "anyOf": [
             {
-              "$ref": "../navigation/project-node.ts.json#/$defs/ProjectNodeData"
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
             },
             {
               "type": "null"
@@ -174,66 +174,22 @@
         "projectId": {
           "type": "string"
         },
-        "http": {
-          "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        "pageFiles": {
+          "$ref": "../io/page-file-api.ts.json#/$defs/ProjectPageFileGateway"
         },
-        "fileStorage": {
-          "type": "object",
-          "title": "NonNullable<PageContentLoaderOptions['fileStorage']>"
+        "blueprint": {
+          "$ref": "../io/project-blueprint-client.ts.json#/$defs/ProjectBlueprintGateway"
+        },
+        "projectReferences": {
+          "$ref": "../io/project-reference-client.ts.json#/$defs/ProjectReferenceGateway"
         }
       },
       "required": [
         "projectId",
-        "http"
+        "pageFiles",
+        "blueprint"
       ],
-      "additionalProperties": false,
-      "$defs": {
-        "method.getPageFilesApi.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getPageFilesApi.return": {
-          "type": "string"
-        },
-        "method.getNavigationApi.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getNavigationApi.return": {
-          "type": "string"
-        },
-        "method.getProjectsApi.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getProjectsApi.return": {
-          "type": "string"
-        },
-        "method.getProjectNavigationApi.params": {
-          "type": "object",
-          "properties": {
-            "projectId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.getProjectNavigationApi.return": {
-          "type": "string"
-        },
-        "method.getHeaders.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getHeaders.return": {
-          "type": "object",
-          "title": "Record<string, string>"
-        }
-      }
+      "additionalProperties": false
     },
     "ProjectWorkspace": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -270,20 +226,20 @@
             }
           ]
         },
-        "method.loadNavigation.params": {
+        "method.loadBlueprint.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.loadNavigation.return": {
+        "method.loadBlueprint.return": {
           "type": "object",
-          "title": "Promise<ProjectModelData>"
+          "title": "Promise<ProjectBlueprintTreeData>"
         },
-        "method.ingestNavigationRoot.params": {
+        "method.ingestBlueprintTree.params": {
           "type": "object",
           "properties": {
             "root": {
-              "$ref": "../navigation/project-node.ts.json#/$defs/ProjectModelData"
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
             },
             "options": {
               "type": "object",
@@ -300,8 +256,8 @@
           },
           "additionalProperties": false
         },
-        "method.ingestNavigationRoot.return": {
-          "$ref": "../navigation/project-node.ts.json#/$defs/ProjectModelData"
+        "method.ingestBlueprintTree.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
         },
         "method.selectPage.params": {
           "type": "object",
@@ -335,7 +291,7 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.saveSelectedNavigationNode.params": {
+        "method.saveSelectedBlueprintNode.params": {
           "type": "object",
           "properties": {
             "options": {
@@ -350,7 +306,7 @@
           },
           "additionalProperties": false
         },
-        "method.saveSelectedNavigationNode.return": {
+        "method.saveSelectedBlueprintNode.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -416,7 +372,7 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.addNavigationNode.params": {
+        "method.addBlueprintNode.params": {
           "type": "object",
           "properties": {
             "params": {
@@ -429,7 +385,7 @@
                   ]
                 },
                 "node": {
-                  "$ref": "../navigation/project-node.ts.json#/$defs/ProjectNodeData"
+                  "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
                 },
                 "index": {
                   "type": "number"
@@ -443,9 +399,9 @@
           },
           "additionalProperties": false
         },
-        "method.addNavigationNode.return": {
+        "method.addBlueprintNode.return": {
           "type": "object",
-          "title": "Promise<ProjectNodeData>"
+          "title": "Promise<ProjectBlueprintTreeNodeData>"
         },
         "method.deleteNode.params": {
           "type": "object",
@@ -458,7 +414,7 @@
         },
         "method.deleteNode.return": {
           "type": "object",
-          "title": "Promise<ProjectNodeData | null>"
+          "title": "Promise<ProjectBlueprintTreeNodeData | null>"
         },
         "method.createPageForSelectedNode.params": {
           "type": "object",
@@ -545,7 +501,7 @@
         },
         "method.moveMountedPage.return": {
           "type": "object",
-          "title": "Promise<ProjectNodeData>"
+          "title": "Promise<ProjectBlueprintTreeNodeData>"
         },
         "method.listRemotePageVersions.params": {
           "type": "object",
@@ -674,7 +630,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.057Z",
+  "generatedAt": "2026-08-09T22:41:25.608Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -729,7 +685,7 @@
       "jsdoc": "Create Mounted Page Params 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 显示标题。 */\n    title?: string;\n    /** icon 字段。 */\n    icon?: string;\n    /** node 字段。 */\n    node?: ProjectNodeData;\n    /** parent Id 标识。 */\n    parentId?: string | null;\n    /** index 字段。 */\n    index?: number;\n    /** rollback Page On Navigation Failure 字段。 */\n    rollbackPageOnNavigationFailure?: boolean;\n}",
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 显示标题。 */\n    title?: string;\n    /** icon 字段。 */\n    icon?: string;\n    /** node 字段。 */\n    node?: ProjectBlueprintTreeNodeData;\n    /** parent Id 标识。 */\n    parentId?: string | null;\n    /** index 字段。 */\n    index?: number;\n    /** 蓝图节点挂载失败时是否补偿删除已创建的页面文件。 */\n    rollbackPageOnBlueprintFailure?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -769,8 +725,8 @@
               "writable": false
             },
             {
-              "name": "rollbackPageOnNavigationFailure",
-              "jsdoc": "rollback Page On Navigation Failure 字段。",
+              "name": "rollbackPageOnBlueprintFailure",
+              "jsdoc": "蓝图节点挂载失败时是否补偿删除已创建的页面文件。",
               "readable": true,
               "writable": false
             }
@@ -812,7 +768,7 @@
       "jsdoc": "Page Node Create Mounted Result 的返回结果。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前页码。 */\n    page: Record<string, unknown>;\n    /** node 字段。 */\n    node: ProjectNodeData;\n}",
+        "declarationTypeText": "{\n    /** 当前页码。 */\n    page: Record<string, unknown>;\n    /** node 字段。 */\n    node: ProjectBlueprintTreeNodeData;\n}",
         "members": {
           "attributes": [
             {
@@ -836,7 +792,7 @@
       "jsdoc": "Page Node Remove Mounted Result 的返回结果。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** deleted Node 字段。 */\n    deletedNode: ProjectNodeData | null;\n    /** deleted Files 字段。 */\n    deletedFiles: boolean;\n}",
+        "declarationTypeText": "{\n    /** deleted Node 字段。 */\n    deletedNode: ProjectBlueprintTreeNodeData | null;\n    /** deleted Files 字段。 */\n    deletedFiles: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -890,7 +846,7 @@
       "jsdoc": "Project Workspace Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** http 字段。 */\n    http: HttpClientBase;\n    /** get Page Files Api 回调。 */\n    getPageFilesApi: () => string;\n    /** get Navigation Api 回调。 */\n    getNavigationApi: () => string;\n    /** get Projects Api 回调。 */\n    getProjectsApi?: () => string;\n    /** get Project Navigation Api 回调。 */\n    getProjectNavigationApi?: (projectId: string) => string;\n    /** get Headers 回调。 */\n    getHeaders?: () => Record<string, string>;\n    /** file Storage 字段。 */\n    fileStorage?: NonNullable<PageContentLoaderOptions['fileStorage']>;\n}",
+        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 页面四文件语义网关。 */\n    pageFiles: ProjectPageFileGateway;\n    /** 项目蓝图语义网关。 */\n    blueprint: ProjectBlueprintGateway;\n    /** 跨项目引用语义网关。 */\n    projectReferences?: ProjectReferenceGateway;\n}",
         "members": {
           "attributes": [
             {
@@ -900,81 +856,22 @@
               "writable": true
             },
             {
-              "name": "http",
-              "jsdoc": "http 字段。",
+              "name": "pageFiles",
+              "jsdoc": "页面四文件语义网关。",
               "readable": true,
               "writable": true
             },
             {
-              "name": "fileStorage",
-              "jsdoc": "file Storage 字段。",
+              "name": "blueprint",
+              "jsdoc": "项目蓝图语义网关。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectReferences",
+              "jsdoc": "跨项目引用语义网关。",
               "readable": true,
               "writable": false
-            }
-          ],
-          "methods": [
-            {
-              "name": "getPageFilesApi",
-              "jsdoc": "get Page Files Api 回调。",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "getNavigationApi",
-              "jsdoc": "get Navigation Api 回调。",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "getProjectsApi",
-              "jsdoc": "get Projects Api 回调。",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "getProjectNavigationApi",
-              "jsdoc": "get Project Navigation Api 回调。",
-              "parameters": [
-                {
-                  "name": "projectId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "getHeaders",
-              "jsdoc": "get Headers 回调。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Record",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "string"
-                  },
-                  {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                ]
-              }
             }
           ]
         }
@@ -1029,8 +926,8 @@
               }
             },
             {
-              "name": "loadNavigation",
-              "jsdoc": "加载 Navigation。",
+              "name": "loadBlueprint",
+              "jsdoc": "加载项目蓝图。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1038,22 +935,22 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ProjectModelData",
-                    "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                   }
                 ]
               }
             },
             {
-              "name": "ingestNavigationRoot",
+              "name": "ingestBlueprintTree",
               "jsdoc": "执行 ingest Navigation Root 操作。",
               "parameters": [
                 {
                   "name": "root",
                   "type": {
                     "type": "reference",
-                    "name": "ProjectModelData",
-                    "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                   }
                 },
                 {
@@ -1069,8 +966,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "ProjectModelData",
-                "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                "name": "ProjectBlueprintTreeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
               }
             },
             {
@@ -1109,7 +1006,7 @@
             },
             {
               "name": "selectPage",
-              "jsdoc": "按当前导航选中节点选择并加载页面文件。",
+              "jsdoc": "按当前项目蓝图选中节点选择并加载页面文件。",
               "parameters": [
                 {
                   "name": "options",
@@ -1161,7 +1058,7 @@
               }
             },
             {
-              "name": "saveSelectedNavigationNode",
+              "name": "saveSelectedBlueprintNode",
               "jsdoc": "保存 Selected Navigation Node。",
               "parameters": [
                 {
@@ -1303,14 +1200,14 @@
               }
             },
             {
-              "name": "addNavigationNode",
+              "name": "addBlueprintNode",
               "jsdoc": "执行 add Navigation Node 操作。",
               "parameters": [
                 {
                   "name": "params",
                   "type": {
                     "type": "unknown",
-                    "name": "{\n        parentId?: string | null;\n        node: ProjectNodeData;\n        index?: number;\n    }"
+                    "name": "{\n        parentId?: string | null;\n        node: ProjectBlueprintTreeNodeData;\n        index?: number;\n    }"
                   }
                 }
               ],
@@ -1320,8 +1217,8 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ProjectNodeData",
-                    "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                    "name": "ProjectBlueprintTreeNodeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                   }
                 ]
               }
@@ -1347,8 +1244,8 @@
                     "types": [
                       {
                         "type": "reference",
-                        "name": "ProjectNodeData",
-                        "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                        "name": "ProjectBlueprintTreeNodeData",
+                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                       },
                       {
                         "type": "literal",
@@ -1532,8 +1429,8 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ProjectNodeData",
-                    "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                    "name": "ProjectBlueprintTreeNodeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                   }
                 ]
               }

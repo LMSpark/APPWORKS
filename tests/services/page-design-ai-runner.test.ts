@@ -5,7 +5,7 @@ import {
   type AiAgentHost,
   type AiAgentTurnCallbacks,
 } from '@spark-appworks/spark-ai/agent'
-import { HttpClientBase, type HttpResponse, type RequestConfig, type SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
+import type { SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
 import type { AiRunAdapterState, AiRunSnapshot } from '@spark-appworks/spark-app'
 import { runPageDesignAiSession } from '@/services/page-design/page-design-ai-runner'
 
@@ -21,20 +21,13 @@ vi.mock('@/services/ai/agent-workflow-bindings', async (importOriginal) => {
   }
 })
 
-class TestHttpClient extends HttpClientBase {
-  protected async executeRequest(_config: RequestConfig): Promise<HttpResponse<unknown>> {
-    return { data: null, status: 200, statusText: 'OK', headers: {} }
-  }
-}
-
 function createEditor(): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId: 'demo',
-    http: new TestHttpClient(),
-    getPageFilesApi: () => '/api/pages',
-    getNavigationApi: () => '/api/navigation',
+    pageFiles: { readPageFile: async () => '' },
+    blueprint: { loadRoot: async () => ({ children: [] }) },
   })
-  editor.project.replaceNavigationRoot({
+  editor.project.replaceBlueprintTree({
     id: 'root',
     title: 'Root',
     nodeKind: 'module',

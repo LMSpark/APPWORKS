@@ -14,14 +14,14 @@
  * - nav-access：同步、无 Vue 依赖、用于基础设施层（main.ts 路由守卫、LoginView 跳转）
  * - useNavigation：响应式 Vue composable、用于组件树内 UI 渲染和导航操作
  */
-import type { ProjectModelData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation } from './runtime-navigation'
 
 /** DynamicRouter 公共 API 子集（仅导航相关） */
 type DynamicRouterAccess = {
   /** 清除路由缓存并重新注册，返回刷新后的导航树；DynamicRouter 未注入时由调用方处理 */
-  refreshRoutes(): Promise<ProjectModelData | null>
+  refreshRoutes(): Promise<RuntimeNavigation | null>
   /** 同步读取当前已加载的导航树（不发 HTTP），未加载或未注入时返回 null */
-  getNavTree(): ProjectModelData | null}
+  getNavTree(): RuntimeNavigation | null}
 
 /** 初始化选项 */
 type NavAccessOptions = {
@@ -41,13 +41,13 @@ export function setDynamicRouter(router: DynamicRouterAccess, options?: NavAcces
 }
 
 /** 刷新动态路由（清缓存 + 重新注册），返回加载后的导航树 */
-export async function refreshRoutes(): Promise<ProjectModelData | null> {
+export async function refreshRoutes(): Promise<RuntimeNavigation | null> {
   if (!_dynamicRouter) return null
   return _dynamicRouter.refreshRoutes()
 }
 
 /** 获取 DynamicRouter 已加载的导航树（同步读取，不发起 HTTP 请求） */
-export function getNavTree(): ProjectModelData | null {
+export function getNavTree(): RuntimeNavigation | null {
   return _dynamicRouter?.getNavTree() ?? null
 }
 

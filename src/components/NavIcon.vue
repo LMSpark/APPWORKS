@@ -8,7 +8,38 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { computed } from 'vue'
 import * as Icons from '@element-plus/icons-vue'
 
-const props = defineProps<{ name?: string | undefined; size?: number | undefined }>()
+const props = defineProps<{
+  name?: string | undefined
+  size?: number | undefined
+  fallback?: string | undefined
+}>()
+
+const LEGACY_ICON_ALIASES: Readonly<Record<string, string>> = Object.freeze({
+  'DataBase': 'Coin',
+  'FolderOpen': 'FolderOpened',
+  'e-data-validation': 'DataBoard',
+  'e-date-occurring': 'Calendar',
+  'e-folder-open': 'FolderOpened',
+  'e-hyperlink-copy': 'Link',
+  'e-layers': 'Coin',
+  'e-paste-match-destination': 'RefreshLeft',
+  'e-pentagon': 'DataBoard',
+  'layui-icon-app': 'Grid',
+  'layui-icon-component': 'Cpu',
+  'layui-icon-fonts-code': 'Tickets',
+  'layui-icon-group': 'UserFilled',
+  'layui-icon-ie': 'Coin',
+  'layui-icon-note': 'Collection',
+  'layui-icon-senior': 'Lock',
+  'layui-icon-table': 'Grid',
+  'layui-icon-tabs': 'Operation',
+  'layui-icon-templeate-1': 'Files',
+  'layui-icon-template': 'Files',
+  'layui-icon-template-1': 'Files',
+  'layui-icon-transfer': 'Switch',
+  'layui-icon-vercode': 'Lock',
+  'layui-icon-windows': 'Monitor',
+})
 
 const normalizedName = computed(() => {
   const name = props.name?.trim()
@@ -17,14 +48,30 @@ const normalizedName = computed(() => {
 })
 
 const resolvedIcon = computed(() => {
-  if (!normalizedName.value) return null
-  return Object.entries(Icons).find(([name]) => name === normalizedName.value)?.[1] ?? null
+  const rawName = normalizedName.value
+  if (!rawName) return null
+  const tokens = rawName.split(/\s+/).filter(token => token !== 'e-icons')
+  const directName = tokens.find(token => Object.hasOwn(Icons, token))
+  const aliasName = tokens.map(token => LEGACY_ICON_ALIASES[token]).find(Boolean)
+  const fallbackName = props.fallback?.trim() || (looksLikeLegacyIconClass(rawName) ? 'Document' : '')
+  const iconName = directName ?? aliasName ?? fallbackName
+  return iconName ? Object.entries(Icons).find(([name]) => name === iconName)?.[1] ?? null : null
 })
+
+const fallbackText = computed(() => {
+  const rawName = normalizedName.value
+  if (!rawName || looksLikeLegacyIconClass(rawName)) return ''
+  return rawName
+})
+
+function looksLikeLegacyIconClass(value: string): boolean {
+  return value.includes(' ') || /^(?:e-|layui-icon)/.test(value)
+}
 </script>
 
 <template>
   <el-icon v-if="resolvedIcon" :size="size"><component :is="resolvedIcon" /></el-icon>
-  <span v-else-if="name" class="nav-icon-emoji">{{ name }}</span>
+  <span v-else-if="fallbackText" class="nav-icon-emoji">{{ fallbackText }}</span>
 </template>
 
 <style scoped>

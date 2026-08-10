@@ -175,7 +175,10 @@ describe('FieldSwitch 业务回调模式', () => {
   })
 
   it('无字段写权限时应保持禁用（默认只读）', async () => {
-    const model = reactive<Record<string, unknown>>({ enabled: false })
+    const model = reactive<Record<string, unknown>>({
+      enabled: false,
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
+    })
 
     const wrapper = mountFieldSwitch(
       model,

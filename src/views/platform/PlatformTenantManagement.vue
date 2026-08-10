@@ -18,14 +18,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
     </div>
 
     <el-table v-loading="loading" :data="tenants" row-key="tenantId" class="tenant-table">
-      <el-table-column prop="tenantId" label="租户 ID" min-width="150" />
+      <el-table-column prop="tenantId" label="企业作用域" min-width="150" />
       <el-table-column prop="tenantName" label="租户名称" min-width="180" />
-      <el-table-column prop="tenantCode" label="编码" min-width="120" />
+      <el-table-column prop="tenantCode" label="四级域名标识" min-width="140" />
       <el-table-column prop="adminUserName" label="管理员" min-width="120" />
       <el-table-column label="状态" width="110">
         <template #default="{ row }">
           <el-tag :type="row.status === 'ACTIVE' ? 'success' : 'warning'">
-            {{ row.status === 'ACTIVE' ? '启用' : '禁用' }}
+            {{ tenantStatusText(row.status) }}
           </el-tag>
         </template>
       </el-table-column>
@@ -45,7 +45,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             禁用
           </el-button>
           <el-button
-            v-if="row.tenantId !== 'platform' && row.status !== 'ACTIVE'"
+            v-if="row.tenantId !== 'platform' && row.status === 'DISABLED'"
             size="small"
             text
             type="success"
@@ -109,13 +109,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
-import { http } from '@/services/http'
-import { getPlatformTenantApi } from '@/services/api-paths'
+import { lowcodeApi, lowcodeEnterpriseDisplayName } from '@/lowcode/lowcode-runtime'
 import { buildTenantPath } from '@/services/tenant-scope'
+import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
+import { getNavHomePath } from '@spark-appworks/spark-app'
 import TenantConfigPanel from './TenantConfigPanel.vue'
 
 type PlatformTenant = {
@@ -129,6 +130,7 @@ type PlatformTenant = {
 
 const route = useRoute()
 const router = useRouter()
+const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const loading = ref(false)
 const submitting = ref(false)
 const tenants = ref<PlatformTenant[]>([])
@@ -161,10 +163,30 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
+function tenantStatusText(status: string): string {
+  if (status === 'ACTIVE') return '启用'
+  if (status === 'DISABLED') return '禁用'
+  return '未知'
+}
+
 async function loadTenants(): Promise<void> {
   loading.value = true
   try {
-    tenants.value = await http.get<PlatformTenant[]>(getPlatformTenantApi())
+    const session = lowcodeApi.session.get()
+    const enterprise = session === null ? null : await lowcodeApi.platform.getEnterpriseInfo()
+    tenants.value = session === null ? [] : [{
+      tenantId: enterprise?.domainKey ?? session.enterprise.shortName,
+      tenantName: enterprise?.chineseShortName
+        ?? enterprise?.chineseName
+        ?? lowcodeEnterpriseDisplayName(session.enterprise),
+      tenantCode: enterprise?.domainKey ?? session.enterprise.shortName,
+      status: enterprise?.checkState === 1 ? 'ACTIVE' : 'UNKNOWN',
+      defaultProjectId: 'homepage',
+      adminUserName: enterprise?.administratorAccount ?? session.identity.account,
+      ...(enterprise?.createdAt === null || enterprise?.createdAt === undefined
+        ? {}
+        : { updatedAt: enterprise.createdAt }),
+    }]
     syncConfigDrawerFromRoute()
   } catch (error) {
     ElMessage.error(`加载租户失败: ${errorMessage(error)}`)
@@ -256,17 +278,7 @@ async function submitTenant(): Promise<void> {
   }
   submitting.value = true
   try {
-    if (editingTenant.value) {
-      await http.put(`${getPlatformTenantApi()}/${encodeURIComponent(form.tenantId)}`, {
-        tenantName: form.tenantName,
-        tenantCode: form.tenantCode,
-      })
-    } else {
-      await http.post(getPlatformTenantApi(), { ...form })
-    }
-    ElMessage.success('租户已保存')
-    dialogVisible.value = false
-    await loadTenants()
+    throw new Error('lowcode 企业变更接口不满足写前镜像、journal、readback 与补偿门禁')
   } catch (error) {
     ElMessage.error(`保存失败: ${errorMessage(error)}`)
   } finally {
@@ -275,17 +287,13 @@ async function submitTenant(): Promise<void> {
 }
 
 async function enableTenant(row: PlatformTenant): Promise<void> {
-  await http.post(`${getPlatformTenantApi()}/${encodeURIComponent(row.tenantId)}/enable`)
-  ElMessage.success('租户已启用')
-  await loadTenants()
+  ElMessage.error(`无法启用「${row.tenantName}」：lowcode 未提供受治理的企业启停合同`)
 }
 
 async function disableTenant(row: PlatformTenant): Promise<void> {
   try {
     await ElMessageBox.confirm(`确定禁用租户「${row.tenantName || row.tenantId}」？`, '禁用租户', { type: 'warning' })
-    await http.post(`${getPlatformTenantApi()}/${encodeURIComponent(row.tenantId)}/disable`)
-    ElMessage.success('租户已禁用')
-    await loadTenants()
+    throw new Error('lowcode 未提供受治理的企业启停合同')
   } catch (error) {
     if (error !== 'cancel') ElMessage.error(`禁用失败: ${errorMessage(error)}`)
   }
@@ -294,17 +302,20 @@ async function disableTenant(row: PlatformTenant): Promise<void> {
 async function deleteTenant(row: PlatformTenant): Promise<void> {
   try {
     await ElMessageBox.confirm(`确定删除租户「${row.tenantName || row.tenantId}」？此操作为软删除。`, '删除租户', { type: 'warning' })
-    await http.delete(`${getPlatformTenantApi()}/${encodeURIComponent(row.tenantId)}`)
-    ElMessage.success('租户已删除')
-    await loadTenants()
+    throw new Error('lowcode 未提供受治理的企业删除合同')
   } catch (error) {
     if (error !== 'cancel') ElMessage.error(`删除失败: ${errorMessage(error)}`)
   }
 }
 
-function enterTenant(row: PlatformTenant): void {
+async function enterTenant(row: PlatformTenant): Promise<void> {
   const projectId = row.defaultProjectId || 'homepage'
-  void router.push(buildTenantPath({ tenantId: row.tenantId, projectId }, '/dashboard'))
+  if (!projectSwitch) {
+    ElMessage.error('租户管理页缺少项目切换服务')
+    return
+  }
+  await projectSwitch.switchAndReload(projectId)
+  await router.push(buildTenantPath({ tenantId: row.tenantId, projectId }, getNavHomePath()))
 }
 
 onMounted(() => {

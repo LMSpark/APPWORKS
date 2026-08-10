@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:lowcode-api",
+    "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "lowcode-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 lowcode-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApiOptions, LowcodeApi（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeApiOptions",
+      "LowcodeApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "sessionStorage": {
+          "$ref": "platform/lowcode-session-store.ts.json#/$defs/LowcodeSessionStorage"
+        },
+        "sessionKey": {
+          "type": "string"
+        },
+        "applicationKey": {
+          "type": "string"
+        },
+        "fetch": {
+          "type": "object",
+          "title": "LowcodeFetch"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApi",
+      "properties": {
+        "blueprint": {
+          "$ref": "platform/project-blueprint/project-blueprint-api.ts.json#/$defs/ProjectBlueprintApi"
+        },
+        "catalog": {
+          "$ref": "catalog/lowcode-catalog-api.ts.json#/$defs/LowcodeCatalogApi"
+        },
+        "dataSpace": {
+          "$ref": "platform/data-space/data-space-api.ts.json#/$defs/DataSpaceApi"
+        },
+        "design": {
+          "$ref": "design/lowcode-design-api.ts.json#/$defs/LowcodeDesignApi"
+        },
+        "application": {
+          "$ref": "platform/lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+        },
+        "realtime": {
+          "$ref": "realtime/lowcode-realtime-api.ts.json#/$defs/LowcodeRealtimeApi"
+        },
+        "platform": {
+          "$ref": "platform/lowcode-platform-api.ts.json#/$defs/LowcodePlatformApi"
+        },
+        "permission": {
+          "$ref": "platform/permission/permission-api.ts.json#/$defs/PermissionApi"
+        },
+        "session": {
+          "$ref": "platform/lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeApiOptions"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T22:57:21.636Z",
+  "models": {
+    "LowcodeApiOptions": {
+      "name": "LowcodeApiOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionStorage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fetch",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApi": {
+      "name": "LowcodeApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: LowcodeApiOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "blueprint",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalog",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "design",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "realtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "platform",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permission",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "session",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

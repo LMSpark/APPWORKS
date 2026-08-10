@@ -20,25 +20,26 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             label-width="0"
             @submit.prevent="handleLogin"
           >
-            <el-form-item prop="tenantId">
+            <el-form-item prop="enterpriseName">
               <el-select
-                v-model="loginForm.tenantId"
+                v-model="loginForm.enterpriseName"
+                :loading="enterpriseLoading"
                 filterable
                 allow-create
                 default-first-option
-                placeholder="选择租户"
+                placeholder="选择企业"
                 style="width: 100%"
               >
                 <el-option
-                  v-for="option in loginTenantOptions"
-                  :key="option.value"
-                  :label="option.label"
-                  :value="option.value"
+                  v-for="enterprise in enterprises"
+                  :key="enterprise.id"
+                  :label="enterprise.name"
+                  :value="enterprise.shortName"
                 />
               </el-select>
             </el-form-item>
-            <el-form-item prop="username">
-              <el-input v-model="loginForm.username" placeholder="用户名">
+            <el-form-item prop="account">
+              <el-input v-model="loginForm.account" placeholder="登录账号">
                 <template #prefix><el-icon><User /></el-icon></template>
               </el-input>
             </el-form-item>
@@ -65,13 +66,13 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             label-width="0"
             @submit.prevent="handleRegister"
           >
-            <el-form-item prop="tenantId">
-              <el-input v-model="regForm.tenantId" placeholder="租户 ID">
+            <el-form-item prop="enterpriseName">
+              <el-input v-model="regForm.enterpriseName" placeholder="企业英文简称">
                 <template #prefix><el-icon><OfficeBuilding /></el-icon></template>
               </el-input>
             </el-form-item>
-            <el-form-item prop="username">
-              <el-input v-model="regForm.username" placeholder="用户名">
+            <el-form-item prop="account">
+              <el-input v-model="regForm.account" placeholder="登录账号">
                 <template #prefix><el-icon><User /></el-icon></template>
               </el-input>
             </el-form-item>
@@ -80,9 +81,26 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
                 <template #prefix><el-icon><Edit /></el-icon></template>
               </el-input>
             </el-form-item>
-            <el-form-item prop="email">
-              <el-input v-model="regForm.email" placeholder="邮箱（选填）">
+            <el-form-item prop="sex">
+              <el-select v-model="regForm.sex" style="width: 100%" placeholder="性别">
+                <el-option label="女" value="F" />
+                <el-option label="男" value="M" />
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="channel">
+              <el-select v-model="regForm.channel" style="width: 100%" placeholder="验证方式">
+                <el-option label="邮箱" value="EMAIL" />
+                <el-option label="手机号" value="MOBILE" />
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="contact">
+              <el-input v-model="regForm.contact" :placeholder="regForm.channel === 'EMAIL' ? '验证邮箱' : '验证手机号'">
                 <template #prefix><el-icon><Message /></el-icon></template>
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="verificationCode">
+              <el-input v-model="regForm.verificationCode" placeholder="验证码">
+                <template #append><el-button @click="sendUserCode">发送验证码</el-button></template>
               </el-input>
             </el-form-item>
             <el-form-item prop="password">
@@ -113,24 +131,44 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             label-width="0"
             @submit.prevent="handleRegisterTenant"
           >
-            <el-form-item prop="tenantId">
-              <el-input v-model="tenantForm.tenantId" placeholder="租户 ID（英文标识）">
+            <el-form-item prop="domainKey">
+              <el-input v-model="tenantForm.domainKey" placeholder="四级域名标识（如 NewApp）">
                 <template #prefix><el-icon><Postcard /></el-icon></template>
               </el-input>
             </el-form-item>
-            <el-form-item prop="tenantName">
-              <el-input v-model="tenantForm.tenantName" placeholder="租户名称">
+            <el-form-item prop="englishName">
+              <el-input v-model="tenantForm.englishName" placeholder="企业英文名称">
                 <template #prefix><el-icon><OfficeBuilding /></el-icon></template>
               </el-input>
             </el-form-item>
-            <el-form-item prop="username">
-              <el-input v-model="tenantForm.username" placeholder="管理员用户名">
+            <el-form-item prop="chineseName">
+              <el-input v-model="tenantForm.chineseName" placeholder="企业中文名称" />
+            </el-form-item>
+            <el-form-item prop="chineseShortName">
+              <el-input v-model="tenantForm.chineseShortName" placeholder="企业中文简称" />
+            </el-form-item>
+            <el-form-item prop="administratorAccount">
+              <el-input v-model="tenantForm.administratorAccount" placeholder="管理员账号">
                 <template #prefix><el-icon><User /></el-icon></template>
               </el-input>
             </el-form-item>
-            <el-form-item prop="password">
-              <el-input v-model="tenantForm.password" type="password" show-password placeholder="管理员密码" @keyup.enter="handleRegisterTenant">
+            <el-form-item prop="administratorPassword">
+              <el-input v-model="tenantForm.administratorPassword" type="password" show-password placeholder="管理员密码">
                 <template #prefix><el-icon><Lock /></el-icon></template>
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="channel">
+              <el-select v-model="tenantForm.channel" style="width: 100%" placeholder="验证方式">
+                <el-option label="邮箱" value="EMAIL" />
+                <el-option label="手机号" value="MOBILE" />
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="verificationAccount">
+              <el-input v-model="tenantForm.verificationAccount" :placeholder="tenantForm.channel === 'EMAIL' ? '管理员邮箱' : '管理员手机号'" />
+            </el-form-item>
+            <el-form-item prop="verificationCode">
+              <el-input v-model="tenantForm.verificationCode" placeholder="验证码" @keyup.enter="handleRegisterTenant">
+                <template #append><el-button @click="sendEnterpriseCode">发送验证码</el-button></template>
               </el-input>
             </el-form-item>
             <el-form-item>
@@ -152,14 +190,19 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 多租户登录页面，提供用户名/密码认证和租户选择入口；属于平台路由页，不允许作为 SparkNode 组件配置生成。
  */
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { isPlatformAdminUser, login, register, registerTenant } from '@/services/auth'
-import { getNavHomePath } from '@spark-appworks/spark-app'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import { buildTenantPath } from '@/services/tenant-scope'
 import type { FormInstance, FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { OfficeBuilding, User, Lock, Edit, Message, Postcard } from '@element-plus/icons-vue'
+import type {
+  LowcodeEnterpriseCatalogItem,
+  LowcodeEnterpriseRegistration,
+  LowcodeUserRegistration,
+} from '@spark-appworks/spark-lowcode-api'
 
 const router = useRouter()
 const savedTab = sessionStorage.getItem('spark_login_tab')
@@ -167,29 +210,37 @@ const activeTab = ref(savedTab ?? 'login')
 if (savedTab) sessionStorage.removeItem('spark_login_tab')
 const loading = ref(false)
 const errorMsg = ref('')
+const enterpriseLoading = ref(false)
+const enterprises = ref<readonly LowcodeEnterpriseCatalogItem[]>([])
+
+async function loadEnterprises(): Promise<void> {
+  enterpriseLoading.value = true
+  try {
+    enterprises.value = await lowcodeApi.platform.listEnterprises()
+  } catch (error) {
+    ElMessage.warning(error instanceof Error ? error.message : '企业列表加载失败')
+  } finally {
+    enterpriseLoading.value = false
+  }
+}
+
+onMounted(loadEnterprises)
 
 function goHome() {
   void router.replace('/')
 }
 
-function getUserHomePath(user: { tenantId: string; defaultProjectId: string; roles?: readonly string[] }): string {
-  if (isPlatformAdminUser(user)) {
-    return '/platform/dashboard'
-  }
-  return buildTenantPath({ tenantId: user.tenantId, projectId: user.defaultProjectId }, getNavHomePath())
+function getUserHomePath(enterpriseName: string): string {
+  return buildTenantPath({ tenantId: enterpriseName, projectId: 'homepage' }, '/app-list')
 }
 
 // ── 登录表单 ────────────────────────────────────────────────────────────────
 
-const loginForm = reactive({ tenantId: 'platform', username: '', password: '' })
+const loginForm = reactive({ enterpriseName: '', account: '', password: '' })
 const loginFormRef = ref<FormInstance>()
-const loginTenantOptions = [
-  { label: 'SPARK 平台 (platform)', value: 'platform' },
-  { label: '领码SPARK (lmspark)', value: 'lmspark' },
-]
 const loginRules: FormRules = {
-  tenantId: [{ required: true, message: '请选择或输入租户 ID', trigger: 'change' }],
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  enterpriseName: [{ required: true, message: '请输入企业英文简称', trigger: 'blur' }],
+  account: [{ required: true, message: '请输入登录账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 }
 
@@ -199,9 +250,9 @@ async function handleLogin() {
   loading.value = true
   errorMsg.value = ''
   try {
-    const user = await login(loginForm)
+    const session = await lowcodeApi.platform.login(loginForm)
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(user))
+    await router.replace(getUserHomePath(session.enterprise.shortName))
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '登录失败'
   } finally {
@@ -211,11 +262,32 @@ async function handleLogin() {
 
 // ── 注册表单 ────────────────────────────────────────────────────────────────
 
-const regForm = reactive({ tenantId: 'lmspark', username: '', password: '', confirmPassword: '', displayName: '', email: '' })
+type UserRegistrationForm = Pick<
+  LowcodeUserRegistration,
+  'enterpriseName' | 'account' | 'displayName' | 'password' | 'sex' | 'channel' | 'verificationCode'
+> & {
+  confirmPassword: string
+  contact: string
+}
+
+const regForm = reactive<UserRegistrationForm>({
+  enterpriseName: '',
+  account: '',
+  password: '',
+  confirmPassword: '',
+  displayName: '',
+  sex: 'F',
+  channel: 'EMAIL',
+  contact: '',
+  verificationCode: '',
+})
 const regFormRef = ref<FormInstance>()
 const regRules: FormRules = {
-  tenantId: [{ required: true, message: '请输入租户 ID', trigger: 'blur' }],
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  enterpriseName: [{ required: true, message: '请输入企业英文简称', trigger: 'blur' }],
+  account: [{ required: true, message: '请输入登录账号', trigger: 'blur' }],
+  displayName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
+  contact: [{ required: true, message: '请输入验证账号', trigger: 'blur' }],
+  verificationCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }, { min: 6, message: '密码至少 6 位', trigger: 'blur' }],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
@@ -235,9 +307,24 @@ async function handleRegister() {
   loading.value = true
   errorMsg.value = ''
   try {
-    const user = await register(regForm)
+    await lowcodeApi.platform.registerUser({
+      enterpriseName: regForm.enterpriseName,
+      account: regForm.account,
+      displayName: regForm.displayName,
+      password: regForm.password,
+      sex: regForm.sex,
+      channel: regForm.channel,
+      phone: regForm.channel === 'MOBILE' ? regForm.contact : '',
+      email: regForm.channel === 'EMAIL' ? regForm.contact : '',
+      verificationCode: regForm.verificationCode,
+    })
+    const session = await lowcodeApi.platform.login({
+      enterpriseName: regForm.enterpriseName,
+      account: regForm.account,
+      password: regForm.password,
+    })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(user))
+    await router.replace(getUserHomePath(session.enterprise.shortName))
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '注册失败'
   } finally {
@@ -247,16 +334,52 @@ async function handleRegister() {
 
 // ── 注册租户表单 ────────────────────────────────────────────────────────────
 
-const tenantForm = reactive({ tenantId: '', tenantName: '', username: 'admin', password: '' })
+async function sendUserCode(): Promise<void> {
+  await lowcodeApi.platform.sendVerificationCode({
+    enterpriseName: regForm.enterpriseName,
+    channel: regForm.channel,
+    account: regForm.contact,
+    scene: 'REGISTER',
+  })
+  ElMessage.success('验证码已发送')
+}
+
+type EnterpriseRegistrationForm = Omit<LowcodeEnterpriseRegistration, 'phone' | 'email'>
+
+const tenantForm = reactive<EnterpriseRegistrationForm>({
+  domainKey: '',
+  englishName: '',
+  chineseName: '',
+  chineseShortName: '',
+  administratorAccount: 'admin',
+  administratorPassword: '',
+  channel: 'MOBILE',
+  verificationAccount: '',
+  verificationCode: '',
+})
 const tenantFormRef = ref<FormInstance>()
 const tenantRules: FormRules = {
-  tenantId: [
-    { required: true, message: '请输入租户 ID', trigger: 'blur' },
+  domainKey: [
+    { required: true, message: '请输入四级域名标识', trigger: 'blur' },
     { pattern: /^[a-zA-Z][a-zA-Z0-9_-]{2,31}$/, message: '以字母开头，3-32 个字母/数字/_/-', trigger: 'blur' },
   ],
-  tenantName: [{ required: true, message: '请输入租户名称', trigger: 'blur' }],
-  username: [{ required: true, message: '请输入管理员用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入管理员密码', trigger: 'blur' }, { min: 6, message: '密码至少 6 位', trigger: 'blur' }],
+  englishName: [{ required: true, message: '请输入企业英文名称', trigger: 'blur' }],
+  chineseName: [{ required: true, message: '请输入企业中文名称', trigger: 'blur' }],
+  chineseShortName: [{ required: true, message: '请输入企业中文简称', trigger: 'blur' }],
+  administratorAccount: [{ required: true, message: '请输入管理员账号', trigger: 'blur' }],
+  administratorPassword: [{ required: true, message: '请输入管理员密码', trigger: 'blur' }, { min: 6, message: '密码至少 6 位', trigger: 'blur' }],
+  verificationAccount: [{ required: true, message: '请输入验证账号', trigger: 'blur' }],
+  verificationCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+}
+
+async function sendEnterpriseCode(): Promise<void> {
+  await lowcodeApi.platform.sendVerificationCode({
+    enterpriseName: tenantForm.domainKey,
+    channel: tenantForm.channel,
+    account: tenantForm.verificationAccount,
+    scene: 'REGISTER_ENT',
+  })
+  ElMessage.success('验证码已发送')
 }
 
 async function handleRegisterTenant() {
@@ -265,9 +388,18 @@ async function handleRegisterTenant() {
   loading.value = true
   errorMsg.value = ''
   try {
-    const user = await registerTenant(tenantForm)
+    await lowcodeApi.platform.registerEnterprise({
+      ...tenantForm,
+      phone: tenantForm.channel === 'MOBILE' ? tenantForm.verificationAccount : '',
+      email: tenantForm.channel === 'EMAIL' ? tenantForm.verificationAccount : '',
+    })
+    const session = await lowcodeApi.platform.login({
+      enterpriseName: tenantForm.domainKey,
+      account: tenantForm.administratorAccount,
+      password: tenantForm.administratorPassword,
+    })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(user))
+    await router.replace(getUserHomePath(session.enterprise.shortName))
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '租户注册失败'
   } finally {

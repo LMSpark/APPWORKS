@@ -297,7 +297,7 @@ export function useFormDetailContainer(
   function getDefaultScope() {
     return createCurrentRowScope({
       dataSource: dataState.resolvedView.value,
-      modelPermission: dataState.modelPermission.value,
+      permissionSnapshot: dataState.permissionSnapshot.value,
       moduleContext: moduleContext.value,
       row: contextData,
       model: contextData,

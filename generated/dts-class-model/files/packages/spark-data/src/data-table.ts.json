@@ -256,6 +256,19 @@
         "method.addRows.return": {
           "type": "number"
         },
+        "method.ingestPermissionSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "types.ts.json#/$defs/DataPermissionSnapshotInput"
+            },
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ingestPermissionSnapshot.return": true,
         "method.addView.params": {
           "type": "object",
           "properties": {
@@ -310,7 +323,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.007Z",
+  "generatedAt": "2026-08-09T20:36:54.979Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
@@ -691,6 +704,34 @@
               "type": {
                 "type": "intrinsic",
                 "name": "number"
+              }
+            },
+            {
+              "name": "ingestPermissionSnapshot",
+              "jsdoc": "将同一次后端查询的行、权限和原始基线登记到指定视图。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataPermissionSnapshotInput",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

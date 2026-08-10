@@ -4,7 +4,7 @@
  * 边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
  * AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/demo-nav。
  */
-import type { ProjectModelData } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 
 /**
  * 演示导航树 — 将 routes.json 中的扁平路由组织为模块化导航。
@@ -15,7 +15,7 @@ import type { ProjectModelData } from '@spark-appworks/spark-project-model'
  *   - 组件演示 → sidebar（子项在左侧栏）
  *   - 系统管理 → sidebar + parent（子菜单嵌套在侧栏内）
  */
-export const demoNavRoot: ProjectModelData = {
+export const demoNavRoot: ProjectBlueprintTreeData = {
   title: 'SPARK Demo',
   childPlacement: 'header',
   homePath: '/dashboard',

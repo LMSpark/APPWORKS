@@ -14,7 +14,7 @@
 import { computed, type ComputedRef } from 'vue'
 import { Logger } from '@spark-appworks/spark-utils'
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from '../../support/beforeRender.js'
-import { extractModelPermission } from '../../../permission/index.js'
+import { extractPermissionSnapshot } from '../../../permission/index.js'
 import {
   nodeToActionDescriptor,
   executeActionDescriptor,
@@ -44,7 +44,7 @@ function resolveActionNode(
     data: currentRow,
     index: scope?.index,
     dataSource,
-    modelPermission: extractModelPermission(dataSource),
+    permissionSnapshot: extractPermissionSnapshot(dataSource),
     host: { type: null },
   }, (message, error) => {
     logger.warn(`${message}`, error)

@@ -67,8 +67,8 @@ describe('RendererLink 权限作用域', () => {
           views: {
             default: {
               rows: [
-                { id: 1, name: '允许行', _perm: { allowDelete: true } },
-                { id: 2, name: '拒绝行', _perm: { allowDelete: false } },
+                { id: 1, name: '允许行', lingma_sys_params: { r: [], e: [], h: [], m: [], d: true } },
+                { id: 2, name: '拒绝行', lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } },
               ],
             },
           },

@@ -46,6 +46,9 @@
           },
           "hidden": {
             "type": "boolean"
+          },
+          "shellTool": {
+            "type": "boolean"
           }
         },
         "required": ["path", "title", "scope", "source"]

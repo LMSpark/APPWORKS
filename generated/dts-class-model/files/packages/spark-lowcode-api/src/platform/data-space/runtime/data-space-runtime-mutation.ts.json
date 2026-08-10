@@ -1,0 +1,431 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-mutation",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/data-space-runtime-mutation",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/runtime/data-space-runtime-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceAddedRow, DataSpaceChangedRow, DataSpaceDeletedRow, DataSpaceRuntimeChanges, DataSpaceRuntimeMutationInput, DataSpaceRuntimeMutationCommand（共 6 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceAddedRow",
+      "DataSpaceChangedRow",
+      "DataSpaceDeletedRow",
+      "DataSpaceRuntimeChanges",
+      "DataSpaceRuntimeMutationInput",
+      "DataSpaceRuntimeMutationCommand"
+    ]
+  },
+  "$defs": {
+    "DataSpaceChangedRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceChangedRow",
+      "properties": {
+        "primaryKey": true,
+        "values": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceDeletedRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDeletedRow",
+      "properties": {
+        "primaryKey": true
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRuntimeChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRuntimeChanges",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceAddedRow"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceChangedRow"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceDeletedRow"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRuntimeMutationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRuntimeMutationInput",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "model": {
+          "$ref": "../data-space.ts.json#/$defs/DataSpaceFrontendModel"
+        },
+        "preimage": {
+          "$ref": "data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeSnapshot"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "changes": {
+          "$ref": "#/$defs/DataSpaceRuntimeChanges"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRuntimeMutationCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRuntimeMutationCommand",
+      "properties": {
+        "kind": {
+          "const": "data-space-runtime-mutation"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "preimage": {
+          "$ref": "data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeSnapshot"
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "risk": {
+          "const": "medium"
+        },
+        "journal": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            }
+          },
+          "required": [
+            "required"
+          ],
+          "additionalProperties": false
+        },
+        "readback": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            },
+            "formKey": {
+              "type": "string"
+            },
+            "dataSpaceId": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "required",
+            "formKey",
+            "dataSpaceId",
+            "modelId"
+          ],
+          "additionalProperties": false
+        },
+        "compensation": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "restore-data-space-runtime-snapshot"
+            },
+            "preimage": {
+              "$ref": "data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeSnapshot"
+            }
+          },
+          "required": [
+            "kind",
+            "preimage"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T22:50:15.256Z",
+  "models": {
+    "DataSpaceAddedRow": {
+      "name": "DataSpaceAddedRow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceChangedRow": {
+      "name": "DataSpaceChangedRow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    primaryKey: unknown;\n    values: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    primaryKey: unknown;\n    values: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "values",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDeletedRow": {
+      "name": "DataSpaceDeletedRow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    primaryKey: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    primaryKey: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRuntimeChanges": {
+      "name": "DataSpaceRuntimeChanges",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    added?: readonly DataSpaceAddedRow[];\n    changed?: readonly DataSpaceChangedRow[];\n    deleted?: readonly DataSpaceDeletedRow[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    added?: readonly DataSpaceAddedRow[];\n    changed?: readonly DataSpaceChangedRow[];\n    deleted?: readonly DataSpaceDeletedRow[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRuntimeMutationInput": {
+      "name": "DataSpaceRuntimeMutationInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    model: DataSpaceFrontendModel;\n    preimage: DataSpaceRuntimeSnapshot;\n    idempotencyKey: string;\n    changes: DataSpaceRuntimeChanges;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    model: DataSpaceFrontendModel;\n    preimage: DataSpaceRuntimeSnapshot;\n    idempotencyKey: string;\n    changes: DataSpaceRuntimeChanges;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRuntimeMutationCommand": {
+      "name": "DataSpaceRuntimeMutationCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'data-space-runtime-mutation';\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    idempotencyKey: string;\n    preimage: DataSpaceRuntimeSnapshot;\n    added: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    changed: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    deleted: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    risk: 'medium';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        formKey: string;\n        dataSpaceId: string;\n        modelId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-data-space-runtime-snapshot';\n        preimage: DataSpaceRuntimeSnapshot;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'data-space-runtime-mutation';\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    idempotencyKey: string;\n    preimage: DataSpaceRuntimeSnapshot;\n    added: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    changed: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    deleted: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    risk: 'medium';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        formKey: string;\n        dataSpaceId: string;\n        modelId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-data-space-runtime-snapshot';\n        preimage: DataSpaceRuntimeSnapshot;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "risk",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "journal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readback",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "compensation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

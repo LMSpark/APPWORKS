@@ -20,7 +20,6 @@ import type {
   TreePath
 } from './types'
 import { resolveUrlTemplate } from './core/url-template'
-import { applyPlatformProjectScope } from './core/platform-scoped-url'
 
 import { Logger, createRequest, isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 
@@ -170,7 +169,7 @@ export class TreeManager {
   private _callEndpoint<T>(endpoint: HttpEndpoint, params: Record<string, unknown> = {}): Promise<T> {
     const contextParams = this.endpointContextProvider?.() ?? {}
     const { url: resolvedUrl, rest } = resolveUrlTemplate(endpoint.url, { ...contextParams, ...params })
-    const url = applyPlatformProjectScope(resolvedUrl, contextParams)
+    const url = resolvedUrl
     const requestParams = Object.fromEntries(
       Object.entries(rest).filter(([key]) => key !== 'tenantId' && key !== 'projectId')
     )
@@ -585,4 +584,3 @@ async moveNode(nodeId: string | number, newParentId: string | number | null, ind
   }
 
 }
-

@@ -37,7 +37,7 @@ export interface AjaxResult<T = unknown> {
   /** 业务结果数据，泛型由调用方决定。 */
   Result?: T;
   /** 消息类型：success / warn / error 或其它字符串。 */
-  Type?: "success" | "warn" | "error" | string;
+  Type?: string;
   /** 额外附加数据。 */
   Extras?: unknown;
   /** 服务器时间戳字符串。 */

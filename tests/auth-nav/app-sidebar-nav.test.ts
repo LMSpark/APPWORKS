@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { computed, defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { describe, expect, it, vi } from 'vitest'
-import type { NavigationContext, ProjectNodeData } from '@spark-appworks/spark-app'
+import type { NavigationContext, RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { NAV_KEY } from '@spark-appworks/spark-app'
 import AppSidebar from '@/layout/AppSidebar.vue'
 
@@ -80,7 +80,7 @@ const NavIconStub = defineComponent({
   },
 })
 
-function createNavigationContext(activePath: ProjectNodeData[]): NavigationContext {
+function createNavigationContext(activePath: RuntimeNavigationItem[]): NavigationContext {
   const regionItems = computed(() => ({
     header: [],
     sidebar: [],
@@ -115,16 +115,16 @@ describe('AppSidebar navigation rendering', () => {
     await router.push('/platform/dev')
     await router.isReady()
 
-    const devCenter: ProjectNodeData = {
+    const devCenter: RuntimeNavigationItem = {
       id: 'platform-dev-center',
-      nodeKind: 'module',
+      itemKind: 'module',
       title: '开发中心',
       childPlacement: 'sidebar',
     }
-    const items: ProjectNodeData[] = [
+    const items: RuntimeNavigationItem[] = [
       {
         id: 'platform-dbms',
-        nodeKind: 'system-page',
+        itemKind: 'system-page',
         title: '数据库管理',
         icon: 'DataBase',
         path: '/dbms',
@@ -132,14 +132,14 @@ describe('AppSidebar navigation rendering', () => {
       },
       {
         id: 'platform-dev',
-        nodeKind: 'system-page',
+        itemKind: 'system-page',
         title: '开发工作台',
         icon: 'Lightning',
         path: '/dev',
       },
       {
         id: 'platform-cache',
-        nodeKind: 'system-page',
+        itemKind: 'system-page',
         title: '缓存管理',
         icon: 'Coin',
         path: '/cache-manager',
@@ -184,24 +184,24 @@ describe('AppSidebar navigation rendering', () => {
     await router.push('/settings')
     await router.isReady()
 
-    const settingsLeaf: ProjectNodeData = {
+    const settingsLeaf: RuntimeNavigationItem = {
       id: 'settings-basic',
-      nodeKind: 'system-page',
+      itemKind: 'system-page',
       title: '基本设置',
       icon: 'Setting',
       path: '/settings',
     }
-    const settingsGroup: ProjectNodeData = {
+    const settingsGroup: RuntimeNavigationItem = {
       id: 'system-settings',
-      nodeKind: 'module',
+      itemKind: 'module',
       title: '系统设置',
       icon: 'Setting',
       childPlacement: 'parent',
       children: [settingsLeaf],
     }
-    const rootGroup: ProjectNodeData = {
+    const rootGroup: RuntimeNavigationItem = {
       id: 'system-config',
-      nodeKind: 'module',
+      itemKind: 'module',
       title: '系统配置',
       icon: 'Tools',
       childPlacement: 'sidebar',
@@ -209,7 +209,7 @@ describe('AppSidebar navigation rendering', () => {
         settingsGroup,
         {
           id: 'page-manager',
-          nodeKind: 'system-page',
+          itemKind: 'system-page',
           title: '页面管理',
           icon: 'Grid',
           path: '/page-manager',

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-kinds",
+    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-kinds.ts",
+    "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-kinds.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "blueprint/project-blueprint-kinds",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-kinds\n职责：按运行交付 nodeKind 实例化非配置页蓝图节点（统一 `ProjectBlueprintNode`，family 由 nodeKind 派生）。\n边界：不处理 page/sub-page 配置页；配置页由 instantiate-project-node 路由到 ConfigPageNode。\nAI用途：扩展运行交付 nodeKind 或排查非配置页蓝图节点实例化时，用本模块确认默认构造路径。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-09T22:37:59.548Z",
+  "models": {}
+}

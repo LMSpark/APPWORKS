@@ -1,4 +1,6 @@
-状态：draft
+状态：superseded
+
+> 替代计划：`notes/plan-lowcode-frontend-api-cutover.md`。本计划仍保留兼容式包内适配、旧服务过渡和 Metadata 归并假设，与用户最终确认的“新增可发布 `spark-lowcode-api`、不保留兼容层、全部前端功能直接语义对接 lowcode、退役本仓后端”不一致，禁止按本文件实施。
 
 # Metadata 包体系整合进 AppWorks 完整方案
 

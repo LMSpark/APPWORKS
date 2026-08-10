@@ -5,14 +5,14 @@
  * AI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/action-registry。
  */
 import type { InjectionKey } from 'vue'
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigationItem } from './runtime-navigation'
 
 /** Navigation Action Context 的运行上下文。 */
 export type NavigationActionContext = {
     /** command 字段。 */
 command: string
     /** node 字段。 */
-node?: ProjectNodeData
+node?: RuntimeNavigationItem
     /** 来源对象。 */
 source?: 'navigation' | 'toolbar' | 'user-menu' | 'app-shell'}
 

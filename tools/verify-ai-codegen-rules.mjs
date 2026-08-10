@@ -105,8 +105,8 @@ const publicSurfaceAllowlist = new Set([
   'packages/spark-ai/src/class-model/runtime/index.ts:./class-model-runtime',
   'packages/spark-ai/src/json/index.ts:./helpers',
   'packages/spark-project-model/src/index.ts:./project/project-types',
-  'packages/spark-project-model/src/index.ts:./navigation/project-node',
-  'packages/spark-project-model/src/index.ts:./navigation/navigation-tree',
+  'packages/spark-project-model/src/index.ts:./blueprint/project-blueprint-node',
+  'packages/spark-project-model/src/index.ts:./blueprint/project-blueprint-tree',
   // Host session-types 与 transport-types 是完整类型契约模块；
   // 按主题再次 re-export 会制造额外间接层。
   'packages/spark-ai/src/agent/index.ts:./session/session-types',

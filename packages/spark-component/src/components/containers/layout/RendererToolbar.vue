@@ -114,7 +114,7 @@ useDataViewEventBridge({
 
 // ============================================================================
 // 4) 动作节点预处理（beforeRender 作用域注入）
-//    - 解析当前 row / dataSource / modelPermission
+//    - 解析当前 row / dataSource / permissionSnapshot
 //    - 执行 onBeforeRender 并合并 patch
 // ============================================================================
 function resolveToolbarActionNode(node: SparkNode): SparkNode {
@@ -133,7 +133,7 @@ function resolveToolbarActionNode(node: SparkNode): SparkNode {
     row,
     data: row,
     dataSource,
-    modelPermission: dataState.modelPermission.value,
+    permissionSnapshot: dataState.permissionSnapshot.value,
     host: { type: 'r-toolbar' },
   })
 

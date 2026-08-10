@@ -5,9 +5,6 @@
  * AI用途：排查 Word 需求文档到 projectPlanning 的数据链路时，从本模块确认上传契约。
  */
 
-import { http } from '@/services/http'
-import { getProjectPlanningAttachmentApi } from '@/services/api-paths'
-
 export type ProjectPlanningAttachmentUploadResult = Readonly<{
   planningAttachmentRef: string
   originalFilename: string
@@ -27,13 +24,9 @@ export function isProjectPlanningDocumentFile(file: File): boolean {
   return file.name.trim().toLowerCase().endsWith('.docx')
 }
 
-export async function uploadProjectPlanningAttachment(
+export function uploadProjectPlanningAttachment(
   command: UploadProjectPlanningAttachmentCommand,
 ): Promise<ProjectPlanningAttachmentUploadResult> {
-  const formData = new FormData()
-  formData.append('file', command.file)
-  return await http.post<ProjectPlanningAttachmentUploadResult>(
-    getProjectPlanningAttachmentApi(command.projectId, command.tenantId),
-    formData,
-  )
+  void command
+  return Promise.reject(new Error('lowcode 文件上传接口不满足写前镜像、journal、readback 与补偿门禁'))
 }

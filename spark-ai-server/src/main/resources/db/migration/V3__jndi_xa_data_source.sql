@@ -1,9 +1,0 @@
--- V3: JNDI/XA dynamic database metadata.
--- DIRECT keeps the existing application-managed Hikari path.
--- JNDI_XA requires a container-managed XA DataSource name in JNDI_NAME.
-
-ALTER TABLE DATA_SOURCE_DATABASE
-    ADD COLUMN CONNECTION_MODE VARCHAR(32) NOT NULL DEFAULT 'DIRECT',
-    ADD COLUMN JNDI_NAME VARCHAR(512);
-
-CREATE INDEX IDX_DSD_CONNECTION_MODE ON DATA_SOURCE_DATABASE (CONNECTION_MODE);

@@ -7,8 +7,11 @@ import { SparkData } from '@spark-appworks/spark-data'
 import { getMountedComponentApi, mountWithPageDataSet } from '../helpers/mount-with-page-dataset'
 import { requireFunction, requireRecord, requireString } from '../helpers/runtime-guards'
 
-function setModelPermission(view: object, permission: Record<string, unknown>): void {
-  Reflect.set(view, '_modelPerm', permission)
+function setPermissionSnapshot(view: object, authorizedFeatureTags: string[]): void {
+  Reflect.set(view, 'permissionSnapshot', {
+    formKey: 'FORM', dataSpaceId: 'SPACE', modelId: 'MODEL', allowAdd: false,
+    systemKey: 'SYSTEM', originalRows: [], authorizedFeatureTags,
+  })
 }
 
 function readConfigType(config: unknown): string {
@@ -57,8 +60,8 @@ describe('RendererList and RendererSection container integration', () => {
           views: {
             default: {
               rows: [
-                { id: 1, name: 'Alice', _perm: { allowDelete: true } },
-                { id: 2, name: 'Bob', _perm: { allowDelete: false } },
+                { id: 1, name: 'Alice', lingma_sys_params: { r: [], e: [], h: [], m: [], d: true } },
+                { id: 2, name: 'Bob', lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } },
               ],
             },
           },
@@ -66,7 +69,7 @@ describe('RendererList and RendererSection container integration', () => {
       },
     })
     const listView = ds.getView('Users', 'default')!
-    setModelPermission(listView, { allowExport: true })
+    setPermissionSnapshot(listView, ['export'])
 
     const wrapper = mountWithPageDataSet(RendererList, {
       dataSet: ds,
@@ -119,7 +122,7 @@ describe('RendererList and RendererSection container integration', () => {
           views: {
             default: {
               rows: [
-                { id: 1, name: 'Alice', _perm: { allowDelete: false } },
+                { id: 1, name: 'Alice', lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } },
               ],
             },
           },

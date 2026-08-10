@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/ProjectBlueprintTree",
+    "sourcePath": "src/views/app/dev-system/ProjectBlueprintTree.vue",
+    "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/ProjectBlueprintTree",
+    "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：提供 DevSystem 的项目蓝图树，展示并编辑需求、原型、数据空间与交付节点。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模块定位 views/app/dev-system/ProjectBlueprintTree。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-09T22:05:53.355Z",
+  "models": {}
+}

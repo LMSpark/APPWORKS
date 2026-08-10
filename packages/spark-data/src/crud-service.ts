@@ -27,12 +27,7 @@ import type {
   DataSetTransactionRequest,
   DataSetTransactionResponse,
 } from './types'
-import {
-  INSTANCE_PERMISSION_FIELD,
-  MODEL_PERMISSION_FIELD
-} from './types'
 import { resolveUrlTemplate } from './core/url-template'
-import { applyPlatformProjectScope } from './core/platform-scoped-url'
 
 const UNRESOLVED_URL_TEMPLATE_RE = /:\w+|\{\w+\}/
 
@@ -516,37 +511,20 @@ async executeTransaction<T = DataSetTransactionResponse>(
    * @param data 原始数据
    * @returns 清理后的数据（不含权限字段）
    */
-  private sanitizeDataForUpload<T extends Record<string, unknown>>(data: T): Omit<T, typeof INSTANCE_PERMISSION_FIELD | typeof MODEL_PERMISSION_FIELD> {
-    const { [INSTANCE_PERMISSION_FIELD]: _, [MODEL_PERMISSION_FIELD]: __, ...sanitized } = data
+  private sanitizeDataForUpload<T extends Record<string, unknown>>(data: T): Omit<T, 'lingma_sys_params' | 'lingma_sys_key'> {
+    const { lingma_sys_params: _, lingma_sys_key: __, ...sanitized } = data
     return sanitized
   }
 
   /**
-   * 构建请求配置（集成权限快照）
+   * 构建请求配置
    * @param config CRUD操作配置
    * @returns HTTP请求配置
    */
   private buildRequestConfig(config?: CrudOperationConfig): Partial<RequestConfig> | undefined {
     if (!config) return undefined
 
-    const headers: Record<string, string> = {}
-
-    // 添加权限令牌到请求头
-    if (config.modelPermission?.permissionToken) {
-      headers['X-Permission-Token'] = config.modelPermission.permissionToken
-    }
-
-    // 如果有实例级权限快照，也添加到请求头
-    if (config.instancePermission?.permissionToken) {
-      headers['X-Instance-Permission-Token'] = config.instancePermission.permissionToken
-    }
-
     const result: Partial<RequestConfig> = {}
-
-    // 只在有实际 header 时才附加，避免传递空 headers 对象
-    if (Object.keys(headers).length > 0) {
-      result.headers = headers
-    }
 
     if (config.timeout !== undefined) {
       result.timeout = config.timeout
@@ -705,7 +683,7 @@ async executeTransaction<T = DataSetTransactionResponse>(
     const dataParams = isRecord(data) ? data : {}
     const templateParams = { ...contextParams, ...dataParams }
     const resolved = resolveUrlTemplate(endpoint.url, templateParams)
-    const url = applyPlatformProjectScope(resolved.url, contextParams)
+    const url = resolved.url
 
     if (UNRESOLVED_URL_TEMPLATE_RE.test(url)) {
       throw new Error(`Unresolved URL template params: ${url}`)

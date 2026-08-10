@@ -32,7 +32,7 @@ export type { StartOptions, SparkOptions, PageNodeOptions } from './start'
 
 // Bootstrap（中级 API）
 export { bootstrap } from './bootstrap'
-export type { BootstrapOptions } from './types'
+export type { BootstrapAuthenticate, BootstrapOptions } from './types'
 
 // 插件管理系统
 export {
@@ -50,19 +50,6 @@ export type {
   PluginLoader,
   PluginInstance
 } from './plugins'
-
-// 认证模块
-export {
-  AuthService,
-  TokenManager
-} from './auth'
-
-export type {
-  AuthConfig,
-  LoginCredentials,
-  AuthResult,
-  TokenStorage,
-} from './auth'
 
 // Logger
 export {
@@ -157,7 +144,6 @@ export type {
   NavNodeActionTarget,
   NavNodeContainerTarget,
   NavNodeExternalTarget,
-  NavNodeHiddenTarget,
   NavNodeRouteTarget,
   NavNodeRouteTargetKind,
   NavNodeRuntimeTarget,
@@ -176,16 +162,17 @@ export { useColorScheme, setColorSchemeStorageScope, PRIMARY_PRESETS, NAV_PRESET
 export { NAV_KEY } from './navigation/nav-types'
 export type { NavigationContext } from './navigation/nav-types'
 export type {
-  ProjectModelData,
-  ChildPlacement,
-  NavContextItem,
-  NavContextState,
-  NavNodeKind,
-  NavPermissionMode,
-  ProjectNodeData,
-  RegionItems,
-  RegionVisibility,
-} from '@spark-appworks/spark-project-model'
+  RuntimeNavigation,
+  RuntimeNavigationContextConfig,
+  RuntimeNavigationContextItem,
+  RuntimeNavigationContextState,
+  RuntimeNavigationItem,
+  RuntimeNavigationItemKind,
+  RuntimeNavigationPermissionMode,
+  RuntimeNavigationPlacement,
+  RuntimeNavigationRegionItems,
+  RuntimeNavigationRegionVisibility,
+} from './navigation/runtime-navigation'
 export type { TabPage, PageMode } from './navigation/useTabPages'
 export type { PrimaryPreset, NavPreset, NavColorSet, StylePreset, StyleColorSet } from './navigation/useColorScheme'
 

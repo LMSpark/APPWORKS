@@ -1,18 +1,9 @@
 {
     "configSource": {
         "type": "local",
-        "api": {
-            "defaultConfigEndpoint": "/api/config/default",
-            "tenantConfigEndpoint": "/api/config/tenant/{tenantId}",
-            "timeout": 5000
-        },
         "local": {
             "defaultConfigPath": "/config/default.json",
             "tenantConfigTemplate": "/config/tenants/tenant-{tenantId}.json"
-        },
-        "fallback": {
-            "enabled": true,
-            "useLocal": true
         }
     },
     "router": {

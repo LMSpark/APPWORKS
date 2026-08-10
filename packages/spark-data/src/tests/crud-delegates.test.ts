@@ -127,7 +127,7 @@ describe('M5: CrudService shared HTTP client', () => {
     expect(firstGetCall?.[0]).toBe('/tenants/tenant-a/projects/proj-1/navigation/nodes')
   })
 
-  it('DataTable.crudService should prepend project scope for platform-relative URLs', async () => {
+  it('DataTable.crudService should preserve explicit endpoint URLs', async () => {
     const mockClient = createMockHttpClient()
     vi.mocked(mockClient.get).mockResolvedValue([])
     const ds = new DataSet({
@@ -159,7 +159,7 @@ describe('M5: CrudService shared HTTP client', () => {
     expect(mockClient.get).toHaveBeenCalledOnce()
     const firstGetCall = vi.mocked(mockClient.get).mock.calls[0]
     expect(firstGetCall).toBeDefined()
-    expect(firstGetCall?.[0]).toBe('/tenants/tenant-a/projects/proj-1/navigation/nodes')
+    expect(firstGetCall?.[0]).toBe('/navigation/nodes')
   })
 
   it('DataTable.crudService should fail-fast when URL template params are unresolved', async () => {
@@ -187,7 +187,7 @@ describe('M5: CrudService shared HTTP client', () => {
     expect(mockClient.get).not.toHaveBeenCalled()
   })
 
-  it('DataTable.crudService should fail-fast when platform-relative URL misses route scope', async () => {
+  it('DataTable.crudService should not invent scope for an endpoint without templates', async () => {
     const mockClient = createMockHttpClient()
     vi.mocked(mockClient.get).mockResolvedValue([])
     const ds = new DataSet({
@@ -207,9 +207,8 @@ describe('M5: CrudService shared HTTP client', () => {
     const service = table.crudService!
 
     const result = await service.list()
-    expect(result.success).toBe(false)
-    expect(result.error?.message).toContain('Missing tenantId/projectId for platform scoped URL')
-    expect(mockClient.get).not.toHaveBeenCalled()
+    expect(result.success).toBe(true)
+    expect(mockClient.get).toHaveBeenCalledWith('/navigation/nodes', {}, { headers: {} })
   })
 
   it('DataTable.crudService should resolve {tenantId}/{projectId} from page route when page runtime services are missing', async () => {

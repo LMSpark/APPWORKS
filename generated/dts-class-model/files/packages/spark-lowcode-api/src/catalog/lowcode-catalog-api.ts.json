@@ -1,0 +1,686 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:catalog/lowcode-catalog-api",
+    "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "catalog/lowcode-catalog-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 catalog/lowcode-catalog-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDatabaseServer, LowcodeDatabase, LowcodeDatabaseTable, LowcodeDatabaseField, LowcodeDatabaseCatalog, LowcodeCatalogSourceError, LowcodeCatalogApi（共 7 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDatabaseServer",
+      "LowcodeDatabase",
+      "LowcodeDatabaseTable",
+      "LowcodeDatabaseField",
+      "LowcodeDatabaseCatalog",
+      "LowcodeCatalogSourceError",
+      "LowcodeCatalogApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeDatabaseServer": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseServer",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDatabase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabase",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "serverId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "serverName": {
+          "type": "string"
+        },
+        "schemaName": {
+          "type": "string"
+        },
+        "state": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "remark": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDatabaseTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseTable",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "databaseId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "schemaName": {
+          "type": "string"
+        },
+        "status": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "objectId": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "multiTenancy": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDatabaseField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "tableId": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "dataTypeName": {
+          "type": "string"
+        },
+        "dataType": {
+          "type": "string"
+        },
+        "length": {
+          "type": "string"
+        },
+        "nullable": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "primaryKey": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "unique": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "system": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "memo": {
+          "type": "string"
+        },
+        "order": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDatabaseCatalog": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseCatalog",
+      "properties": {
+        "servers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeDatabaseServer"
+          }
+        },
+        "databases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeDatabase"
+          }
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeDatabaseTable"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeDatabaseField"
+          }
+        },
+        "sourceErrors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeCatalogSourceError"
+          }
+        },
+        "sourceDataSpaces": {
+          "type": "object",
+          "title": "Record<string, string>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeCatalogSourceError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeCatalogSourceError",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeCatalogApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeCatalogApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getDatabaseCatalog.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceIds": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getDatabaseCatalog.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDatabaseCatalog>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T22:51:40.556Z",
+  "models": {
+    "LowcodeDatabaseServer": {
+      "name": "LowcodeDatabaseServer",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    type: string;\n    name: string;\n    host: string;\n    port: string;\n    description: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    type: string;\n    name: string;\n    host: string;\n    port: string;\n    description: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "host",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "port",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDatabase": {
+      "name": "LowcodeDatabase",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    serverId: string;\n    name: string;\n    type: string;\n    serverName: string;\n    schemaName: string;\n    state: number | null;\n    remark: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    serverId: string;\n    name: string;\n    type: string;\n    serverName: string;\n    schemaName: string;\n    state: number | null;\n    remark: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "serverId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "serverName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "remark",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDatabaseTable": {
+      "name": "LowcodeDatabaseTable",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    databaseId: string;\n    name: string;\n    description: string;\n    schemaName: string;\n    status: number | null;\n    objectId: number | null;\n    multiTenancy: boolean | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    databaseId: string;\n    name: string;\n    description: string;\n    schemaName: string;\n    status: number | null;\n    objectId: number | null;\n    multiTenancy: boolean | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiTenancy",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDatabaseField": {
+      "name": "LowcodeDatabaseField",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    tableId: string;\n    tableName: string;\n    name: string;\n    label: string;\n    dataTypeName: string;\n    dataType: string;\n    length: string;\n    nullable: boolean | null;\n    primaryKey: boolean | null;\n    unique: boolean | null;\n    system: boolean | null;\n    defaultValue: string;\n    memo: string;\n    order: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    tableId: string;\n    tableName: string;\n    name: string;\n    label: string;\n    dataTypeName: string;\n    dataType: string;\n    length: string;\n    nullable: boolean | null;\n    primaryKey: boolean | null;\n    unique: boolean | null;\n    system: boolean | null;\n    defaultValue: string;\n    memo: string;\n    order: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataTypeName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "length",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nullable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unique",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "system",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "memo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDatabaseCatalog": {
+      "name": "LowcodeDatabaseCatalog",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "servers",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databases",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tables",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceErrors",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceDataSpaces",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeCatalogSourceError": {
+      "name": "LowcodeCatalogSourceError",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    source: string;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    source: string;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeCatalogApi": {
+      "name": "LowcodeCatalogApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getDatabaseCatalog",
+              "parameters": [
+                {
+                  "name": "dataSpaceIds",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "readonly string[]"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDatabaseCatalog",
+                    "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -188,9 +188,10 @@ export type {
   // 事件订阅
   ViewChangeHandlers,
 
-  // 权限快照（存储在 DataRow._perm / DataSource._modelPerm）
-  InstancePermission,
-  ModelPermission,
+  // lowcode 后端最终权限快照
+  DataPermissionSets,
+  DataPermissionSnapshot,
+  DataPermissionSnapshotInput,
 } from './types'
 
 // ===== 枚举 & 权限渲染常量 =====
@@ -199,8 +200,6 @@ export {
   TABLE_RESOURCE_TYPE_RECOMMENDED_VALUES,
   TABLE_BUSINESS_CATEGORY_RECOMMENDED_VALUES,
   RequestState,
-  INSTANCE_PERMISSION_FIELD,
-  MODEL_PERMISSION_FIELD,
   FieldVisibility,
   ComponentLevel,
 } from './types'

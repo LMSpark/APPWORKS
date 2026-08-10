@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ProjectModelData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
-import { readAppProjectNavigationRoot, resetAppProjectModel } from '@/services/project/project-shell'
 
 const navTreeState = vi.hoisted(() => ({
-  tree: null as ProjectModelData | null,
+  tree: null as RuntimeNavigation | null,
   refreshCalls: 0,
 }))
 
@@ -24,25 +23,25 @@ import {
   syncCommittedNavigationFromRouter,
 } from '@/services/project/project-shell'
 import { getAppProjectWorkspace } from '@/services/project/project-shell'
+import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 
-const sampleNav: ProjectModelData = {
+const sampleNav: RuntimeNavigation = {
   title: 'root',
   childPlacement: 'header',
-  children: [
-    { id: 'alpha-node', title: 'Alpha', nodeKind: 'page', path: '/alpha' },
+  items: [
+    { id: 'alpha-node', title: 'Alpha', itemKind: 'page', path: '/alpha' },
   ],
 }
 
 describe('navigation-sync', () => {
   beforeEach(() => {
     resetAppProjectWorkspace()
-    resetAppProjectModel()
-    navTreeState.tree = { ...sampleNav, children: [...sampleNav.children!] }
+    navTreeState.tree = { ...sampleNav, items: [...sampleNav.items] }
     navTreeState.refreshCalls = 0
   })
 
-  it('syncCommittedNavigation fans out to shell listener and editor.project', () => {
-    const shellWrites: ProjectModelData[] = []
+  it('syncCommittedNavigation updates only the runtime shell', () => {
+    const shellWrites: RuntimeNavigation[] = []
     const unregister = registerShellNavRootListener((nav) => {
       if (nav) shellWrites.push(nav)
     })
@@ -50,15 +49,15 @@ describe('navigation-sync', () => {
     syncCommittedNavigation(sampleNav)
 
     expect(shellWrites).toHaveLength(1)
-    expect(shellWrites[0]?.children?.[0]?.id).toBe('alpha-node')
-    expect(readAppProjectNavigationRoot()?.children[0]?.id).toBe('alpha-node')
-    expect(getAppProjectWorkspace().project.readNavigationProjection().treeData[0]?.id).toBe('alpha-node')
+    expect(shellWrites[0]?.items[0]?.id).toBe('alpha-node')
+    expect(getAppProjectWorkspace().project.readBlueprintProjection().tree).toEqual([])
+    expect(getAppProjectBlueprintWorkspace().project.readBlueprintProjection().tree).toEqual([])
 
     unregister()
   })
 
   it('syncCommittedNavigationFromRouter uses getNavTree without HTTP', () => {
-    const shellWrites: ProjectModelData[] = []
+    const shellWrites: RuntimeNavigation[] = []
     registerShellNavRootListener((nav) => {
       if (nav) shellWrites.push(nav)
     })
@@ -67,7 +66,7 @@ describe('navigation-sync', () => {
 
     expect(shellWrites).toHaveLength(1)
     expect(vi.mocked(refreshRoutes)).not.toHaveBeenCalled()
-    expect(getAppProjectWorkspace().project.readNavigationProjection().treeData[0]?.id).toBe('alpha-node')
+    expect(getAppProjectWorkspace().project.readBlueprintProjection().tree).toEqual([])
   })
 
   it('reloadAndSyncNavigation refreshes routes once then syncs', async () => {
@@ -77,6 +76,6 @@ describe('navigation-sync', () => {
 
     expect(navTreeState.refreshCalls).toBe(1)
     expect(vi.mocked(refreshRoutes)).toHaveBeenCalledTimes(1)
-    expect(getAppProjectWorkspace().project.readNavigationProjection().treeData[0]?.id).toBe('alpha-node')
+    expect(getAppProjectWorkspace().project.readBlueprintProjection().tree).toEqual([])
   })
 })

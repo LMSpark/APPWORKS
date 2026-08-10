@@ -9,15 +9,14 @@
  * 领域状态、事件与投影属于 ProjectModel；谁 new 谁负责生命周期。
  */
 
-import type { HttpClientBase } from '@spark-appworks/spark-utils'
-import { PageFileApi } from '../io/page-file-api'
-import { PageContentLoader, type PageContentLoaderOptions } from '../io/page-content-loader'
+import { PageFileApi, type ProjectPageFileGateway } from '../io/page-file-api'
+import { PageContentLoader } from '../io/page-content-loader'
 import type {
-  ProjectModelData,
-  ProjectNodeData,
-} from '../navigation/project-node'
-import { NavigationClient } from '../io/navigation-client'
-import { replaceNavigationChildrenRemote } from '../io/navigation-tree-sync'
+  ProjectBlueprintTreeData,
+  ProjectBlueprintTreeNodeData,
+} from '../blueprint/project-blueprint-node'
+import { ProjectBlueprintClient, type ProjectBlueprintGateway } from '../io/project-blueprint-client'
+import { replaceProjectBlueprintChildrenRemote } from '../io/project-blueprint-tree-sync'
 import type { PageFileCreateOptions, PageNodeFileVersionSummary } from '../page/page-file'
 import {
   assertNonEmptyPageId,
@@ -29,24 +28,24 @@ import type { ConfigPageNode, PageNodeLike } from '../page/config-page'
 import { ProjectModel } from './project-model'
 import {
   ProjectReferenceClient,
+  type ProjectReferenceGateway,
   type ProjectPageReference,
   type ProjectSummary,
 } from '../io/project-reference-client'
-import { trimTrailingSlash } from '../io/http'
 import {
   findConfigNodeByPageId,
   isConfigNodeKind,
-  normalizeProjectNodeData,
+  normalizeProjectBlueprintTreeNodeData,
   resolvePageNodePageId,
-} from '../navigation/navigation-tree'
+} from '../blueprint/project-blueprint-tree'
 import {
   applyNodeKindPresetToDraft,
-  createNavigationNodeDraft,
-  createNavigationNodePatch,
+  createBlueprintNodeDraft,
+  createBlueprintNodePatch,
   defaultNavIconByKind,
-  type NavigationNodeDraft,
-  type NavigationNodePatch,
-} from '../navigation/navigation-edit'
+  type BlueprintNodeDraft,
+  type BlueprintNodePatch,
+} from '../blueprint/project-blueprint-edit'
 
 /** Project Page Load Options 的调用配置。 */
 export type ProjectPageLoadOptions = {
@@ -73,13 +72,13 @@ title?: string
     /** icon 字段。 */
 icon?: string
     /** node 字段。 */
-node?: ProjectNodeData
+node?: ProjectBlueprintTreeNodeData
     /** parent Id 标识。 */
 parentId?: string | null
     /** index 字段。 */
 index?: number
-    /** rollback Page On Navigation Failure 字段。 */
-rollbackPageOnNavigationFailure?: boolean
+    /** 蓝图节点挂载失败时是否补偿删除已创建的页面文件。 */
+rollbackPageOnBlueprintFailure?: boolean
 }
 
 /** Create Page Files Params 的语义模型。 */
@@ -93,13 +92,13 @@ export type PageNodeCreateMountedResult = {
     /** 当前页码。 */
 page: Record<string, unknown>
     /** node 字段。 */
-node: ProjectNodeData
+node: ProjectBlueprintTreeNodeData
 }
 
 /** Page Node Remove Mounted Result 的返回结果。 */
 export type PageNodeRemoveMountedResult = {
     /** deleted Node 字段。 */
-deletedNode: ProjectNodeData | null
+deletedNode: ProjectBlueprintTreeNodeData | null
     /** deleted Files 字段。 */
 deletedFiles: boolean
 }
@@ -118,33 +117,16 @@ deleteFiles?: boolean
 export type ProjectWorkspaceOptions = {
     /** project Id 标识。 */
 projectId: string
-    /** http 字段。 */
-http: HttpClientBase
-    /** get Page Files Api 回调。 */
-getPageFilesApi: () => string
-    /** get Navigation Api 回调。 */
-getNavigationApi: () => string
-    /** get Projects Api 回调。 */
-getProjectsApi?: () => string
-    /** get Project Navigation Api 回调。 */
-getProjectNavigationApi?: (projectId: string) => string
-    /** get Headers 回调。 */
-getHeaders?: () => Record<string, string>
-    /** file Storage 字段。 */
-fileStorage?: NonNullable<PageContentLoaderOptions['fileStorage']>
+    /** 页面四文件语义网关。 */
+pageFiles: ProjectPageFileGateway
+    /** 项目蓝图语义网关。 */
+blueprint: ProjectBlueprintGateway
+    /** 跨项目引用语义网关。 */
+projectReferences?: ProjectReferenceGateway
 }
 
 function isProjectPageLoadOptions(value: unknown): value is ProjectPageLoadOptions {
   return value !== null && typeof value === 'object'
-}
-
-function toPageFilesApiBaseUrl(pageApi: string): string {
-  const normalized = trimTrailingSlash(pageApi)
-  const suffix = '/pages-config'
-  if (normalized.endsWith(suffix)) {
-    return normalized.slice(0, -suffix.length) || '/'
-  }
-  return normalized || '/'
 }
 
 /**
@@ -154,50 +136,26 @@ export class ProjectWorkspace {
     /** project 字段。 */
 readonly project: ProjectModel
   private readonly projectReferenceClient: ProjectReferenceClient | null
-  private readonly navigationClient: NavigationClient
+  private readonly blueprintClient: ProjectBlueprintClient
   private readonly fileApi: PageFileApi
   private readonly getContentLoader: () => PageContentLoader
 
     /** 创建 Project Workspace 实例。 */
 constructor(options: ProjectWorkspaceOptions) {
-    const fileApi = new PageFileApi({
-      getPageFilesApi: options.getPageFilesApi,
-      http: options.http,
+    const fileApi = new PageFileApi(options.pageFiles)
+    const blueprintClient = new ProjectBlueprintClient(options.blueprint)
+    const projectReferenceClient = options.projectReferences === undefined
+      ? undefined
+      : new ProjectReferenceClient(options.projectReferences)
+    const pageContentLoader = new PageContentLoader({
+      projectId: options.projectId,
+      readPageFile: options.pageFiles.readPageFile,
     })
-    const navigationClient = new NavigationClient({
-      getNavigationApi: options.getNavigationApi,
-      http: options.http,
-    })
-    const projectReferenceClient = options.getProjectsApi && options.getProjectNavigationApi
-      ? new ProjectReferenceClient({
-          http: options.http,
-          getProjectsApi: options.getProjectsApi,
-          getProjectNavigationApi: options.getProjectNavigationApi,
-        })
-      : undefined
-    let pageContentLoader: PageContentLoader | null = null
-    let pageContentLoaderApiBaseUrl = ''
-    const getContentLoader = (): PageContentLoader => {
-      const apiBaseUrl = toPageFilesApiBaseUrl(options.getPageFilesApi())
-      if (pageContentLoader === null || pageContentLoaderApiBaseUrl !== apiBaseUrl) {
-        const loaderOptions: Partial<PageContentLoaderOptions> = {
-          apiBaseUrl,
-          httpClient: options.http,
-          fileStorage: options.fileStorage ?? 'localStorage',
-        }
-        if (options.getHeaders !== undefined) {
-          loaderOptions.getHeaders = options.getHeaders
-        }
-        pageContentLoader = new PageContentLoader(loaderOptions)
-        pageContentLoaderApiBaseUrl = apiBaseUrl
-      }
-      return pageContentLoader
-    }
     this.project = new ProjectModel({ projectId: options.projectId })
-    this.navigationClient = navigationClient
+    this.blueprintClient = blueprintClient
     this.projectReferenceClient = projectReferenceClient ?? null
     this.fileApi = fileApi
-    this.getContentLoader = getContentLoader
+    this.getContentLoader = () => pageContentLoader
   }
 
     /** 读取 Active Page Render Node。 */
@@ -206,24 +164,24 @@ getActivePageRenderNode(): PageNodeLike | null {
     return page === null ? null : this.createRenderPageNode(page)
   }
 
-    /** 加载 Navigation。 */
-async loadNavigation(): Promise<ProjectModelData> {
-    return this.reloadNavigation()
+    /** 加载项目蓝图。 */
+async loadBlueprint(): Promise<ProjectBlueprintTreeData> {
+    return this.reloadBlueprint()
   }
 
     /** 执行 ingest Navigation Root 操作。 */
-ingestNavigationRoot(
-    root: ProjectModelData,
+ingestBlueprintTree(
+    root: ProjectBlueprintTreeData,
     options?: { selectedNodeId?: string | null },
-  ): ProjectModelData {
-    return this.project.replaceNavigationRoot(root, {
+  ): ProjectBlueprintTreeData {
+    return this.project.replaceBlueprintTree(root, {
       selectedNodeId: options?.selectedNodeId ?? null,
     })
   }
 
   /** 按指定 pageId 选择并加载页面文件。 */
   async selectPage(pageId: string, options?: ProjectPageLoadOptions): Promise<void>
-  /** 按当前导航选中节点选择并加载页面文件。 */
+  /** 按当前项目蓝图选中节点选择并加载页面文件。 */
   async selectPage(options?: ProjectPageLoadOptions): Promise<void>
   async selectPage(
     pageIdOrOptions?: string | ProjectPageLoadOptions,
@@ -251,40 +209,40 @@ ingestNavigationRoot(
     /** 保存 Project Layout。 */
 async saveProjectLayout(options?: { skipReload?: boolean }): Promise<void> {
     const root = this.project.rootNode
-    if (!root) throw new Error('导航 root 未加载')
-    const { patch } = createNavigationNodePatch(createNavigationNodeDraft(root.toNodeData()))
-    await this.navigationClient.updateNode(root.id, patch)
+    if (!root) throw new Error('项目蓝图根节点未加载')
+    const { patch } = createBlueprintNodePatch(createBlueprintNodeDraft(root.toNodeData()))
+    await this.blueprintClient.updateNode(root.id, patch)
     if (options?.skipReload === true) {
-      this.project.markNavigationClean('root')
+      this.project.markBlueprintClean('root')
       return
     }
-    await this.reloadNavigation({ selectedNodeId: this.project.session.session.selectedNodeId })
+    await this.reloadBlueprint({ selectedNodeId: this.project.session.session.selectedNodeId })
   }
 
     /** 保存 Selected Navigation Node。 */
-async saveSelectedNavigationNode(options?: { skipReload?: boolean }): Promise<void> {
+async saveSelectedBlueprintNode(options?: { skipReload?: boolean }): Promise<void> {
     let nodeId: string
-    let patch: NavigationNodePatch & Pick<ProjectNodeData, 'title' | 'nodeKind'>
+    let patch: BlueprintNodePatch & Pick<ProjectBlueprintTreeNodeData, 'title' | 'nodeKind'>
 
-    const workingDto = this.project.navigationDraft
+    const workingDto = this.project.blueprintDraft
     if (workingDto !== null) {
-      const result = createNavigationNodePatch(workingDto)
+      const result = createBlueprintNodePatch(workingDto)
       nodeId = workingDto.node.id
       patch = result.patch
     } else {
-      const node = this.requireSelectedNode('未选中导航节点，无法保存导航属性')
-      const result = createNavigationNodePatch(createNavigationNodeDraft(node))
+      const node = this.requireSelectedNode('未选中蓝图节点，无法保存蓝图属性')
+      const result = createBlueprintNodePatch(createBlueprintNodeDraft(node))
       nodeId = node.id
       patch = result.patch
     }
 
-    await this.navigationClient.updateNode(nodeId, patch)
-    this.project.session.setNavigationDraft(null)
+    await this.blueprintClient.updateNode(nodeId, patch)
+    this.project.session.setBlueprintDraft(null)
     if (options?.skipReload === true) {
-      this.project.markNavigationClean('node')
+      this.project.markBlueprintClean('node')
       return
     }
-    await this.reloadNavigation({ selectedNodeId: nodeId })
+    await this.reloadBlueprint({ selectedNodeId: nodeId })
   }
 
     /** 执行 ensure Active Page Files Loaded 操作。 */
@@ -322,25 +280,25 @@ async saveDirtyPageFiles(): Promise<void> {
     /** 保存 All。 */
 async saveAll(): Promise<void> {
     await this.saveDirtyPageFiles()
-    await this.saveNavigationFromSession()
+    await this.saveBlueprintFromSession()
   }
 
     /** 执行 add Navigation Node 操作。 */
-async addNavigationNode(params: { parentId?: string | null; node: ProjectNodeData; index?: number }): Promise<ProjectNodeData> {
-    const node = await this.navigationClient.addNode(params)
-    await this.reloadNavigation({ selectedNodeId: node.id })
+async addBlueprintNode(params: { parentId?: string | null; node: ProjectBlueprintTreeNodeData; index?: number }): Promise<ProjectBlueprintTreeNodeData> {
+    const node = await this.blueprintClient.addNode(params)
+    await this.reloadBlueprint({ selectedNodeId: node.id })
     return node
   }
 
     /** 删除 Node。 */
-async deleteNode(nodeId: string): Promise<ProjectNodeData | null> {
+async deleteNode(nodeId: string): Promise<ProjectBlueprintTreeNodeData | null> {
     const normalized = nodeId.trim()
     if (!normalized) {
       throw new Error('nodeId 不能为空')
     }
-    const result = await this.navigationClient.deleteNode(normalized)
-    const root = await this.navigationClient.loadRoot()
-    this.project.replaceNavigationRoot(root)
+    const result = await this.blueprintClient.deleteNode(normalized)
+    const root = await this.blueprintClient.loadRoot()
+    this.project.replaceBlueprintTree(root)
     return result
   }
 
@@ -350,16 +308,16 @@ async createPageForSelectedNode(params: CreatePageForSelectedNodeParams): Promis
     if (!pageId) {
       throw new Error('pageId 不能为空')
     }
-    const selected = this.requireSelectedNode('未选中导航节点，无法创建并绑定页面')
+    const selected = this.requireSelectedNode('未选中蓝图节点，无法创建并绑定页面')
     const pageNode = this.openPage(pageId)
     const page = await this.createPageFilesForModel(pageNode, {
       ...(params.title === undefined ? {} : { title: params.title }),
       ...(params.icon === undefined ? {} : { icon: params.icon }),
     })
 
-    const previousEditDto = createNavigationNodeDraft(selected)
+    const previousEditDto = createBlueprintNodeDraft(selected)
     try {
-      const nextEditDto: NavigationNodeDraft = {
+      const nextEditDto: BlueprintNodeDraft = {
         ...previousEditDto,
         node: {
           ...applyNodeKindPresetToDraft(previousEditDto.node, 'page'),
@@ -370,17 +328,17 @@ async createPageForSelectedNode(params: CreatePageForSelectedNodeParams): Promis
           path: `/${pageId}`,
         },
       }
-      this.project.applyNavigationNodeEdit(nextEditDto)
+      this.project.applyBlueprintNodeEdit(nextEditDto)
       const node = this.project.design.findNodeById(nextEditDto.node.id)
       if (!node) throw new Error(`项目节点未找到: ${nextEditDto.node.id}`)
-      await this.saveSelectedNavigationNode()
+      await this.saveSelectedBlueprintNode()
       this.project.setActivePage(pageId)
       return { page, node: this.getSelectedNode() ?? node.toNodeData() }
     } catch (error) {
-      this.project.applyNavigationNodeEdit(previousEditDto)
+      this.project.applyBlueprintNodeEdit(previousEditDto)
       const node = this.project.design.findNodeById(previousEditDto.node.id)
       if (!node) throw new Error(`项目节点未找到: ${previousEditDto.node.id}`)
-      this.project.markNavigationClean('node')
+      this.project.markBlueprintClean('node')
       await this.deletePageFilesForModel(pageNode)
       throw error
     }
@@ -395,11 +353,11 @@ async createMountedPage(params: CreateMountedPageParams): Promise<PageNodeCreate
       ...(modelParams.icon === undefined ? {} : { icon: modelParams.icon }),
     })
     try {
-      const node = await this.mountPageNavigation({ pageId, ...modelParams })
-      await this.reloadNavigation({ selectedNodeId: node.id })
+      const node = await this.mountPageBlueprintNode({ pageId, ...modelParams })
+      await this.reloadBlueprint({ selectedNodeId: node.id })
       return { page, node }
     } catch (error) {
-      if (modelParams.rollbackPageOnNavigationFailure === true) {
+      if (modelParams.rollbackPageOnBlueprintFailure === true) {
         await this.deletePageFilesForModel(pageNode)
       }
       throw error
@@ -432,7 +390,7 @@ async deletePageFiles(pageId: string): Promise<void> {
 
     /** 删除 Mounted Page。 */
 async removeMountedPage(params: RemoveMountedPageParams): Promise<PageNodeRemoveMountedResult> {
-    const deletedNode = await this.unmountPageNavigation(params.pageId, params.nodeId)
+    const deletedNode = await this.unmountPageBlueprintNode(params.pageId, params.nodeId)
     const shouldDeleteFiles = params.deleteFiles !== false
     if (shouldDeleteFiles) {
       const pageNode = this.project.openPageDesign(params.pageId)
@@ -441,17 +399,17 @@ async removeMountedPage(params: RemoveMountedPageParams): Promise<PageNodeRemove
     if (this.project.getActivePage()?.pageId === params.pageId) {
       this.project.clearActivePage()
     }
-    await this.reloadNavigation({ selectedNodeId: this.project.session.session.selectedNodeId })
+    await this.reloadBlueprint({ selectedNodeId: this.project.session.session.selectedNodeId })
     return { deletedNode, deletedFiles: shouldDeleteFiles }
   }
 
     /** 执行 move Mounted Page 操作。 */
-async moveMountedPage(nodeId: string, newParentId: string | null, index: number): Promise<ProjectNodeData> {
+async moveMountedPage(nodeId: string, newParentId: string | null, index: number): Promise<ProjectBlueprintTreeNodeData> {
     if (nodeId.trim().length === 0) {
       throw new Error('nodeId must be a non-empty string')
     }
-    const result = await this.navigationClient.moveNode(nodeId, newParentId, index)
-    await this.reloadNavigation({ selectedNodeId: nodeId })
+    const result = await this.blueprintClient.moveNode(nodeId, newParentId, index)
+    await this.reloadBlueprint({ selectedNodeId: nodeId })
     return result
   }
 
@@ -500,7 +458,7 @@ notifyPageFileChanged(
 
     /** 执行 probe Link 操作。 */
 async probeLink(url: string): Promise<{ embeddable: boolean; reason: string }> {
-    return this.navigationClient.probeLink(url)
+    return this.blueprintClient.probeLink(url)
   }
 
     /** 执行 list Reference Projects 操作。 */
@@ -515,22 +473,22 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     return this.requireProjectReferenceClient().listProjectPages(projectId)
   }
 
-  private async mountPageNavigation(params: CreateMountedPageParams): Promise<ProjectNodeData> {
+  private async mountPageBlueprintNode(params: CreateMountedPageParams): Promise<ProjectBlueprintTreeNodeData> {
     assertNonEmptyPageId(params.pageId)
-    return this.navigationClient.addNode({
+    return this.blueprintClient.addNode({
       ...(params.parentId === undefined ? {} : { parentId: params.parentId }),
-      node: this.defaultMountedPageNavigationNode(params),
+      node: this.defaultMountedPageBlueprintNode(params),
       ...(params.index === undefined ? {} : { index: params.index }),
     })
   }
 
-  private async unmountPageNavigation(pageId: string, nodeId?: string): Promise<ProjectNodeData | null> {
+  private async unmountPageBlueprintNode(pageId: string, nodeId?: string): Promise<ProjectBlueprintTreeNodeData | null> {
     const normalizedPageId = assertNonEmptyPageId(pageId)
-    const resolvedNodeId = await this.resolveNavigationNodeId(normalizedPageId, nodeId)
-    return this.navigationClient.deleteNode(resolvedNodeId)
+    const resolvedNodeId = await this.resolveBlueprintNodeId(normalizedPageId, nodeId)
+    return this.blueprintClient.deleteNode(resolvedNodeId)
   }
 
-  private defaultMountedPageNavigationNode(params: CreateMountedPageParams): ProjectNodeData {
+  private defaultMountedPageBlueprintNode(params: CreateMountedPageParams): ProjectBlueprintTreeNodeData {
     const pageId = assertNonEmptyPageId(params.pageId)
     const title = params.title?.trim()
     const icon = params.icon?.trim()
@@ -541,23 +499,23 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
       nodeKind: 'page' as const,
       path: `/${pageId}`,
     }
-    return normalizeProjectNodeData(node)
+    return normalizeProjectBlueprintTreeNodeData(node)
   }
 
-  private async resolveNavigationNodeId(pageId: string, nodeId?: string): Promise<string> {
+  private async resolveBlueprintNodeId(pageId: string, nodeId?: string): Promise<string> {
     const explicitNodeId = nodeId?.trim()
     if (explicitNodeId) return explicitNodeId
 
-    const root = await this.navigationClient.loadRoot()
+    const root = await this.blueprintClient.loadRoot()
     const found = findConfigNodeByPageId(root.children, assertNonEmptyPageId(pageId))
     if (found === null) {
-      throw new Error(`navigation node not found for pageId: ${pageId}`)
+      throw new Error(`project blueprint node not found for pageId: ${pageId}`)
     }
     return found.id
   }
 
   private resolveSelectedPageId(): string {
-    const node = this.requireSelectedNode('未选中导航节点，无法加载页面')
+    const node = this.requireSelectedNode('未选中蓝图节点，无法加载页面')
     const kind = node.nodeKind ?? 'page'
     if (!isConfigNodeKind(kind)) {
       throw new Error(`当前选中节点不是可配置页面，类型: ${kind}`)
@@ -569,28 +527,28 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     return pageId
   }
 
-  private async saveNavigationFromSession(): Promise<void> {
-    const navDirty = this.project.session.navigationDirty
-    if (!navDirty) return
+  private async saveBlueprintFromSession(): Promise<void> {
+    const blueprintDirty = this.project.session.blueprintDirty
+    if (!blueprintDirty) return
 
-    if (this.project.session.session.navigationDirtyScope === 'root') {
-      const serverRoot = await this.navigationClient.loadRoot()
-      await replaceNavigationChildrenRemote(
-        this.navigationClient,
+    if (this.project.session.session.blueprintDirtyScope === 'root') {
+      const serverRoot = await this.blueprintClient.loadRoot()
+      await replaceProjectBlueprintChildrenRemote(
+        this.blueprintClient,
         serverRoot,
         this.project.toTree(),
       )
-      await this.reloadNavigation({ selectedNodeId: this.project.session.session.selectedNodeId })
-      this.project.markNavigationClean('root')
+      await this.reloadBlueprint({ selectedNodeId: this.project.session.session.selectedNodeId })
+      this.project.markBlueprintClean('root')
       return
     }
-    await this.saveSelectedNavigationNode()
-    this.project.markNavigationClean('node')
+    await this.saveSelectedBlueprintNode()
+    this.project.markBlueprintClean('node')
   }
 
-  private async reloadNavigation(options?: { selectedNodeId?: string | null }): Promise<ProjectModelData> {
-    const root = await this.navigationClient.loadRoot()
-    return this.project.replaceNavigationRoot(root, {
+  private async reloadBlueprint(options?: { selectedNodeId?: string | null }): Promise<ProjectBlueprintTreeData> {
+    const root = await this.blueprintClient.loadRoot()
+    return this.project.replaceBlueprintTree(root, {
       selectedNodeId: options?.selectedNodeId ?? null,
     })
   }
@@ -665,13 +623,13 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     }
   }
 
-  private getSelectedNode(): ProjectNodeData | null {
+  private getSelectedNode(): ProjectBlueprintTreeNodeData | null {
     const selectedNodeId = this.project.session.session.selectedNodeId
     if (!selectedNodeId) return null
     return this.project.design.findNodeById(selectedNodeId)?.toNodeData() ?? null
   }
 
-  private requireSelectedNode(message: string): ProjectNodeData {
+  private requireSelectedNode(message: string): ProjectBlueprintTreeNodeData {
     const node = this.getSelectedNode()
     if (node) return node
     throw new Error(message)

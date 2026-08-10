@@ -12,7 +12,10 @@
 
 import { createApp, type Component, type Plugin } from 'vue'
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
-import { PageContentLoader, type ProjectModelData } from '@spark-appworks/spark-project-model'
+import {
+  PageContentLoader,
+  type PageFileReader,
+} from '@spark-appworks/spark-project-model'
 import { Spark, SparkPageRenderer, registerAllRenderers } from '@spark-appworks/spark-component'
 import { createPageCache } from './navigation/page-cache'
 import { createDynamicRouter, type DynamicRouterOptions } from './router/dynamic'
@@ -24,6 +27,7 @@ import { setPageCacheHandle } from './navigation/page-cache-access'
 import { createThemeService, type ThemeServiceOptions, type ThemeServiceReactive } from './theme'
 import { toError } from '@spark-appworks/spark-utils'
 import { readNumberProperty, readProperty } from '@spark-appworks/spark-utils/internal'
+import type { RuntimeNavigation } from './navigation/runtime-navigation'
 
 const startLogger = createLogger('start')
 
@@ -78,18 +82,10 @@ export type SparkOptions = {
  * PageNode 运行配置
  */
 export type PageNodeOptions = {
-  /** API 基础路径 */
-  apiBaseUrl: string
-  /**
-   * 页面配置四文件 API 基础路径。
-   *
-   * apiBaseUrl 保持为通用 HTTP client 基址；四文件加载在多租户项目下使用该 scoped 路径。
-   */
-  pagesConfigBaseUrl?: string | (() => string)
-  /** 请求超时时间 */
-  timeout?: number
-  /** 动态请求头回调（每次请求时调用，注入租户上下文） */
-  getHeaders?: () => Record<string, string>
+  /** 当前页面四文件所属项目身份。 */
+  getProjectId: () => string
+  /** 注入式页面四文件读取器，不绑定服务器路径。 */
+  readPageFile: PageFileReader
   /** 认证状态检查（DynamicRouter 据此决定使用远程导航树还是 preAuthNavTree） */
   isAuthenticated?: () => boolean
   /** 页面组件（默认使用 PageRenderer） */
@@ -110,9 +106,9 @@ export type PageNodeOptions = {
    * 已认证时 DynamicRouter 使用此函数加载远程导航树并派生路由。
    * refreshRoutes() 返回加载后的导航树供 UI 直接消费。
    */
-  loadNavigation?: () => Promise<ProjectModelData>
+  loadNavigation?: () => Promise<RuntimeNavigation>
   /** 平台工作台导航加载函数；节点路径会注册到 /platform 前缀下。 */
-  loadPlatformNavigation?: () => Promise<ProjectModelData>
+  loadPlatformNavigation?: () => Promise<RuntimeNavigation>
   /** 是否启用平台工作台导航注册。 */
   isPlatformNavigationEnabled?: () => boolean
   /** 平台工作台路由前缀，默认 /platform。 */
@@ -123,7 +119,7 @@ export type PageNodeOptions = {
    * 当用户未登录时，`registerRoutes()` 使用此本地导航树注册路由（如 / 和 /login）。
    * 登录后 `refreshRoutes()` 会用远程导航树替换。
    */
-  preAuthNavTree?: ProjectModelData}
+  preAuthNavTree?: RuntimeNavigation}
 
 /**
  * 启动配置（扩展自 BootstrapOptions）
@@ -304,12 +300,9 @@ export async function start(options: StartOptions): Promise<void> {
       logStartDebug('配置动态路由系统...')
 
       const loaderOptions: ConstructorParameters<typeof PageContentLoader>[0] = {
-        apiBaseUrl: pageNode.apiBaseUrl,
+        getProjectId: pageNode.getProjectId,
+        readPageFile: pageNode.readPageFile,
       }
-
-      if (pageNode.pagesConfigBaseUrl !== undefined) loaderOptions.pagesConfigBaseUrl = pageNode.pagesConfigBaseUrl
-      if (pageNode.timeout !== undefined) loaderOptions.timeout = pageNode.timeout
-      if (pageNode.getHeaders) loaderOptions.getHeaders = pageNode.getHeaders
 
       const pageContentLoader = new PageContentLoader(loaderOptions)
 

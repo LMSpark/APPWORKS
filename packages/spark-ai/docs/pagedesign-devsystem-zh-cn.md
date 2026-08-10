@@ -30,7 +30,7 @@ sequenceDiagram
 | 场景 | 实例来源 | 文件 |
 |------|----------|------|
 | DevSystem 面板 | 与手动编辑同一 `editor.project` | `page-design-ai-runner.ts` |
-| Host Run / E2E | headless `ProjectWorkspace` registry | `page-design-host-run-provider.ts` |
+| Agent Run / E2E | headless `ProjectWorkspace` registry | `page-design-agent-run-provider.ts` |
 
 AI 与手动编辑共用 DevSystem 的 `getAppProjectEditor()`，避免双份 project 状态。
 
@@ -112,8 +112,7 @@ return {
 | `src/services/page-design/page-design-agent-workflow-binding.ts` | pageDesign editor getter、prompt、nudge、gate 领域能力 |
 | `src/services/page-design/page-design-ai-runner.ts` | DevSystem session 启动 |
 | `src/services/page-design/page-design-gates.ts` | mutation gate、`allowedOperations` |
-| `src/services/page-data-design/page-data-design-host-run-provider.ts` | pageDataDesign preset Host Run |
-| `src/services/ai-host.ts` | `appAiAgent` |
-| `src/services/ai-turn-bridge.ts` | transport（session-turn） |
+| `src/services/page-data-design/page-data-design-agent-run-provider.ts` | pageDataDesign preset Agent Run |
+| `src/services/ai/ai-turn-bridge.ts` | `appAiAgent` 与 session-turn transport |
 | `src/views/app/dev-system/useDevState.ts` | UI 集成 |
 | `packages/spark-app/src/ai/tool-approval-bridge.ts` | 审批 Promise 桥 |

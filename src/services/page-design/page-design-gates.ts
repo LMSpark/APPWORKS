@@ -1,6 +1,6 @@
 /**
  * @module app:services/page-design-gates
- * 职责：提供应用运行时 service 层的 page design gates 能力，连接项目模型、AI Host、租户上下文或页面设计流程。
+ * 职责：提供应用运行时 service 层的 page design gates 能力，连接项目模型、AI Agent、租户上下文或页面设计流程。
  * 边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。
  * AI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。
  */
@@ -21,8 +21,8 @@ export type PageDesignAllowedOperations = Readonly<{
   script?: boolean
   /** 是否允许读写样式（setFileText / getFileText / writePageFile） */
   style?: boolean
-  /** 是否允许读写导航（replaceNavigationChildren / readNavigationPlanningInputs） */
-  navigation?: boolean
+  /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */
+  blueprint?: boolean
 }>
 
 const PAGE_DESIGN_OPERATION_KEYS: ReadonlyArray<keyof PageDesignAllowedOperations> = [
@@ -30,7 +30,7 @@ const PAGE_DESIGN_OPERATION_KEYS: ReadonlyArray<keyof PageDesignAllowedOperation
   'dataSet',
   'script',
   'style',
-  'navigation',
+  'blueprint',
 ]
 
 /** 页面设计运行上下文：绑定到 pageId，控制本次 run 的操作域与输出约束 */
@@ -49,7 +49,7 @@ export function isPageDesignDataSetOnlyMode(
     && allowedOperations.nodeTree === false
     && allowedOperations.script === false
     && allowedOperations.style === false
-    && allowedOperations.navigation === false
+    && allowedOperations.blueprint === false
 }
 
 const pageDesignRunContexts = new Map<string, PageDesignRunContext>()
@@ -70,11 +70,11 @@ export function readPageDesignRunContext(pageId: string): PageDesignRunContext |
   return pageDesignRunContexts.get(pageId.trim())
 }
 
-export function bindPageDesignRunContextFromHostArgs(
+export function bindPageDesignRunContextFromAgentArgs(
   pageId: string,
   args: Record<string, unknown>,
 ): void {
-  const patch = readPageDesignRunContextFromHostArgs(args)
+  const patch = readPageDesignRunContextFromAgentArgs(args)
   if (patch === undefined) return
   const existing = readPageDesignRunContext(pageId)
   bindPageDesignRunContext(pageId, {
@@ -83,11 +83,11 @@ export function bindPageDesignRunContextFromHostArgs(
   })
 }
 
-function readPageDesignRunContextFromHostArgs(
+function readPageDesignRunContextFromAgentArgs(
   args: Record<string, unknown>,
 ): PageDesignRunContext | undefined {
-  const allowedOperations = readAllowedOperationsFromHostArgs(args)
-  const deliverySaveFileNames = readDeliverySaveFileNamesFromHostArgs(args)
+  const allowedOperations = readAllowedOperationsFromAgentArgs(args)
+  const deliverySaveFileNames = readDeliverySaveFileNamesFromAgentArgs(args)
   if (allowedOperations === undefined && deliverySaveFileNames === undefined) return undefined
   return {
     ...(allowedOperations === undefined ? {} : { allowedOperations }),
@@ -95,7 +95,7 @@ function readPageDesignRunContextFromHostArgs(
   }
 }
 
-function readAllowedOperationsFromHostArgs(
+function readAllowedOperationsFromAgentArgs(
   args: Record<string, unknown>,
 ): PageDesignAllowedOperations | undefined {
   const value = args['allowedOperations']
@@ -118,7 +118,7 @@ function isJsonRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function readDeliverySaveFileNamesFromHostArgs(
+function readDeliverySaveFileNamesFromAgentArgs(
   args: Record<string, unknown>,
 ): readonly PageNodeFileName[] | undefined {
   const value = args['deliverySaveFileNames']
@@ -194,7 +194,7 @@ export function validatePageDesignRunGate(
       ok: false,
       code: 'PLANNING_DRAFT',
       reason: `page "${state.pageId}" effectiveDescription 为空，策划尚未定稿。`,
-      fix: '补全 navigation description / descriptionContext，使 effectiveDescription 非空后再运行 pageDesign。',
+      fix: '补全项目蓝图节点 description / descriptionContext，使 effectiveDescription 非空后再运行 pageDesign。',
     }
   }
 
@@ -203,7 +203,7 @@ export function validatePageDesignRunGate(
       ok: false,
       code: 'IMPL_GATE_CLOSED',
       reason: `page "${state.pageId}" implGate=closed，实现闸门未放行。`,
-      fix: '人工确认数据流与上游契约后，将 navigation meta.implGate 设为 open，再运行 pageDesign。',
+      fix: '人工确认数据流与上游契约后，将项目蓝图节点 meta.implGate 设为 open，再运行 pageDesign。',
     }
   }
 
@@ -235,9 +235,9 @@ const OPERATION_FALSE_SCRIPT_MARKERS = {
   dataSet: ['editDataSet', 'getDataSetTool'],
   script: ['setFileText', 'getFileText', 'writePageFile'],
   style: ['setFileText', 'getFileText', 'writePageFile'],
-  navigation: [
-    'replaceNavigationChildren',
-    'readNavigationPlanningInputs',
+  blueprint: [
+    'replaceBlueprintChildren',
+    'readBlueprintPlanningInputs',
     'readProjectPlanningInput',
   ],
 } as const satisfies Record<keyof PageDesignAllowedOperations, readonly string[]>

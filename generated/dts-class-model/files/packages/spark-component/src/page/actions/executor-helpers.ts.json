@@ -14,7 +14,8 @@
       "ActionNotifier",
       "ConfirmationInput",
       "ResolvedActionDataCapabilities",
-      "BuiltinActionName"
+      "BuiltinActionName",
+      "DataViewSavePermissionInput"
     ]
   },
   "$defs": {
@@ -137,9 +138,36 @@
         "selectedRows"
       ],
       "additionalProperties": false
+    },
+    "DataViewSavePermissionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSavePermissionInput",
+      "properties": {
+        "view": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "applyEditingRows": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:03:46.547Z",
+  "generatedAt": "2026-08-09T22:50:15.256Z",
   "models": {
     "PickActionTextInput": {
       "name": "PickActionTextInput",
@@ -305,6 +333,40 @@
       "typeAlias": {
         "declarationTypeText": "keyof typeof BUILTIN_ACTION_META",
         "members": {}
+      }
+    },
+    "DataViewSavePermissionInput": {
+      "name": "DataViewSavePermissionInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    ids?: ReadonlyArray<string | number>;\n    applyEditingRows?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    ids?: ReadonlyArray<string | number>;\n    applyEditingRows?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ids",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applyEditingRows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     }
   }

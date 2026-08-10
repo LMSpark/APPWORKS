@@ -46,19 +46,24 @@
 
 // SPARK 架构包
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
+import type {
+  AppConfig,
+  AppContext,
+  RuntimeNavigationItem,
+} from '@spark-appworks/spark-app'
 import { SparkPageRenderer, Spark } from '@spark-appworks/spark-component'
 import { addLogTransport, isRecord } from '@spark-appworks/spark-utils'
-import { isProjectNodeData, type ProjectModelData, type ProjectNodeData } from '@spark-appworks/spark-project-model'
 
 import {
-  clearAuth,
-  consumePendingLogout,
-  getUser,
-  isAuthenticated,
-  isPlatformAdminUser,
-  switchProject,
-} from './services/auth'
-import { createAuthHeaders, http as appHttpClient } from './services/http'
+  activateLowcodeApplication,
+  enterLowcodeApplicationCatalog,
+  hasLowcodeSession,
+  lowcodeApi,
+  lowcodeApplicationCatalogNavigation,
+  readLowcodePageFile,
+  readLowcodePrincipal,
+  readLowcodeRuntimeNavigation,
+} from './lowcode/lowcode-runtime'
 import {
   buildTenantPath,
   parseTenantScope,
@@ -69,44 +74,64 @@ const {
   SparkApp,
   PluginManager,
   configureRemoteLogger,
+  ConfigLoader,
   createLogger,
   getNavTree,
   getNavHomePath,
-  loadAppConfig,
   registerBuiltinPlugins,
   resolveNavNodeRuntimeTarget,
 } = SparkAppRuntime
 const startupLogger = createLogger('main')
 const PLATFORM_PATH_PREFIX = '/platform'
-const PLATFORM_HOME_PATH = '/platform/dashboard'
-const AI_HOST_RUN_SMOKE_SEARCH_PARAM = 'sparkAiHostRun'
 
-consumePendingLogout()
-consumeAiHostRunSmokeLoginReset()
-
-function consumeAiHostRunSmokeLoginReset(): void {
-  if (!import.meta.env.DEV || typeof window === 'undefined') return
-  if (window.location.pathname !== '/login') return
-  const encoded = new URLSearchParams(window.location.search).get(AI_HOST_RUN_SMOKE_SEARCH_PARAM)
-  if (encoded === null || encoded.trim().length === 0) return
-  if (readAiHostRunSmokePayloadHasLogin(encoded)) clearAuth()
-}
-
-function readAiHostRunSmokePayloadHasLogin(encoded: string): boolean {
-  try {
-    const decoded: unknown = JSON.parse(decodeBase64UrlForSmoke(encoded))
-    return isRecord(decoded) && isRecord(decoded['login'])
-  } catch {
-    return false
+function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
+  const session = lowcodeApi.session.get()
+  const mode = import.meta.env.MODE === 'test'
+    ? 'test'
+    : import.meta.env.DEV ? 'development' : 'production'
+  const common = {
+    env: {
+      mode,
+      apiBaseUrl: config.apiBaseUrl,
+      version: config.version ?? '0.1.0',
+    },
+    config: Object.fromEntries(Object.entries(config)),
+    initializedAt: new Date().toISOString(),
+  } as const
+  if (session === null) {
+    return {
+      ...common,
+      user: {
+        userId: 'public',
+        username: 'public',
+        displayName: '未登录',
+        roles: [],
+        permissions: [],
+      },
+      tenant: {
+        tenantId: 'public',
+        tenantName: '平台公共域',
+      },
+    }
   }
-}
-
-function decodeBase64UrlForSmoke(value: string): string {
-  const base64 = value.replace(/-/g, '+').replace(/_/g, '/')
-  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=')
-  const binary = window.atob(padded)
-  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0))
-  return new TextDecoder().decode(bytes)
+  return {
+    ...common,
+    user: {
+      userId: session.identity.userId,
+      username: session.identity.account,
+      displayName: session.identity.displayName,
+      roles: session.identity.role === null ? [] : [session.identity.role],
+      permissions: [],
+    },
+    tenant: {
+      tenantId: session.enterprise.shortName,
+      tenantName: session.enterprise.shortCode
+        ?? session.enterprise.code
+        ?? session.enterprise.name
+        ?? session.enterprise.shortName,
+      tenantCode: session.enterprise.shortName,
+    },
+  }
 }
 
 // late-binding pageId（路由就绪后由 afterMount 注入）
@@ -147,34 +172,7 @@ function isPlatformWorkspacePath(path: string): boolean {
   return normalized === PLATFORM_PATH_PREFIX || normalized.startsWith(`${PLATFORM_PATH_PREFIX}/`)
 }
 
-function normalizeChildPlacement(value: string | undefined): 'header' | 'sidebar' {
-  if (value === undefined || value === 'header') return 'header'
-  if (value === 'sidebar') return 'sidebar'
-  throw new Error(`Invalid navigation childPlacement: ${value}`)
-}
-
-function requireNavNodes(value: unknown, context: string): ProjectNodeData[] {
-  if (Array.isArray(value)) {
-    const nodes: unknown[] = value
-    if (nodes.every(isProjectNodeData)) return nodes
-  }
-  throw new Error(`${context} 必须是 ProjectNodeData[]`)
-}
-
-function normalizeNavData(data: unknown): ProjectModelData {
-  if (!isRecord(data)) throw new Error('导航接口返回值必须是对象')
-  const rawChildPlacement = data['childPlacement']
-  const rawTitle = data['title']
-  const rawHomePath = data['homePath']
-  return {
-    title: typeof rawTitle === 'string' ? rawTitle : '',
-    childPlacement: normalizeChildPlacement(typeof rawChildPlacement === 'string' ? rawChildPlacement : undefined),
-    children: requireNavNodes(data['children'], '导航 children'),
-    ...(typeof rawHomePath === 'string' && rawHomePath.length > 0 ? { homePath: rawHomePath } : {}),
-  }
-}
-
-function navigationContainsPath(nodes: ProjectNodeData[], targetPath: string): boolean {
+function navigationContainsPath(nodes: RuntimeNavigationItem[], targetPath: string): boolean {
   const normalizedTargetPath = normalizeRoutePath(targetPath)
   for (const node of nodes) {
     const runtimeTarget = resolveNavNodeRuntimeTarget(node)
@@ -193,7 +191,7 @@ async function ensureCurrentScopedRouteIsNavigable(router: Router): Promise<void
 
   const scopedPath = normalizeRoutePath(stripTenantScope(window.location.pathname))
   const isKnownPath = scopedPath === normalizeRoutePath(navTree.homePath ?? getNavHomePath())
-    || navigationContainsPath(navTree.children, scopedPath)
+    || navigationContainsPath(navTree.items, scopedPath)
   if (isKnownPath) return
 
   const replacementPath = buildTenantPath(scope, getNavHomePath())
@@ -258,7 +256,8 @@ async function startApp() {
     startupLogger.info('⏳ 正在加载应用配置...')
 
     // 1. 加载配置（支持多租户）
-    const appConfig = await loadAppConfig()
+    // SPARK 产品运行配置属于前端宿主；企业身份与应用导航只来自 lowcode 会话和接口。
+    const appConfig = await ConfigLoader.getInstance().loadConfig()
 
     startupLogger.info('✅ 配置加载完成', {
       tenant: appConfig.tenant?.tenantName ?? '默认',
@@ -331,20 +330,19 @@ async function startApp() {
     const preAuthNavTree = buildPreAuthNavTree()
     // 公共路径集合 — 路由守卫用（未登录时只允许这些路径）
     const publicPaths = getPublicPaths()
-    startupLogger.info(`✅ componentMap: ${Object.keys(componentMap).length} 个组件, preAuthNav: ${preAuthNavTree.children.length} 个节点, publicPaths: ${publicPaths.size} 个`)
-
-    const { getNavApi, getPageApi, getPlatformNavApi } = await import('./services/api-paths')
+    startupLogger.info(`✅ componentMap: ${Object.keys(componentMap).length} 个组件, preAuthNav: ${preAuthNavTree.items.length} 个节点, publicPaths: ${publicPaths.size} 个`)
 
     // 5.1 URL → localStorage 项目上下文预同步
     // 浏览器地址栏输入跨项目 URL 时，在 registerRoutes() 加载导航树之前
     // 将 URL 中的 projectId 写入 localStorage，确保后续 API 调用使用正确的项目上下文
     {
       const urlScope = parseTenantScope(window.location.pathname)
-      if (urlScope && isAuthenticated()) {
-        const user = getUser()
-        if (user?.tenantId === urlScope.tenantId && urlScope.projectId !== user.defaultProjectId) {
-          startupLogger.info(`📌 URL 项目上下文预同步: ${user.defaultProjectId} → ${urlScope.projectId}`)
-          switchProject(urlScope.projectId)
+      if (urlScope && hasLowcodeSession()) {
+        const principal = readLowcodePrincipal()
+        if (principal?.enterpriseName === urlScope.tenantId && urlScope.projectId !== principal.applicationId) {
+          startupLogger.info(`📌 URL 应用上下文预同步: ${principal.applicationId ?? 'catalog'} → ${urlScope.projectId}`)
+          if (urlScope.projectId === 'homepage') enterLowcodeApplicationCatalog()
+          else await activateLowcodeApplication(urlScope.projectId)
         }
       }
     }
@@ -376,29 +374,27 @@ async function startApp() {
       // === PageNode 运行配置（路由从 DB 动态加载）===
       pageNode: {
         ...appConfig.pageNode,
-        pagesConfigBaseUrl: getPageApi,
+        getProjectId: () => lowcodeApi.application.get()?.application.id ?? 'homepage',
+        readPageFile: readLowcodePageFile,
         pageComponent: SparkPageRenderer,
         componentMap,
-        // 动态注入认证 / 租户请求头（FileLoader 使用 axios，不经过 fetch 拦截器）
-        getHeaders: createAuthHeaders,
-        isAuthenticated,
+        isAuthenticated: hasLowcodeSession,
         tenantPathPrefix: '/t/:tenantId/:projectId',
         preAuthNavTree,
         // 导航树作为路由唯一来源 — DynamicRouter 从导航树派生路由
         loadNavigation: async () => {
-          const data = await appHttpClient.get<unknown>(getNavApi())
-          return normalizeNavData(data)
+          return readLowcodeRuntimeNavigation()
         },
-        loadPlatformNavigation: async () => {
-          const data = await appHttpClient.get<unknown>(getPlatformNavApi())
-          return normalizeNavData(data)
-        },
-        isPlatformNavigationEnabled: () => isPlatformAdminUser(),
+        loadPlatformNavigation: () => Promise.resolve(lowcodeApplicationCatalogNavigation()),
+        isPlatformNavigationEnabled: () => false,
         platformPathPrefix: PLATFORM_PATH_PREFIX,
       },
 
       // === 应用基础配置（从 JSON 加载）===
       config: appConfig.config,
+
+      // 认证会话只由 lowcode 前端 API 解释，spark-app 不再绑定旧认证协议。
+      authenticate: resolveLowcodeBootstrapContext,
 
       // === 生命周期钩子 ===
 
@@ -421,23 +417,18 @@ async function startApp() {
 
         // ── 认证路由守卫（租户隔离） ──
         // publicPaths 从 Vue page registry scope='public' 自动派生，消除硬编码
-        router.beforeEach((to) => {
+        router.beforeEach(async (to) => {
           const publicHomePath = preAuthNavTree.homePath ?? '/'
           const isPublicPath = publicPaths.has(to.path)
           const isPublicUtilityPath = isPublicPath && to.path !== publicHomePath && to.path !== '/login'
-          if (!isAuthenticated()) {
+          if (!hasLowcodeSession()) {
             // 未登录：停留在平台域（平台首页/登录页/平台公开页）
             if (to.path.startsWith('/t/') || isPlatformWorkspacePath(to.path)) return publicHomePath
             return isPublicPath ? undefined : publicHomePath
           }
-          const u = getUser()
-          if (isPlatformAdminUser(u)) {
-            if (to.path === publicHomePath || to.path === '/login') return PLATFORM_HOME_PATH
-            if (isPublicUtilityPath || isPlatformWorkspacePath(to.path) || to.path.startsWith('/t/')) return undefined
-            return PLATFORM_HOME_PATH
-          }
-          const tenantId = u?.tenantId
-          const projectId = u?.defaultProjectId
+          const principal = readLowcodePrincipal()
+          const tenantId = principal?.enterpriseName
+          const projectId = principal?.applicationId ?? 'homepage'
           if (!tenantId || !projectId) return '/login'
           const currentScope = { tenantId, projectId }
           // 已登录：默认进入租户主应用首页；但保留 about / hidden demos 这类平台静态工具页的直达访问。
@@ -454,8 +445,8 @@ async function startApp() {
               return buildTenantPath(currentScope, rest || getNavHomePath())
             }
             if (urlScope.projectId !== projectId) {
-              // 同租户不同项目 → 切换项目上下文，具体导航刷新由项目切换服务负责
-              switchProject(urlScope.projectId)
+              if (urlScope.projectId === 'homepage') enterLowcodeApplicationCatalog()
+              else await activateLowcodeApplication(urlScope.projectId)
             }
           }
           return undefined

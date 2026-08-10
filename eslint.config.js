@@ -166,6 +166,7 @@ export default [
           './packages/spark-ai/tsconfig.json',
           './packages/spark-utils/tsconfig.json',
           './packages/spark-data/tsconfig.json',
+          './packages/spark-lowcode-api/tsconfig.json',
           './packages/spark-component/tsconfig.json',
           './packages/spark-json-document/tsconfig.json',
           './packages/spark-project-model/tsconfig.json',

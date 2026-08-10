@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 682,
+  "scannedFileCount": 707,
   "files": {
     "packages/spark-ai/src/agent/ag-ui/ag-ui-mapper.ts": {
       "file": "files/packages/spark-ai/src/agent/ag-ui/ag-ui-mapper.ts.json",
@@ -1751,67 +1751,6 @@
         "symbols": []
       }
     },
-    "packages/spark-app/src/auth/AuthService.ts": {
-      "file": "files/packages/spark-app/src/auth/AuthService.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-app:auth/AuthService",
-        "sourcePath": "packages/spark-app/src/auth/AuthService.ts",
-        "sourceFile": "packages/spark-app/src/auth/AuthService.ts",
-        "packageName": "@spark-appworks/spark-app",
-        "modulePath": "auth/AuthService",
-        "jsdoc": "@module @spark-appworks/spark-app:auth/AuthService\n职责：提供 spark-app 应用壳中的 Auth Service 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n认证服务 - AuthService\n提供完整的用户认证解决方案，包括：\n- 用户登录/登出\n- Token 管理（存储、刷新、验证）\n- 认证状态检查\n- Mock 模式支持（开发环境）\n- 生命周期钩子（登录成功、登出成功、认证错误等）\n@packageDocumentation",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "AuthService"
-        ]
-      }
-    },
-    "packages/spark-app/src/auth/index.ts": {
-      "file": "files/packages/spark-app/src/auth/index.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-app:auth/index",
-        "sourcePath": "packages/spark-app/src/auth/index.ts",
-        "sourceFile": "packages/spark-app/src/auth/index.ts",
-        "packageName": "@spark-appworks/spark-app",
-        "modulePath": "auth/index",
-        "jsdoc": "@module @spark-appworks/spark-app:auth/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n认证模块入口",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "packages/spark-app/src/auth/TokenManager.ts": {
-      "file": "files/packages/spark-app/src/auth/TokenManager.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-app:auth/TokenManager",
-        "sourcePath": "packages/spark-app/src/auth/TokenManager.ts",
-        "sourceFile": "packages/spark-app/src/auth/TokenManager.ts",
-        "packageName": "@spark-appworks/spark-app",
-        "modulePath": "auth/TokenManager",
-        "jsdoc": "@module @spark-appworks/spark-app:auth/TokenManager\n职责：提供 spark-app 应用壳中的 Token Manager 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n@fileoverview Token 管理器 - 统一的安全令牌存储和管理解决方案\n@packageDocumentation\nTokenManager 提供了跨平台、多种存储方式的令牌管理功能，\n支持在客户端和服务端环境下的无缝切换。主要特性：\n- 多存储后端：localStorage、sessionStorage、cookie、内存存储\n- 环境自适应：自动检测运行环境并选择合适的存储方式\n- 类型安全：完整的 TypeScript 类型支持\n- 错误处理：优雅的异常处理和降级机制\n@example\n```typescript\n// 使用默认配置（localStorage）\nconst tokenManager = new TokenManager()\n// 设置令牌\ntokenManager.setToken('your-jwt-token')\n// 获取令牌\nconst token = tokenManager.getToken()\n// 清除令牌\ntokenManager.clearToken()\n// 使用自定义存储和键名\nconst customManager = new TokenManager('sessionStorage', 'my_app_token')\n```\n@author SPARK Team\n@version 1.0.0\n@since 2024",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "TokenManager"
-        ]
-      }
-    },
-    "packages/spark-app/src/auth/types.ts": {
-      "file": "files/packages/spark-app/src/auth/types.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-app:auth/types",
-        "sourcePath": "packages/spark-app/src/auth/types.ts",
-        "sourceFile": "packages/spark-app/src/auth/types.ts",
-        "packageName": "@spark-appworks/spark-app",
-        "modulePath": "auth/types",
-        "jsdoc": "@module @spark-appworks/spark-app:auth/types\n职责：提供 spark-app 应用壳中的 types 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n认证模块类型定义",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LoginCredentials",
-          "AuthResult",
-          "TokenStorage",
-          "AuthConfig"
-        ]
-      }
-    },
     "packages/spark-app/src/auto-register.ts": {
       "file": "files/packages/spark-app/src/auto-register.ts.json",
       "module": {
@@ -2054,6 +1993,30 @@
         ]
       }
     },
+    "packages/spark-app/src/navigation/runtime-navigation.ts": {
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-app:navigation/runtime-navigation",
+        "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+        "sourceFile": "packages/spark-app/src/navigation/runtime-navigation.ts",
+        "packageName": "@spark-appworks/spark-app",
+        "modulePath": "navigation/runtime-navigation",
+        "jsdoc": "应用壳唯一可消费的运行导航合同。\n它只表达后端授权后可见的菜单、路由和动作，不是项目蓝图的持久化形状。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "RuntimeNavigationItemKind",
+          "RuntimeNavigationPlacement",
+          "RuntimeNavigationPermissionMode",
+          "RuntimeNavigationContextItem",
+          "RuntimeNavigationContextConfig",
+          "RuntimeNavigationContextState",
+          "RuntimeNavigationItem",
+          "RuntimeNavigation",
+          "RuntimeNavigationRegionItems",
+          "RuntimeNavigationRegionVisibility"
+        ]
+      }
+    },
     "packages/spark-app/src/navigation/runtime-target.ts": {
       "file": "files/packages/spark-app/src/navigation/runtime-target.ts.json",
       "module": {
@@ -2070,7 +2033,6 @@
           "NavNodeExternalTarget",
           "NavNodeActionTarget",
           "NavNodeContainerTarget",
-          "NavNodeHiddenTarget",
           "NavNodeRuntimeTarget"
         ]
       }
@@ -2357,6 +2319,7 @@
           "EnvironmentInfo",
           "AppContext",
           "AppConfig",
+          "BootstrapAuthenticate",
           "BootstrapContext",
           "BootstrapOptions",
           "RouterGuardOptions",
@@ -7977,9 +7940,10 @@
         "sourceFile": "packages/spark-component/src/core/capability-keys.ts",
         "packageName": "@spark-appworks/spark-component",
         "modulePath": "core/capability-keys",
-        "jsdoc": "@module @spark-appworks/spark-component:core/capability-keys\n职责：提供 capability keys 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nspark-component 能力键定义。\n## 三类键：\n1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_DATASET / DATA_SOURCE / DATA_ROW\n2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：\nMODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE\n3. 页面 UI 服务与权限键（从 spark-utils 迁入）：\nPAGE_SERVICE / PAGE_PERMISSION_MODE / NavPermissionMode\n4. 字段渲染局部策略：\nSUBTREE_FIELD_POLICY\n注：PageServiceCapability 等运行时服务契约以\n@spark-appworks/spark-component/runtime 为 SSOT。",
+        "jsdoc": "@module @spark-appworks/spark-component:core/capability-keys\n职责：提供 capability keys 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nspark-component 能力键定义。\n## 三类键：\n1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_DATASET / DATA_SOURCE / DATA_ROW\n2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：\nMODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE\n3. 页面 UI 服务与权限键（从 spark-utils 迁入）：\nPAGE_SERVICE / PAGE_PERMISSION_MODE / PagePermissionMode\n4. 字段渲染局部策略：\nSUBTREE_FIELD_POLICY\n注：PageServiceCapability 等运行时服务契约以\n@spark-appworks/spark-component/runtime 为 SSOT。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "PagePermissionMode",
           "SubtreeFieldPolicy",
           "ThemeMode",
           "ThemeCapability",
@@ -8163,7 +8127,8 @@
           "ActionNotifier",
           "ConfirmationInput",
           "ResolvedActionDataCapabilities",
-          "BuiltinActionName"
+          "BuiltinActionName",
+          "DataViewSavePermissionInput"
         ]
       }
     },
@@ -8460,8 +8425,8 @@
         "sourceFile": "packages/spark-component/src/permission/PermissionChecker.ts",
         "packageName": "@spark-appworks/spark-component",
         "modulePath": "permission/PermissionChecker",
-        "jsdoc": "@module @spark-appworks/spark-component:permission/PermissionChecker\n职责：提供 Permission Checker 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n权限检查器 — 纯函数集\n提供模型级、实例级和字段级的权限验证。\n字段脱敏规则也统一收口于此，避免权限判断分散在 data 层与组件层。\npermissionMode 语义：\n- 'none'      → 不控制：跳过所有权限检查，一切可见/可编辑\n- 'masked'    → 可见+脱敏：权限数据正常应用，但字段可见性下限为 Masked（Hidden→Masked）\n- 'invisible' → 后端控制导航可见性，前端权限检查正常执行",
-        "jsdocSource": "leading-jsdoc",
+        "jsdoc": "@spark-appworks/spark-component 的 permission/PermissionChecker 模块。\n导出 DtsTypeDeclarationModel symbol: FieldMaskInput（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
         "symbols": [
           "FieldMaskInput"
         ]
@@ -8704,19 +8669,6 @@
         "modulePath": "core/event-emitter",
         "jsdoc": "@module @spark-appworks/spark-data:core/event-emitter\n职责：提供数据层 event-emitter 能力，围绕 模块入口、副作用注册或内部组合逻辑 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 core/event-emitter 的数据语义。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "packages/spark-data/src/core/platform-scoped-url.ts": {
-      "file": "files/packages/spark-data/src/core/platform-scoped-url.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-data:core/platform-scoped-url",
-        "sourcePath": "packages/spark-data/src/core/platform-scoped-url.ts",
-        "sourceFile": "packages/spark-data/src/core/platform-scoped-url.ts",
-        "packageName": "@spark-appworks/spark-data",
-        "modulePath": "core/platform-scoped-url",
-        "jsdoc": "@module @spark-appworks/spark-data:core/platform-scoped-url\n职责：提供数据层 platform-scoped-url 能力，围绕 模块入口、副作用注册或内部组合逻辑 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 core/platform-scoped-url 的数据语义。",
-        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -9218,7 +9170,7 @@
         "sourceFile": "packages/spark-data/src/types.ts",
         "packageName": "@spark-appworks/spark-data",
         "modulePath": "types",
-        "jsdoc": "@module @spark-appworks/spark-data:types\n职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                InstancePermission, ModelPermission     │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             FilterExpression, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 表关系 & 视图联动      TableRelation, ViewDependency, DataRelation │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
+        "jsdoc": "@module @spark-appworks/spark-data:types\n职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                DataPermissionSnapshot                  │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             FilterExpression, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 表关系 & 视图联动      TableRelation, ViewDependency, DataRelation │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "SparkEventEmitter",
@@ -9231,8 +9183,6 @@
           "TableResourceType",
           "TableBusinessCategory",
           "TableSemanticMetadata",
-          "InstancePermission",
-          "ModelPermission",
           "FieldVisibility",
           "ComponentLevel",
           "HttpEndpoint",
@@ -9289,7 +9239,10 @@
           "CrudResult",
           "QueryParams",
           "BatchResult",
-          "CrudOperationConfig"
+          "CrudOperationConfig",
+          "DataPermissionSets",
+          "DataPermissionSnapshot",
+          "DataPermissionSnapshotInput"
         ]
       }
     },
@@ -9689,6 +9642,664 @@
         "symbols": []
       }
     },
+    "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:catalog/lowcode-catalog-api",
+        "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "catalog/lowcode-catalog-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 catalog/lowcode-catalog-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDatabaseServer, LowcodeDatabase, LowcodeDatabaseTable, LowcodeDatabaseField, LowcodeDatabaseCatalog, LowcodeCatalogSourceError, LowcodeCatalogApi（共 7 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeDatabaseServer",
+          "LowcodeDatabase",
+          "LowcodeDatabaseTable",
+          "LowcodeDatabaseField",
+          "LowcodeDatabaseCatalog",
+          "LowcodeCatalogSourceError",
+          "LowcodeCatalogApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/core/lowcode-api-error.ts": {
+      "file": "files/packages/spark-lowcode-api/src/core/lowcode-api-error.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:core/lowcode-api-error",
+        "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-api-error.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-api-error.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "core/lowcode-api-error",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 core/lowcode-api-error 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApiError（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeApiError"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/core/lowcode-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/core/lowcode-client.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:core/lowcode-client",
+        "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "core/lowcode-client",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 core/lowcode-client 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeClient, LowcodeClientCommand（共 2 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeClient",
+          "LowcodeClientCommand"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:design/lowcode-design-api",
+        "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "design/lowcode-design-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 design/lowcode-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeFileLocator, LowcodeFileDirectory, LowcodeFileEntry, LowcodeDesignApi（共 4 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeFileLocator",
+          "LowcodeFileDirectory",
+          "LowcodeFileEntry",
+          "LowcodeDesignApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/index.ts": {
+      "file": "files/packages/spark-lowcode-api/src/index.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:index",
+        "sourcePath": "packages/spark-lowcode-api/src/index.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/index.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "index",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "packages/spark-lowcode-api/src/lowcode-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/lowcode-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:lowcode-api",
+        "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "lowcode-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 lowcode-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApiOptions, LowcodeApi（共 2 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeApiOptions",
+          "LowcodeApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/data-space-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/data-space-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/data-space-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceApi（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DataSpaceApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/data-space.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/data-space",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/data-space",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/data-space 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceResourceType, DataSpaceResourceReference, DataSpaceFieldReference, DataSpaceRelationReference, DataSpaceFrontendModelSnapshot, DataSpaceFrontendModel（共 6 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DataSpaceResourceType",
+          "DataSpaceResourceReference",
+          "DataSpaceFieldReference",
+          "DataSpaceRelationReference",
+          "DataSpaceFrontendModelSnapshot",
+          "DataSpaceFrontendModel"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/design/data-space-design-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/design/data-space-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceInputParameter, DataSpaceDesignSnapshot, DataSpaceDesignApi（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DataSpaceInputParameter",
+          "DataSpaceDesignSnapshot",
+          "DataSpaceDesignApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-mutation",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/design/data-space-design-mutation",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/design/data-space-design-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceDesignMutationBase, DataSpaceDesignMutationInput, DataSpaceDesignMutationCommand（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DataSpaceDesignMutationBase",
+          "DataSpaceDesignMutationInput",
+          "DataSpaceDesignMutationCommand"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/runtime/data-space-runtime-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/runtime/data-space-runtime-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceRuntimeFilter, DataSpaceRuntimeQuery, DataSpaceSparsePermission, DataSpaceRuntimeRow, DataSpaceRuntimeSnapshot, DataSpaceRuntimeApi（共 6 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DataSpaceRuntimeFilter",
+          "DataSpaceRuntimeQuery",
+          "DataSpaceSparsePermission",
+          "DataSpaceRuntimeRow",
+          "DataSpaceRuntimeSnapshot",
+          "DataSpaceRuntimeApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-mutation",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/runtime/data-space-runtime-mutation",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/runtime/data-space-runtime-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceAddedRow, DataSpaceChangedRow, DataSpaceDeletedRow, DataSpaceRuntimeChanges, DataSpaceRuntimeMutationInput, DataSpaceRuntimeMutationCommand（共 6 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "DataSpaceAddedRow",
+          "DataSpaceChangedRow",
+          "DataSpaceDeletedRow",
+          "DataSpaceRuntimeChanges",
+          "DataSpaceRuntimeMutationInput",
+          "DataSpaceRuntimeMutationCommand"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-application-store.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-application-store",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/lowcode-application-store",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-application-store 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApplicationContext, LowcodeApplicationStoreOptions, LowcodeApplicationStore（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeApplicationContext",
+          "LowcodeApplicationStoreOptions",
+          "LowcodeApplicationStore"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/lowcode-application.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-application.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-application",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/lowcode-application",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-application 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApplication（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeApplication"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-enterprise",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/lowcode-enterprise",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-enterprise 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeEnterpriseCatalogItem, LowcodeEnterprisePolicy, LowcodeEnterpriseInfo（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeEnterpriseCatalogItem",
+          "LowcodeEnterprisePolicy",
+          "LowcodeEnterpriseInfo"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-navigation.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-navigation",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/lowcode-navigation",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: RuntimeNavigationTargetKind, RuntimeNavigationAuthorizationContext, RuntimeNavigationAuthorizationItem, RuntimeNavigationAuthorizationEvidence（共 4 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "RuntimeNavigationTargetKind",
+          "RuntimeNavigationAuthorizationContext",
+          "RuntimeNavigationAuthorizationItem",
+          "RuntimeNavigationAuthorizationEvidence"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-platform-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/lowcode-platform-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-platform-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeCurrentUser, LowcodeLoginCredentials, LowcodeVerificationChannel, LowcodeVerificationScene, LowcodeVerificationRequest, LowcodeUserRegistration, LowcodeEnterpriseRegistration, LowcodeRegistrationResult 等（共 13 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeCurrentUser",
+          "LowcodeLoginCredentials",
+          "LowcodeVerificationChannel",
+          "LowcodeVerificationScene",
+          "LowcodeVerificationRequest",
+          "LowcodeUserRegistration",
+          "LowcodeEnterpriseRegistration",
+          "LowcodeRegistrationResult",
+          "LowcodeIdentity",
+          "LowcodeEnterprise",
+          "LowcodeCacheStats",
+          "LowcodeSession",
+          "LowcodePlatformApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-session-store.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-session-store",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/lowcode-session-store",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-session-store 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeSessionStorage, LowcodeSessionStoreOptions, LowcodeSessionStore（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeSessionStorage",
+          "LowcodeSessionStoreOptions",
+          "LowcodeSessionStore"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/permission/design/permission-design-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/permission/design/permission-design-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/design/permission-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionFeatureTag, PermissionDataObjectPolicy, PermissionGrantSubjectKind, PermissionGrantOrganizationScope, PermissionObjectGrant, PermissionDesignSnapshot, PermissionDesignApi（共 7 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "PermissionFeatureTag",
+          "PermissionDataObjectPolicy",
+          "PermissionGrantSubjectKind",
+          "PermissionGrantOrganizationScope",
+          "PermissionObjectGrant",
+          "PermissionDesignSnapshot",
+          "PermissionDesignApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/permission/design/permission-design-mutation",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/permission/design/permission-design-mutation",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/design/permission-design-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionDesignMutationBase, PermissionDesignMutationInput, PermissionDesignMutationCommand（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "PermissionDesignMutationBase",
+          "PermissionDesignMutationInput",
+          "PermissionDesignMutationCommand"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/permission/permission-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/permission-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/permission/permission-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/permission/permission-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/permission/permission-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/permission-api 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionApi（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "PermissionApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/permission-wire.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/permission/permission-wire",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/permission/permission-wire",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/permission-wire 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionDesignReader（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "PermissionDesignReader"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/permission/runtime/permission-runtime-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/permission/runtime/permission-runtime-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/runtime/permission-runtime-api 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionRuntimeSnapshot, PermissionRuntimeApi（共 2 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "PermissionRuntimeSnapshot",
+          "PermissionRuntimeApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/capability/project-blueprint-mutation",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/project-blueprint/capability/project-blueprint-mutation",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/capability/project-blueprint-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintMutationBase, ProjectBlueprintMutationInput, ProjectBlueprintMutationRisk, ProjectBlueprintMutationCommand, ProjectBlueprintMutationPlanner（共 5 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "ProjectBlueprintMutationBase",
+          "ProjectBlueprintMutationInput",
+          "ProjectBlueprintMutationRisk",
+          "ProjectBlueprintMutationCommand",
+          "ProjectBlueprintMutationPlanner"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/document/project-blueprint-document",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/project-blueprint/outputs/document/project-blueprint-document",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/outputs/document/project-blueprint-document 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintDocumentKind, ProjectBlueprintDocumentCoverage, ProjectBlueprintDocumentSource, ProjectBlueprintDocumentTask, ProjectBlueprintDocumentSubmitOptions, ProjectBlueprintDocumentOutputs（共 6 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "ProjectBlueprintDocumentKind",
+          "ProjectBlueprintDocumentCoverage",
+          "ProjectBlueprintDocumentSource",
+          "ProjectBlueprintDocumentTask",
+          "ProjectBlueprintDocumentSubmitOptions",
+          "ProjectBlueprintDocumentOutputs"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/project-blueprint-output-groups",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/project-blueprint/outputs/project-blueprint-output-groups",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/outputs/project-blueprint-output-groups 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintPlanningContext, ProjectBlueprintIdentityEvidence, ProjectBlueprintPageRuntimeClosure, ProjectBlueprintGovernanceReport, ProjectBlueprintAiPlanningInput, ProjectBlueprintPlanningOutputs, ProjectBlueprintGovernanceOutputs, ProjectBlueprintAiOutputs（共 8 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "ProjectBlueprintPlanningContext",
+          "ProjectBlueprintIdentityEvidence",
+          "ProjectBlueprintPageRuntimeClosure",
+          "ProjectBlueprintGovernanceReport",
+          "ProjectBlueprintAiPlanningInput",
+          "ProjectBlueprintPlanningOutputs",
+          "ProjectBlueprintGovernanceOutputs",
+          "ProjectBlueprintAiOutputs"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/runtime-navigation",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/project-blueprint/outputs/runtime-navigation",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/outputs/runtime-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: RuntimeNavigationItemKind, RuntimeNavigationItem, RuntimeNavigation（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "RuntimeNavigationItemKind",
+          "RuntimeNavigationItem",
+          "RuntimeNavigation"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-api",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/project-blueprint/project-blueprint-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/project-blueprint-api 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintApi（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "ProjectBlueprintApi"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-wire",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/project-blueprint/project-blueprint-wire",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/project-blueprint-wire 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/project-blueprint/project-blueprint",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/project-blueprint 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintNodeSnapshot, ProjectBlueprintNodeKind, ProjectBlueprintMutationCapability, ProjectBlueprintTreeNode, ProjectBlueprintStructure, ProjectBlueprintDiagnostic, ProjectBlueprintNode, ProjectBlueprintOutputs 等（共 11 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "ProjectBlueprintNodeSnapshot",
+          "ProjectBlueprintNodeKind",
+          "ProjectBlueprintMutationCapability",
+          "ProjectBlueprintTreeNode",
+          "ProjectBlueprintStructure",
+          "ProjectBlueprintDiagnostic",
+          "ProjectBlueprintNode",
+          "ProjectBlueprintOutputs",
+          "ProjectBlueprintStructureOutputs",
+          "ProjectBlueprintDeliveryOutputs",
+          "ProjectBlueprint"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts": {
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:realtime/lowcode-realtime-api",
+        "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "realtime/lowcode-realtime-api",
+        "jsdoc": "@spark-appworks/spark-lowcode-api 的 realtime/lowcode-realtime-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeRealtimeEvent, LowcodeSparkEnvelope, LowcodeAgentTurnInput, LowcodeAgentTurnAck, LowcodeAgentToolResult, LowcodeAgentToolAppendInput, LowcodeAgentEvent, LowcodeSystemDownload 等（共 13 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeRealtimeEvent",
+          "LowcodeSparkEnvelope",
+          "LowcodeAgentTurnInput",
+          "LowcodeAgentTurnAck",
+          "LowcodeAgentToolResult",
+          "LowcodeAgentToolAppendInput",
+          "LowcodeAgentEvent",
+          "LowcodeSystemDownload",
+          "LowcodeRealtimeSubscription",
+          "LowcodeRealtimeConnectOptions",
+          "LowcodeAiChatInput",
+          "LowcodeFetch",
+          "LowcodeRealtimeApi"
+        ]
+      }
+    },
+    "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts": {
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-edit",
+        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+        "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "blueprint/project-blueprint-edit",
+        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-edit\n职责：提供项目蓝图节点编辑草稿、补丁和提交规则。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n项目蓝图编辑领域模型。\n持有蓝图节点表单草稿和 patch 生成规则。\n可编辑字段由 ProjectNode class 持有；草稿只在表单读写边界即时生成。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintNodeDraftNode",
+          "BlueprintNodePatch",
+          "NavigationContextEditConfigDto",
+          "NavigationContextEditDto",
+          "BlueprintNodeDraft",
+          "BlueprintNodeDraftApplyResult",
+          "BlueprintNodePatchTarget"
+        ]
+      }
+    },
+    "packages/spark-project-model/src/blueprint/project-blueprint-index.ts": {
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-index.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-index",
+        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-index.ts",
+        "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-index.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "blueprint/project-blueprint-index",
+        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-index\n职责：提供项目蓝图节点内存索引与树投影。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectBlueprintIndex — 蓝图 nodesById 的内存索引（树投影 / 查找），非存储形状。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ProjectBlueprintTreeNodeLike",
+          "ProjectBlueprintIndex"
+        ]
+      }
+    },
+    "packages/spark-project-model/src/blueprint/project-blueprint-kinds.ts": {
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-kinds.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-kinds",
+        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-kinds.ts",
+        "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-kinds.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "blueprint/project-blueprint-kinds",
+        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-kinds\n职责：按运行交付 nodeKind 实例化非配置页蓝图节点（统一 `ProjectBlueprintNode`，family 由 nodeKind 派生）。\n边界：不处理 page/sub-page 配置页；配置页由 instantiate-project-node 路由到 ConfigPageNode。\nAI用途：扩展运行交付 nodeKind 或排查非配置页蓝图节点实例化时，用本模块确认默认构造路径。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "packages/spark-project-model/src/blueprint/project-blueprint-node.ts": {
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-node",
+        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+        "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "blueprint/project-blueprint-node",
+        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-node\n职责：提供项目蓝图节点、运行交付投影与页面身份闭包契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划项目蓝图、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 blueprint/project-blueprint-node。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ChildPlacement",
+          "ProjectBlueprintDeliveryKind",
+          "ProjectBlueprintNodeKind",
+          "ProjectBlueprintPermissionMode",
+          "ProjectBlueprintNodeFamily",
+          "ProjectDescriptionContext",
+          "ProjectBlueprintContextItem",
+          "ProjectBlueprintContextConfig",
+          "ProjectBlueprintTreeNodeData",
+          "ProjectBlueprintNodePatch",
+          "ProjectBlueprintTreeNodeLocation",
+          "ProjectBlueprintTreeData",
+          "ProjectPageSurface",
+          "ProjectPageNodeSummary",
+          "ProjectBlueprintNodeModelOptions",
+          "ProjectBlueprintNode"
+        ]
+      }
+    },
+    "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts": {
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-tree.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-tree",
+        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
+        "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "blueprint/project-blueprint-tree",
+        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-tree\n职责：提供项目模型层 navigation-tree 能力，围绕 NormalizeNavRootInput、BuildProjectPageSummariesOptions、TreeNodeLike 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 blueprint/project-blueprint-tree。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "NormalizeNavRootInput",
+          "BuildProjectPageSummariesOptions",
+          "TreeNodeLike"
+        ]
+      }
+    },
     "packages/spark-project-model/src/index.ts": {
       "file": "files/packages/spark-project-model/src/index.ts.json",
       "module": {
@@ -9697,7 +10308,7 @@
         "sourceFile": "packages/spark-project-model/src/index.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "index",
-        "jsdoc": "@module @spark-appworks/spark-project-model:index\n职责：提供项目模型和页面配置域中的 index 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n@spark-appworks/spark-project-model\n领域模型：class 层级为主语。\n运行态页面加载与 ProjectWorkspace 均从根入口导出。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:index\n职责：提供项目蓝图和页面配置域的公共入口，支撑 blueprint、page content、project session 与远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n@spark-appworks/spark-project-model\n领域模型：class 层级为主语。\n运行态页面加载与 ProjectWorkspace 均从根入口导出。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -9715,36 +10326,6 @@
         "symbols": []
       }
     },
-    "packages/spark-project-model/src/io/navigation-client.ts": {
-      "file": "files/packages/spark-project-model/src/io/navigation-client.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:io/navigation-client",
-        "sourcePath": "packages/spark-project-model/src/io/navigation-client.ts",
-        "sourceFile": "packages/spark-project-model/src/io/navigation-client.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "io/navigation-client",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/navigation-client\n职责：提供项目模型层 navigation-client 能力，围绕 NavigationClientOptions、LinkProbeResult、NavigationClient 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 io/navigation-client。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "NavigationClientOptions",
-          "LinkProbeResult",
-          "NavigationClient"
-        ]
-      }
-    },
-    "packages/spark-project-model/src/io/navigation-tree-sync.ts": {
-      "file": "files/packages/spark-project-model/src/io/navigation-tree-sync.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:io/navigation-tree-sync",
-        "sourcePath": "packages/spark-project-model/src/io/navigation-tree-sync.ts",
-        "sourceFile": "packages/spark-project-model/src/io/navigation-tree-sync.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "io/navigation-tree-sync",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/navigation-tree-sync\n职责：提供项目模型层 navigation-tree-sync 能力，围绕 模块入口、副作用注册或内部组合逻辑 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 io/navigation-tree-sync。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
     "packages/spark-project-model/src/io/page-content-loader.ts": {
       "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json",
       "module": {
@@ -9753,9 +10334,11 @@
         "sourceFile": "packages/spark-project-model/src/io/page-content-loader.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "io/page-content-loader",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/page-content-loader\n职责：提供项目模型和页面配置域中的 page content loader 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:io/page-content-loader\n职责：按项目与页面身份读取四文件，并维护当前前端会话内的内容缓存。\n边界：只依赖注入的语义读取器，不拥有任何服务器 URL 或认证协议。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "PageFileReadCommand",
+          "PageFileReader",
           "PageContentLoaderOptions",
           "PageContentLoader"
         ]
@@ -9769,13 +10352,43 @@
         "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "io/page-file-api",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：提供项目模型和页面配置域中的 page file api 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nPage file API.\n管理 PageNode 四文件的远端写入、页面文件创建/删除和版本操作。\n读路径由 PageContentLoader 负责，子模型只依赖这里的写能力。",
+        "jsdoc": "页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "PageFileCreateParams",
-          "PageFileApiOptions",
+          "ProjectPageFileGateway",
           "PageFileApi"
         ]
+      }
+    },
+    "packages/spark-project-model/src/io/project-blueprint-client.ts": {
+      "file": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:io/project-blueprint-client",
+        "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts",
+        "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "io/project-blueprint-client",
+        "jsdoc": "@spark-appworks/spark-project-model 的 io/project-blueprint-client 模块。\n导出 DtsTypeDeclarationModel symbol: LinkProbeResult, ProjectBlueprintGateway, ProjectBlueprintClient（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LinkProbeResult",
+          "ProjectBlueprintGateway",
+          "ProjectBlueprintClient"
+        ]
+      }
+    },
+    "packages/spark-project-model/src/io/project-blueprint-tree-sync.ts": {
+      "file": "files/packages/spark-project-model/src/io/project-blueprint-tree-sync.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-project-model:io/project-blueprint-tree-sync",
+        "sourcePath": "packages/spark-project-model/src/io/project-blueprint-tree-sync.ts",
+        "sourceFile": "packages/spark-project-model/src/io/project-blueprint-tree-sync.ts",
+        "packageName": "@spark-appworks/spark-project-model",
+        "modulePath": "io/project-blueprint-tree-sync",
+        "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-tree-sync\n职责：提供项目模型层 project-blueprint-tree-sync 能力，围绕 模块入口、副作用注册或内部组合逻辑 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 io/project-blueprint-tree-sync。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "packages/spark-project-model/src/io/project-reference-client.ts": {
@@ -9786,113 +10399,14 @@
         "sourceFile": "packages/spark-project-model/src/io/project-reference-client.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "io/project-reference-client",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/project-reference-client\n职责：提供项目模型层 project-reference-client 能力，围绕 ProjectReferenceClientOptions、ProjectSummary、ProjectPageReference 等 5 个公开契约 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 io/project-reference-client。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdoc": "@spark-appworks/spark-project-model 的 io/project-reference-client 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectSummary, ProjectPageReference, ListProjectReferencesOptions, ProjectReferenceGateway, ProjectReferenceClient（共 5 个 symbol）。",
+        "jsdocSource": "inferred",
         "symbols": [
-          "ProjectReferenceClientOptions",
           "ProjectSummary",
           "ProjectPageReference",
           "ListProjectReferencesOptions",
+          "ProjectReferenceGateway",
           "ProjectReferenceClient"
-        ]
-      }
-    },
-    "packages/spark-project-model/src/navigation/navigation-edit.ts": {
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:navigation/navigation-edit",
-        "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-        "sourceFile": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "navigation/navigation-edit",
-        "jsdoc": "@module @spark-appworks/spark-project-model:navigation/navigation-edit\n职责：提供项目模型和页面配置域中的 navigation edit 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n导航编辑领域模型 — PageNode 的导航属性子模型。\n持有导航节点表单草稿和 patch 生成规则。\n可编辑字段由 ProjectNode class 持有；草稿只在表单读写边界即时生成。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "NavigationNodeDraftNode",
-          "NavigationNodePatch",
-          "NavigationContextEditConfigDto",
-          "NavigationContextEditDto",
-          "NavigationNodeDraft",
-          "NavigationNodeDraftApplyResult",
-          "NavigationNodePatchTarget"
-        ]
-      }
-    },
-    "packages/spark-project-model/src/navigation/navigation-index.ts": {
-      "file": "files/packages/spark-project-model/src/navigation/navigation-index.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:navigation/navigation-index",
-        "sourcePath": "packages/spark-project-model/src/navigation/navigation-index.ts",
-        "sourceFile": "packages/spark-project-model/src/navigation/navigation-index.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "navigation/navigation-index",
-        "jsdoc": "@module @spark-appworks/spark-project-model:navigation/navigation-index\n职责：提供项目模型和页面配置域中的 navigation index 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nNavigationIndex — 导航 nodesById 的内存索引（树投影 / 查找），非存储形状。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "NavigationTreeNodeLike",
-          "NavigationIndex"
-        ]
-      }
-    },
-    "packages/spark-project-model/src/navigation/navigation-kinds.ts": {
-      "file": "files/packages/spark-project-model/src/navigation/navigation-kinds.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:navigation/navigation-kinds",
-        "sourcePath": "packages/spark-project-model/src/navigation/navigation-kinds.ts",
-        "sourceFile": "packages/spark-project-model/src/navigation/navigation-kinds.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "navigation/navigation-kinds",
-        "jsdoc": "@module @spark-appworks/spark-project-model:navigation/navigation-kinds\n职责：按 nodeKind 实例化非配置页导航节点（统一 `ProjectNode`，family 由 nodeKind 派生）。\n边界：不处理 page/sub-page 配置页；配置页由 instantiate-project-node 路由到 ConfigPageNode。\nAI用途：扩展导航 nodeKind 或排查非配置页节点实例化时，用本模块确认默认 ProjectNode 构造路径。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "packages/spark-project-model/src/navigation/navigation-tree.ts": {
-      "file": "files/packages/spark-project-model/src/navigation/navigation-tree.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:navigation/navigation-tree",
-        "sourcePath": "packages/spark-project-model/src/navigation/navigation-tree.ts",
-        "sourceFile": "packages/spark-project-model/src/navigation/navigation-tree.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "navigation/navigation-tree",
-        "jsdoc": "@module @spark-appworks/spark-project-model:navigation/navigation-tree\n职责：提供项目模型层 navigation-tree 能力，围绕 NormalizeNavRootInput、BuildProjectPageSummariesOptions、TreeNodeLike 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 navigation/navigation-tree。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "NormalizeNavRootInput",
-          "BuildProjectPageSummariesOptions",
-          "TreeNodeLike"
-        ]
-      }
-    },
-    "packages/spark-project-model/src/navigation/project-node.ts": {
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:navigation/project-node",
-        "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-        "sourceFile": "packages/spark-project-model/src/navigation/project-node.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "navigation/project-node",
-        "jsdoc": "@module @spark-appworks/spark-project-model:navigation/project-node\n职责：提供项目模型层 project-node 能力，围绕 ChildPlacement、NavNodeKind、NavPermissionMode 等 18 个公开契约 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 navigation/project-node。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "ChildPlacement",
-          "NavNodeKind",
-          "NavPermissionMode",
-          "ProjectNodeFamily",
-          "ProjectDescriptionContext",
-          "NavContextItem",
-          "NavContextConfig",
-          "ProjectNodeData",
-          "ProjectNodeNavigationPatch",
-          "ProjectNodeLocation",
-          "ProjectModelData",
-          "RegionItems",
-          "RegionVisibility",
-          "NavContextState",
-          "ProjectPageSurface",
-          "ProjectPageNodeSummary",
-          "ProjectNodeModelOptions",
-          "ProjectNode"
         ]
       }
     },
@@ -9933,6 +10447,7 @@
         "jsdoc": "@module @spark-appworks/spark-project-model:page/config-page\n职责：提供项目模型和页面配置域中的 config page 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nConfigPageNode——配置页节点，挂接 rule/dataset/script/style（纯内存领域模型）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "PageDataSpaceBinding",
           "PageNodeRenderConfig",
           "PageNodeLike",
           "ProjectConfigPageNodeModelOptions",
@@ -9993,7 +10508,7 @@
         "sourceFile": "packages/spark-project-model/src/page/instantiate-project-node.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "page/instantiate-project-node",
-        "jsdoc": "@module @spark-appworks/spark-project-model:page/instantiate-project-node\n职责：配置页节点实例化（page / sub-page 统一 ConfigPageNode）。\n边界：只根据 nodeKind 在 ConfigPageNode 与导航节点之间分流，不加载页面四文件。\nAI用途：判断项目树节点应实例化为配置页还是导航节点时，用本模块作为统一入口。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:page/instantiate-project-node\n职责：配置页节点实例化（page / sub-page 统一 ConfigPageNode）。\n边界：只根据运行交付 nodeKind 在 ConfigPageNode 与普通蓝图节点之间分流，不加载页面四文件。\nAI用途：判断项目蓝图节点应实例化为配置页还是普通节点时，用本模块作为统一入口。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -10038,11 +10553,11 @@
         "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "project/project-design",
-        "jsdoc": "@module @spark-appworks/spark-project-model:project/project-design\n职责：提供项目模型和页面配置域中的 project design 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectDesign — 项目设计内容：元数据 + 节点树 + 配置页 Map。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:project/project-design\n职责：提供项目蓝图设计聚合，支撑 blueprint、page content、project session 与远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectBlueprintDesign — 项目蓝图设计内容：元数据 + 节点树 + 配置页 Map。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ProjectDesignNodeEditResult",
-          "ProjectDesign"
+          "ProjectBlueprintDesignNodeEditResult",
+          "ProjectBlueprintDesign"
         ]
       }
     },
@@ -10054,7 +10569,7 @@
         "sourceFile": "packages/spark-project-model/src/project/project-model.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "project/project-model",
-        "jsdoc": "@module @spark-appworks/spark-project-model:project/project-model\n职责：提供项目模型和页面配置域中的 project model 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectModel — 软件项目根 class。\n组合 design（设计内容 class 树）与 session（编辑状态）。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:project/project-model\n职责：提供项目蓝图和页面配置域的 ProjectModel 门面，支撑 blueprint、page content、project session 与远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectModel — 软件项目根 class。\n组合 design（设计内容 class 树）与 session（编辑状态）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectModel"
@@ -10086,18 +10601,18 @@
         "sourceFile": "packages/spark-project-model/src/project/project-types.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "project/project-types",
-        "jsdoc": "@module @spark-appworks/spark-project-model:project/project-types\n职责：提供项目模型层 project-types 能力，围绕 ProjectNavigationDirtyScope、ProjectModelEvent、ProjectModelEventListener 等 12 个公开契约 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-types。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:project/project-types\n职责：提供项目模型层 project-types 契约，处理项目蓝图、页面文件、配置内容、工作区与远端 IO。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划项目蓝图、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-types。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ProjectNavigationDirtyScope",
+          "ProjectBlueprintDirtyScope",
           "ProjectModelEvent",
           "ProjectModelEventListener",
           "ProjectPageFileWriteCommand",
-          "ProjectNavigationProjection",
+          "ProjectBlueprintProjection",
           "ProjectActivePageProjection",
           "ProjectDirtyProjection",
           "ProjectPlanningInput",
-          "NavigationPlanningInput",
+          "BlueprintPlanningInput",
           "ProjectPlanningCompletionInput",
           "ProjectPlanningCompletionResult",
           "ProjectInfo",
@@ -10707,6 +11222,40 @@
         "symbols": []
       }
     },
+    "src/lowcode/lowcode-data-space-runtime.ts": {
+      "file": "files/src/lowcode/lowcode-data-space-runtime.ts.json",
+      "module": {
+        "name": "app:lowcode/lowcode-data-space-runtime",
+        "sourcePath": "src/lowcode/lowcode-data-space-runtime.ts",
+        "sourceFile": "src/lowcode/lowcode-data-space-runtime.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/lowcode-data-space-runtime",
+        "jsdoc": "app 的 lowcode/lowcode-data-space-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceRuntimeLoadInput, LowcodeDataSpaceRuntimeLoadResult, LowcodePermissionSnapshotBinding（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodeDataSpaceRuntimeLoadInput",
+          "LowcodeDataSpaceRuntimeLoadResult",
+          "LowcodePermissionSnapshotBinding"
+        ]
+      }
+    },
+    "src/lowcode/lowcode-runtime.ts": {
+      "file": "files/src/lowcode/lowcode-runtime.ts.json",
+      "module": {
+        "name": "app:lowcode/lowcode-runtime",
+        "sourcePath": "src/lowcode/lowcode-runtime.ts",
+        "sourceFile": "src/lowcode/lowcode-runtime.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/lowcode-runtime",
+        "jsdoc": "app 的 lowcode/lowcode-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodePrincipal, LowcodeRuntimeNavigationProjectionInput, LowcodeProjectGateways（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "LowcodePrincipal",
+          "LowcodeRuntimeNavigationProjectionInput",
+          "LowcodeProjectGateways"
+        ]
+      }
+    },
     "src/main.ts": {
       "file": "files/src/main.ts.json",
       "module": {
@@ -10754,6 +11303,23 @@
         ]
       }
     },
+    "src/services/ai/ai-agent-run.ts": {
+      "file": "files/src/services/ai/ai-agent-run.ts.json",
+      "module": {
+        "name": "app:services/ai/ai-agent-run",
+        "sourcePath": "src/services/ai/ai-agent-run.ts",
+        "sourceFile": "src/services/ai/ai-agent-run.ts",
+        "packageName": "app",
+        "modulePath": "services/ai/ai-agent-run",
+        "jsdoc": "app 的 services/ai/ai-agent-run 模块。\n导出 DtsTypeDeclarationModel symbol: AiAgentRunTarget, AiAgentRunRequest, AiAgentRunPrepare（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "AiAgentRunTarget",
+          "AiAgentRunRequest",
+          "AiAgentRunPrepare"
+        ]
+      }
+    },
     "src/services/ai/ai-delivery-port.ts": {
       "file": "files/src/services/ai/ai-delivery-port.ts.json",
       "module": {
@@ -10762,7 +11328,7 @@
         "sourceFile": "src/services/ai/ai-delivery-port.ts",
         "packageName": "app",
         "modulePath": "services/ai/ai-delivery-port",
-        "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Host Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
+        "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Agent Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "AiDeliveryMode",
@@ -10773,37 +11339,6 @@
         ]
       }
     },
-    "src/services/ai/ai-host-run-bridge.ts": {
-      "file": "files/src/services/ai/ai-host-run-bridge.ts.json",
-      "module": {
-        "name": "app:services/ai/ai-host-run-bridge",
-        "sourcePath": "src/services/ai/ai-host-run-bridge.ts",
-        "sourceFile": "src/services/ai/ai-host-run-bridge.ts",
-        "packageName": "app",
-        "modulePath": "services/ai/ai-host-run-bridge",
-        "jsdoc": "@module app:services/ai-host-run-bridge\n职责：提供应用运行时 service 层的 ai host run bridge 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 层 Host Run 分布式桥接器。\n后端通过 APP 公共 SSE 定向下发 ai-host-run-request，本桥接器只负责\n校验平台载荷、调用本地 AiAgentHost.run(alias,args)、收集 trace 并提交回执。\n业务状态和业务流程编排仍由注册方与 LLM 协作完成，APP bridge 不理解具体能力。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "AiHostRunTarget",
-          "AiHostRunPrepare",
-          "AiHostRunBridgeOptions",
-          "AiHostRunBridge"
-        ]
-      }
-    },
-    "src/services/ai/ai-host-run-smoke-launcher.ts": {
-      "file": "files/src/services/ai/ai-host-run-smoke-launcher.ts.json",
-      "module": {
-        "name": "app:services/ai/ai-host-run-smoke-launcher",
-        "sourcePath": "src/services/ai/ai-host-run-smoke-launcher.ts",
-        "sourceFile": "src/services/ai/ai-host-run-smoke-launcher.ts",
-        "packageName": "app",
-        "modulePath": "services/ai/ai-host-run-smoke-launcher",
-        "jsdoc": "@module app:services/ai-host-run-smoke-launcher\n职责：提供主应用 ai-host-run-smoke-launcher 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 services/ai-host-run-smoke-launcher。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/services/ai/ai-turn-bridge.ts": {
       "file": "files/src/services/ai/ai-turn-bridge.ts.json",
       "module": {
@@ -10812,7 +11347,7 @@
         "sourceFile": "src/services/ai/ai-turn-bridge.ts",
         "packageName": "app",
         "modulePath": "services/ai/ai-turn-bridge",
-        "jsdoc": "@module app:services/ai-turn-bridge\n职责：提供应用运行时 service 层的 ai turn bridge 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP-owned AI turn bridge.\nHTTP commands and APP SSE subscription stay in src/services; spark-ai only\nreceives callbacks and aggregates events.",
+        "jsdoc": "@module app:services/ai-turn-bridge\n职责：把 spark-ai 的本地工具循环语义映射到 lowcode-jdk17 Agent turn 与 SSE 合同。\n边界：Agent、会话和模型配置由 lowcode 后端持有；前端只执行已注册的前端工具并回传结果。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "AiTurnBridgeDiagnostic",
@@ -10833,40 +11368,6 @@
         "symbols": []
       }
     },
-    "src/services/api-paths.ts": {
-      "file": "files/src/services/api-paths.ts.json",
-      "module": {
-        "name": "app:services/api-paths",
-        "sourcePath": "src/services/api-paths.ts",
-        "sourceFile": "src/services/api-paths.ts",
-        "packageName": "app",
-        "modulePath": "services/api-paths",
-        "jsdoc": "@module app:services/api-paths\n职责：提供应用运行时 service 层的 api paths 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ProjectApiScope"
-        ]
-      }
-    },
-    "src/services/auth.ts": {
-      "file": "files/src/services/auth.ts.json",
-      "module": {
-        "name": "app:services/auth",
-        "sourcePath": "src/services/auth.ts",
-        "sourceFile": "src/services/auth.ts",
-        "packageName": "app",
-        "modulePath": "services/auth",
-        "jsdoc": "@module app:services/auth\n职责：提供主应用 auth 能力，围绕 AuthUser、PlatformAdminUserLike、LoginParams 等 5 个公开契约 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 services/auth。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "AuthUser",
-          "PlatformAdminUserLike",
-          "LoginParams",
-          "RegisterParams",
-          "RegisterTenantParams"
-        ]
-      }
-    },
     "src/services/class-model-knowledge.worker.ts": {
       "file": "files/src/services/class-model-knowledge.worker.ts.json",
       "module": {
@@ -10880,31 +11381,34 @@
         "symbols": []
       }
     },
-    "src/services/http.ts": {
-      "file": "files/src/services/http.ts.json",
+    "src/services/page-data-design/page-data-design-agent-run-provider.ts": {
+      "file": "files/src/services/page-data-design/page-data-design-agent-run-provider.ts.json",
       "module": {
-        "name": "app:services/http",
-        "sourcePath": "src/services/http.ts",
-        "sourceFile": "src/services/http.ts",
+        "name": "app:services/page-data-design/page-data-design-agent-run-provider",
+        "sourcePath": "src/services/page-data-design/page-data-design-agent-run-provider.ts",
+        "sourceFile": "src/services/page-data-design/page-data-design-agent-run-provider.ts",
         "packageName": "app",
-        "modulePath": "services/http",
-        "jsdoc": "@module app:services/http\n职责：提供应用运行时 service 层的 http 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\n统一 HTTP 客户端 — 自动注入认证 / 租户请求头\n所有 `src/` 层 API 调用统一使用此模块导出的 `http` 实例，\n替代 `fetch()` + 已废除的 `installFetchInterceptor`。\n## 用法\n```ts\nimport { http } from '@/services/http'\n// GET\nconst data = await http.get<MyType>('/api/xxx')\n// POST JSON\nawait http.post('/api/xxx', { key: 'value' })\n// PUT\nawait http.put('/api/xxx', payload)\n// DELETE\nawait http.delete('/api/xxx')\n// 完整响应（含 status / headers）\nconst resp = await http.requestFull<T>({ url, method: 'POST', data })\n```",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/services/page-data-design/page-data-design-host-run-provider.ts": {
-      "file": "files/src/services/page-data-design/page-data-design-host-run-provider.ts.json",
-      "module": {
-        "name": "app:services/page-data-design/page-data-design-host-run-provider",
-        "sourcePath": "src/services/page-data-design/page-data-design-host-run-provider.ts",
-        "sourceFile": "src/services/page-data-design/page-data-design-host-run-provider.ts",
-        "packageName": "app",
-        "modulePath": "services/page-data-design/page-data-design-host-run-provider",
-        "jsdoc": "@module app:services/page-data-design-host-run-provider\n职责：pageDataDesign Host Run preset，归一化为 pageDesign 并绑定 selective save 上下文。\n边界：不单独注册业务能力；alias 仅用于调度路由。\nAI用途：排查 SSE pageDataDesign 如何落到 pageDesign run 与 pagedata.json 落盘时，用本模块。",
+        "modulePath": "services/page-data-design/page-data-design-agent-run-provider",
+        "jsdoc": "@module app:services/page-data-design-agent-run-provider\n职责：pageDataDesign Agent Run preset，归一化为 pageDesign 并绑定 selective save 上下文。\n边界：不单独注册业务能力；alias 仅用于调度路由。\nAI用途：排查 pageDataDesign 如何落到 pageDesign run 与 pagedata.json 落盘时，用本模块。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "PageDataDesignHostInput"
+        ]
+      }
+    },
+    "src/services/page-design/page-design-agent-run-provider.ts": {
+      "file": "files/src/services/page-design/page-design-agent-run-provider.ts.json",
+      "module": {
+        "name": "app:services/page-design/page-design-agent-run-provider",
+        "sourcePath": "src/services/page-design/page-design-agent-run-provider.ts",
+        "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
+        "packageName": "app",
+        "modulePath": "services/page-design/page-design-agent-run-provider",
+        "jsdoc": "@module app:services/page-design/page-design-agent-run-provider\n职责：pageDesign 隔离式 Agent Run——headless editor 注册、四文件 delivery、run preparation。\n边界：DevSystem 内联 runner 共用 editor 语义见 page-design-ai-runner；不进入 spark-ai 内核。\nAI用途：排查 pageDesign Agent Run 的 delivery 与 run preparation 接线时，用本模块定位 provider 契约。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PageDesignDeliveryContext",
+          "CreatePageDesignDeliveryPortOptions"
         ]
       }
     },
@@ -10952,7 +11456,7 @@
         "sourceFile": "src/services/page-design/page-design-gates.ts",
         "packageName": "app",
         "modulePath": "services/page-design/page-design-gates",
-        "jsdoc": "@module app:services/page-design-gates\n职责：提供应用运行时 service 层的 page design gates 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\npageDesign 人工闸门：从 readPlanningProjection 读取 effectiveDescription / implGate，fail-fast 拒绝未放行页面。\nallowedOperations 非空时，对 model_script 做操作域 marker 硬拦截。",
+        "jsdoc": "@module app:services/page-design-gates\n职责：提供应用运行时 service 层的 page design gates 能力，连接项目模型、AI Agent、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\npageDesign 人工闸门：从 readPlanningProjection 读取 effectiveDescription / implGate，fail-fast 拒绝未放行页面。\nallowedOperations 非空时，对 model_script 做操作域 marker 硬拦截。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "PageDesignAllowedOperations",
@@ -10975,26 +11479,10 @@
         "sourceFile": "src/services/page-design/page-design-headless.ts",
         "packageName": "app",
         "modulePath": "services/page-design/page-design-headless",
-        "jsdoc": "@module app:services/page-design/page-design-headless\n职责：pageDesign 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Host Run 或四文件落盘。\nAI用途：SSE 或后端下发 Host Run 前需要隔离式 editor 时，用本模块获取 ProjectWorkspace。",
+        "jsdoc": "@module app:services/page-design/page-design-headless\n职责：pageDesign 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Agent Run 或四文件落盘。\nAI用途：Agent Run 需要隔离式 editor 时，用本模块获取 ProjectWorkspace。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "PageDesignEditorResolveContext"
-        ]
-      }
-    },
-    "src/services/page-design/page-design-host-run-provider.ts": {
-      "file": "files/src/services/page-design/page-design-host-run-provider.ts.json",
-      "module": {
-        "name": "app:services/page-design/page-design-host-run-provider",
-        "sourcePath": "src/services/page-design/page-design-host-run-provider.ts",
-        "sourceFile": "src/services/page-design/page-design-host-run-provider.ts",
-        "packageName": "app",
-        "modulePath": "services/page-design/page-design-host-run-provider",
-        "jsdoc": "@module app:services/page-design/page-design-host-run-provider\n职责：pageDesign 隔离式 Host Run——headless editor 注册、四文件 delivery、SSE prepare。\n边界：DevSystem 内联 runner 共用 editor 语义见 page-design-ai-runner；不进入 spark-ai 内核。\nAI用途：排查 pageDesign Host Run 的 delivery 与 SSE prepare 接线时，用本模块定位 provider 契约。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "PageDesignDeliveryContext",
-          "CreatePageDesignDeliveryPortOptions"
         ]
       }
     },
@@ -11045,6 +11533,21 @@
         "symbols": []
       }
     },
+    "src/services/project-planning/project-planning-agent-run-provider.ts": {
+      "file": "files/src/services/project-planning/project-planning-agent-run-provider.ts.json",
+      "module": {
+        "name": "app:services/project-planning/project-planning-agent-run-provider",
+        "sourcePath": "src/services/project-planning/project-planning-agent-run-provider.ts",
+        "sourceFile": "src/services/project-planning/project-planning-agent-run-provider.ts",
+        "packageName": "app",
+        "modulePath": "services/project-planning/project-planning-agent-run-provider",
+        "jsdoc": "@module app:services/project-planning-agent-run-provider\n职责：提供应用运行时 service 层的 project planning agent run provider 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 壳层 projectPlanning Agent Run provider（隔离式门面实例）。\n无 UI：前端自动化入口 时，按 projectId 准备 headless\nProjectWorkspace，运行结束可选保存项目蓝图后丢弃，不污染 DevSystem session。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ProjectPlanningDeliveryContext"
+        ]
+      }
+    },
     "src/services/project-planning/project-planning-agent-workflow-binding.ts": {
       "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json",
       "module": {
@@ -11058,10 +11561,10 @@
         "symbols": [
           "ProjectPlanningRunInput",
           "ProjectPlanningAgentInput",
-          "NavigationPlanningAgentInput",
-          "NavigationPlanningRunInput",
+          "BlueprintPlanningAgentInput",
+          "BlueprintPlanningRunInput",
           "ResolveProjectPlanningRunInputOptions",
-          "FilterNavigationPlanningNodesOptions",
+          "FilterBlueprintPlanningNodesOptions",
           "ResolveScopedProjectPlanningRunInputOptions",
           "ProjectPlanningAgentWorkflowBindingOptions",
           "ProjectPlanningGateValidationResult"
@@ -11076,7 +11579,7 @@
         "sourceFile": "src/services/project-planning/project-planning-ai-runner.ts",
         "packageName": "app",
         "modulePath": "services/project-planning/project-planning-ai-runner",
-        "jsdoc": "@module app:services/project-planning-ai-runner\n职责：提供应用层 projectPlanning 的 project-planning-ai-runner 能力，围绕 ProjectPlanningAiRunOptions、ProjectPlanningAiRunEvents、ProjectPlanningAiRunCommand 等 4 个公开契约 编排项目需求、导航规划和 AI 业务注册。\n边界：只停留在项目规划阶段，不生成页面 rule/pagedata/script/template，也不越界进入 pageDesign。\nAI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。",
+        "jsdoc": "@module app:services/project-planning-ai-runner\n职责：提供应用层 projectPlanning 的 project-planning-ai-runner 能力，围绕 ProjectPlanningAiRunOptions、ProjectPlanningAiRunEvents、ProjectPlanningAiRunCommand 等 4 个公开契约编排项目需求、蓝图规划和 AI 业务注册。\n边界：只停留在项目规划阶段，不生成页面 rule/pagedata/script/template，也不越界进入 pageDesign。\nAI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "ProjectPlanningAiRunOptions",
@@ -11110,26 +11613,11 @@
         "sourceFile": "src/services/project-planning/project-planning-headless.ts",
         "packageName": "app",
         "modulePath": "services/project-planning/project-planning-headless",
-        "jsdoc": "@module app:services/project-planning/project-planning-headless\n职责：projectPlanning 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Host Run 或导航落盘。\nAI用途：projectPlanning Host Run 需要隔离式 ProjectWorkspace 时，用本模块获取 editor 实例。",
+        "jsdoc": "@module app:services/project-planning/project-planning-headless\n职责：projectPlanning 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Agent Run 或项目蓝图落盘。\nAI用途：projectPlanning Agent Run 需要隔离式 ProjectWorkspace 时，用本模块获取 editor 实例。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectPlanningEditorResolveContext",
           "HeadlessProjectPlanningEditorScope"
-        ]
-      }
-    },
-    "src/services/project-planning/project-planning-host-run-provider.ts": {
-      "file": "files/src/services/project-planning/project-planning-host-run-provider.ts.json",
-      "module": {
-        "name": "app:services/project-planning/project-planning-host-run-provider",
-        "sourcePath": "src/services/project-planning/project-planning-host-run-provider.ts",
-        "sourceFile": "src/services/project-planning/project-planning-host-run-provider.ts",
-        "packageName": "app",
-        "modulePath": "services/project-planning/project-planning-host-run-provider",
-        "jsdoc": "@module app:services/project-planning-host-run-provider\n职责：提供应用运行时 service 层的 project planning host run provider 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 壳层 projectPlanning Host Run provider（隔离式门面实例）。\n无 UI：SSE / 后端下发 ai-host-run-request 时，按 projectId 准备 headless\nProjectWorkspace，运行结束可选保存 navigation 后丢弃，不污染 DevSystem session。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ProjectPlanningDeliveryContext"
         ]
       }
     },
@@ -11162,11 +11650,12 @@
         "sourceFile": "src/services/project/project-shell.ts",
         "packageName": "app",
         "modulePath": "services/project/project-shell",
-        "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectModel 缓存、ProjectWorkspace 单例、导航同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；DevSystem 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步导航或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
+        "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectModel 缓存、项目蓝图工作区单例、运行菜单同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；DevSystem 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步运行菜单或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectSwitchService",
           "ProjectWorkspaceScope",
+          "ProjectApiScope",
           "ShellNavRootListener"
         ]
       }
@@ -11179,16 +11668,13 @@
         "sourceFile": "src/services/sse-events.ts",
         "packageName": "app",
         "modulePath": "services/sse-events",
-        "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 `/api/events` 的单例连接、v4 envelope 解包和按事件名分发。\n页面配置、数据任务、通知、AI Host Run 等业务动作在各自订阅方处理。",
+        "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、v4 envelope 解包和按事件名分发。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FileChangeEvent",
           "DataBatchJobEvent",
           "DataChangeEvent",
-          "ServerNotificationEvent",
-          "AiHostRunRequestEvent",
-          "AiHostRunResultStatus",
-          "AiHostRunResultEvent"
+          "ServerNotificationEvent"
         ]
       }
     },
@@ -11230,6 +11716,10 @@
           "WorkflowDesignGraph",
           "WorkflowDesignGraphNode",
           "WorkflowDesignLineEndpoint",
+          "WorkflowDesignLineType",
+          "WorkflowDesignLineControlPoint",
+          "WorkflowDesignLineVisual",
+          "WorkflowDesignLineData",
           "WorkflowDesignGraphLine",
           "WorkflowDesignNodeData",
           "WorkflowDesignNestedGraphCarrier",
@@ -11241,6 +11731,8 @@
           "WorkflowDesignNodeCreateInput",
           "WorkflowDesignNodeRemoveResult",
           "WorkflowDesignLinePatch",
+          "WorkflowDesignAutoLayoutGraphResult",
+          "WorkflowDesignAutoLayoutResult",
           "CreateAgentWorkflowDefinitionFromDesignOptions"
         ]
       }
@@ -11468,19 +11960,6 @@
         "symbols": []
       }
     },
-    "src/views/app/dev-system/DevSiteTree.vue": {
-      "file": "files/src/views/app/dev-system/DevSiteTree.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/DevSiteTree",
-        "sourcePath": "src/views/app/dev-system/DevSiteTree.vue",
-        "sourceFile": "src/views/app/dev-system/DevSiteTree.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/DevSiteTree",
-        "jsdoc": "@module app:views/app/dev-system/DevSiteTree\n职责：提供 DevSystem 的 DevSiteTree 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevSiteTree。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/app/dev-system/DevSystem.vue": {
       "file": "files/src/views/app/dev-system/DevSystem.vue.json",
       "module": {
@@ -11507,6 +11986,19 @@
         "symbols": []
       }
     },
+    "src/views/app/dev-system/ProjectBlueprintTree.vue": {
+      "file": "files/src/views/app/dev-system/ProjectBlueprintTree.vue.json",
+      "module": {
+        "name": "app:views/app/dev-system/ProjectBlueprintTree",
+        "sourcePath": "src/views/app/dev-system/ProjectBlueprintTree.vue",
+        "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
+        "packageName": "app",
+        "modulePath": "views/app/dev-system/ProjectBlueprintTree",
+        "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：提供 DevSystem 的项目蓝图树，展示并编辑需求、原型、数据空间与交付节点。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模块定位 views/app/dev-system/ProjectBlueprintTree。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue": {
       "file": "files/src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue.json",
       "module": {
@@ -11528,12 +12020,12 @@
         "sourceFile": "src/views/app/dev-system/useDevState.ts",
         "packageName": "app",
         "modulePath": "views/app/dev-system/useDevState",
-        "jsdoc": "@module app:views/app/dev-system/useDevState\n职责：提供 DevSystem 的 useDevState 能力，围绕 DevPageFileName、PageConfigPageSummary、NavigationNodeDraftNode 等 9 个公开契约 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。",
+        "jsdoc": "@module app:views/app/dev-system/useDevState\n职责：提供 DevSystem 的 useDevState 能力，围绕 DevPageFileName、PageConfigPageSummary、BlueprintNodeDraftNode 等 9 个公开契约 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "DevPageFileName",
           "PageConfigPageSummary",
-          "NavigationNodeDraftNode",
+          "BlueprintNodeDraftNode",
           "RunPageDesignAiOptions",
           "EditableProjectOption",
           "StatusMessage",
@@ -11592,9 +12084,11 @@
         "sourceFile": "src/views/app/WorkflowDesigns.vue",
         "packageName": "app",
         "modulePath": "views/app/WorkflowDesigns",
-        "jsdoc": "@module app:views/app/WorkflowDesigns\n鑱岃矗锛氭彁渚涘伐浣滄祦璁捐绋跨殑鍙鍖栫紪杈戝叆鍙ｏ紝杩炴帴 Dify-like JSON graph銆佹枃浠朵繚瀛?API 涓?workflow definition 鍙戝竷銆?杈圭晫锛氬彧澶勭悊璁捐鎬?JSON锛屼笉鎵ц Agent workflow 杩愯鏃躲€?AI鐢ㄩ€旓細闇€瑕侀獙璇?workflow 缂栬緫鍣ㄥ浣曢厤缃笟鍔¤妭鐐广€丆lassModel model context 鎴栨楠ょ嚎鎶曞奖鏃讹紝鐢ㄦ湰椤甸潰瀹氫綅銆?",
+        "jsdoc": "@module app:views/app/WorkflowDesigns\n职责：提供工作流设计稿的可视化编辑入口，连接 Dify-like JSON graph、文件保存 API 与 workflow definition 发布。\n边界：只处理设计态 JSON，不执行 Agent workflow 运行时。\nAI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel model context 或步骤线投影时，用本页面定位。",
         "jsdocSource": "source-file-jsdoc",
-        "symbols": []
+        "symbols": [
+          "WorkflowLineRuntimeStatus"
+        ]
       }
     },
     "src/views/platform/About.vue": {
@@ -12257,9 +12751,21 @@
       "sourcePath": "packages/spark-ai/src/agent/business/business-session.ts",
       "file": "files/packages/spark-ai/src/agent/business/business-session.ts.json"
     },
+    "AiAgentRunPrepare": {
+      "sourcePath": "src/services/ai/ai-agent-run.ts",
+      "file": "files/src/services/ai/ai-agent-run.ts.json"
+    },
+    "AiAgentRunRequest": {
+      "sourcePath": "src/services/ai/ai-agent-run.ts",
+      "file": "files/src/services/ai/ai-agent-run.ts.json"
+    },
     "AiAgentRunResult": {
       "sourcePath": "packages/spark-ai/src/agent/business/business-session.ts",
       "file": "files/packages/spark-ai/src/agent/business/business-session.ts.json"
+    },
+    "AiAgentRunTarget": {
+      "sourcePath": "src/services/ai/ai-agent-run.ts",
+      "file": "files/src/services/ai/ai-agent-run.ts.json"
     },
     "AiAgentRuntimeContext": {
       "sourcePath": "packages/spark-ai/src/agent/business/scope-types.ts",
@@ -12553,34 +13059,6 @@
       "sourcePath": "src/services/ai/ai-delivery-port.ts",
       "file": "files/src/services/ai/ai-delivery-port.ts.json"
     },
-    "AiHostRunBridge": {
-      "sourcePath": "src/services/ai/ai-host-run-bridge.ts",
-      "file": "files/src/services/ai/ai-host-run-bridge.ts.json"
-    },
-    "AiHostRunBridgeOptions": {
-      "sourcePath": "src/services/ai/ai-host-run-bridge.ts",
-      "file": "files/src/services/ai/ai-host-run-bridge.ts.json"
-    },
-    "AiHostRunPrepare": {
-      "sourcePath": "src/services/ai/ai-host-run-bridge.ts",
-      "file": "files/src/services/ai/ai-host-run-bridge.ts.json"
-    },
-    "AiHostRunRequestEvent": {
-      "sourcePath": "src/services/sse-events.ts",
-      "file": "files/src/services/sse-events.ts.json"
-    },
-    "AiHostRunResultEvent": {
-      "sourcePath": "src/services/sse-events.ts",
-      "file": "files/src/services/sse-events.ts.json"
-    },
-    "AiHostRunResultStatus": {
-      "sourcePath": "src/services/sse-events.ts",
-      "file": "files/src/services/sse-events.ts.json"
-    },
-    "AiHostRunTarget": {
-      "sourcePath": "src/services/ai/ai-host-run-bridge.ts",
-      "file": "files/src/services/ai/ai-host-run-bridge.ts.json"
-    },
     "AiNativePathContext": {
       "sourcePath": "packages/spark-ai/src/agent/native-runtime/native-script-context.ts",
       "file": "files/packages/spark-ai/src/agent/native-runtime/native-script-context.ts.json"
@@ -12765,22 +13243,6 @@
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
     },
-    "AuthConfig": {
-      "sourcePath": "packages/spark-app/src/auth/types.ts",
-      "file": "files/packages/spark-app/src/auth/types.ts.json"
-    },
-    "AuthResult": {
-      "sourcePath": "packages/spark-app/src/auth/types.ts",
-      "file": "files/packages/spark-app/src/auth/types.ts.json"
-    },
-    "AuthService": {
-      "sourcePath": "packages/spark-app/src/auth/AuthService.ts",
-      "file": "files/packages/spark-app/src/auth/AuthService.ts.json"
-    },
-    "AuthUser": {
-      "sourcePath": "src/services/auth.ts",
-      "file": "files/src/services/auth.ts.json"
-    },
     "AutoPopulateEntry": {
       "sourcePath": "packages/spark-json-document/src/tree/tree-types.ts",
       "file": "files/packages/spark-json-document/src/tree/tree-types.ts.json"
@@ -12821,9 +13283,45 @@
       "sourcePath": "packages/spark-component/src/components/support/beforeRender.ts",
       "file": "files/packages/spark-component/src/components/support/beforeRender.ts.json"
     },
+    "BlueprintNodeDraft": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
+    },
+    "BlueprintNodeDraftApplyResult": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
+    },
+    "BlueprintNodeDraftNode": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
+    },
+    "BlueprintNodePatch": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
+    },
+    "BlueprintNodePatchTarget": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
+    },
+    "BlueprintPlanningAgentInput": {
+      "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
+      "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
+    },
+    "BlueprintPlanningInput": {
+      "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
+      "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
+    },
+    "BlueprintPlanningRunInput": {
+      "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
+      "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
+    },
     "BooleanSchemaOptions": {
       "sourcePath": "packages/spark-json-document/src/schema/schema-helpers.ts",
       "file": "files/packages/spark-json-document/src/schema/schema-helpers.ts.json"
+    },
+    "BootstrapAuthenticate": {
+      "sourcePath": "packages/spark-app/src/types.ts",
+      "file": "files/packages/spark-app/src/types.ts.json"
     },
     "BootstrapContext": {
       "sourcePath": "packages/spark-app/src/types.ts",
@@ -12862,8 +13360,8 @@
       "file": "files/packages/spark-component/src/page/binding/build-page-children.ts.json"
     },
     "BuildProjectPageSummariesOptions": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-tree.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-tree.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-tree.ts.json"
     },
     "BuiltinActionName": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
@@ -12930,8 +13428,8 @@
       "file": "files/packages/spark-component/src/components/fields/data-components/FieldCheckboxGroup.props.ts.json"
     },
     "ChildPlacement": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
     },
     "ChildPlacementValue": {
       "sourcePath": "src/views/app/dev-system/childPlacementLabels.ts",
@@ -13266,8 +13764,8 @@
       "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
     },
     "CreatePageDesignDeliveryPortOptions": {
-      "sourcePath": "src/services/page-design/page-design-host-run-provider.ts",
-      "file": "files/src/services/page-design/page-design-host-run-provider.ts.json"
+      "sourcePath": "src/services/page-design/page-design-agent-run-provider.ts",
+      "file": "files/src/services/page-design/page-design-agent-run-provider.ts.json"
     },
     "CreatePageFilesParams": {
       "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
@@ -13348,6 +13846,18 @@
     "DataMember": {
       "sourcePath": "packages/spark-data/src/core/data-view-key.ts",
       "file": "files/packages/spark-data/src/core/data-view-key.ts.json"
+    },
+    "DataPermissionSets": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataPermissionSnapshot": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataPermissionSnapshotInput": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
     },
     "DataRelation": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -13597,6 +14107,106 @@
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-data-source.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/view-data-source.ts.json"
     },
+    "DataSpaceAddedRow": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts.json"
+    },
+    "DataSpaceApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts.json"
+    },
+    "DataSpaceChangedRow": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts.json"
+    },
+    "DataSpaceDeletedRow": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts.json"
+    },
+    "DataSpaceDesignApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json"
+    },
+    "DataSpaceDesignMutationBase": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts.json"
+    },
+    "DataSpaceDesignMutationCommand": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts.json"
+    },
+    "DataSpaceDesignMutationInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts.json"
+    },
+    "DataSpaceDesignSnapshot": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json"
+    },
+    "DataSpaceFieldReference": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
+    },
+    "DataSpaceFrontendModel": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
+    },
+    "DataSpaceFrontendModelSnapshot": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
+    },
+    "DataSpaceInputParameter": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json"
+    },
+    "DataSpaceRelationReference": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
+    },
+    "DataSpaceResourceReference": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
+    },
+    "DataSpaceResourceType": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
+    },
+    "DataSpaceRuntimeApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json"
+    },
+    "DataSpaceRuntimeChanges": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts.json"
+    },
+    "DataSpaceRuntimeFilter": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json"
+    },
+    "DataSpaceRuntimeMutationCommand": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts.json"
+    },
+    "DataSpaceRuntimeMutationInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts.json"
+    },
+    "DataSpaceRuntimeQuery": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json"
+    },
+    "DataSpaceRuntimeRow": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json"
+    },
+    "DataSpaceRuntimeSnapshot": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json"
+    },
+    "DataSpaceSparsePermission": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json"
+    },
     "DataTable": {
       "sourcePath": "packages/spark-data/src/data-table.ts",
       "file": "files/packages/spark-data/src/data-table.ts.json"
@@ -13724,6 +14334,10 @@
     "DataViewRuntimeState": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/view-runtime-state.ts.json"
+    },
+    "DataViewSavePermissionInput": {
+      "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
+      "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
     },
     "DataViewServerRowsPayload": {
       "sourcePath": "packages/spark-data/src/data-view.ts",
@@ -14177,6 +14791,10 @@
       "sourcePath": "packages/spark-utils/src/http/types.ts",
       "file": "files/packages/spark-utils/src/http/types.ts.json"
     },
+    "FilterBlueprintPlanningNodesOptions": {
+      "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
+      "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
+    },
     "FilterExpression": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
@@ -14196,10 +14814,6 @@
     "FilterLogicExpression": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
-    },
-    "FilterNavigationPlanningNodesOptions": {
-      "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
     },
     "FilterNegatedConditionExpression": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -14284,10 +14898,6 @@
     "InlineJustify": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/RendererToolbar.types.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/RendererToolbar.types.ts.json"
-    },
-    "InstancePermission": {
-      "sourcePath": "packages/spark-data/src/types.ts",
-      "file": "files/packages/spark-data/src/types.ts.json"
     },
     "InteractionControl": {
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
@@ -14414,8 +15024,8 @@
       "file": "files/src/services/project-model-artifacts/page-data-designer.ts.json"
     },
     "LinkProbeResult": {
-      "sourcePath": "packages/spark-project-model/src/io/navigation-client.ts",
-      "file": "files/packages/spark-project-model/src/io/navigation-client.ts.json"
+      "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts",
+      "file": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json"
     },
     "ListProjectReferencesOptions": {
       "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
@@ -14437,14 +15047,6 @@
       "sourcePath": "packages/spark-component/src/core/useSparkComponent.ts",
       "file": "files/packages/spark-component/src/core/useSparkComponent.ts.json"
     },
-    "LoginCredentials": {
-      "sourcePath": "packages/spark-app/src/auth/types.ts",
-      "file": "files/packages/spark-app/src/auth/types.ts.json"
-    },
-    "LoginParams": {
-      "sourcePath": "src/services/auth.ts",
-      "file": "files/src/services/auth.ts.json"
-    },
     "LogLevel": {
       "sourcePath": "packages/spark-utils/src/logger.ts",
       "file": "files/packages/spark-utils/src/logger.ts.json"
@@ -14452,6 +15054,238 @@
     "LogTransport": {
       "sourcePath": "packages/spark-app/src/logger/index.ts",
       "file": "files/packages/spark-app/src/logger/index.ts.json"
+    },
+    "LowcodeAgentEvent": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeAgentToolAppendInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeAgentToolResult": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeAgentTurnAck": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeAgentTurnInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeAiChatInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/lowcode-api.ts.json"
+    },
+    "LowcodeApiError": {
+      "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-api-error.ts",
+      "file": "files/packages/spark-lowcode-api/src/core/lowcode-api-error.ts.json"
+    },
+    "LowcodeApiOptions": {
+      "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/lowcode-api.ts.json"
+    },
+    "LowcodeApplication": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-application.ts.json"
+    },
+    "LowcodeApplicationContext": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-application-store.ts.json"
+    },
+    "LowcodeApplicationStore": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-application-store.ts.json"
+    },
+    "LowcodeApplicationStoreOptions": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-application-store.ts.json"
+    },
+    "LowcodeCacheStats": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeCatalogApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeCatalogSourceError": {
+      "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeClient": {
+      "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/core/lowcode-client.ts.json"
+    },
+    "LowcodeClientCommand": {
+      "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/core/lowcode-client.ts.json"
+    },
+    "LowcodeCurrentUser": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeDatabase": {
+      "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeDatabaseCatalog": {
+      "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeDatabaseField": {
+      "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeDatabaseServer": {
+      "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeDatabaseTable": {
+      "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeDataSpaceRuntimeLoadInput": {
+      "sourcePath": "src/lowcode/lowcode-data-space-runtime.ts",
+      "file": "files/src/lowcode/lowcode-data-space-runtime.ts.json"
+    },
+    "LowcodeDataSpaceRuntimeLoadResult": {
+      "sourcePath": "src/lowcode/lowcode-data-space-runtime.ts",
+      "file": "files/src/lowcode/lowcode-data-space-runtime.ts.json"
+    },
+    "LowcodeDesignApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
+    },
+    "LowcodeEnterprise": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeEnterpriseCatalogItem": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json"
+    },
+    "LowcodeEnterpriseInfo": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json"
+    },
+    "LowcodeEnterprisePolicy": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts.json"
+    },
+    "LowcodeEnterpriseRegistration": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeFetch": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeFileDirectory": {
+      "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
+    },
+    "LowcodeFileEntry": {
+      "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
+    },
+    "LowcodeFileLocator": {
+      "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
+    },
+    "LowcodeIdentity": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeLoginCredentials": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodePermissionSnapshotBinding": {
+      "sourcePath": "src/lowcode/lowcode-data-space-runtime.ts",
+      "file": "files/src/lowcode/lowcode-data-space-runtime.ts.json"
+    },
+    "LowcodePlatformApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodePrincipal": {
+      "sourcePath": "src/lowcode/lowcode-runtime.ts",
+      "file": "files/src/lowcode/lowcode-runtime.ts.json"
+    },
+    "LowcodeProjectGateways": {
+      "sourcePath": "src/lowcode/lowcode-runtime.ts",
+      "file": "files/src/lowcode/lowcode-runtime.ts.json"
+    },
+    "LowcodeRealtimeApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeRealtimeConnectOptions": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeRealtimeEvent": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeRealtimeSubscription": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeRegistrationResult": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeRuntimeNavigationProjectionInput": {
+      "sourcePath": "src/lowcode/lowcode-runtime.ts",
+      "file": "files/src/lowcode/lowcode-runtime.ts.json"
+    },
+    "LowcodeSession": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeSessionStorage": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-session-store.ts.json"
+    },
+    "LowcodeSessionStore": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-session-store.ts.json"
+    },
+    "LowcodeSessionStoreOptions": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-session-store.ts.json"
+    },
+    "LowcodeSparkEnvelope": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeSystemDownload": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
+    },
+    "LowcodeUserRegistration": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeVerificationChannel": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeVerificationRequest": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodeVerificationScene": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
     },
     "MergeBeforeRenderOptions": {
       "sourcePath": "packages/spark-component/src/components/support/beforeRender.ts",
@@ -14492,10 +15326,6 @@
     "ModelGuideRenderInput": {
       "sourcePath": "packages/spark-ai/src/class-model/projection/dts-renderer.ts",
       "file": "files/packages/spark-ai/src/class-model/projection/dts-renderer.ts.json"
-    },
-    "ModelPermission": {
-      "sourcePath": "packages/spark-data/src/types.ts",
-      "file": "files/packages/spark-data/src/types.ts.json"
     },
     "ModuleContext": {
       "sourcePath": "packages/spark-component/src/core/capability-keys.ts",
@@ -14549,18 +15379,6 @@
       "sourcePath": "packages/spark-app/src/navigation/useColorScheme.ts",
       "file": "files/packages/spark-app/src/navigation/useColorScheme.ts.json"
     },
-    "NavContextConfig": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "NavContextItem": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "NavContextState": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
     "NavigateAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
@@ -14577,65 +15395,17 @@
       "sourcePath": "packages/spark-app/src/navigation/action-registry.ts",
       "file": "files/packages/spark-app/src/navigation/action-registry.ts.json"
     },
-    "NavigationClient": {
-      "sourcePath": "packages/spark-project-model/src/io/navigation-client.ts",
-      "file": "files/packages/spark-project-model/src/io/navigation-client.ts.json"
-    },
-    "NavigationClientOptions": {
-      "sourcePath": "packages/spark-project-model/src/io/navigation-client.ts",
-      "file": "files/packages/spark-project-model/src/io/navigation-client.ts.json"
-    },
     "NavigationContext": {
       "sourcePath": "packages/spark-app/src/navigation/nav-types.ts",
       "file": "files/packages/spark-app/src/navigation/nav-types.ts.json"
     },
     "NavigationContextEditConfigDto": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
     },
     "NavigationContextEditDto": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json"
-    },
-    "NavigationIndex": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-index.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-index.ts.json"
-    },
-    "NavigationNodeDraft": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json"
-    },
-    "NavigationNodeDraftApplyResult": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json"
-    },
-    "NavigationNodeDraftNode": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json"
-    },
-    "NavigationNodePatch": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json"
-    },
-    "NavigationNodePatchTarget": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-edit.ts.json"
-    },
-    "NavigationPlanningAgentInput": {
-      "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
-    },
-    "NavigationPlanningInput": {
-      "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
-      "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
-    },
-    "NavigationPlanningRunInput": {
-      "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
-    },
-    "NavigationTreeNodeLike": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-index.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-index.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
     },
     "NavNodeActionTarget": {
       "sourcePath": "packages/spark-app/src/navigation/runtime-target.ts",
@@ -14649,14 +15419,6 @@
       "sourcePath": "packages/spark-app/src/navigation/runtime-target.ts",
       "file": "files/packages/spark-app/src/navigation/runtime-target.ts.json"
     },
-    "NavNodeHiddenTarget": {
-      "sourcePath": "packages/spark-app/src/navigation/runtime-target.ts",
-      "file": "files/packages/spark-app/src/navigation/runtime-target.ts.json"
-    },
-    "NavNodeKind": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
     "NavNodeRouteTarget": {
       "sourcePath": "packages/spark-app/src/navigation/runtime-target.ts",
       "file": "files/packages/spark-app/src/navigation/runtime-target.ts.json"
@@ -14668,10 +15430,6 @@
     "NavNodeRuntimeTarget": {
       "sourcePath": "packages/spark-app/src/navigation/runtime-target.ts",
       "file": "files/packages/spark-app/src/navigation/runtime-target.ts.json"
-    },
-    "NavPermissionMode": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
     },
     "NavPreset": {
       "sourcePath": "packages/spark-app/src/navigation/useColorScheme.ts",
@@ -14686,8 +15444,8 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "NormalizeNavRootInput": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-tree.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-tree.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-tree.ts.json"
     },
     "NormalizeOptionFields": {
       "sourcePath": "packages/spark-component/src/components/fields/options/option-normalization.ts",
@@ -14782,8 +15540,8 @@
       "file": "files/packages/spark-component/src/core/capability-keys.ts.json"
     },
     "PageDataDesignHostInput": {
-      "sourcePath": "src/services/page-data-design/page-data-design-host-run-provider.ts",
-      "file": "files/src/services/page-data-design/page-data-design-host-run-provider.ts.json"
+      "sourcePath": "src/services/page-data-design/page-data-design-agent-run-provider.ts",
+      "file": "files/src/services/page-data-design/page-data-design-agent-run-provider.ts.json"
     },
     "PageDataEditorMode": {
       "sourcePath": "src/services/project-model-artifacts/page-data-designer.ts",
@@ -14792,6 +15550,10 @@
     "PageDataSetFile": {
       "sourcePath": "packages/spark-project-model/src/page/content/dataset-file.ts",
       "file": "files/packages/spark-project-model/src/page/content/dataset-file.ts.json"
+    },
+    "PageDataSpaceBinding": {
+      "sourcePath": "packages/spark-project-model/src/page/config-page.ts",
+      "file": "files/packages/spark-project-model/src/page/config-page.ts.json"
     },
     "PageDesignAgentWorkflowBindingOptions": {
       "sourcePath": "src/services/page-design/page-design-agent-workflow-binding.ts",
@@ -14818,8 +15580,8 @@
       "file": "files/src/services/page-design/page-design-gates.ts.json"
     },
     "PageDesignDeliveryContext": {
-      "sourcePath": "src/services/page-design/page-design-host-run-provider.ts",
-      "file": "files/src/services/page-design/page-design-host-run-provider.ts.json"
+      "sourcePath": "src/services/page-design/page-design-agent-run-provider.ts",
+      "file": "files/src/services/page-design/page-design-agent-run-provider.ts.json"
     },
     "PageDesignEditorGetterOptions": {
       "sourcePath": "src/services/page-design/page-design-agent-workflow-binding.ts",
@@ -14865,10 +15627,6 @@
       "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
       "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json"
     },
-    "PageFileApiOptions": {
-      "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
-      "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json"
-    },
     "PageFileCreateOptions": {
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
@@ -14876,6 +15634,14 @@
     "PageFileCreateParams": {
       "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
       "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json"
+    },
+    "PageFileReadCommand": {
+      "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
+      "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
+    },
+    "PageFileReader": {
+      "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
+      "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
     },
     "PageMessageType": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
@@ -14916,6 +15682,10 @@
     "PageNodeRenderConfig": {
       "sourcePath": "packages/spark-project-model/src/page/config-page.ts",
       "file": "files/packages/spark-project-model/src/page/config-page.ts.json"
+    },
+    "PagePermissionMode": {
+      "sourcePath": "packages/spark-component/src/core/capability-keys.ts",
+      "file": "files/packages/spark-component/src/core/capability-keys.ts.json"
     },
     "PageRoute": {
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",
@@ -15001,13 +15771,69 @@
       "sourcePath": "packages/spark-component/src/permission/PermissionResolver.ts",
       "file": "files/packages/spark-component/src/permission/PermissionResolver.ts.json"
     },
+    "PermissionApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/permission-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/permission-api.ts.json"
+    },
     "PermissionApiInScript": {
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",
       "file": "files/packages/spark-component/src/runtime/script-context-types.ts.json"
     },
+    "PermissionDataObjectPolicy": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
+    },
     "PermissionDeniedBehavior": {
       "sourcePath": "packages/spark-component/src/components/containers/support/RendererActions.types.ts",
       "file": "files/packages/spark-component/src/components/containers/support/RendererActions.types.ts.json"
+    },
+    "PermissionDesignApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
+    },
+    "PermissionDesignMutationBase": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts.json"
+    },
+    "PermissionDesignMutationCommand": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts.json"
+    },
+    "PermissionDesignMutationInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts.json"
+    },
+    "PermissionDesignReader": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/permission-wire.ts.json"
+    },
+    "PermissionDesignSnapshot": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
+    },
+    "PermissionFeatureTag": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
+    },
+    "PermissionGrantOrganizationScope": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
+    },
+    "PermissionGrantSubjectKind": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
+    },
+    "PermissionObjectGrant": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
+    },
+    "PermissionRuntimeApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts.json"
+    },
+    "PermissionRuntimeSnapshot": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts.json"
     },
     "PickActionTextInput": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
@@ -15016,10 +15842,6 @@
     "PickerPresetDefaults": {
       "sourcePath": "packages/spark-component/src/components/fields/createPickerPreset.ts",
       "file": "files/packages/spark-component/src/components/fields/createPickerPreset.ts.json"
-    },
-    "PlatformAdminUserLike": {
-      "sourcePath": "src/services/auth.ts",
-      "file": "files/src/services/auth.ts.json"
     },
     "PluginConfigItem": {
       "sourcePath": "packages/spark-app/src/plugins/registry.ts",
@@ -15070,24 +15892,212 @@
       "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
     },
     "ProjectApiScope": {
-      "sourcePath": "src/services/api-paths.ts",
-      "file": "files/src/services/api-paths.ts.json"
+      "sourcePath": "src/services/project/project-shell.ts",
+      "file": "files/src/services/project/project-shell.ts.json"
+    },
+    "ProjectBlueprint": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintAiOutputs": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintAiPlanningInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts.json"
+    },
+    "ProjectBlueprintClient": {
+      "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts",
+      "file": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json"
+    },
+    "ProjectBlueprintContextConfig": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintContextItem": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintDeliveryKind": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintDeliveryOutputs": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintDesign": {
+      "sourcePath": "packages/spark-project-model/src/project/project-design.ts",
+      "file": "files/packages/spark-project-model/src/project/project-design.ts.json"
+    },
+    "ProjectBlueprintDesignNodeEditResult": {
+      "sourcePath": "packages/spark-project-model/src/project/project-design.ts",
+      "file": "files/packages/spark-project-model/src/project/project-design.ts.json"
+    },
+    "ProjectBlueprintDiagnostic": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintDirtyScope": {
+      "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
+      "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
+    },
+    "ProjectBlueprintDocumentCoverage": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts.json"
+    },
+    "ProjectBlueprintDocumentKind": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts.json"
+    },
+    "ProjectBlueprintDocumentOutputs": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts.json"
+    },
+    "ProjectBlueprintDocumentSource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts.json"
+    },
+    "ProjectBlueprintDocumentSubmitOptions": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts.json"
+    },
+    "ProjectBlueprintDocumentTask": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts.json"
+    },
+    "ProjectBlueprintGateway": {
+      "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts",
+      "file": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json"
+    },
+    "ProjectBlueprintGovernanceOutputs": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintGovernanceReport": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintIdentityEvidence": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintIndex": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-index.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-index.ts.json"
+    },
+    "ProjectBlueprintMutationBase": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts.json"
+    },
+    "ProjectBlueprintMutationCapability": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintMutationCommand": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts.json"
+    },
+    "ProjectBlueprintMutationInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts.json"
+    },
+    "ProjectBlueprintMutationPlanner": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts.json"
+    },
+    "ProjectBlueprintMutationRisk": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/capability/project-blueprint-mutation.ts.json"
+    },
+    "ProjectBlueprintNode": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintNodeFamily": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintNodeKind": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintNodeModelOptions": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintNodePatch": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintNodeSnapshot": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintOutputs": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintPageRuntimeClosure": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintPermissionMode": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintPlanningContext": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintPlanningOutputs": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/outputs/project-blueprint-output-groups.ts.json"
+    },
+    "ProjectBlueprintProjection": {
+      "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
+      "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
+    },
+    "ProjectBlueprintStructure": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintStructureOutputs": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintTreeData": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintTreeNode": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json"
+    },
+    "ProjectBlueprintTreeNodeData": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
+    },
+    "ProjectBlueprintTreeNodeLike": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-index.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-index.ts.json"
+    },
+    "ProjectBlueprintTreeNodeLocation": {
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
     },
     "ProjectConfigPageNodeModelOptions": {
       "sourcePath": "packages/spark-project-model/src/page/config-page.ts",
       "file": "files/packages/spark-project-model/src/page/config-page.ts.json"
     },
     "ProjectDescriptionContext": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "ProjectDesign": {
-      "sourcePath": "packages/spark-project-model/src/project/project-design.ts",
-      "file": "files/packages/spark-project-model/src/project/project-design.ts.json"
-    },
-    "ProjectDesignNodeEditResult": {
-      "sourcePath": "packages/spark-project-model/src/project/project-design.ts",
-      "file": "files/packages/spark-project-model/src/project/project-design.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
     },
     "ProjectDetail": {
       "sourcePath": "src/services/project/project-settings.ts",
@@ -15133,10 +16143,6 @@
       "sourcePath": "packages/spark-project-model/src/project/project-model.ts",
       "file": "files/packages/spark-project-model/src/project/project-model.ts.json"
     },
-    "ProjectModelData": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
     "ProjectModelEvent": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
       "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
@@ -15149,37 +16155,9 @@
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
       "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
     },
-    "ProjectNavigationDirtyScope": {
-      "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
-      "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
-    },
-    "ProjectNavigationProjection": {
-      "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
-      "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
-    },
-    "ProjectNode": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "ProjectNodeData": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "ProjectNodeFamily": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "ProjectNodeLocation": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "ProjectNodeModelOptions": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "ProjectNodeNavigationPatch": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
+    "ProjectPageFileGateway": {
+      "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
+      "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json"
     },
     "ProjectPageFileWriteCommand": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
@@ -15190,16 +16168,16 @@
       "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
     },
     "ProjectPageNodeSummary": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
     },
     "ProjectPageReference": {
       "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
       "file": "files/packages/spark-project-model/src/io/project-reference-client.ts.json"
     },
     "ProjectPageSurface": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
     },
     "ProjectPlanningAgentInput": {
       "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
@@ -15238,8 +16216,8 @@
       "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
     },
     "ProjectPlanningDeliveryContext": {
-      "sourcePath": "src/services/project-planning/project-planning-host-run-provider.ts",
-      "file": "files/src/services/project-planning/project-planning-host-run-provider.ts.json"
+      "sourcePath": "src/services/project-planning/project-planning-agent-run-provider.ts",
+      "file": "files/src/services/project-planning/project-planning-agent-run-provider.ts.json"
     },
     "ProjectPlanningEditorResolveContext": {
       "sourcePath": "src/services/project-planning/project-planning-headless.ts",
@@ -15261,7 +16239,7 @@
       "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
       "file": "files/packages/spark-project-model/src/io/project-reference-client.ts.json"
     },
-    "ProjectReferenceClientOptions": {
+    "ProjectReferenceGateway": {
       "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
       "file": "files/packages/spark-project-model/src/io/project-reference-client.ts.json"
     },
@@ -15448,22 +16426,6 @@
     "RefreshAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
-    },
-    "RegionItems": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "RegionVisibility": {
-      "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts",
-      "file": "files/packages/spark-project-model/src/navigation/project-node.ts.json"
-    },
-    "RegisterParams": {
-      "sourcePath": "src/services/auth.ts",
-      "file": "files/src/services/auth.ts.json"
-    },
-    "RegisterTenantParams": {
-      "sourcePath": "src/services/auth.ts",
-      "file": "files/src/services/auth.ts.json"
     },
     "RelationSelector": {
       "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -15924,6 +16886,62 @@
     "RuntimeDocumentInput": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/from-runtime-metadata.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/from-runtime-metadata.ts.json"
+    },
+    "RuntimeNavigation": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationAuthorizationContext": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-navigation.ts.json"
+    },
+    "RuntimeNavigationAuthorizationEvidence": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-navigation.ts.json"
+    },
+    "RuntimeNavigationAuthorizationItem": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-navigation.ts.json"
+    },
+    "RuntimeNavigationContextConfig": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationContextItem": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationContextState": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationItem": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationItemKind": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationPermissionMode": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationPlacement": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationRegionItems": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationRegionVisibility": {
+      "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
+    },
+    "RuntimeNavigationTargetKind": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-navigation.ts.json"
     },
     "RUploadProps": {
       "sourcePath": "packages/spark-component/src/components/fields/data-components/FieldUpload.props.ts",
@@ -16533,14 +17551,6 @@
       "sourcePath": "packages/spark-app/src/theme/index.ts",
       "file": "files/packages/spark-app/src/theme/index.ts.json"
     },
-    "TokenManager": {
-      "sourcePath": "packages/spark-app/src/auth/TokenManager.ts",
-      "file": "files/packages/spark-app/src/auth/TokenManager.ts.json"
-    },
-    "TokenStorage": {
-      "sourcePath": "packages/spark-app/src/auth/types.ts",
-      "file": "files/packages/spark-app/src/auth/types.ts.json"
-    },
     "ToolApprovalDisplayItem": {
       "sourcePath": "packages/spark-component/src/ai/types.ts",
       "file": "files/packages/spark-component/src/ai/types.ts.json"
@@ -16622,8 +17632,8 @@
       "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json"
     },
     "TreeNodeLike": {
-      "sourcePath": "packages/spark-project-model/src/navigation/navigation-tree.ts",
-      "file": "files/packages/spark-project-model/src/navigation/navigation-tree.ts.json"
+      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
+      "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-tree.ts.json"
     },
     "TreePath": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -16873,6 +17883,14 @@
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
+    "WorkflowDesignAutoLayoutGraphResult": {
+      "sourcePath": "src/services/workflow-designs.ts",
+      "file": "files/src/services/workflow-designs.ts.json"
+    },
+    "WorkflowDesignAutoLayoutResult": {
+      "sourcePath": "src/services/workflow-designs.ts",
+      "file": "files/src/services/workflow-designs.ts.json"
+    },
     "WorkflowDesignCapability": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
@@ -16901,6 +17919,14 @@
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
+    "WorkflowDesignLineControlPoint": {
+      "sourcePath": "src/services/workflow-designs.ts",
+      "file": "files/src/services/workflow-designs.ts.json"
+    },
+    "WorkflowDesignLineData": {
+      "sourcePath": "src/services/workflow-designs.ts",
+      "file": "files/src/services/workflow-designs.ts.json"
+    },
     "WorkflowDesignLineEndpoint": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
@@ -16909,7 +17935,15 @@
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
+    "WorkflowDesignLineType": {
+      "sourcePath": "src/services/workflow-designs.ts",
+      "file": "files/src/services/workflow-designs.ts.json"
+    },
     "WorkflowDesignLineView": {
+      "sourcePath": "src/services/workflow-designs.ts",
+      "file": "files/src/services/workflow-designs.ts.json"
+    },
+    "WorkflowDesignLineVisual": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
@@ -16956,6 +17990,10 @@
     "WorkflowDesignWriteResult": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
+    },
+    "WorkflowLineRuntimeStatus": {
+      "sourcePath": "src/views/app/WorkflowDesigns.vue",
+      "file": "files/src/views/app/WorkflowDesigns.vue.json"
     }
   },
   "componentIndex": {
@@ -20429,6 +21467,11 @@
   },
   "duplicates": [
     {
+      "className": "BlueprintNodeDraftNode",
+      "keptFile": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+      "skippedFile": "src/views/app/dev-system/useDevState.ts"
+    },
+    {
       "className": "CapabilityContext",
       "keptFile": "packages/spark-component/src/core/useSparkComponent.ts",
       "skippedFile": "packages/spark-utils/src/capability/core.ts"
@@ -20459,11 +21502,6 @@
       "skippedFile": "packages/spark-utils/src/logger.ts"
     },
     {
-      "className": "NavigationNodeDraftNode",
-      "keptFile": "packages/spark-project-model/src/navigation/navigation-edit.ts",
-      "skippedFile": "src/views/app/dev-system/useDevState.ts"
-    },
-    {
       "className": "OptionalWithUndefined",
       "keptFile": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
       "skippedFile": "packages/spark-component/src/components/fields/context/useFieldPermission.ts"
@@ -20492,6 +21530,16 @@
       "className": "PermissionActionContext",
       "keptFile": "packages/spark-component/src/permission/PermissionResolver.ts",
       "skippedFile": "packages/spark-data/src/script-types.ts"
+    },
+    {
+      "className": "ProjectBlueprintNode",
+      "keptFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "skippedFile": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+    },
+    {
+      "className": "ProjectBlueprintNodeKind",
+      "keptFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
+      "skippedFile": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
     },
     {
       "className": "Props",
@@ -20537,6 +21585,21 @@
       "className": "Props",
       "keptFile": "packages/spark-component/src/components/containers/layout/RendererCollapseItem.vue",
       "skippedFile": "src/components/ModuleContextBadge.vue"
+    },
+    {
+      "className": "RuntimeNavigation",
+      "keptFile": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "skippedFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts"
+    },
+    {
+      "className": "RuntimeNavigationItem",
+      "keptFile": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "skippedFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts"
+    },
+    {
+      "className": "RuntimeNavigationItemKind",
+      "keptFile": "packages/spark-app/src/navigation/runtime-navigation.ts",
+      "skippedFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts"
     },
     {
       "className": "SparkCapabilityConsumer",

@@ -11,7 +11,7 @@
  * Vite component loaders and exposes the derived route/navigation helpers.
  */
 import type { Component } from 'vue'
-import type { ProjectModelData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import vuePagesDocument from '../../config/navigation/vue-pages.json'
 
 const VUE_PAGES_PROTOCOL = 'spark-appworks.vue-pages'
@@ -36,6 +36,8 @@ type VuePageConfigEntry = Readonly<{
   source: string
   /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */
   hidden?: boolean
+  /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */
+  shellTool?: boolean
 }>
 
 type VuePagesConfig = Readonly<{
@@ -103,19 +105,19 @@ export function getPublicPaths(): Set<string> {
 /**
  * 从 public 页面声明自动构建登录前导航树。
  */
-export function buildPreAuthNavTree(): ProjectModelData {
-  const children = Object.entries(VUE_PAGE_REGISTRY)
+export function buildPreAuthNavTree(): RuntimeNavigation {
+  const items = Object.entries(VUE_PAGE_REGISTRY)
     .filter(([, entry]) => entry.scope === 'public')
     .map(([path, entry]) => ({
       id: `platform-${path === '/' ? 'home' : path.slice(1)}`,
       title: entry.title,
       ...(entry.icon === undefined ? {} : { icon: entry.icon }),
       path,
-      nodeKind: 'system-page' as const,
+      itemKind: 'system-page' as const,
       ...(entry.hidden === true ? { hidden: true } : {}),
     }))
 
-  return { title: '', childPlacement: 'header' as const, homePath: '/', children }
+  return { title: '', childPlacement: 'header' as const, homePath: '/', items }
 }
 
 /**
@@ -128,6 +130,7 @@ export function getVuePageOptions(): Array<{
   source: string
   icon?: string
   description?: string
+  shellTool?: boolean
 }> {
   return Object.entries(VUE_PAGE_REGISTRY).map(([path, entry]) => ({
     path,
@@ -136,6 +139,7 @@ export function getVuePageOptions(): Array<{
     source: entry.source,
     ...(entry.icon === undefined ? {} : { icon: entry.icon }),
     ...(entry.description === undefined ? {} : { description: entry.description }),
+    ...(entry.shellTool === undefined ? {} : { shellTool: entry.shellTool }),
   }))
 }
 
@@ -153,6 +157,7 @@ function createVuePageEntry(page: VuePageConfigEntry): VuePageEntry {
     ...(page.icon === undefined ? {} : { icon: page.icon }),
     ...(page.description === undefined ? {} : { description: page.description }),
     ...(page.hidden === undefined ? {} : { hidden: page.hidden }),
+    ...(page.shellTool === undefined ? {} : { shellTool: page.shellTool }),
   }
 }
 
@@ -202,6 +207,7 @@ function parseVuePage(value: unknown, path: string): VuePageConfigEntry {
     throw new Error(`${path}.scope must be one of public, tenant, app.`)
   }
   const hidden = optionalBoolean(page, 'hidden', path)
+  const shellTool = optionalBoolean(page, 'shellTool', path)
   const icon = optionalString(page, 'icon', path)
   const description = optionalString(page, 'description', path)
   return {
@@ -212,6 +218,7 @@ function parseVuePage(value: unknown, path: string): VuePageConfigEntry {
     ...(icon === undefined ? {} : { icon }),
     ...(description === undefined ? {} : { description }),
     ...(hidden === undefined ? {} : { hidden }),
+    ...(shellTool === undefined ? {} : { shellTool }),
   }
 }
 

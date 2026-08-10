@@ -26,7 +26,7 @@ export {
   canDelete, canCreateChild, canEdit,
   isFieldVisible, isFieldEditable, getFieldVisibility,
   maskFieldValue,
-  extractModelPermission,
+  extractPermissionSnapshot,
 } from './PermissionChecker'
 
 // ── 权限过滤纯函数 ──

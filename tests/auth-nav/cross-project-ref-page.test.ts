@@ -1,10 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { PageContentLoader } from '@spark-appworks/spark-project-model'
-import { HttpClientBase } from '@spark-appworks/spark-utils'
-import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
-import type { ProjectModelData } from '@spark-appworks/spark-project-model'
+import {
+  PageContentLoader,
+  type PageFileReadCommand,
+} from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { CrossProjectRefPage } from '../../packages/spark-app/src/router/cross-project-ref-page'
 
 function isPageNodeLike(value: unknown): value is { pageId: string; load: () => Promise<void> } {
@@ -13,7 +14,7 @@ function isPageNodeLike(value: unknown): value is { pageId: string; load: () => 
     && typeof Reflect.get(value, 'load') === 'function'
 }
 
-const navTreeState = vi.hoisted((): { tree: ProjectModelData | null } => ({
+const navTreeState = vi.hoisted((): { tree: RuntimeNavigation | null } => ({
   tree: null,
 }))
 
@@ -48,32 +49,6 @@ vi.mock('@spark-appworks/spark-component', async () => {
   }
 })
 
-class RecordingHttpClient extends HttpClientBase {
-  constructor(private readonly requests: RequestConfig[]) {
-    super({}, 'RecordingHttpClient')
-  }
-
-  protected async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
-    this.requests.push(config)
-    const url = String(config.url)
-    const content = url.endsWith('/pagedata.json')
-      ? '{"dataSetName":"CrossProject","tables":{}}'
-      : url.endsWith('/rule.json')
-        ? '[]'
-        : ''
-    return {
-      data: {
-        protocolVersion: 4,
-        ok: true,
-        data: { content, timestamp: '1' },
-      },
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-    }
-  }
-}
-
 describe('CrossProjectRefPage', () => {
   beforeEach(() => {
     rendererState.props = null
@@ -82,18 +57,17 @@ describe('CrossProjectRefPage', () => {
 
   it('resolves stale host UUID meta through the ref node target', async () => {
     const hostRefNodeId = '06c56d10-4ff6-4c4d-a6ce-772536592c75'
-    const requests: RequestConfig[] = []
-    const httpClient = new RecordingHttpClient(requests)
+    const requests: PageFileReadCommand[] = []
 
     navTreeState.tree = {
       id: 'root',
       title: 'root',
       childPlacement: 'sidebar',
-      children: [
+      items: [
         {
           id: hostRefNodeId,
           title: 'project list ref',
-          nodeKind: 'ref',
+          itemKind: 'ref',
           refId: 'project-list',
           refPath: '@app:engineering-pm/project-list',
           refProjectId: 'engineering-pm',
@@ -119,7 +93,15 @@ describe('CrossProjectRefPage', () => {
     await router.push(`/t/lmspark/homepage/__ref/${hostRefNodeId}`)
     await router.isReady()
 
-    const pageContentLoader = new PageContentLoader({ httpClient, fileStorage: 'memory' })
+    const pageContentLoader = new PageContentLoader({
+      projectId: 'homepage',
+      readPageFile: async (command) => {
+        requests.push(command)
+        if (command.fileName === 'pagedata.json') return '{"dataSetName":"CrossProject","tables":{}}'
+        if (command.fileName === 'rule.json') return '[]'
+        return ''
+      },
+    })
 
     mount(CrossProjectRefPage, {
       props: {
@@ -147,13 +129,10 @@ describe('CrossProjectRefPage', () => {
 
     await pageNode.load()
 
-    const ruleRequest = requests.find((request) =>
-      String(request.url).endsWith('/project-list/rule.json'),
-    )
-    expect(ruleRequest?.url).toBe('/tenants/lmspark/projects/engineering-pm/pages-config/project-list/rule.json')
-    expect(ruleRequest?.headers).toMatchObject({
-      'X-Tenant-Id': 'lmspark',
-      'X-Project-Id': 'engineering-pm',
+    expect(requests).toContainEqual({
+      projectId: 'engineering-pm',
+      pageId: 'project-list',
+      fileName: 'rule.json',
     })
   })
 })

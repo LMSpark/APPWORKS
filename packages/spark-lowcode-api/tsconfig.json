@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "rootDir": "..",
+    "composite": false,
+    "target": "ES2020",
+    "noEmit": true,
+    "paths": {
+      "@spark-appworks/spark-lowcode-api": ["./src/index.ts"],
+      "@spark-appworks/spark-lowcode-api/contracts": ["./src/contracts/index.ts"],
+      "@spark-appworks/spark-utils": ["../spark-utils/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -25,7 +25,7 @@
           "type": "string"
         },
         "node": {
-          "$ref": "../../../spark-project-model/src/navigation/project-node.ts.json#/$defs/ProjectNodeData"
+          "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
         },
         "source": {
           "enum": [
@@ -123,14 +123,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:08:03.865Z",
+  "generatedAt": "2026-08-09T21:25:34.632Z",
   "models": {
     "NavigationActionContext": {
       "name": "NavigationActionContext",
       "jsdoc": "Navigation Action Context 的运行上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** command 字段。 */\n    command: string;\n    /** node 字段。 */\n    node?: ProjectNodeData;\n    /** 来源对象。 */\n    source?: 'navigation' | 'toolbar' | 'user-menu' | 'app-shell';\n}",
+        "declarationTypeText": "{\n    /** command 字段。 */\n    command: string;\n    /** node 字段。 */\n    node?: RuntimeNavigationItem;\n    /** 来源对象。 */\n    source?: 'navigation' | 'toolbar' | 'user-menu' | 'app-shell';\n}",
         "members": {
           "attributes": [
             {

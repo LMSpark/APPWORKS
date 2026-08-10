@@ -285,7 +285,7 @@ function getItemKey(row: DataRow, index: number): string | number {
 function scopeBase() {
   return {
     dataSource: dataState.resolvedView.value,
-    modelPermission: dataState.modelPermission.value,
+    permissionSnapshot: dataState.permissionSnapshot.value,
     moduleContext: moduleContext.value,
   }
 }
@@ -414,4 +414,3 @@ function getDefaultScope() {
   justify-content: flex-end;
 }
 </style>
-

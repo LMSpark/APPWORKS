@@ -197,8 +197,15 @@
         "method.canCreate.params": {
           "type": "object",
           "properties": {
-            "modelPermission": {
-              "$ref": "../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+            "snapshot": {
+              "anyOf": [
+                {
+                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -209,8 +216,15 @@
         "method.canImport.params": {
           "type": "object",
           "properties": {
-            "modelPermission": {
-              "$ref": "../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+            "snapshot": {
+              "anyOf": [
+                {
+                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -221,8 +235,15 @@
         "method.canExport.params": {
           "type": "object",
           "properties": {
-            "modelPermission": {
-              "$ref": "../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+            "snapshot": {
+              "anyOf": [
+                {
+                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -247,6 +268,16 @@
           "properties": {
             "row": {
               "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            "snapshot": {
+              "anyOf": [
+                {
+                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -462,7 +493,7 @@
         "method.filterDisplayableFields.return": {
           "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
         },
-        "method.extractModelPermission.params": {
+        "method.extractPermissionSnapshot.params": {
           "type": "object",
           "properties": {
             "dataSource": {
@@ -471,8 +502,15 @@
                 "object"
               ],
               "properties": {
-                "_modelPerm": {
-                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+                "permissionSnapshot": {
+                  "anyOf": [
+                    {
+                      "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "additionalProperties": false
@@ -480,8 +518,15 @@
           },
           "additionalProperties": false
         },
-        "method.extractModelPermission.return": {
-          "$ref": "../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+        "method.extractPermissionSnapshot.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -559,7 +604,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T22:53:22.371Z",
+  "generatedAt": "2026-08-09T20:39:26.876Z",
   "models": {
     "PageRoute": {
       "name": "PageRoute",
@@ -757,7 +802,7 @@
       "jsdoc": "沙箱权限 API — 纯函数集，无类/工厂/单例。\n所有函数可选接受 `permissionMode` 参数（脚本通常省略）。\n函数直接来自组件层 `permission/` 模块导出。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 判断指定动作在当前权限上下文中是否被允许。 */\n    isPermittedAction(action: string | undefined, context: PermissionActionContext): boolean;\n    /** 判断动作是否属于模型级权限（如 create/import/export）。 */\n    isModelScopedPermAction(action: string | undefined): boolean;\n    /** 判断动作是否属于行级权限（如 delete/edit/create-child）。 */\n    isRowScopedPermAction(action: string | undefined): boolean;\n    /** 检查模型是否允许新建记录。 */\n    canCreate(modelPermission?: ModelPermission): boolean;\n    /** 检查模型是否允许导入数据。 */\n    canImport(modelPermission?: ModelPermission): boolean;\n    /** 检查模型是否允许导出数据。 */\n    canExport(modelPermission?: ModelPermission): boolean;\n    /** 检查指定行是否允许删除。 */\n    canDelete(row: DataRow): boolean;\n    /** 检查指定行是否允许创建子节点。 */\n    canCreateChild(row: DataRow): boolean;\n    /** 检查指定行是否允许编辑。 */\n    canEdit(row: DataRow): boolean;\n    /** 检查指定字段在当前行是否可见。 */\n    isFieldVisible(field: string, row: DataRow): boolean;\n    /** 检查指定字段在当前行是否可编辑。 */\n    isFieldEditable(field: string, row: DataRow): boolean;\n    /** 获取指定字段在当前行的可见性级别。 */\n    getFieldVisibility(field: string, row: DataRow): FieldVisibility;\n    /** 解析字段的完整权限渲染状态（可见性 + 可编辑性 + 脱敏规则）。 */\n    resolveFieldPermissionState(field: string | undefined, row: DataRow | null | undefined, config?: Omit<FieldRenderConfig, 'field'>): FieldRenderState | null;\n    /** 根据字段渲染配置与行数据计算字段渲染状态。 */\n    computeFieldState(config: FieldRenderConfig, row: DataRow): FieldRenderState;\n    /** 过滤出允许删除的行集合。 */\n    filterDeletableRows(rows: DataRow[]): DataRow[];\n    /** 过滤出允许编辑的行集合。 */\n    filterEditableRows(rows: DataRow[]): DataRow[];\n    /** 过滤行中不可见字段，仅保留可见业务字段。 */\n    filterFields(row: DataRow): Record<string, unknown>;\n    /** 从候选字段列表中返回当前行可编辑的字段名。 */\n    getEditableFields(row: DataRow, allFields: string[]): string[];\n    /** 从候选字段列表中返回当前行可见的字段名。 */\n    getVisibleFields(row: DataRow, allFields: string[]): string[];\n    /** 过滤行中不可展示字段，保留权限元数据与服务端已脱敏值。 */\n    filterDisplayableFields(row: DataRow): DataRow;\n    /** 从数据源对象中提取模型级权限快照。 */\n    extractModelPermission(dataSource: {\n        _modelPerm?: ModelPermission;\n    } | null | undefined): ModelPermission | undefined;\n}",
+        "declarationTypeText": "{\n    /** 判断指定动作在当前权限上下文中是否被允许。 */\n    isPermittedAction(action: string | undefined, context: PermissionActionContext): boolean;\n    /** 判断动作是否属于模型级权限（如 create/import/export）。 */\n    isModelScopedPermAction(action: string | undefined): boolean;\n    /** 判断动作是否属于行级权限（如 delete/edit/create-child）。 */\n    isRowScopedPermAction(action: string | undefined): boolean;\n    /** 检查模型是否允许新建记录。 */\n    canCreate(snapshot?: DataPermissionSnapshot | null): boolean;\n    /** 检查模型是否允许导入数据。 */\n    canImport(snapshot?: DataPermissionSnapshot | null): boolean;\n    /** 检查模型是否允许导出数据。 */\n    canExport(snapshot?: DataPermissionSnapshot | null): boolean;\n    /** 检查指定行是否允许删除。 */\n    canDelete(row: DataRow): boolean;\n    /** 检查指定行是否允许创建子节点。 */\n    canCreateChild(row: DataRow, snapshot?: DataPermissionSnapshot | null): boolean;\n    /** 检查指定行是否允许编辑。 */\n    canEdit(row: DataRow): boolean;\n    /** 检查指定字段在当前行是否可见。 */\n    isFieldVisible(field: string, row: DataRow): boolean;\n    /** 检查指定字段在当前行是否可编辑。 */\n    isFieldEditable(field: string, row: DataRow): boolean;\n    /** 获取指定字段在当前行的可见性级别。 */\n    getFieldVisibility(field: string, row: DataRow): FieldVisibility;\n    /** 解析字段的完整权限渲染状态（可见性 + 可编辑性 + 脱敏规则）。 */\n    resolveFieldPermissionState(field: string | undefined, row: DataRow | null | undefined, config?: Omit<FieldRenderConfig, 'field'>): FieldRenderState | null;\n    /** 根据字段渲染配置与行数据计算字段渲染状态。 */\n    computeFieldState(config: FieldRenderConfig, row: DataRow): FieldRenderState;\n    /** 过滤出允许删除的行集合。 */\n    filterDeletableRows(rows: DataRow[]): DataRow[];\n    /** 过滤出允许编辑的行集合。 */\n    filterEditableRows(rows: DataRow[]): DataRow[];\n    /** 过滤行中不可见字段，仅保留可见业务字段。 */\n    filterFields(row: DataRow): Record<string, unknown>;\n    /** 从候选字段列表中返回当前行可编辑的字段名。 */\n    getEditableFields(row: DataRow, allFields: string[]): string[];\n    /** 从候选字段列表中返回当前行可见的字段名。 */\n    getVisibleFields(row: DataRow, allFields: string[]): string[];\n    /** 过滤行中不可展示字段，保留权限元数据与服务端已脱敏值。 */\n    filterDisplayableFields(row: DataRow): DataRow;\n    /** 从数据源对象中提取后端最终权限快照。 */\n    extractPermissionSnapshot(dataSource: {\n        permissionSnapshot?: DataPermissionSnapshot | null;\n    } | null | undefined): DataPermissionSnapshot | null;\n}",
         "members": {
           "methods": [
             {
@@ -832,10 +877,19 @@
               "jsdoc": "检查模型是否允许新建记录。",
               "parameters": [
                 {
-                  "name": "modelPermission",
+                  "name": "snapshot",
                   "type": {
-                    "type": "reference",
-                    "name": "ModelPermission"
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataPermissionSnapshot"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
                   },
                   "flags": {
                     "isOptional": true
@@ -852,10 +906,19 @@
               "jsdoc": "检查模型是否允许导入数据。",
               "parameters": [
                 {
-                  "name": "modelPermission",
+                  "name": "snapshot",
                   "type": {
-                    "type": "reference",
-                    "name": "ModelPermission"
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataPermissionSnapshot"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
                   },
                   "flags": {
                     "isOptional": true
@@ -872,10 +935,19 @@
               "jsdoc": "检查模型是否允许导出数据。",
               "parameters": [
                 {
-                  "name": "modelPermission",
+                  "name": "snapshot",
                   "type": {
-                    "type": "reference",
-                    "name": "ModelPermission"
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataPermissionSnapshot"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
                   },
                   "flags": {
                     "isOptional": true
@@ -913,6 +985,25 @@
                   "type": {
                     "type": "reference",
                     "name": "DataRow"
+                  }
+                },
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataPermissionSnapshot"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
@@ -1254,8 +1345,8 @@
               }
             },
             {
-              "name": "extractModelPermission",
-              "jsdoc": "从数据源对象中提取模型级权限快照。",
+              "name": "extractPermissionSnapshot",
+              "jsdoc": "从数据源对象中提取后端最终权限快照。",
               "parameters": [
                 {
                   "name": "dataSource",
@@ -1264,7 +1355,7 @@
                     "types": [
                       {
                         "type": "unknown",
-                        "name": "{\n        _modelPerm?: ModelPermission;\n    }"
+                        "name": "{\n        permissionSnapshot?: DataPermissionSnapshot | null;\n    }"
                       },
                       {
                         "type": "literal",
@@ -1279,11 +1370,17 @@
                 }
               ],
               "type": {
-                "type": "optional",
-                "elementType": {
-                  "type": "reference",
-                  "name": "ModelPermission"
-                }
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataPermissionSnapshot"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
               }
             }
           ]

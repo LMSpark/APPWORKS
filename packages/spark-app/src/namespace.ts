@@ -31,7 +31,7 @@ import { createThemeService } from './theme'
  * await SparkApp.bootstrap({ app, router, config })
  *
  * // 使用页面节点层功能
- * const pageNodes = new PageContentLoader({ apiBaseUrl: '/api' })
+ * const pageNodes = new PageContentLoader({ projectId, readPageFile })
  *
  * // 其他功能在主应用中按需组合使用
  * ```

@@ -73,7 +73,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
     <el-form-item v-if="flags.isLinkNode.value" label="超链接" class="fi fi--wide">
       <div class="link-url-row">
         <el-input
-          v-model="state.navEditDto.path"
+          v-model="state.blueprintDraft.path"
           placeholder="https://..."
           @change="state.onLinkUrlChanged"
         />
@@ -86,7 +86,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
       </div>
     </el-form-item>
     <el-form-item v-if="flags.isLinkNode.value" label="渲染方式" class="fi fi--wide">
-      <el-radio-group v-model="state.navEditDto.linkTarget" @change="state.markNavDirty">
+      <el-radio-group v-model="state.blueprintDraft.linkTarget" @change="state.markBlueprintDirty">
         <el-radio-button value="iframe">内嵌 iframe</el-radio-button>
         <el-radio-button value="self">当前窗口</el-radio-button>
         <el-radio-button value="new-tab">新标签打开</el-radio-button>
@@ -142,7 +142,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import type { DevState } from '../useDevState'
 import { useNodeKindFlags } from '../composables/useNodeKindFlags'
 import NavIcon from '@/components/NavIcon.vue'
@@ -170,7 +170,7 @@ type VuePathOption = {
   displayTitle: string
   extra: string}
 
-function collectPathTitles(nodes: ProjectNodeData[], map: Map<string, string>) {
+function collectPathTitles(nodes: ProjectBlueprintTreeNodeData[], map: Map<string, string>) {
   for (const node of nodes) {
     const path = node.path ?? ''
     const title = node.title ?? ''
@@ -233,37 +233,37 @@ const targetPlaceholder = computed(() => {
 function applyTargetSelection(value: string) {
   if (flags.isSystemPageNode.value) {
     if (!value) {
-      props.state.navEditDto.path = ''
-      props.state.markNavDirty()
+      props.state.blueprintDraft.path = ''
+      props.state.markBlueprintDirty()
       props.state.clearActivePageContext()
       return
     }
     const routePath = value.replace(/^route:/, '')
-    props.state.navEditDto.path = routePath
+    props.state.blueprintDraft.path = routePath
     props.state.handlePathChange(routePath)
     return
   }
 
   if (flags.isSystemActionNode.value) {
     if (!value) {
-      props.state.navEditDto.path = ''
-      props.state.markNavDirty()
+      props.state.blueprintDraft.path = ''
+      props.state.markBlueprintDirty()
       return
     }
-    props.state.navEditDto.path = value.replace(/^action:/, '')
-    props.state.markNavDirty()
+    props.state.blueprintDraft.path = value.replace(/^action:/, '')
+    props.state.markBlueprintDirty()
     return
   }
 
   if (flags.isPageNode.value) {
     if (!value) {
-      props.state.navEditDto.path = ''
-      props.state.markNavDirty()
+      props.state.blueprintDraft.path = ''
+      props.state.markBlueprintDirty()
       props.state.clearActivePageContext()
       return
     }
     const pagePath = value.replace(/^page:/, '')
-    props.state.navEditDto.path = pagePath
+    props.state.blueprintDraft.path = pagePath
     props.state.handlePathChange(pagePath)
   }
 }
@@ -271,15 +271,15 @@ function applyTargetSelection(value: string) {
 const targetValue = computed<string>({
   get() {
     if (flags.isSystemPageNode.value) {
-      const path = props.state.navEditDto.path
+      const path = props.state.blueprintDraft.path
       return path ? `route:${path}` : ''
     }
     if (flags.isSystemActionNode.value) {
-      const path = props.state.navEditDto.path
+      const path = props.state.blueprintDraft.path
       return path ? `action:${path}` : ''
     }
     if (flags.isPageNode.value) {
-      return props.state.navEditDto.path ? `page:${props.state.navEditDto.path}` : ''
+      return props.state.blueprintDraft.path ? `page:${props.state.blueprintDraft.path}` : ''
     }
     return ''
   },
@@ -301,12 +301,12 @@ type NodeTargetStatus = {
  *
  * 判断顺序与 UI 目标选择时序保持一致：
  * 1. system-action：先匹配内置动作，未知动作作为自定义标识。
- * 2. system-page：检查 Vue 页面注册表，允许导航标题与组件标题不同。
+ * 2. system-page：检查 Vue 页面注册表，允许运行菜单标题与组件标题不同。
  * 3. page：检查配置页是否已存在，不存在时提示可新建。
  */
 const pathStatus = computed<NodeTargetStatus | null>(() => {
   if (!flags.showPathStatus.value) return null
-  const path = props.state.navEditDto.path
+  const path = props.state.blueprintDraft.path
   if (!path) return null
 
   if (flags.isSystemActionNode.value) {
@@ -320,12 +320,12 @@ const pathStatus = computed<NodeTargetStatus | null>(() => {
   if (flags.isSystemPageNode.value) {
     const entry = getVuePageEntry(path)
     if (entry !== undefined) {
-      const nodeTitle = props.state.navEditDto.title.trim()
+      const nodeTitle = props.state.blueprintDraft.title.trim()
       if (nodeTitle && nodeTitle !== entry.title) {
         return {
           type: 'info',
           icon: 'InfoFilled',
-          text: `组件页为「${entry.title}」，当前导航标题为「${nodeTitle}」（允许不同）`,
+          text: `组件页为「${entry.title}」，当前运行菜单标题为「${nodeTitle}」（允许不同）`,
         }
       }
       return { type: 'success', icon: 'SuccessFilled', text: `匹配 Vue 组件：${entry.title}` }
@@ -356,8 +356,8 @@ function hasConfigPage(pageId: string): boolean {
 }
 
 const showCreatePageAction = computed(() => flags.isPageNode.value)
-const explicitTargetPageId = computed(() => normalizeConfigPageId(props.state.navEditDto.path))
-const fallbackNodePageId = computed(() => normalizeConfigPageId(props.state.navEditDto.id))
+const explicitTargetPageId = computed(() => normalizeConfigPageId(props.state.blueprintDraft.path))
+const fallbackNodePageId = computed(() => normalizeConfigPageId(props.state.blueprintDraft.id))
 const createPageCandidateId = computed(() => {
   const explicitPageId = explicitTargetPageId.value
   if (explicitPageId && !hasConfigPage(explicitPageId)) return explicitPageId
@@ -471,20 +471,20 @@ watch(refProjectSelection, (projectId) => {
     void loadRefPages(projectId)
   } else {
     refPageOptions.value = []
-    props.state.navEditDto.refId = ''
-    props.state.markNavDirty()
+    props.state.blueprintDraft.refId = ''
+    props.state.markBlueprintDirty()
   }
 })
 
 // 页面选择→写入 refId
 watch(refPageSelection, (nodeId) => {
   if (syncingRefSelection.value) return
-  if (nodeId && nodeId !== props.state.navEditDto.id) {
-    props.state.navEditDto.refId = nodeId
-    props.state.markNavDirty()
+  if (nodeId && nodeId !== props.state.blueprintDraft.id) {
+    props.state.blueprintDraft.refId = nodeId
+    props.state.markBlueprintDirty()
   } else if (!nodeId) {
-    props.state.navEditDto.refId = ''
-    props.state.markNavDirty()
+    props.state.blueprintDraft.refId = ''
+    props.state.markBlueprintDirty()
   }
 })
 
@@ -492,10 +492,10 @@ watch(refPageSelection, (nodeId) => {
 
 const refStatus = computed<NodeTargetStatus | null>(() => {
   if (!flags.isRefNode.value) return null
-  const refId = props.state.navEditDto.refId
+  const refId = props.state.blueprintDraft.refId
   if (!refId) return null
 
-  if (refId === props.state.navEditDto.id) {
+  if (refId === props.state.blueprintDraft.id) {
     return { type: 'danger', icon: 'CircleCloseFilled', text: '不能引用自身' }
   }
 
@@ -529,8 +529,8 @@ async function createPageFromPath() {
     return
   }
 
-  const nodeTitle = props.state.navEditDto.title.trim() || pageId
-  const nodeIcon = props.state.navEditDto.icon.trim() || 'Document'
+  const nodeTitle = props.state.blueprintDraft.title.trim() || pageId
+  const nodeIcon = props.state.blueprintDraft.icon.trim() || 'Document'
   creatingPage.value = true
   try {
     const created = await props.state.createPageForSelectedNode({
@@ -539,7 +539,7 @@ async function createPageFromPath() {
       icon: nodeIcon,
     })
     if (!created) {
-      props.state.addStatus(`页面 ${pageId} 创建失败或导航目标保存失败`, 'warning')
+      props.state.addStatus(`页面 ${pageId} 创建失败或蓝图交付目标保存失败`, 'warning')
       return
     }
 

@@ -30,13 +30,13 @@
 | 轴 | 职责 | 主要 API / 字段 |
 |---|---|---|
 | **策划轴** | 项目 → 模块 → 页面 → 子页面；功能描述与 AI 策划输入 | `description`、`descriptionContext`、`readPlanningProjection()` |
-| **承载轴** | DB navigation 平铺 + 树投影；含 toolbar / system-page 等 | `ProjectDesign.nodesById`、`NavigationIndex`、`readNavigationProjection()` |
+| **承载轴** | 项目蓝图平铺 + 树投影；含需求、场景、页面与运行交付配置 | `ProjectBlueprintDesign.nodesById`、`ProjectBlueprintIndex`、`readBlueprintProjection()` |
 | **实现轴** | 页面运行时与编辑真源 | `openPageDesign(pageId)` → `ConfigPageNode` 四文件 |
 
 **定稿结构（勿再拆第二套领域）：**
 
 - 唯一领域根：`ProjectModel`
-- 唯一设计聚合：`ProjectDesign`（`nodesById` + `configPagesByPageId` + `navigationRoot`）
+- 唯一设计聚合：`ProjectBlueprintDesign`（`nodesById` + `configPagesByPageId` + `blueprintTree`）
 - `navigation/` 目录 = **节点工具包**（type、tree 纯函数、edit）；不是第二套 PlanningModel。未来可 rename 为 `nodes/`，含义不变。
 
 平台策划口径对齐：[PLATFORM_TENANT_ROUTING.md](../../../docs/architecture/PLATFORM_TENANT_ROUTING.md)。
@@ -55,7 +55,7 @@ DevSystem 左侧树不展示隐式 homepage 壳节点；项目首页与模块栏
 ```text
 ProjectModel（pageDesign.project）
   → readProjectPlanningInput()   // 项目策划输入：根 description + planningAttachmentRef
-  → readPlanningProjection()     // 页面策划现状：pageFeatures + descriptionContext
+  → readPlanningProjection()     // 页面策划现状：pageDeliveries + descriptionContext
   → openPageDesign(pageId)       // 实现编辑：ConfigPageNode 四文件（后置）
 ```
 
@@ -68,7 +68,7 @@ ProjectModel（pageDesign.project）
 | 节点 `description` | 每个 `ProjectNodeData.description` | 节点短需求 |
 | 节点 `planningAttachmentRef` | 每个 `ProjectNodeData.planningAttachmentRef` | 节点详细说明附件 |
 
-`readNavigationPlanningInputs()` / `readNavigationNodePlanningInput(nodeId)` 读取全部或单个节点策划输入。
+`readBlueprintPlanningInputs()` / `readBlueprintNodePlanningInput(nodeId)` 读取全部或单个蓝图节点策划输入。
 
 ```text
 readProjectPlanningInput()
@@ -115,7 +115,7 @@ AI 只消费这里暴露的项目模型入口，不在本包维护独立运行�
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
 │  ProjectModel（领域根）                                          │
-│  .design  : ProjectDesign    节点树 + 配置页 Map                  │
+│  .design  : ProjectBlueprintDesign  蓝图节点 + 配置页 Map          │
 │  .session : ProjectSession   选中 / activePage / dirty（不落盘）   │
 │  subscribe / read*Projection / writePageFile / editDataSet …     │
 └─────────────────────────────────────────────────────────────────┘
@@ -164,11 +164,11 @@ classDiagram
   direction LR
 
   class ProjectModel {
-    +design: ProjectDesign
+    +design: ProjectBlueprintDesign
     +session: ProjectSession
     +revision: number
     +subscribe(listener)
-    +readNavigationProjection()
+    +readBlueprintProjection()
     +readPlanningProjection()
     +readActivePageProjection()
     +readDirtyProjection()
@@ -179,7 +179,7 @@ classDiagram
     +writePageFile / editDataSet / editNodeTree
   }
 
-  class ProjectDesign {
+  class ProjectBlueprintDesign {
     nodesById: Map
     +configPagesByPageId: Map
     +navigationRoot: ProjectModelData
@@ -200,15 +200,15 @@ classDiagram
   class ProjectSession {
     selectedNodeId
     activePageId
-    navigationDirty 仅显式标记
+    blueprintDirty 仅显式标记
     navigationDraft  编辑工作副本
   }
 
-  ProjectModel *-- ProjectDesign
+  ProjectModel *-- ProjectBlueprintDesign
   ProjectModel *-- ProjectSession
-  ProjectDesign *-- NavigationIndex
-  ProjectDesign o-- ConfigPageNode : Map~pageId~
-  ProjectDesign o-- ProjectNode : nodesById
+  ProjectBlueprintDesign *-- ProjectBlueprintIndex
+  ProjectBlueprintDesign o-- ConfigPageNode : Map~pageId~
+  ProjectBlueprintDesign o-- ProjectBlueprintNode : nodesById
 ```
 
 ---
@@ -268,18 +268,18 @@ flowchart LR
 
 | 投影 API | 内容 |
 |---|---|
-| `readNavigationProjection()` | treeData、selectedNode、navigationDraft（承载轴 UI） |
+| `readBlueprintProjection()` | tree、selectedNode、blueprintDraft（承载轴 UI） |
 | `readPlanningProjection()` | 策划轴：`pageId`、`path`、`description`、`descriptionContext`、`effectiveDescription` |
 | `readActivePageProjection()` | 四文件文本、parseErrors、isLoaded |
-| `readDirtyProjection()` | dirtyFiles、navigationDirty、hasAnyDirty |
+| `readDirtyProjection()` | dirtyFiles、blueprintDirty、hasAnyDirty |
 
-`readNavigationProjection().pageFeatures` 与 `readPlanningProjection()` 同源（`ProjectDesign.readPlanningProjection()`）。DevSystem / AI 读策划时用 `readPlanningProjection()`，勿从菜单节点自行拼接需求。
+`readBlueprintProjection().pageDeliveries` 与 `readPlanningProjection()` 同源（`ProjectBlueprintDesign.readPlanningProjection()`）。DevSystem / AI 读策划时用 `readPlanningProjection()`，勿从运行菜单自行拼接需求。
 
 **dirty 语义（勿混用）：**
 
-- `navigationDirty`：导航属性**相对落盘有真实修改**（`markNavigationDirty` 显式设置；**有 draft ≠ dirty**）
+- `blueprintDirty`：蓝图属性**相对落盘有真实修改**（`markBlueprintDirty` 显式设置；**有 draft ≠ dirty**）
 - `dirtyFiles`：四文件子模型 `isDirty`（内容相对上次 load/save 变化）
-- `hasAnyDirty = hasAnyFileDirty || navigationDirty`
+- `hasAnyDirty = hasAnyFileDirty || blueprintDirty`
 
 ---
 
@@ -379,7 +379,7 @@ sequenceDiagram
 | Vue 侧 | 领域侧 | 说明 |
 |---|---|---|
 | `projectRevision` ref | `project.revision` | subscribe 回调里同步，作 computed 依赖 |
-| `navigationProjection` | `readNavigationProjection()` | 树、选中节点、pageList |
+| `blueprintProjection` | `readBlueprintProjection()` | 树、选中节点、pageDeliveries |
 | `activePageProjection` | `readActivePageProjection()` | 四文件文本、parseErrors |
 | `dirtyProjection` | `readDirtyProjection()` | 顶栏「未保存」、tab 蓝点 |
 | `navEditDto` reactive | `project.navigationDraft` | 表单 getter/setter 代理 |
@@ -468,7 +468,7 @@ saveNodeChanges 成功后（默认 scope）
 | UI 位置 | 数据源 |
 |---|---|
 | 顶栏 tag「未保存」 | `hasAnyDirty` |
-| 底栏「属性已修改」 | `navDirty`（= `navigationDirty`） |
+| 底栏「属性已修改」 | `blueprintDirty` |
 | 底栏「文件已修改」 | `hasAnyFileDirty` |
 | 四文件 tab 蓝点 | `dirtyFiles.has(fname)` |
 | 单文件保存按钮 disabled | `!fileEditor.isDirty` |

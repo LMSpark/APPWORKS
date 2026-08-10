@@ -1,96 +1,72 @@
-# 项目模型收敛 — 验收清单
+# 项目蓝图模型收敛验收
 
-> 对应 2026-06 减法：`domain-model` 删除、`planningStatus` 删除、`sub-page` → 嵌套 `page`（`hidden` + 无 `path`）。  
-> 离线自动化：`pnpm run verify:model-convergence` · DB 迁移：`pnpm run migrate:navigation:sub-page`
+本清单验证 AppWorks 已把项目设计事实收敛到项目蓝图，并把运行菜单限定为蓝图的一种授权输出。AppWorks 不拥有数据库迁移宿主，也不直接执行 MySQL、达梦或容器内 SQL。
 
-## 1. 离线自动化（必过）
+## 1. 离线门禁
 
 ```bash
 pnpm run verify:model-convergence
 pnpm run typecheck
+pnpm run test:run
 ```
 
-期望：Vitest 全绿；无 `ProjectRootModel` / `planningStatus` / 独立 `ConfigSubPageNode` 类型引用。
+期望：不存在旧项目根模型、旧导航真源、独立子页面类型或页面本地权限决策。
 
-## 2. DB 批量迁移（有 MySQL 时）
+## 2. 身份与迁移边界
 
-脚本会依次尝试 **mysql CLI** → **docker compose exec mysql**（`spark-ai-server/docker-compose.yml`）。
+- 既有项目、节点、FormKey、数据空间和前端模型身份由 lowcode 平台数据库保持。
+- AppWorks 只生成只读审计、characterization 和待执行差异，不生成新身份补齐缺口。
+- 数据库迁移由平台运维流程执行，不能通过 AppWorks 构建或启动过程隐式触发。
+- mutation 缺少写前镜像、幂等、短事务、journal、readback 或补偿能力时必须拒绝。
 
-```bash
-# 审计 legacy 行（需 MySQL 或 Docker 中 mysql 容器运行中）
-pnpm run migrate:navigation:sub-page -- audit
+## 3. DevSystem 项目蓝图
 
-# 本地 dev 库一次性迁移（prod 走 Flyway V8 启动迁移）
-pnpm run migrate:navigation:sub-page -- apply
-```
-
-期望：
-
-- `audit` 最终输出 `OK: no legacy sub-page rows.`
-- 迁移后 `NODE_KIND='page'`，`HIDDEN=1`，`PATH IS NULL`
-
-Flyway：`spark-ai-server/src/main/resources/db/migration/V8__migrate_navigation_sub_page.sql`（`spring.flyway.enabled=true` 环境部署时自动执行）。
-
-## 3. DevSystem — 嵌套子页
-
-前置：`pnpm run dev`，打开 DevSystem，加载有 navigation 的项目。
+前置：`pnpm run dev`，登录后打开 DevSystem 并加载一个真实项目。
 
 | 步骤 | 操作 | 期望 |
 |------|------|------|
-| 3.1 | 选中某 **普通页面**，节点类别选 **子页面** | `nodeKind` 落为 `page`，`hidden=true`，无 `path` |
-| 3.2 | 保存 navigation | 侧栏树不展示该子页；`findConfigPageByPageId` 仍可用 |
-| 3.3 | 选中子页，编辑四文件 | `ConfigPageNode` 正常加载 rule/pagedata/script/style |
-| 3.4 | 顶栏 | **无**「AI 策划」；选中配置页时有 **AI 编辑** |
+| 3.1 | 查看左侧结构 | 显示项目蓝图层级，不把全部节点称为菜单 |
+| 3.2 | 选择模块、需求、原型、数据空间、页面或报表节点 | 基本信息与该节点 capability 对齐 |
+| 3.3 | 选择真实页面 | 页面只能消费已绑定的数据空间，并保留 `formKey + dataSpaceId + modelId` 闭包 |
+| 3.4 | 选择子页面 | 子页面属于蓝图层级；是否输出到运行菜单由运行投影决定 |
+| 3.5 | 尝试无治理写能力的保存 | 明确报错并保留本地 dirty 状态，不静默成功 |
 
-## 4. pageDesign 门禁
+## 4. 页面设计门禁
 
 | 步骤 | 操作 | 期望 |
 |------|------|------|
-| 4.1 | 页面 `effectiveDescription` 为空，DevSystem 点 **AI 编辑** | mutation 被 gate 拒绝（策划未定稿） |
-| 4.2 | 填写 description / descriptionContext 后重试 | gate 通过，tool 可执行 |
-| 4.3 | `implGate=closed` | pageDesign mutation 拒绝 |
-| 4.4 | DevSystem **AI 闸门** 面板 | 仅 **implGate**、**upstreamContractsSatisfied**；无 planningStatus 下拉 |
+| 4.1 | 页面有效描述为空时启动 AI 编辑 | mutation 被 gate 拒绝 |
+| 4.2 | 补齐描述后重试 | 仅进入受约束 AI 执行链，不绕过页面四文件模型 |
+| 4.3 | `implGate=closed` | 页面设计 mutation 拒绝 |
+| 4.4 | 检查数据绑定 | 页面不直接引用物理表名，不拥有第二份数据定义 |
 
 离线覆盖：`pnpm run verify:page-design`。
 
-## 5. projectPlanning（headless / Host Run）
+## 5. 项目策划与 AI
 
 | 步骤 | 操作 | 期望 |
 |------|------|------|
-| 5.1 | DevSystem 未选页时 | 无 projectPlanning 顶栏入口 |
-| 5.2 | `pnpm run verify:project-planning` | Vitest 全绿 |
-| 5.3 | Host Run provider 路径 | `project-planning-host-run-provider` 可 prepare + save navigation |
+| 5.1 | 运行 `pnpm run verify:project-planning` | 离线验证通过 |
+| 5.2 | 查看策划输入 | 输入和产物统一使用 blueprint 语义 |
+| 5.3 | 执行 Agent run | 使用传输中立的 `ai-agent-run`；不依赖本仓后端 |
+| 5.4 | 请求保存蓝图 | 缺少受治理 mutation capability 时 fail-closed |
 
-可选 SSE：`pnpm run verify:hr-sse-smoke-prereqs`（需 LLM key + 运行中后端）。
-
-## 6. 运行态路由
-
-| 步骤 | 操作 | 期望 |
-|------|------|------|
-| 6.1 | 嵌套子页 | `resolveNavNodeRuntimeTarget` → `{ kind: 'hidden', reason: 'sub-page' }` |
-| 6.2 | 普通 page | 正常 SPA route |
-
-离线覆盖：`packages/spark-app` 内 `runtime-target.test.ts`（已纳入 `verify:model-convergence`）。
-
-## 7. Legacy 数据读入
+## 6. 运行导航
 
 | 步骤 | 操作 | 期望 |
 |------|------|------|
-| 7.1 | navigation JSON 仍含 `"nodeKind":"sub-page"` | TS `normalizeProjectNodeData` → `page` + `hidden` |
-| 7.2 | Java `getNavConfig` | API 返回已 migrate 的树（`migrateLegacySubPagesInTree`） |
-| 7.3 | Java `importNavConfig` / 保存 | DB 落库为 `page` + `hidden`，无 `sub-page` |
+| 6.1 | 加载应用壳 | 只消费后端授权后的 `RuntimeNavigation` |
+| 6.2 | 访问普通 Vue 页面 | Vue 路径只负责组件寻址，场景身份来自真实 FormKey |
+| 6.3 | 查看模块、外链或动作页 | 不机械创建数据空间 |
+| 6.4 | 后端权限快照缺失 | 页面字段和动作 fail-closed |
 
----
+离线覆盖：`packages/spark-app` 运行导航测试及 `packages/spark-component` 权限测试。
 
-**签字：** 全部 1–7 通过后，模型收敛视为生产可接受。遗留 demo 页 `tree-demo/pagedata.json` 内 catalog 枚举可保留 `sub-page` 字样（演示节点类型表，非 navigation 真源）。
+## 7. Characterization
 
-## 验收记录（2026-06-12）
+- `backend-api-contracts/lowcode-endpoint-ledger.json` 由 lowcode 只读源码生成。
+- `backend-api-contracts/appworks-consumer-ledger.json` 记录 AppWorks 直接消费者。
+- `backend-api-contracts/characterization-fixtures/` 仅用于旧行为对账，不是运行时回退源。
+- `E:\lowcode-jdk17` 永久只读，不作为编译依赖。
 
-| 章节 | 结果 | 说明 |
-|------|------|------|
-| §1 离线 | ✅ | `verify:model-convergence` 53/53 · `typecheck` · `verify:page-design` 32/32 · `verify:project-planning` 27/27 |
-| §2 DB | ✅ | `migrate:navigation:sub-page audit` → `legacy sub-page rows: 0`（docker mysql） |
-| §3–§4 DevSystem UI | ⚠️ | 代码已确认无 `AI 策划` / `planningStatus`；顶栏仅 `AI 编辑`。浏览器自动化需登录态，建议本地打开 `/dev` 点检 §3.1–3.4 |
-| §5 projectPlanning | ✅ | 离线 27/27；DevSystem 无顶栏入口（源码检索） |
-| §6 运行态 | ✅ | `runtime-target.test.ts` 纳入 `verify:model-convergence` |
-| §7 Legacy | ✅ | TS normalize 测试 + Java `importNavConfig_migratesLegacySubPageToNestedPage` |
+全部门禁通过且浏览器逐导航验收无阻断缺陷后，项目蓝图模型才可视为可交付。

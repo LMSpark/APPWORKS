@@ -8,10 +8,10 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
   <template v-if="isDirectoryNode">
     <el-divider content-position="left">模块上下文（Context）</el-divider>
     <el-form-item label="启用上下文" class="switch-item">
-      <el-switch v-model="state.navEditDto.hasContext" @change="state.toggleContext" />
+      <el-switch v-model="state.blueprintDraft.hasContext" @change="state.toggleContext" />
       <span class="switch-item__hint">启用后可配置下拉上下文选项</span>
     </el-form-item>
-    <template v-if="state.navEditDto.hasContext">
+    <template v-if="state.blueprintDraft.hasContext">
       <el-form-item label="选项列表" class="fi fi--wide">
         <div class="context-items">
           <div v-for="(item, idx) in state.contextEdit.items" :key="idx" class="context-item-row">

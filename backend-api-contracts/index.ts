@@ -14,5 +14,5 @@
  * const endpoint = backendApiEndpoints.find((item) => item.id === "table.syncData");
  * ```
  */
-export * from "./common";
+export type * from "./common";
 export * from "./endpoints";

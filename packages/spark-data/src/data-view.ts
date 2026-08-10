@@ -24,6 +24,7 @@ import type {
   CommitMode, RetrieveRecordOptions,
   SparkEventEmitter,
   DataViewEditingFieldChangeEvent, DataViewApplyEditingRowsResult,
+  DataPermissionSnapshot, DataPermissionSnapshotInput,
 } from './types'
 
 /** 过滤值字段引用形状（与 types.ts 中 FilterValueExpression 的内联形状一致） */
@@ -239,6 +240,9 @@ viewId: string
 
     /** 行数据集合。 */
 rows: DataRow[] = []
+
+  /** 与当前 rows 同一次查询登记的后端最终权限事实。 */
+  permissionSnapshot: DataPermissionSnapshot | null = null
 
   // ─────────────────────────────────────────────
   // 主键（全部委托给 _primaryKeyDelegate）
@@ -1521,6 +1525,40 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this.syncTreeManagerFromRows()
   }
 
+  /**
+   * 原子登记一次后端运行查询：数据、原始行、总数、五集合权限和系统键共享同一基线。
+   */
+  ingestPermissionSnapshot(input: DataPermissionSnapshotInput): void {
+    const rows = input.rows.map((row, index) => {
+      if (row.lingma_sys_params === undefined) {
+        throw new Error(`权限快照 rows[${index}] 缺少 lingma_sys_params`)
+      }
+      return { ...row, lingma_sys_params: { ...row.lingma_sys_params } }
+    })
+    const nextSnapshot: DataPermissionSnapshot = {
+      formKey: input.formKey,
+      dataSpaceId: input.dataSpaceId,
+      modelId: input.modelId,
+      allowAdd: input.allowAdd,
+      systemKey: input.systemKey,
+      originalRows: input.originalRows.map((row) => ({ ...row })),
+      authorizedFeatureTags: [...input.authorizedFeatureTags],
+    }
+    const previousRows = this.rows
+    const previousTotal = this.total
+    const previousSnapshot = this.permissionSnapshot
+    try {
+      this.replaceRows(rows)
+      this.total = input.total
+      this.permissionSnapshot = nextSnapshot
+    } catch (error) {
+      this.rows = previousRows
+      this.total = previousTotal
+      this.permissionSnapshot = previousSnapshot
+      throw error
+    }
+  }
+
   // ─────────────────────────────────────────────
   // 编辑态缓冲（UI 字段编辑 → apply → 手工编辑/脏追踪）
   // ─────────────────────────────────────────────
@@ -2288,4 +2326,3 @@ static fromJson(
     return v
   }
 }
-

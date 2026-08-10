@@ -162,9 +162,9 @@ function createPageDesignPromptInput(input: AiJsonParams): PageDesignRunInput {
 }
 
 function createProjectPlanningPromptInput(input: AiJsonParams): ProjectPlanningAgentInput {
-  const navigationNodesValue = input['navigationNodes']
-  if (!Array.isArray(navigationNodesValue)) {
-    throw new Error('projectPlanning prompt input requires navigationNodes array.')
+  const blueprintNodesValue = input['blueprintNodes']
+  if (!Array.isArray(blueprintNodesValue)) {
+    throw new Error('projectPlanning prompt input requires blueprintNodes array.')
   }
   const tenantId = readOptionalStringInput(input, 'tenantId')
   const planningAttachmentRef = readOptionalStringInput(input, 'planningAttachmentRef')
@@ -174,18 +174,19 @@ function createProjectPlanningPromptInput(input: AiJsonParams): ProjectPlanningA
     projectId: readRequiredStringInput(input, 'projectId'),
     requirement: readRequiredStringInput(input, 'requirement'),
     ...(planningAttachmentRef === undefined ? {} : { planningAttachmentRef }),
-    navigationNodes: navigationNodesValue.map((node, index) => readNavigationPlanningAgentInput(node, index)),
+    blueprintNodes: blueprintNodesValue.map((node, index) => readBlueprintPlanningAgentInput(node, index)),
   }
 }
 
-function readNavigationPlanningAgentInput(value: AiJsonValue, index: number): ProjectPlanningAgentInput['navigationNodes'][number] {
+function readBlueprintPlanningAgentInput(value: AiJsonValue, index: number): ProjectPlanningAgentInput['blueprintNodes'][number] {
   if (!isJsonRecord(value)) {
-    throw new Error(`projectPlanning prompt input navigationNodes[${index}] must be an object.`)
+    throw new Error(`projectPlanning prompt input blueprintNodes[${index}] must be an object.`)
   }
   const planningAttachmentRef = readOptionalStringInput(value, 'planningAttachmentRef')
   return {
     nodeId: readRequiredStringInput(value, 'nodeId'),
     title: readRequiredStringInput(value, 'title'),
+    blueprintKind: readRequiredStringInput(value, 'blueprintKind'),
     nodeKind: readRequiredStringInput(value, 'nodeKind'),
     requirement: readRequiredStringInput(value, 'requirement'),
     ...(planningAttachmentRef === undefined ? {} : { planningAttachmentRef }),

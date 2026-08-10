@@ -1,14 +1,14 @@
 /**
  * @module app:services/project-planning-ai-runner
- * 职责：提供应用层 projectPlanning 的 project-planning-ai-runner 能力，围绕 ProjectPlanningAiRunOptions、ProjectPlanningAiRunEvents、ProjectPlanningAiRunCommand 等 4 个公开契约 编排项目需求、导航规划和 AI 业务注册。
+ * 职责：提供应用层 projectPlanning 的 project-planning-ai-runner 能力，围绕 ProjectPlanningAiRunOptions、ProjectPlanningAiRunEvents、ProjectPlanningAiRunCommand 等 4 个公开契约编排项目需求、蓝图规划和 AI 业务注册。
  * 边界：只停留在项目规划阶段，不生成页面 rule/pagedata/script/template，也不越界进入 pageDesign。
  * AI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。
  */
 /**
- * projectPlanning AI runner — headless 与 Host Run 共用。
+ * projectPlanning AI runner — headless 与 Agent Run 共用。
  *
  * 统一入口：`runProjectPlanningAiSession` → `AiAgentHost.run('projectPlanning', input)`。
- * 调用方注入 `ProjectWorkspace`（DevSystem 无顶栏入口）；隔离式 SSE Host Run 见 `project-planning-host-run-provider.ts`。
+ * 调用方注入 `ProjectWorkspace`（DevSystem 无顶栏入口）；隔离式 SSE Agent Run 见 `project-planning-agent-run-provider.ts`。
  */
 import { createAiRunAdapter, noopTraceSink } from '@spark-appworks/spark-app'
 import type {
@@ -29,12 +29,12 @@ import {
 } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { activateProjectPlanningAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
 import { createAiDeliveryFailureError } from '@/services/ai/ai-delivery-port'
-import { createProjectPlanningInlineDeliveryPort } from '@/services/project-planning/project-planning-host-run-provider'
+import { createProjectPlanningInlineDeliveryPort } from '@/services/project-planning/project-planning-agent-run-provider'
 
 /** Project Planning Ai Run Options 的调用配置。 */
 export type ProjectPlanningAiRunOptions = ResolveScopedProjectPlanningRunInputOptions & Readonly<{
-  /** 自动化/headless 可在 run 结束后保存 navigation；默认 false。 */
-  saveNavigationAfterRun?: boolean
+  /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */
+  saveBlueprintAfterRun?: boolean
 }>
 
 /** Project Planning Ai Run Events 的语义模型。 */
@@ -71,10 +71,10 @@ export type ProjectPlanningAiRunResult = Readonly<{
   sawToolCall: boolean
   /** 注入 Agent 的完整输入契约。 */
   input: ProjectPlanningAgentInput
-  /** 运行结束后导航树是否有未保存变更。 */
-  navigationDirty: boolean
-  /** 是否已成功保存导航变更。 */
-  savedNavigation: boolean
+  /** 运行结束后项目蓝图是否有未保存变更。 */
+  blueprintDirty: boolean
+  /** 是否已成功保存项目蓝图变更。 */
+  savedBlueprint: boolean
 }>
 
 export async function runProjectPlanningAiSession(
@@ -125,11 +125,11 @@ export async function runProjectPlanningAiSession(
     userMessage: command.userMessage ?? input.requirement,
   })
 
-  const navigationDirty = editor.project.navigationDirty
+  const blueprintDirty = editor.project.blueprintDirty
   const delivery = createProjectPlanningInlineDeliveryPort()
   const deliveryContext = {
     editor,
-    saveNavigationAfterRun: command.saveNavigationAfterRun === true,
+    saveBlueprintAfterRun: command.saveBlueprintAfterRun === true,
   }
   const deliveryResult = await delivery.save(deliveryContext)
   await delivery.trace(deliveryContext, deliveryResult)
@@ -143,8 +143,8 @@ export async function runProjectPlanningAiSession(
   return {
     sawToolCall,
     input,
-    navigationDirty,
-    savedNavigation: deliveryResult.status === 'saved',
+    blueprintDirty,
+    savedBlueprint: deliveryResult.status === 'saved',
   }
 }
 

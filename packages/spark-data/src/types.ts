@@ -13,7 +13,7 @@
  * │ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │
  * │ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │
  * │ 3. 表语义元数据             TableResourceType, TableBusinessCategory │
- * │ 4. 权限快照                InstancePermission, ModelPermission     │
+ * │ 4. 权限快照                DataPermissionSnapshot                  │
  * │ 5. 树 API 端点             TreeApi, HttpEndpoint                 │
  * │ 6. 表级元数据              TableMetadata, CrudApi                │
  * │ 7. 过滤 & 排序             FilterExpression, SortExpression      │
@@ -53,10 +53,13 @@ export type SparkEventEmitter<TEventMap extends Record<string, any[]> = Record<s
   /** 返回指定事件当前注册的 handler 数量；省略 event 时返回所有事件 handler 总数 */
   listenerCount<K extends string & keyof TEventMap>(event?: K): number}
 
-/** 数据行：所有数据容器的基本行形状，可选携带实例级权限 */
+/** 数据行：所有数据容器的基本行形状，可选携带 lowcode 后端权限事实。 */
 export type DataRow = Record<string, unknown> & {
-  /** 实例级权限快照，由服务端计算后注入 */
-  _perm?: InstancePermission}
+  /** lowcode 后端对当前行计算出的五个稀疏权限集合。 */
+  lingma_sys_params?: DataPermissionSets
+  /** lowcode 后端签发的当前行防篡改上下文。 */
+  lingma_sys_key?: string
+}
 
 // ═══════════════════════════════════════════════════════
 // 2. 列类型系统
@@ -305,52 +308,8 @@ export type TableSemanticMetadata = {
 // ═══════════════════════════════════════════════════════
 // 4. 权限快照
 //
-// 采用类似 JWT 的设计理念，权限信息由服务端一次性计算并返回前端，
-// 前端保存权限快照，在数据更新时回传给服务端，避免重复计算。
+// 权限由 lowcode 后端一次性计算并返回；前端只渲染和构造受约束的 mutation。
 // ═══════════════════════════════════════════════════════
-
-/**
- * 实例级权限（行级）- 服务端权限快照
- *
- * 附加在 DataRow._perm 上，描述单行数据的操作权限。
- */
-export type InstancePermission = {
-  /** 是否允许创建子节点 */
-  allowCreateChild?: boolean
-  /** 是否允许删除当前行 */
-  allowDelete?: boolean
-  /** 允许编辑的字段列表 */
-  editableFields?: string[]
-  /** 隐藏的字段列表 */
-  hiddenFields?: string[]
-  /** 脱敏的字段列表 */
-  maskedFields?: string[]
-  /** 权限令牌（后端验证有效性） */
-  permissionToken?: string}
-
-/**
- * 模型级权限（表级）- 服务端权限快照
- *
- * 附加在 DataSource._modelPerm 上，描述整张表的操作权限。
- * 权限信息在首次数据加载时由服务端计算并缓存，前端负责维护和传递权限状态。
- */
-export type ModelPermission = {
-  /** 是否允许新增记录 */
-  allowCreate?: boolean
-  /** 是否允许导入记录 */
-  allowImport?: boolean
-  /** 是否允许导出记录 */
-  allowExport?: boolean
-  /** 权限令牌，后端可用它校验当前权限快照是否有效 */
-  permissionToken?: string}
-
-/** 实例权限字段名 */
-const INSTANCE_PERMISSION_FIELD_VALUE = '_perm'
-export const INSTANCE_PERMISSION_FIELD = INSTANCE_PERMISSION_FIELD_VALUE
-
-/** 模型权限字段名 */
-const MODEL_PERMISSION_FIELD_VALUE = '_modelPerm'
-export const MODEL_PERMISSION_FIELD = MODEL_PERMISSION_FIELD_VALUE
 
 /** 字段可见性枚举 */
 export enum FieldVisibility {
@@ -1118,8 +1077,8 @@ export type DataSource = {
   currentRow?: DataRow | null
   /** 当前选中行集合（勾选行 / 级联选中行） */
   selectedRows?: readonly DataRow[]
-  /** 模型级权限快照，供工具栏和容器判断新增、导入、导出等按钮可用性 */
-  _modelPerm?: ModelPermission
+  /** 后端最终权限快照；缺失时权限组件必须 fail-closed。 */
+  permissionSnapshot?: DataPermissionSnapshot | null
   /** 当前查询结果总行数，用于分页器展示总量 */
   total?: number
   /** 当前页码，通常从 1 开始 */
@@ -1544,12 +1503,6 @@ export type QueryParams = {
   /** 最大返回行数 */
   limit?: number
 
-  // ── 权限快照利用 ──
-  /** 完整的模型级权限对象（用于提取权限令牌） */
-  modelPermission?: ModelPermission
-  /** 完整的实例级权限对象（用于提取权限令牌） */
-  instancePermission?: InstancePermission
-
   /** 扩展参数 */
   [key: string]: unknown}
 
@@ -1570,22 +1523,13 @@ export type BatchResult = {
  * CRUD 通用运行策略配置。
  *
  * 语义：描述"调用端点时应用什么策略"。
- * 这里定义超时、重试、权限校验、数据校验，以及请求/响应转换等运行期策略，不负责声明端点映射。
+ * 这里定义超时、重试、数据校验，以及请求/响应转换等运行期策略，不负责声明端点映射。
  */
 export type CrudOperationConfig = {
   /** 请求超时（毫秒） */
   timeout?: number
   /** 重试次数 */
   retryCount?: number
-  /** 是否跳过权限校验 */
-  skipPermissionCheck?: boolean
-
-  // ── 权限快照利用 ──
-  /** 完整的模型级权限对象（用于提取权限令牌） */
-  modelPermission?: ModelPermission
-  /** 完整的实例级权限对象（用于提取权限令牌） */
-  instancePermission?: InstancePermission
-
   // ── 数据处理 ──
   /** 是否校验数据 */
   validateData?: boolean
@@ -1593,3 +1537,28 @@ export type CrudOperationConfig = {
   transformRequest?: (data: unknown) => unknown
   /** 响应数据转换函数 */
   transformResponse?: (data: unknown) => unknown}
+/** 后端最终返回的五个稀疏权限集合；字段集合互相独立，不得压缩为枚举。 */
+export type DataPermissionSets = Readonly<{
+  r: readonly string[]
+  e: readonly string[]
+  h: readonly string[]
+  m: readonly string[]
+  d: boolean
+}>
+
+/** 一次运行查询原子登记的权限事实、原始行和稳定身份。 */
+export type DataPermissionSnapshot = Readonly<{
+  formKey: string
+  dataSpaceId: string
+  modelId: string
+  allowAdd: boolean
+  systemKey: string
+  originalRows: ReadonlyArray<Readonly<DataRow>>
+  authorizedFeatureTags: readonly string[]
+}>
+
+/** DataTable/DataView 登记后端运行查询结果的唯一输入。 */
+export type DataPermissionSnapshotInput = DataPermissionSnapshot & Readonly<{
+  rows: readonly DataRow[]
+  total: number
+}>

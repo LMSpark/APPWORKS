@@ -1,0 +1,342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-session-store",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-session-store",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-session-store 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeSessionStorage, LowcodeSessionStoreOptions, LowcodeSessionStore（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeSessionStorage",
+      "LowcodeSessionStoreOptions",
+      "LowcodeSessionStore"
+    ]
+  },
+  "$defs": {
+    "LowcodeSessionStorage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSessionStorage",
+      "$defs": {
+        "method.getItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getItem.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "method.setItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setItem.return": true,
+        "method.removeItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeItem.return": true
+      }
+    },
+    "LowcodeSessionStoreOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSessionStoreOptions",
+      "properties": {
+        "storage": {
+          "$ref": "#/$defs/LowcodeSessionStorage"
+        },
+        "sessionKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeSessionStore": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSessionStore",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeSessionStoreOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "anyOf": [
+            {
+              "$ref": "lowcode-platform-api.ts.json#/$defs/LowcodeSession"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "$ref": "lowcode-platform-api.ts.json#/$defs/LowcodeSession"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": true,
+        "method.clear.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.return": true,
+        "method.isAuthenticated.params": {
+          "type": "object",
+          "properties": {
+            "now": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isAuthenticated.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T10:09:14.702Z",
+  "models": {
+    "LowcodeSessionStorage": {
+      "name": "LowcodeSessionStorage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    getItem(key: string): string | null;\n    setItem(key: string, value: string): void;\n    removeItem(key: string): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    getItem(key: string): string | null;\n    setItem(key: string, value: string): void;\n    removeItem(key: string): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "removeItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSessionStoreOptions": {
+      "name": "LowcodeSessionStoreOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "storage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSessionStore": {
+      "name": "LowcodeSessionStore",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options?: LowcodeSessionStoreOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeSessionStoreOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "get",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [
+                {
+                  "name": "session",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clear",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "isAuthenticated",
+              "parameters": [
+                {
+                  "name": "now",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

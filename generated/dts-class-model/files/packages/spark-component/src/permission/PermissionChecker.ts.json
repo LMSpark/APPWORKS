@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-component/src/permission/PermissionChecker.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "permission/PermissionChecker",
-    "jsdoc": "@module @spark-appworks/spark-component:permission/PermissionChecker\n职责：提供 Permission Checker 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n权限检查器 — 纯函数集\n提供模型级、实例级和字段级的权限验证。\n字段脱敏规则也统一收口于此，避免权限判断分散在 data 层与组件层。\npermissionMode 语义：\n- 'none'      → 不控制：跳过所有权限检查，一切可见/可编辑\n- 'masked'    → 可见+脱敏：权限数据正常应用，但字段可见性下限为 Masked（Hidden→Masked）\n- 'invisible' → 后端控制导航可见性，前端权限检查正常执行",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@spark-appworks/spark-component 的 permission/PermissionChecker 模块。\n导出 DtsTypeDeclarationModel symbol: FieldMaskInput（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
     "symbols": [
       "FieldMaskInput"
     ]
@@ -27,25 +27,24 @@
           "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
         },
         "permissionMode": {
-          "type": "object",
-          "title": "NavPermissionMode"
+          "$ref": "../core/capability-keys.ts.json#/$defs/PagePermissionMode"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:19:40.339Z",
+  "generatedAt": "2026-08-09T22:51:40.555Z",
   "models": {
     "FieldMaskInput": {
       "name": "FieldMaskInput",
-      "jsdoc": "Field Mask Input 的输入数据。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 待脱敏的字段名。 */\n    field: string;\n    /** 字段原始值；脱敏规则按字段名和值类型自动选择（手机号/身份证/邮箱/银行卡/通用）。 */\n    value: unknown;\n    /** 数据行（用于读取 _perm.hiddenFields / _perm.maskedFields 判断可见性）。 */\n    row: DataRow;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: NavPermissionMode | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    field: string;\n    value: unknown;\n    row: DataRow;\n    permissionMode?: PagePermissionMode;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 待脱敏的字段名。 */\n    field: string;\n    /** 字段原始值；脱敏规则按字段名和值类型自动选择（手机号/身份证/邮箱/银行卡/通用）。 */\n    value: unknown;\n    /** 数据行（用于读取 _perm.hiddenFields / _perm.maskedFields 判断可见性）。 */\n    row: DataRow;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: NavPermissionMode | undefined;\n}>",
+            "typeText": "Readonly<{\n    field: string;\n    value: unknown;\n    row: DataRow;\n    permissionMode?: PagePermissionMode;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -53,25 +52,21 @@
           "attributes": [
             {
               "name": "field",
-              "jsdoc": "待脱敏的字段名。",
               "readable": true,
               "writable": false
             },
             {
               "name": "value",
-              "jsdoc": "字段原始值；脱敏规则按字段名和值类型自动选择（手机号/身份证/邮箱/银行卡/通用）。",
               "readable": true,
               "writable": false
             },
             {
               "name": "row",
-              "jsdoc": "数据行（用于读取 _perm.hiddenFields / _perm.maskedFields 判断可见性）。",
               "readable": true,
               "writable": false
             },
             {
               "name": "permissionMode",
-              "jsdoc": "权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。",
               "readable": true,
               "writable": false
             }

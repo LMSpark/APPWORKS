@@ -21,19 +21,19 @@
       "properties": {
         "activePath": {
           "type": "object",
-          "title": "ComputedRef<ProjectNodeData[]>"
+          "title": "ComputedRef<RuntimeNavigationItem[]>"
         },
         "regionItems": {
           "type": "object",
-          "title": "ComputedRef<RegionItems>"
+          "title": "ComputedRef<RuntimeNavigationRegionItems>"
         },
         "regionVisibility": {
           "type": "object",
-          "title": "ComputedRef<RegionVisibility>"
+          "title": "ComputedRef<RuntimeNavigationRegionVisibility>"
         },
         "moduleContext": {
           "type": "object",
-          "title": "ComputedRef<NavContextState | null>"
+          "title": "ComputedRef<RuntimeNavigationContextState | null>"
         }
       },
       "required": [
@@ -48,7 +48,7 @@
           "type": "object",
           "properties": {
             "node": {
-              "$ref": "../../../spark-project-model/src/navigation/project-node.ts.json#/$defs/ProjectNodeData"
+              "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
             }
           },
           "additionalProperties": false
@@ -88,7 +88,7 @@
           "type": "object",
           "properties": {
             "node": {
-              "$ref": "../../../spark-project-model/src/navigation/project-node.ts.json#/$defs/ProjectNodeData"
+              "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
             }
           },
           "additionalProperties": false
@@ -138,14 +138,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.348Z",
+  "generatedAt": "2026-08-09T21:40:30.838Z",
   "models": {
     "NavigationContext": {
       "name": "NavigationContext",
       "jsdoc": "Navigation Context 的运行上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 从根到当前叶子的节点路径 */\n    activePath: ComputedRef<ProjectNodeData[]>;\n    /** 各区域的导航项 */\n    regionItems: ComputedRef<RegionItems>;\n    /** 各区域是否可见（有项为 true） */\n    regionVisibility: ComputedRef<RegionVisibility>;\n    /** 当前模块的上下文选择器状态（null = 当前模块无上下文；作用域：模块下全部页面） */\n    moduleContext: ComputedRef<NavContextState | null>;\n    /** 导航到指定节点（处理外部链接、重定向、首个叶子等） */\n    navigateTo: (node: ProjectNodeData) => void;\n    /** 导航到指定路径（自动追加租户前缀） */\n    navigateToPath: (path: string) => void;\n    /** 设置当前模块上下文选择器的值 */\n    setContextValue: (value: string | number | null) => void;\n    /** 判断节点是否在活动路径上 */\n    isNodeActive: (node: ProjectNodeData) => boolean;\n    /** 获取节点的角标（运行时动态设定） */\n    getBadge: (nodeId: string) => string | number | undefined;\n    /** 设置节点的角标（运行时 API） */\n    setBadge: (nodeId: string, value: string | number | undefined) => void;\n}",
+        "declarationTypeText": "{\n    /** 从根到当前叶子的节点路径 */\n    activePath: ComputedRef<RuntimeNavigationItem[]>;\n    /** 各区域的导航项 */\n    regionItems: ComputedRef<RuntimeNavigationRegionItems>;\n    /** 各区域是否可见（有项为 true） */\n    regionVisibility: ComputedRef<RuntimeNavigationRegionVisibility>;\n    /** 当前模块的上下文选择器状态（null = 当前模块无上下文；作用域：模块下全部页面） */\n    moduleContext: ComputedRef<RuntimeNavigationContextState | null>;\n    /** 导航到指定节点（处理外部链接、重定向、首个叶子等） */\n    navigateTo: (node: RuntimeNavigationItem) => void;\n    /** 导航到指定路径（自动追加租户前缀） */\n    navigateToPath: (path: string) => void;\n    /** 设置当前模块上下文选择器的值 */\n    setContextValue: (value: string | number | null) => void;\n    /** 判断节点是否在活动路径上 */\n    isNodeActive: (node: RuntimeNavigationItem) => boolean;\n    /** 获取节点的角标（运行时动态设定） */\n    getBadge: (nodeId: string) => string | number | undefined;\n    /** 设置节点的角标（运行时 API） */\n    setBadge: (nodeId: string, value: string | number | undefined) => void;\n}",
         "members": {
           "attributes": [
             {
@@ -182,7 +182,8 @@
                   "name": "node",
                   "type": {
                     "type": "reference",
-                    "name": "ProjectNodeData"
+                    "name": "RuntimeNavigationItem",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                   }
                 }
               ],
@@ -246,7 +247,8 @@
                   "name": "node",
                   "type": {
                     "type": "reference",
-                    "name": "ProjectNodeData"
+                    "name": "RuntimeNavigationItem",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                   }
                 }
               ],

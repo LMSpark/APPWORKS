@@ -54,7 +54,7 @@ import {
 } from '../../internal'
 import { resolveButtonStyle } from '../../../page/actions/index'
 import type { RButtonProps } from './RendererButton.props'
-import { extractModelPermission, usePermission } from '../../../permission'
+import { extractPermissionSnapshot, usePermission } from '../../../permission'
 import type { DataView, DataRow } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { useActionButtonRuntime } from './useActionButtonRuntime'
@@ -129,9 +129,9 @@ const { hasBuiltinAction, hostActionDisabled, executeAction } = useActionButtonR
 // ── 四、权限判定与可见/禁用策略 ─────────────────────────────────────────
 const permissionAllowed = computed(() => {
   const dataSource = sparkConsume(DATA_SOURCE)
-  const modelPerm = extractModelPermission(dataSource)
+  const permissionSnapshot = extractPermissionSnapshot(dataSource)
 
-  if (!permission.isModelActionAllowed(currentNode.value, modelPerm)) return false
+  if (!permission.isModelActionAllowed(currentNode.value, permissionSnapshot)) return false
 
   const scopeRows = resolvePermissionScopeRows()
   if (scopeRows.length === 0) {
@@ -215,4 +215,3 @@ async function handleClick(event: MouseEvent): Promise<void> {
   await (scopedRow !== undefined ? onClick(scopedRow, event) : onClick(event))
 }
 </script>
-

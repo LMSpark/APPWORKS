@@ -32,7 +32,8 @@ function createPageNode(config: TestPageContentConfig, options?: TestPageNodeOpt
   const pageId = options?.pageId ?? config.pageId ?? 'test-page'
   const state: PageNodeRenderConfig = {
     pageId,
-    navigation: null,
+    blueprintNode: null,
+    dataSpaceBinding: null,
     rule: config.rule,
     data: config.data,
     css: config.css ?? '',
@@ -529,7 +530,7 @@ describe('SparkPageRenderer root props aggregation', () => {
   it('tree-node-scope demo keeps native tree props typed and button clicks executable', () => {
     const callFunc = vi.fn<(functionName: string, ...args: unknown[]) => unknown>()
     const ruleText = readFileSync(
-      resolve(process.cwd(), 'spark-ai-server/data/pages-config/lmspark/homepage/tree-node-scope-demo/rule.json'),
+      resolve(process.cwd(), 'backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/tree-node-scope-demo/rule.json'),
       'utf8',
     )
     const children = buildPageChildren(compileRule(ruleText), {

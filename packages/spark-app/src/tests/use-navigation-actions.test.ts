@@ -2,8 +2,8 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, reactive } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { describe, expect, it, vi } from 'vitest'
-import type { ProjectModelData, ProjectNodeData } from '@spark-appworks/spark-project-model'
 import type { NavigationContext } from '../navigation/nav-types'
+import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
 import { useNavigation } from '../navigation/useNavigation'
 import { createNavigationActionRegistry } from '../navigation/action-registry'
 
@@ -16,16 +16,16 @@ describe('useNavigation system-action handling', () => {
     await router.push('/')
     await router.isReady()
 
-    const actionNode: ProjectNodeData = {
+    const actionNode: RuntimeNavigationItem = {
       id: 'settings-action',
       title: 'Settings',
-      nodeKind: 'system-action',
+      itemKind: 'system-action',
       path: 'settings',
     }
-    const navRoot = reactive<ProjectModelData>({
+    const navRoot = reactive<RuntimeNavigation>({
       title: '',
       childPlacement: 'header',
-      children: [actionNode],
+      items: [actionNode],
     })
     const registry = createNavigationActionRegistry()
     const handler = vi.fn()
@@ -67,27 +67,27 @@ describe('useNavigation system-action handling', () => {
     await router.push('/settings')
     await router.isReady()
 
-    const navRoot = reactive<ProjectModelData>({
+    const navRoot = reactive<RuntimeNavigation>({
       title: '',
       childPlacement: 'header',
-      children: [
+      items: [
         {
           id: 'dev-center',
-          nodeKind: 'module',
+          itemKind: 'module',
           title: '开发中心',
           childPlacement: 'sidebar',
           children: [
-            { id: 'dev', nodeKind: 'system-page', title: '开发工作台', path: '/dev' },
-            { id: 'dbms', nodeKind: 'system-page', title: '数据库管理', path: '/dbms' },
-            { id: 'cache', nodeKind: 'system-page', title: '缓存管理', path: '/cache-manager' },
+            { id: 'dev', itemKind: 'system-page', title: '开发工作台', path: '/dev' },
+            { id: 'dbms', itemKind: 'system-page', title: '数据库管理', path: '/dbms' },
+            { id: 'cache', itemKind: 'system-page', title: '缓存管理', path: '/cache-manager' },
             {
               id: 'system-config',
-              nodeKind: 'module',
+              itemKind: 'module',
               title: '系统配置',
               childPlacement: 'sidebar',
               children: [
-                { id: 'settings', nodeKind: 'system-page', title: '系统设置', path: '/settings' },
-                { id: 'page-manager', nodeKind: 'system-page', title: '页面管理', path: '/page-manager' },
+                { id: 'settings', itemKind: 'system-page', title: '系统设置', path: '/settings' },
+                { id: 'page-manager', itemKind: 'system-page', title: '页面管理', path: '/page-manager' },
               ],
             },
           ],

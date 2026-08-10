@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-wire",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/project-blueprint/project-blueprint-wire",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/project-blueprint-wire 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-09T21:02:20.924Z",
+  "models": {}
+}

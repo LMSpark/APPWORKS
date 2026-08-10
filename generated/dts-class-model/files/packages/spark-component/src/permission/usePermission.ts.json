@@ -20,8 +20,7 @@
       "title": "UsePermissionReturn",
       "properties": {
         "permissionMode": {
-          "type": "object",
-          "title": "NavPermissionMode"
+          "$ref": "../core/capability-keys.ts.json#/$defs/PagePermissionMode"
         },
         "subtreeFieldPolicy": {
           "$ref": "../core/capability-keys.ts.json#/$defs/SubtreeFieldPolicy"
@@ -52,8 +51,15 @@
               "type": "object",
               "title": "SparkNode"
             },
-            "modelPerm": {
-              "$ref": "../../../spark-data/src/types.ts.json#/$defs/ModelPermission"
+            "snapshot": {
+              "anyOf": [
+                {
+                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -110,14 +116,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.998Z",
+  "generatedAt": "2026-08-09T22:04:31.134Z",
   "models": {
     "UsePermissionReturn": {
       "name": "UsePermissionReturn",
       "jsdoc": "Use Permission Return 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。 */\n    readonly permissionMode: NavPermissionMode | undefined;\n    /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */\n    readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined;\n    /** 判断动作是否被权限允许 */\n    isPermitted(action: PermissionAction | undefined, context?: Omit<PermissionActionContext, 'permissionMode'>): boolean;\n    /** 判断模型级动作（create/import/export）是否允许 */\n    isModelActionAllowed(action: SparkNode, modelPerm: ModelPermission | undefined): boolean;\n    /** 判断行级动作（edit/delete/create-child）是否允许 */\n    isRowActionAllowed(action: SparkNode, row: DataRow | undefined): boolean;\n    /** 解析字段权限状态（可见性 + 可编辑性） */\n    resolveFieldState(field: string | undefined, row: DataRow | null | undefined, config?: Omit<FieldRenderConfig, 'field'>): FieldRenderState | null;\n}",
+        "declarationTypeText": "{\n    /** 当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。 */\n    readonly permissionMode: PagePermissionMode | undefined;\n    /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */\n    readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined;\n    /** 判断动作是否被权限允许 */\n    isPermitted(action: PermissionAction | undefined, context?: Omit<PermissionActionContext, 'permissionMode'>): boolean;\n    /** 判断模型级动作（create/import/export）是否允许 */\n    isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined): boolean;\n    /** 判断行级动作（edit/delete/create-child）是否允许 */\n    isRowActionAllowed(action: SparkNode, row: DataRow | undefined): boolean;\n    /** 解析字段权限状态（可见性 + 可编辑性） */\n    resolveFieldState(field: string | undefined, row: DataRow | null | undefined, config?: Omit<FieldRenderConfig, 'field'>): FieldRenderState | null;\n}",
         "members": {
           "attributes": [
             {
@@ -189,13 +195,23 @@
                   }
                 },
                 {
-                  "name": "modelPerm",
+                  "name": "snapshot",
                   "type": {
-                    "type": "optional",
-                    "elementType": {
-                      "type": "reference",
-                      "name": "ModelPermission"
-                    }
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataPermissionSnapshot"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "undefined"
+                      }
+                    ]
                   }
                 }
               ],

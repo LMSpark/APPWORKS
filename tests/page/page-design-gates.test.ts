@@ -7,7 +7,7 @@ import {
   readPageDesignGateState,
   validatePageDesignRunGate,
 } from '@/services/page-design/page-design-gates'
-import { PAGE_DATA_DESIGN_ALLOWED_OPERATIONS } from '@/services/page-data-design/page-data-design-host-run-provider'
+import { PAGE_DATA_DESIGN_ALLOWED_OPERATIONS } from '@/services/page-data-design/page-data-design-agent-run-provider'
 import type { ProjectPageNodeSummary } from '@spark-appworks/spark-project-model'
 
 function createSummary(

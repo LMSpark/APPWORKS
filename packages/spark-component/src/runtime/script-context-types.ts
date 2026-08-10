@@ -25,7 +25,7 @@
  * ⚠️ **禁止将此文件改名为 `script-api.ts`**，脚本沙箱契约依赖当前模块边界。
  */
 
-import type { FieldVisibility, DataRow, ModelPermission } from '@spark-appworks/spark-data'
+import type { DataPermissionSnapshot, FieldVisibility, DataRow } from '@spark-appworks/spark-data'
 import type { FieldRenderState, PermissionActionContext } from '@spark-appworks/spark-data'
 import type {
   FieldRenderConfig,
@@ -187,16 +187,16 @@ export type PermissionApiInScript = {
   isRowScopedPermAction(action: string | undefined): boolean
 
   /** 检查模型是否允许新建记录。 */
-  canCreate(modelPermission?: ModelPermission): boolean
+  canCreate(snapshot?: DataPermissionSnapshot | null): boolean
   /** 检查模型是否允许导入数据。 */
-  canImport(modelPermission?: ModelPermission): boolean
+  canImport(snapshot?: DataPermissionSnapshot | null): boolean
   /** 检查模型是否允许导出数据。 */
-  canExport(modelPermission?: ModelPermission): boolean
+  canExport(snapshot?: DataPermissionSnapshot | null): boolean
 
   /** 检查指定行是否允许删除。 */
   canDelete(row: DataRow): boolean
   /** 检查指定行是否允许创建子节点。 */
-  canCreateChild(row: DataRow): boolean
+  canCreateChild(row: DataRow, snapshot?: DataPermissionSnapshot | null): boolean
   /** 检查指定行是否允许编辑。 */
   canEdit(row: DataRow): boolean
 
@@ -229,8 +229,8 @@ export type PermissionApiInScript = {
   /** 过滤行中不可展示字段，保留权限元数据与服务端已脱敏值。 */
   filterDisplayableFields(row: DataRow): DataRow
 
-  /** 从数据源对象中提取模型级权限快照。 */
-  extractModelPermission(dataSource: { _modelPerm?: ModelPermission } | null | undefined): ModelPermission | undefined
+  /** 从数据源对象中提取后端最终权限快照。 */
+  extractPermissionSnapshot(dataSource: { permissionSnapshot?: DataPermissionSnapshot | null } | null | undefined): DataPermissionSnapshot | null
 }
 
 /** 页面级组件访问 API（脚本可用） */

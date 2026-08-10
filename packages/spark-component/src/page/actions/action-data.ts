@@ -49,6 +49,8 @@ import {
   type ActionNotifier,
 } from './executor-helpers'
 import { isCrudResult, isCrudSuccess, getCrudErrorMessage } from '../../components/containers/support/crud-result-helpers.js'
+import { getFieldVisibility, maskFieldValue } from '../../permission/PermissionChecker'
+import { FieldVisibility } from '@spark-appworks/spark-data'
 
 // ── 目标行解析 ────────────────────────────────────────────────────────────
 
@@ -588,14 +590,36 @@ export function executeMessageRow(
 }
 
 function formatRowMessage(row: DataRow, desc: MessageRowAction): string {
-  if (desc.message) return interpolate(desc.message, {}, row)
+  const permittedRow = permissionSafeMessageRow(row)
+  if (desc.message) return interpolate(desc.message, {}, permittedRow)
   if (desc.messageFields && desc.messageFields.length > 0) {
-    return desc.messageFields.map(f => `${f}: ${String(row[f] ?? '-')}`).join(' | ')
+    return desc.messageFields
+      .filter(field => getFieldVisibility(field, row) !== FieldVisibility.Hidden)
+      .map(field => `${field}: ${maskFieldValue({ field, value: row[field], row }) || '-'}`)
+      .join(' | ')
   }
   const compact = Object.fromEntries(
-    Object.entries(row).filter(([k]) => k !== '_perm').slice(0, 6),
+    Object.entries(permittedRow)
+      .filter(([field]) => !field.startsWith('lingma_sys_') && permittedRow[field] !== '')
+      .slice(0, 6),
   )
   return JSON.stringify(compact)
+}
+
+function permissionSafeMessageRow(row: DataRow): DataRow {
+  const permitted: DataRow = {}
+  for (const [field, value] of Object.entries(row)) {
+    if (field.startsWith('lingma_sys_')) continue
+    const visibility = getFieldVisibility(field, row)
+    if (visibility === FieldVisibility.Hidden) {
+      permitted[field] = ''
+    } else if (visibility === FieldVisibility.Masked) {
+      permitted[field] = maskFieldValue({ field, value, row })
+    } else {
+      permitted[field] = value
+    }
+  }
+  return permitted
 }
 
 // ── refresh / clear-rows 执行器 ───────────────────────────────────────────

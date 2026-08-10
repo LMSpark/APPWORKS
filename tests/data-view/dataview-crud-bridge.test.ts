@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { SparkData } from '@spark-appworks/spark-data'
-import type { DataRow } from '@spark-appworks/spark-data'
+import type { DataRow, DataView } from '@spark-appworks/spark-data'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { isActionDescriptorDisabled } from '../../packages/spark-component/src/page/actions/executor-helpers'
 import { executeActionDescriptor } from '../../packages/spark-component/src/page/actions/action-executor'
@@ -11,6 +11,37 @@ import type {
   ActionFormApi,
 } from '../../packages/spark-component/src/page/actions/action-types'
 import type { PageDialogOptions, PageDialogResult, PageServiceCapability } from '@spark-appworks/spark-component'
+
+type GrantDataViewPermissionOptions = Readonly<{
+  allowAdd?: boolean
+  editableFields?: readonly string[]
+  allowDelete?: boolean
+}>
+
+function grantDataViewPermission(
+  view: DataView,
+  options: GrantDataViewPermissionOptions = {},
+): void {
+  const editableFields = options.editableFields ?? ['name']
+  for (const row of view.rows) {
+    row.lingma_sys_params = {
+      r: [],
+      e: editableFields,
+      h: [],
+      m: [],
+      d: options.allowDelete ?? true,
+    }
+  }
+  view.permissionSnapshot = {
+    formKey: 'FORM-CRUD-BRIDGE',
+    dataSpaceId: 'SPACE-CRUD-BRIDGE',
+    modelId: 'MODEL-CRUD-BRIDGE',
+    allowAdd: options.allowAdd ?? true,
+    systemKey: 'CRUD-BRIDGE',
+    originalRows: view.rows.map(row => ({ ...row })),
+    authorizedFeatureTags: [],
+  }
+}
 
 function createDataView() {
   const dataSet = SparkData.createDataSet({
@@ -35,6 +66,7 @@ function createDataView() {
   if (!view) {
     throw new Error('Users@default view not created')
   }
+  grantDataViewPermission(view)
   view.setCurrentRowById(1)
   return { dataSet, view }
 }
@@ -280,6 +312,7 @@ describe('DataView CRUD bridge', () => {
     })
 
     const view = dataSet.getView('Nodes', 'default')!
+    grantDataViewPermission(view, { allowAdd: true, editableFields: ['title'] })
     const pageService = createPageService({
       showPrompt: vi.fn(async () => '子节点 A'),
     })
@@ -414,5 +447,56 @@ describe('DataView CRUD bridge', () => {
 
     expect(removeRowSpy).toHaveBeenCalledWith(1)
     expect(deleteRowSpy).not.toHaveBeenCalled()
+  })
+
+  it('action executor rejects a direct mutation when backend permission is absent', async () => {
+    const { dataSet, view } = createDataView()
+    const pageService = createPageService()
+    const editRowSpy = vi.spyOn(view, 'editRowById')
+    const control = { cancel: false }
+    if (view.currentRow) delete view.currentRow.lingma_sys_params
+
+    await executeActionDescriptor(
+      {
+        action: 'patch',
+        target: 'current',
+        dataViewKey: 'Users@default',
+        field: 'name',
+        value: 'Blocked',
+      },
+      createActionContext(dataSet, pageService),
+      { control },
+    )
+
+    expect(control.cancel).toBe(true)
+    expect(editRowSpy).not.toHaveBeenCalled()
+    expect(pageService.showMessage).toHaveBeenCalledWith('后端权限不允许执行 patch', 'warning')
+  })
+
+  it('message-row never interpolates hidden or masked backend fields as raw values', async () => {
+    const { dataSet, view } = createDataView()
+    const pageService = createPageService()
+    const row = view.currentRow!
+    row['secret'] = 'hidden-secret'
+    row['mobile'] = '13800000000'
+    row.lingma_sys_params = {
+      r: [],
+      e: ['name'],
+      h: ['secret'],
+      m: ['mobile'],
+      d: true,
+    }
+
+    await executeActionDescriptor(
+      {
+        action: 'message-row',
+        target: 'current',
+        dataViewKey: 'Users@default',
+        message: '{name}|{secret}|{mobile}',
+      },
+      createActionContext(dataSet, pageService),
+    )
+
+    expect(pageService.showMessage).toHaveBeenCalledWith('Alice||••••', 'info')
   })
 })

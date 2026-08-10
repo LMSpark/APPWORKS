@@ -1,0 +1,501 @@
+{
+  "kind": "agent.workflow.design",
+  "version": 1,
+  "id": "agent.workflow.projectPlanning",
+  "workflow": {
+    "id": "agent.workflow.projectPlanning",
+    "version": 1,
+    "variables": [
+      {
+        "name": "projectScopeKey",
+        "title": "Project Scope Key",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "projectId",
+        "title": "Project ID",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "requirement",
+        "title": "Project Requirement",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "blueprintNodes",
+        "title": "Project Blueprint Planning Nodes",
+        "required": true,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "blueprintKind": {
+                "type": "string"
+              },
+              "nodeKind": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string"
+              },
+              "planningAttachmentRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "nodeId",
+              "title",
+              "blueprintKind",
+              "nodeKind",
+              "requirement"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      {
+        "name": "tenantId",
+        "title": "Tenant ID",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "planningAttachmentRef",
+        "title": "Planning Attachment Ref",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "runtimeBinding": {
+      "registration": {
+        "alias": "projectPlanning",
+        "moduleId": "projectPlanning",
+        "businessId": "projectPlanning"
+      },
+      "inputContract": {
+        "identityField": "projectScopeKey",
+        "messageField": "requirement",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "tenantId": {
+              "type": "string"
+            },
+            "projectScopeKey": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "requirement": {
+              "type": "string"
+            },
+            "planningAttachmentRef": {
+              "type": "string"
+            },
+            "blueprintNodes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "nodeId": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "blueprintKind": {
+                    "type": "string"
+                  },
+                  "nodeKind": {
+                    "type": "string"
+                  },
+                  "requirement": {
+                    "type": "string"
+                  },
+                  "planningAttachmentRef": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "nodeId",
+                  "title",
+                  "blueprintKind",
+                  "nodeKind",
+                  "requirement"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "projectScopeKey",
+            "projectId",
+            "requirement",
+            "blueprintNodes"
+          ],
+          "additionalProperties": false
+        },
+        "readonlySteps": [
+          "策划输入已注入 requirement 与 blueprintNodes。",
+          "业务契约见 DTS ClassModel 知识索引（model_query / model_action_guide）。"
+        ]
+      },
+      "systemPrompt": {
+        "template": "projectPlanning system prompt is interpolated by app binding.",
+        "conditionalHints": []
+      },
+      "modelProjectionRef": {
+        "kind": "dts-class-model",
+        "rootClassName": "ProjectModel",
+        "manifestUrlRef": "dts-class-model"
+      },
+      "executableRef": {
+        "kind": "js-module",
+        "moduleSpecifier": "@spark-appworks/spark-project-model",
+        "exportName": "ProjectModel"
+      },
+      "toolLoopNudge": {
+        "templates": {
+          "plan_without_tool": "projectId=\"{{moduleInstanceId}}\"；禁止只输出计划，下一回合必须发起 tool_call。",
+          "execution_phase": "projectId=\"{{moduleInstanceId}}\"；目录/指南阶段已完成，直接 model_script。",
+          "model_script_retry": "projectId=\"{{moduleInstanceId}}\"；按 RECOVERY_HINT 修正后重试 model_script。"
+        },
+        "contextFields": [
+          "moduleInstanceId"
+        ]
+      },
+      "beforeFunctionCall": {
+        "gateRules": [
+          {
+            "kind": "projectPlanningToolGate"
+          },
+          {
+            "kind": "projectActionLookup"
+          },
+          {
+            "kind": "forbiddenScriptMarkers",
+            "markers": [
+              "openPageDesign",
+              "writePageFile",
+              "setFileText",
+              "editNodeTree",
+              "editDataSet"
+            ]
+          }
+        ]
+      },
+      "executionToolNames": [
+        "model_script"
+      ],
+      "planWithoutToolMarkers": [
+        "readplanningprojection",
+        "readblueprintplanninginputs",
+        "replaceblueprintchildren",
+        "readprojectplanninginput"
+      ],
+      "agentCompleteMethodName": "completeProjectPlanning",
+      "resolveInstance": {
+        "editorSource": "projectPlanning",
+        "identityField": "projectScopeKey"
+      }
+    },
+    "capabilities": [
+      {
+        "id": "project-planning.delivery",
+        "title": "Project Planning Delivery",
+        "description": "Coordinate project planning input, ClassModel runtime execution, and project blueprint delivery.",
+        "scope": "workflow",
+        "constraints": [
+          "Workflow definition declares runtime binding; app layer injects executable capabilities."
+        ]
+      }
+    ],
+    "graph": {
+      "id": "agent.workflow.projectPlanning.graph",
+      "nodes": [
+        {
+          "id": "start",
+          "type": "start",
+          "data": {
+            "type": "start",
+            "title": "Start"
+          }
+        },
+        {
+          "id": "node.projectPlanning",
+          "type": "node",
+          "data": {
+            "type": "node",
+            "title": "Project Planning Module",
+            "models": [
+              {
+                "id": "node.projectPlanning.model",
+                "rootClassName": "ProjectModel",
+                "className": "ProjectModel",
+                "sourceRef": "$",
+                "completion": {
+                  "memberName": "completeProjectPlanning",
+                  "returnContract": "boolean-or-reason"
+                }
+              }
+            ],
+            "inputs": {
+              "projectScopeKey": "{{ start.projectScopeKey }}",
+              "projectId": "{{ start.projectId }}",
+              "requirement": "{{ start.requirement }}",
+              "blueprintNodes": "{{ start.blueprintNodes }}"
+            },
+            "outputs": {
+              "result": "projectPlanning.result"
+            },
+            "llm": {
+              "task": {
+                "goal": "Compose the complete project blueprint from requirements and existing blueprint inputs.",
+                "requirements": {
+                  "projectScopeKey": "{{ start.projectScopeKey }}",
+                  "projectId": "{{ start.projectId }}",
+                  "requirement": "{{ start.requirement }}",
+                  "blueprintNodes": "{{ start.blueprintNodes }}"
+                },
+                "contextInputs": {
+                  "projectRequirement": "{{ start.requirement }}",
+                  "blueprintNodes": "{{ start.blueprintNodes }}"
+                }
+              },
+              "knowledge": {
+                "rootClassName": "ProjectModel",
+                "className": "ProjectModel",
+                "allowedActions": [
+                  "readProjectPlanningInput",
+                  "readBlueprintPlanningInputs",
+                  "replaceBlueprintChildren",
+                  "completeProjectPlanning"
+                ],
+                "readableAttributes": [
+                  "blueprintTree"
+                ]
+              },
+              "functionCalling": {
+                "mode": "freeWithinModelContext",
+                "constraints": [
+                  "Runtime binding owns ClassModel knowledge lookup, script generation, and project blueprint mutation.",
+                  "Completion must go through completeProjectPlanning via agent_complete."
+                ]
+              },
+              "output": {
+                "structuredResult": {
+                  "result": "projectPlanning.result"
+                },
+                "handoffToValidation": true
+              }
+            },
+            "validation": {
+              "action": {
+                "className": "ProjectModel",
+                "actionName": "completeProjectPlanning",
+                "inputProjection": {
+                  "summary": "{{ node.projectPlanning.result.summary }}"
+                },
+                "expectedResult": {
+                  "completed": true
+                }
+              },
+              "status": "draft",
+              "issues": []
+            },
+            "state": {},
+            "result": {},
+            "capabilities": [
+              {
+                "id": "project-planning.compose",
+                "title": "Compose Project Plan",
+                "description": "Let projectPlanning inspect model knowledge and produce complete project blueprint changes through runtime tools.",
+                "inputs": {
+                  "projectScopeKey": "{{ start.projectScopeKey }}",
+                  "projectId": "{{ start.projectId }}",
+                  "requirement": "{{ start.requirement }}",
+                  "blueprintNodes": "{{ start.blueprintNodes }}"
+                },
+                "outputs": {
+                  "result": "projectPlanning.result"
+                },
+                "scope": "node",
+                "constraints": [
+                  "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
+                ]
+              }
+            ]
+          },
+          "position": {
+            "x": 360,
+            "y": 40
+          }
+        },
+        {
+          "id": "output",
+          "type": "output",
+          "data": {
+            "type": "output",
+            "title": "Output",
+            "outputs": {
+              "result": "{{ node.projectPlanning.result }}"
+            },
+            "capabilities": []
+          }
+        }
+      ],
+      "lines": [
+        {
+          "id": "line.start.projectScopeKey",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "projectScopeKey"
+          },
+          "to": {
+            "nodeId": "node.projectPlanning",
+            "modelId": "node.projectPlanning.model",
+            "memberName": "projectScopeKey"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.start.projectId",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "projectId"
+          },
+          "to": {
+            "nodeId": "node.projectPlanning",
+            "modelId": "node.projectPlanning.model",
+            "memberName": "projectId"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.start.requirement",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "requirement"
+          },
+          "to": {
+            "nodeId": "node.projectPlanning",
+            "modelId": "node.projectPlanning.model",
+            "memberName": "requirement"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.start.blueprintNodes",
+          "from": {
+            "nodeId": "start",
+            "modelId": "$workflow",
+            "memberName": "blueprintNodes"
+          },
+          "to": {
+            "nodeId": "node.projectPlanning",
+            "modelId": "node.projectPlanning.model",
+            "memberName": "blueprintNodes"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        },
+        {
+          "id": "line.node.output",
+          "from": {
+            "nodeId": "node.projectPlanning",
+            "modelId": "node.projectPlanning.model",
+            "memberName": "result"
+          },
+          "to": {
+            "nodeId": "output",
+            "modelId": "$workflow",
+            "memberName": "result"
+          },
+          "type": "custom",
+          "data": {
+            "relation": "sequence",
+            "branch": {
+              "label": "sequence",
+              "default": true
+            },
+            "validation": {}
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "x_spark": {
+    "schema": "spark.agent.workflow.design.v1",
+    "designer": {
+      "title": "Project Planning"
+    },
+    "draft": {
+      "status": "saved",
+      "dirtyPaths": []
+    },
+    "validation": {
+      "status": "valid",
+      "issues": []
+    }
+  }
+}

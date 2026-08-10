@@ -7,7 +7,7 @@
     "sourceFile": "src/services/project-planning/project-planning-ai-runner.ts",
     "packageName": "app",
     "modulePath": "services/project-planning/project-planning-ai-runner",
-    "jsdoc": "@module app:services/project-planning-ai-runner\n职责：提供应用层 projectPlanning 的 project-planning-ai-runner 能力，围绕 ProjectPlanningAiRunOptions、ProjectPlanningAiRunEvents、ProjectPlanningAiRunCommand 等 4 个公开契约 编排项目需求、导航规划和 AI 业务注册。\n边界：只停留在项目规划阶段，不生成页面 rule/pagedata/script/template，也不越界进入 pageDesign。\nAI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。",
+    "jsdoc": "@module app:services/project-planning-ai-runner\n职责：提供应用层 projectPlanning 的 project-planning-ai-runner 能力，围绕 ProjectPlanningAiRunOptions、ProjectPlanningAiRunEvents、ProjectPlanningAiRunCommand 等 4 个公开契约编排项目需求、蓝图规划和 AI 业务注册。\n边界：只停留在项目规划阶段，不生成页面 rule/pagedata/script/template，也不越界进入 pageDesign。\nAI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ProjectPlanningAiRunOptions",
@@ -22,7 +22,7 @@
       "type": "object",
       "title": "ProjectPlanningAiRunOptions",
       "properties": {
-        "saveNavigationAfterRun": {
+        "saveBlueprintAfterRun": {
           "type": "boolean"
         }
       },
@@ -50,7 +50,7 @@
       "type": "object",
       "title": "ProjectPlanningAiRunCommand",
       "properties": {
-        "saveNavigationAfterRun": {
+        "saveBlueprintAfterRun": {
           "type": "boolean"
         },
         "editor": {
@@ -100,24 +100,24 @@
         "input": {
           "$ref": "project-planning-agent-workflow-binding.ts.json#/$defs/ProjectPlanningAgentInput"
         },
-        "navigationDirty": {
+        "blueprintDirty": {
           "type": "boolean"
         },
-        "savedNavigation": {
+        "savedBlueprint": {
           "type": "boolean"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-20T13:41:30.640Z",
+  "generatedAt": "2026-08-09T22:26:46.021Z",
   "models": {
     "ProjectPlanningAiRunOptions": {
       "name": "ProjectPlanningAiRunOptions",
       "jsdoc": "Project Planning Ai Run Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ResolveScopedProjectPlanningRunInputOptions & Readonly<{\n    /** 自动化/headless 可在 run 结束后保存 navigation；默认 false。 */\n    saveNavigationAfterRun?: boolean;\n}>",
+        "declarationTypeText": "ResolveScopedProjectPlanningRunInputOptions & Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -126,15 +126,15 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    /** 自动化/headless 可在 run 结束后保存 navigation；默认 false。 */\n    saveNavigationAfterRun?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "saveNavigationAfterRun",
-              "jsdoc": "自动化/headless 可在 run 结束后保存 navigation；默认 false。",
+              "name": "saveBlueprintAfterRun",
+              "jsdoc": "自动化/headless 可在 run 结束后保存项目蓝图；默认 false。",
               "readable": true,
               "writable": false
             }
@@ -261,11 +261,11 @@
       "jsdoc": "Project Planning Ai Run Result 的返回结果。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 本次运行是否观察到至少一次 tool call。 */\n    sawToolCall: boolean;\n    /** 注入 Agent 的完整输入契约。 */\n    input: ProjectPlanningAgentInput;\n    /** 运行结束后导航树是否有未保存变更。 */\n    navigationDirty: boolean;\n    /** 是否已成功保存导航变更。 */\n    savedNavigation: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本次运行是否观察到至少一次 tool call。 */\n    sawToolCall: boolean;\n    /** 注入 Agent 的完整输入契约。 */\n    input: ProjectPlanningAgentInput;\n    /** 运行结束后项目蓝图是否有未保存变更。 */\n    blueprintDirty: boolean;\n    /** 是否已成功保存项目蓝图变更。 */\n    savedBlueprint: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 本次运行是否观察到至少一次 tool call。 */\n    sawToolCall: boolean;\n    /** 注入 Agent 的完整输入契约。 */\n    input: ProjectPlanningAgentInput;\n    /** 运行结束后导航树是否有未保存变更。 */\n    navigationDirty: boolean;\n    /** 是否已成功保存导航变更。 */\n    savedNavigation: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 本次运行是否观察到至少一次 tool call。 */\n    sawToolCall: boolean;\n    /** 注入 Agent 的完整输入契约。 */\n    input: ProjectPlanningAgentInput;\n    /** 运行结束后项目蓝图是否有未保存变更。 */\n    blueprintDirty: boolean;\n    /** 是否已成功保存项目蓝图变更。 */\n    savedBlueprint: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -284,14 +284,14 @@
               "writable": false
             },
             {
-              "name": "navigationDirty",
-              "jsdoc": "运行结束后导航树是否有未保存变更。",
+              "name": "blueprintDirty",
+              "jsdoc": "运行结束后项目蓝图是否有未保存变更。",
               "readable": true,
               "writable": false
             },
             {
-              "name": "savedNavigation",
-              "jsdoc": "是否已成功保存导航变更。",
+              "name": "savedBlueprint",
+              "jsdoc": "是否已成功保存项目蓝图变更。",
               "readable": true,
               "writable": false
             }

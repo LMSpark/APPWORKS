@@ -36,7 +36,7 @@ TS / Vue source
 | ---- | ---- |
 | Workflow 设计器页面 | `src/views/app/WorkflowDesigns.vue` |
 | Workflow 前端服务 | `src/services/workflow-designs.ts` |
-| Workflow 后端文件服务 | `spark-ai-server/src/main/java/com/spark/ai/service/WorkflowDesignService.java` |
+| Workflow 设计服务 | `src/services/workflow-designs.ts`（读取走 lowcode design API；写入在治理合同具备前 fail-closed） |
 | Workflow definition 类型 | `packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts` |
 | Workflow validation | `packages/spark-ai/src/agent/workflow/agent-workflow-validation.ts` |
 | ClassModel runtime | `packages/spark-ai/src/class-model/runtime/class-model-runtime.ts` |

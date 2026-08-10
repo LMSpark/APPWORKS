@@ -7,12 +7,12 @@
     "sourceFile": "src/views/app/dev-system/useDevState.ts",
     "packageName": "app",
     "modulePath": "views/app/dev-system/useDevState",
-    "jsdoc": "@module app:views/app/dev-system/useDevState\n职责：提供 DevSystem 的 useDevState 能力，围绕 DevPageFileName、PageConfigPageSummary、NavigationNodeDraftNode 等 9 个公开契约 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。",
+    "jsdoc": "@module app:views/app/dev-system/useDevState\n职责：提供 DevSystem 的 useDevState 能力，围绕 DevPageFileName、PageConfigPageSummary、BlueprintNodeDraftNode 等 9 个公开契约 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DevPageFileName",
       "PageConfigPageSummary",
-      "NavigationNodeDraftNode",
+      "BlueprintNodeDraftNode",
       "RunPageDesignAiOptions",
       "EditableProjectOption",
       "StatusMessage",
@@ -102,7 +102,7 @@
       ]
     }
   },
-  "generatedAt": "2026-06-19T02:46:51.033Z",
+  "generatedAt": "2026-08-09T22:51:40.580Z",
   "models": {
     "DevPageFileName": {
       "name": "DevPageFileName",
@@ -129,12 +129,12 @@
         "members": {}
       }
     },
-    "NavigationNodeDraftNode": {
-      "name": "NavigationNodeDraftNode",
-      "jsdoc": "Navigation Node Draft Node 的语义模型。",
+    "BlueprintNodeDraftNode": {
+      "name": "BlueprintNodeDraftNode",
+      "jsdoc": "Blueprint Node Draft Node 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    [Key in keyof ProjectNavigationNodeDraftNode]: ProjectNavigationNodeDraftNode[Key];\n}",
+        "declarationTypeText": "{\n    [Key in keyof ProjectBlueprintNodeDraftNode]: ProjectBlueprintNodeDraftNode[Key];\n}",
         "members": {}
       }
     },

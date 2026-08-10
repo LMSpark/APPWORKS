@@ -13,10 +13,10 @@
 
 import type {
   DataRow,
-  ModelPermission,
+  DataPermissionSnapshot,
   PermissionActionContext as ScriptPermissionActionContext,
 } from '@spark-appworks/spark-data'
-import type { NavPermissionMode } from '../core/capability-keys.js'
+import type { PagePermissionMode } from '../core/capability-keys.js'
 import type { SparkNode } from '../core/types'
 import { nodeInputProp } from '../core/types'
 import { canCreate, canImport, canExport, canDelete, canCreateChild, canEdit } from './PermissionChecker'
@@ -28,7 +28,7 @@ import type { FieldRenderConfig, FieldRenderState } from './FieldRenderHelper'
 /** Permission Action Context 的运行上下文。 */
 export type PermissionActionContext = ScriptPermissionActionContext & {
     /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */
-permissionMode?: NavPermissionMode | undefined
+permissionMode?: PagePermissionMode | undefined
 }
 
 /** Permission Action Name 的语义模型。 */
@@ -82,8 +82,7 @@ function resolveNodePermAction(node: SparkNode): ResolvedPermAction {
  * 判断指定动作在权限上下文中是否被允许。
  *
  * 语义：effective = max(基线允许, 权限快照)。缺少快照 = 基线允许。
- * 仅当快照显式禁止（如 _modelPerm.allowCreate === false / _perm.allowDelete === false /
- * editableFields=[]）时才拒绝。
+ * 缺少后端最终快照或行级五集合时一律拒绝。
  */
 export function isPermittedAction(
   action: PermissionAction | undefined,
@@ -98,20 +97,21 @@ export function isPermittedAction(
 
   switch (action) {
     case 'create':
-      return canCreate(context.modelPermission, mode)
+      return canCreate(context.permissionSnapshot, mode)
     case 'import':
-      return canImport(context.modelPermission, mode)
+      return canImport(context.permissionSnapshot, mode)
     case 'export':
-      return canExport(context.modelPermission, mode)
+      return canExport(context.permissionSnapshot, mode)
     case 'create-child':
-      return canCreate(context.modelPermission, mode)
-        && (row ? canCreateChild(row, mode) : true)
+      return row !== null
+        && canCreate(context.permissionSnapshot, mode)
+        && canCreateChild(row, context.permissionSnapshot, mode)
     case 'delete':
-      return row ? canDelete(row, mode) : true
+      return row ? canDelete(row, mode) : false
     case 'edit':
-      return row ? canEdit(row, mode) : true
+      return row ? canEdit(row, mode) : false
     default:
-      return true
+      return context.permissionSnapshot?.authorizedFeatureTags.includes(action) === true
   }
 }
 
@@ -121,12 +121,12 @@ export function isPermittedAction(
 export type ResolveFieldPermissionStateInput = Readonly<{
   /** 待判断权限状态的字段名。 */
   field: string | undefined
-  /** 数据行（需包含 _perm.editableFields / hiddenFields / maskedFields）。 */
+  /** 数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。 */
   row: DataRow | null | undefined
   /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */
   config?: Omit<FieldRenderConfig, 'field'> | undefined
   /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */
-  permissionMode?: NavPermissionMode | undefined
+  permissionMode?: PagePermissionMode | undefined
 }>
 
 export function resolveFieldPermissionState(input: ResolveFieldPermissionStateInput): FieldRenderState | null {
@@ -148,14 +148,14 @@ export function isRowScopedPermAction(action: PermissionAction | undefined): boo
 }
 
 /** 判断 SparkNode 的模型级动作（create/import/export）是否被权限允许 */
-export function isModelActionAllowed(action: SparkNode, modelPerm: ModelPermission | undefined, permissionMode?: NavPermissionMode): boolean {
+export function isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined, permissionMode?: PagePermissionMode): boolean {
   const permAction = resolveNodePermAction(action).action
   if (!isModelScopedPermAction(permAction)) return true
-  return isPermittedAction(permAction, modelPerm ? { modelPermission: modelPerm, permissionMode } : { permissionMode })
+  return isPermittedAction(permAction, { permissionSnapshot: snapshot ?? null, permissionMode })
 }
 
 /** 判断 SparkNode 的行级动作（edit/delete/create-child）是否被权限允许 */
-export function isRowActionAllowed(action: SparkNode, row: DataRow | undefined, permissionMode?: NavPermissionMode): boolean {
+export function isRowActionAllowed(action: SparkNode, row: DataRow | undefined, permissionMode?: PagePermissionMode): boolean {
   const permAction = resolveNodePermAction(action).action
   if (!isRowScopedPermAction(permAction)) return true
 

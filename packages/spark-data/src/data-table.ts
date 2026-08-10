@@ -14,6 +14,7 @@ import type {
   CrudOperationConfig,
   TableResourceType,
   TableBusinessCategory,
+  DataPermissionSnapshotInput,
 } from './types'
 import type { DataSet } from './dataset'
 import { DataValidator } from './validation'
@@ -403,6 +404,12 @@ export class DataTable {
     return nextRows.length
   }
 
+  /** 将同一次后端查询的行、权限和原始基线登记到指定视图。 */
+  ingestPermissionSnapshot(input: DataPermissionSnapshotInput, viewId = 'default'): void {
+    const view = this.getOrCreateView(viewId)
+    view.ingestPermissionSnapshot(input)
+  }
+
   /**
    * 创建命名视图。
    *
@@ -490,4 +497,3 @@ export class DataTable {
     return t
   }
 }
-

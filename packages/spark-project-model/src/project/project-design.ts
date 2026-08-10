@@ -1,52 +1,52 @@
 /**
  * @module @spark-appworks/spark-project-model:project/project-design
- * 职责：提供项目模型和页面配置域中的 project design 能力，支撑 navigation、page content、project session 或远程 IO。
+ * 职责：提供项目蓝图设计聚合，支撑 blueprint、page content、project session 与远程 IO。
  * 边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。
  * AI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。
  */
 /**
- * ProjectDesign — 项目设计内容：元数据 + 节点树 + 配置页 Map。
+ * ProjectBlueprintDesign — 项目蓝图设计内容：元数据 + 节点树 + 配置页 Map。
  */
 import type {
-  ProjectNode,
+  ProjectBlueprintNode,
   ProjectDescriptionContext,
-  ProjectModelData,
-  ProjectNodeData,
-  ProjectNodeLocation,
+  ProjectBlueprintTreeData,
+  ProjectBlueprintTreeNodeData,
+  ProjectBlueprintTreeNodeLocation,
   ProjectPageNodeSummary,
-} from '../navigation/project-node'
+} from '../blueprint/project-blueprint-node'
 import type {
-  NavigationNodeDraftApplyResult,
-  NavigationNodeDraft,
-} from '../navigation/navigation-edit'
-import { applyNavigationNodeDraftToNode } from '../navigation/navigation-edit'
+  BlueprintNodeDraftApplyResult,
+  BlueprintNodeDraft,
+} from '../blueprint/project-blueprint-edit'
+import { applyBlueprintNodeDraftToNode } from '../blueprint/project-blueprint-edit'
 import type { ConfigPageNode } from '../page/config-page'
 import {
   appendProjectDescriptionContext,
-  buildNavRoot,
+  buildBlueprintTree,
   buildProjectPageSummaries,
-  flattenProjectNavigationRoot,
-  normalizeNavRoot,
+  flattenProjectBlueprintTree,
+  normalizeBlueprintTree,
   resolvePageNodePageId,
-} from '../navigation/navigation-tree'
-import { NavigationIndex } from '../navigation/navigation-index'
+} from '../blueprint/project-blueprint-tree'
+import { ProjectBlueprintIndex } from '../blueprint/project-blueprint-index'
 import { instantiateProjectNode, isConfigPageNode } from '../page/instantiate-project-node'
 import type { ProjectInfo, ProjectInfoInput, ProjectModelInitOptions } from './project-types'
 
 export type { ProjectInfo, ProjectInfoInput } from './project-types'
 
-/** Project Design Node Edit Result 的返回结果。 */
-export type ProjectDesignNodeEditResult<TNode extends ProjectNode = ProjectNode> = {
+/** Project Blueprint Design Node Edit Result 的返回结果。 */
+export type ProjectBlueprintDesignNodeEditResult<TNode extends ProjectBlueprintNode = ProjectBlueprintNode> = {
     /** node 字段。 */
 node: TNode
     /** 操作结果。 */
-result: NavigationNodeDraftApplyResult
+result: BlueprintNodeDraftApplyResult
 }
 
 /**
- * 项目设计根：项目元数据、导航节点树与配置页缓存。
+ * 项目蓝图设计根：项目元数据、蓝图节点与配置页缓存。
  */
-export class ProjectDesign<TNode extends ProjectNode = ProjectNode> {
+export class ProjectBlueprintDesign<TNode extends ProjectBlueprintNode = ProjectBlueprintNode> {
   private readonly projectIdValue: string
   private tenantIdValue: string | undefined
   private projectName: string
@@ -60,10 +60,10 @@ export class ProjectDesign<TNode extends ProjectNode = ProjectNode> {
   private projectUpdatedAt: string | undefined
   private readonly configPagesByPageId = new Map<string, ConfigPageNode>()
   private readonly nodesById = new Map<string, TNode>()
-  private readonly navigationIndex: NavigationIndex<TNode>
-  private navigationRootCache: ProjectModelData | null = null
+  private readonly blueprintIndex: ProjectBlueprintIndex<TNode>
+  private blueprintTreeCache: ProjectBlueprintTreeData | null = null
 
-    /** 创建 Project Design 实例。 */
+    /** 创建 Project Blueprint Design 实例。 */
 constructor(options: ProjectModelInitOptions) {
     const projectId = options.projectId.trim()
     if (!projectId) throw new Error('projectId 不能为空')
@@ -72,7 +72,7 @@ constructor(options: ProjectModelInitOptions) {
     this.projectTypeValue = 'app'
     this.projectDescriptionValue = ''
     this.projectOrder = 0
-    this.navigationIndex = new NavigationIndex(this.nodesById)
+    this.blueprintIndex = new ProjectBlueprintIndex(this.nodesById)
     this.replaceProjectInfo(options.project ?? {})
   }
 
@@ -111,26 +111,26 @@ constructor(options: ProjectModelInitOptions) {
     }
   }
 
-  get navigationRoot(): ProjectModelData {
-    if (this.navigationRootCache) return this.navigationRootCache
+  get blueprintTree(): ProjectBlueprintTreeData {
+    if (this.blueprintTreeCache) return this.blueprintTreeCache
     const root = this.rootNode?.toNodeData()
     if (root === undefined) {
-      this.navigationRootCache = buildNavRoot([], {
+      this.blueprintTreeCache = buildBlueprintTree([], {
         title: this.name,
         childPlacement: 'header',
         nodeKind: 'module',
       })
-      return this.navigationRootCache
+      return this.blueprintTreeCache
     }
     const { id, nodeKind, title, childPlacement, children: _children, ...rest } = root
-    this.navigationRootCache = buildNavRoot(this.readChildNodeData(id), {
+    this.blueprintTreeCache = buildBlueprintTree(this.readChildNodeData(id), {
       id,
       nodeKind: nodeKind === 'system-directory' ? 'system-directory' : 'module',
       title,
       childPlacement: childPlacement === 'sidebar' ? 'sidebar' : 'header',
       ...rest,
     })
-    return this.navigationRootCache
+    return this.blueprintTreeCache
   }
 
   get pages(): Iterable<ConfigPageNode> { return this.configPagesByPageId.values() }
@@ -149,17 +149,17 @@ forEachNode(callback: (node: TNode) => void): void {
     for (const node of this.nodesById.values()) callback(node)
   }
 
-    /** 执行 replace Navigation Root 操作。 */
-replaceNavigationRoot(root: ProjectModelData): ProjectModelData {
-    const normalized = normalizeNavRoot(root)
-    const normalizedRoot: ProjectModelData = normalized.id?.trim()
+    /** 替换项目蓝图根。 */
+replaceBlueprintTree(root: ProjectBlueprintTreeData): ProjectBlueprintTreeData {
+    const normalized = normalizeBlueprintTree(root)
+    const normalizedRoot: ProjectBlueprintTreeData = normalized.id?.trim()
       ? normalized
       : { ...normalized, id: `${this.projectId}_root` }
     const previousConfigPages = new Map(this.configPagesByPageId)
     this.nodesById.clear()
     this.configPagesByPageId.clear()
 
-    for (const item of flattenProjectNavigationRoot(normalizedRoot)) {
+    for (const item of flattenProjectBlueprintTree(normalizedRoot)) {
       const descriptionContext = this.readDescriptionContextForNode(item.node, item.pid)
       const pageId = resolvePageNodePageId(item.node)
       const reusablePage = pageId ? previousConfigPages.get(pageId) : undefined
@@ -168,19 +168,19 @@ replaceNavigationRoot(root: ProjectModelData): ProjectModelData {
         pid: item.pid,
         descriptionContext,
       })
-      if (!isProjectDesignNode<TNode>(created)) {
+      if (!isProjectBlueprintDesignNode<TNode>(created)) {
         throw new Error(`项目节点实例化失败: ${item.node.id}`)
       }
       const model = created
-      model.rebindNavigationNode(item.node, item.pid, descriptionContext)
+      model.rebindBlueprintNode(item.node, item.pid, descriptionContext)
       this.nodesById.set(model.id, model)
       if (isConfigPageNode(model)) {
         this.configPagesByPageId.set(model.pageId, model)
       }
     }
 
-    this.rebuildNavigationIndex()
-    return this.navigationRoot
+    this.rebuildProjectBlueprintIndex()
+    return this.blueprintTree
   }
 
     /** 执行 replace Project Info 操作。 */
@@ -210,9 +210,9 @@ replaceProjectInfo(project: ProjectInfoInput): ProjectInfo {
     return this.projectInfo
   }
 
-    /** 执行 replace Navigation Children 操作。 */
-replaceNavigationChildren(children: ProjectNodeData[]): ProjectModelData {
-    return this.replaceNavigationRoot(buildNavRoot(children, this.navigationRoot))
+    /** 替换项目蓝图根级子节点。 */
+replaceBlueprintChildren(children: ProjectBlueprintTreeNodeData[]): ProjectBlueprintTreeData {
+    return this.replaceBlueprintTree(buildBlueprintTree(children, this.blueprintTree))
   }
 
     /** find Node By Id 标识。 */
@@ -221,8 +221,8 @@ findNodeById(nodeId: string): TNode | null {
   }
 
     /** 执行 find Node Location 操作。 */
-findNodeLocation(nodeId: string): ProjectNodeLocation | null {
-    return this.navigationIndex.findNodeLocation(nodeId)
+findNodeLocation(nodeId: string): ProjectBlueprintTreeNodeLocation | null {
+    return this.blueprintIndex.findNodeLocation(nodeId)
   }
 
     /** find Config Page By Page Id 标识。 */
@@ -230,14 +230,14 @@ findConfigPageByPageId(pageId: string): ConfigPageNode | null {
     return this.configPagesByPageId.get(pageId.trim()) ?? null
   }
 
-    /** 执行 apply Navigation Node Edit 操作。 */
-applyNavigationNodeEdit(input: NavigationNodeDraft): ProjectDesignNodeEditResult<TNode> {
+    /** 应用项目蓝图节点编辑。 */
+applyBlueprintNodeEdit(input: BlueprintNodeDraft): ProjectBlueprintDesignNodeEditResult<TNode> {
     const nodeId = input.node.id.trim()
     if (!nodeId) throw new Error('nodeId 不能为空')
     const model = this.findNodeById(nodeId)
     if (!model) throw new Error(`项目节点未找到: ${nodeId}`)
-    const result = applyNavigationNodeDraftToNode(model, input)
-    this.rebuildNavigationIndex()
+    const result = applyBlueprintNodeDraftToNode(model, input)
+    this.rebuildProjectBlueprintIndex()
     this.rebindDescriptionContext()
     return { node: model, result }
   }
@@ -248,7 +248,7 @@ openPageDesign(pageId: string): ConfigPageNode {
     if (!normalized) throw new Error('pageId 不能为空')
     const existing = this.findConfigPageByPageId(normalized)
     if (existing) return existing
-    const node: ProjectNodeData = {
+    const node: ProjectBlueprintTreeNodeData = {
       id: normalized,
       title: normalized,
       nodeKind: 'page',
@@ -269,7 +269,7 @@ closePageDesign(pageId: string): void {
 
     /** 读取策划轴投影：各 page/sub-page 的 description 与 descriptionContext。 */
 readPlanningProjection(): ProjectPageNodeSummary[] {
-    const summaries = buildProjectPageSummaries(this.navigationIndex.buildTree(), {
+    const summaries = buildProjectPageSummaries(this.blueprintIndex.buildTree(), {
       descriptionContext: this.readProjectDescriptionContext(),
     })
     const seen = new Set(summaries.map((summary) => summary.pageId))
@@ -281,8 +281,8 @@ readPlanningProjection(): ProjectPageNodeSummary[] {
   }
 
     /** 执行 add Root Module 操作。 */
-addRootModule(createId: () => string): ProjectNodeData {
-    const node: ProjectNodeData = {
+addRootModule(createId: () => string): ProjectBlueprintTreeNodeData {
+    const node: ProjectBlueprintTreeNodeData = {
       id: createId(),
       nodeKind: 'module',
       title: '新模块',
@@ -297,9 +297,9 @@ addRootModule(createId: () => string): ProjectNodeData {
   }
 
     /** 执行 add Child Page 操作。 */
-addChildPage(createId: () => string, parent: ProjectNodeData | null = null): ProjectNodeData {
+addChildPage(createId: () => string, parent: ProjectBlueprintTreeNodeData | null = null): ProjectBlueprintTreeNodeData {
     const id = createId()
-    const node: ProjectNodeData = {
+    const node: ProjectBlueprintTreeNodeData = {
       id,
       nodeKind: 'page',
       title: '新页面',
@@ -313,31 +313,31 @@ addChildPage(createId: () => string, parent: ProjectNodeData | null = null): Pro
   }
 
     /** 删除 Node。 */
-removeNode(nodeId: string): ProjectNodeData | null {
+removeNode(nodeId: string): ProjectBlueprintTreeNodeData | null {
     const normalized = nodeId.trim()
     if (!normalized) throw new Error('nodeId 不能为空')
     const model = this.findNodeById(normalized)
     if (!model) throw new Error(`项目节点未找到: ${normalized}`)
     const removed = model.toNodeData()
-    const descendants = this.navigationIndex.collectDescendants(normalized)
+    const descendants = this.blueprintIndex.collectDescendants(normalized)
     for (const child of descendants) this.removeModel(child)
     this.removeModel(model)
-    this.rebuildNavigationIndex()
+    this.rebuildProjectBlueprintIndex()
     return removed
   }
 
-    /** 执行 refresh Nav Refs 操作。 */
+    /** 刷新项目蓝图上下文引用。 */
 refreshNavRefs(): void {
     this.rebindDescriptionContext()
   }
 
     /** 执行 to Tree 操作。 */
-toTree(): ProjectNodeData[] {
-    return this.navigationIndex.buildTree()
+toTree(): ProjectBlueprintTreeNodeData[] {
+    return this.blueprintIndex.buildTree()
   }
 
-  /** 打开尚未挂载到导航树的配置页节点（仅内存，不入 nodesById）。 */
-  private openDetachedConfigPage(node: ProjectNodeData): ConfigPageNode {
+  /** 打开尚未挂载到项目蓝图的配置页节点（仅内存，不入 nodesById）。 */
+  private openDetachedConfigPage(node: ProjectBlueprintTreeNodeData): ConfigPageNode {
     const model = this.instantiateNode(node, '', this.readDescriptionContextForNode(node, ''))
     if (!isConfigPageNode(model)) {
       throw new Error(`节点 ${node.id} 不是配置页面节点`)
@@ -346,35 +346,35 @@ toTree(): ProjectNodeData[] {
     return model
   }
 
-  private rebuildNavigationIndex(): void {
-    this.navigationIndex.rebuild()
-    this.navigationRootCache = null
+  private rebuildProjectBlueprintIndex(): void {
+    this.blueprintIndex.rebuild()
+    this.blueprintTreeCache = null
   }
 
-  private invalidateNavigationCaches(): void {
-    this.navigationIndex.invalidateTree()
-    this.navigationRootCache = null
+  private invalidateBlueprintCaches(): void {
+    this.blueprintIndex.invalidateTree()
+    this.blueprintTreeCache = null
   }
 
   private ensureRootNode(): TNode {
     const existing = this.rootNode
     if (existing) return existing
-    throw new Error('导航 root 节点未加载')
+    throw new Error('项目蓝图根节点未加载')
   }
 
   private instantiateNode(
-    node: ProjectNodeData,
+    node: ProjectBlueprintTreeNodeData,
     pid: string,
     descriptionContext: readonly ProjectDescriptionContext[],
   ): TNode {
     const created = instantiateProjectNode({ node, pid, descriptionContext })
-    if (!isProjectDesignNode<TNode>(created)) {
+    if (!isProjectBlueprintDesignNode<TNode>(created)) {
       throw new Error(`项目节点实例化失败: ${node.id}`)
     }
     return created
   }
 
-  private insertNode(node: ProjectNodeData, pid: string): TNode {
+  private insertNode(node: ProjectBlueprintTreeNodeData, pid: string): TNode {
     if (this.nodesById.has(node.id)) {
       throw new Error(`项目节点已存在: ${node.id}`)
     }
@@ -383,7 +383,7 @@ toTree(): ProjectNodeData[] {
     if (isConfigPageNode(model)) {
       this.configPagesByPageId.set(model.pageId, model)
     }
-    this.rebuildNavigationIndex()
+    this.rebuildProjectBlueprintIndex()
     return model
   }
 
@@ -395,10 +395,10 @@ toTree(): ProjectNodeData[] {
   }
 
   private readChildNodes(pid: string): TNode[] {
-    return [...this.navigationIndex.getChildren(pid)]
+    return [...this.blueprintIndex.getChildren(pid)]
   }
 
-  private readChildNodeData(pid: string): ProjectNodeData[] {
+  private readChildNodeData(pid: string): ProjectBlueprintTreeNodeData[] {
     return this.readChildNodes(pid).map((node) => {
       const data = { ...node.toNodeData() }
       const children = this.readChildNodeData(node.id)
@@ -409,24 +409,24 @@ toTree(): ProjectNodeData[] {
   }
 
   private nextChildOrder(pid: string): number {
-    return this.navigationIndex.nextChildOrder(pid)
+    return this.blueprintIndex.nextChildOrder(pid)
   }
 
   private rebindDescriptionContext(): void {
     const projectContext = this.readProjectDescriptionContext()
     const visit = (parentId: string, parentContext: ProjectDescriptionContext[]): void => {
-      for (const model of this.navigationIndex.getChildren(parentId)) {
+      for (const model of this.blueprintIndex.getChildren(parentId)) {
         const node = model.toNodeData()
         const context = appendProjectDescriptionContext(parentContext, node)
-        model.rebindNavigationNode(node, model.pid, context)
+        model.rebindBlueprintNode(node, model.pid, context)
         visit(model.id, context)
       }
     }
     visit('', projectContext)
-    this.invalidateNavigationCaches()
+    this.invalidateBlueprintCaches()
   }
 
-  private readDescriptionContextForNode(node: ProjectNodeData, pid: string): ProjectDescriptionContext[] {
+  private readDescriptionContextForNode(node: ProjectBlueprintTreeNodeData, pid: string): ProjectDescriptionContext[] {
     let context = this.readProjectDescriptionContext()
     for (const ancestor of this.readAncestorNodes(pid)) {
       context = appendProjectDescriptionContext(context, ancestor)
@@ -445,8 +445,8 @@ toTree(): ProjectNodeData[] {
     }]
   }
 
-  private readAncestorNodes(pid: string): ProjectNodeData[] {
-    const ancestors: ProjectNodeData[] = []
+  private readAncestorNodes(pid: string): ProjectBlueprintTreeNodeData[] {
+    const ancestors: ProjectBlueprintTreeNodeData[] = []
     let currentPid = pid
     while (currentPid) {
       const current = this.findNodeById(currentPid)
@@ -458,7 +458,6 @@ toTree(): ProjectNodeData[] {
   }
 }
 
-function isProjectDesignNode<TNode extends ProjectNode>(_node: ProjectNode): _node is TNode {
+function isProjectBlueprintDesignNode<TNode extends ProjectBlueprintNode>(_node: ProjectBlueprintNode): _node is TNode {
   return true
 }
-

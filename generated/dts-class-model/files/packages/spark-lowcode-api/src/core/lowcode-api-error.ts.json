@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:core/lowcode-api-error",
+    "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-api-error.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-api-error.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "core/lowcode-api-error",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 core/lowcode-api-error 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApiError（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeApiError"
+    ]
+  },
+  "$defs": {
+    "LowcodeApiError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApiError",
+      "properties": {
+        "code": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T09:54:24.195Z",
+  "models": {
+    "LowcodeApiError": {
+      "name": "LowcodeApiError",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(code: number, message: string)",
+          "parameters": [
+            {
+              "name": "code",
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

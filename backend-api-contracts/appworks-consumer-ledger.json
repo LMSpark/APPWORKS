@@ -1,0 +1,758 @@
+{
+  "schemaVersion": 1,
+  "source": "appworks-static-http-path-scan",
+  "generationMode": "read-only-static-characterization",
+  "limitations": [
+    "Only direct /api string and template literals are listed; calls through typed LowcodeApi methods are represented at their adapter declaration.",
+    "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
+    "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
+  ],
+  "consumerCount": 124,
+  "directUnmatchedCount": 89,
+  "consumers": [
+    {
+      "expression": "/api/v1",
+      "sourceFile": "packages/spark-app/dist/bootstrap.d.ts",
+      "sourceLine": 77,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "packages/spark-app/dist/logger/index.d.ts",
+      "sourceLine": 112,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/v1",
+      "sourceFile": "packages/spark-app/src/bootstrap.ts",
+      "sourceLine": 98,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-app/src/config/index.ts",
+      "sourceLine": 68,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "packages/spark-app/src/config/loader.ts",
+      "sourceLine": 402,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "packages/spark-app/src/logger/__tests__/logger.test.ts",
+      "sourceLine": 259,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "packages/spark-app/src/logger/__tests__/logger.test.ts",
+      "sourceLine": 271,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "packages/spark-app/src/logger/__tests__/logger.test.ts",
+      "sourceLine": 275,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "packages/spark-app/src/logger/__tests__/logger.test.ts",
+      "sourceLine": 302,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "packages/spark-app/src/logger/index.ts",
+      "sourceLine": 360,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
+      "sourceLine": 25,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/{id}",
+      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
+      "sourceLine": 25,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
+      "sourceLine": 31,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/42",
+      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
+      "sourceLine": 32,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/{parentId}/children",
+      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
+      "sourceLine": 34,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/root/children",
+      "sourceFile": "packages/spark-data/dist/core/url-template.d.ts",
+      "sourceLine": 35,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/dist/core/utils.d.ts",
+      "sourceLine": 22,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/dist/types.d.ts",
+      "sourceLine": 368,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/src/core/url-template.ts",
+      "sourceLine": 29,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/{id}",
+      "sourceFile": "packages/spark-data/src/core/url-template.ts",
+      "sourceLine": 29,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/src/core/url-template.ts",
+      "sourceLine": 35,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/42",
+      "sourceFile": "packages/spark-data/src/core/url-template.ts",
+      "sourceLine": 36,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/{parentId}/children",
+      "sourceFile": "packages/spark-data/src/core/url-template.ts",
+      "sourceLine": 38,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/root/children",
+      "sourceFile": "packages/spark-data/src/core/url-template.ts",
+      "sourceLine": 39,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/{dynamic}",
+      "sourceFile": "packages/spark-data/src/core/utils.ts",
+      "sourceLine": 39,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/core/utils.ts",
+      "sourceLine": 49,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/core/utils.ts",
+      "sourceLine": 67,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/core/utils.ts",
+      "sourceLine": 96,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceLine": 109,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/{id}",
+      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceLine": 110,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/{id}",
+      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceLine": 111,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceLine": 423,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 37,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/t",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 84,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/filter-expression-cases/query",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 252,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/filter-expression-cases/query",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 272,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 292,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 293,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test/batch",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 295,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/t/{id}",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 336,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/t/{id}",
+      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceLine": 379,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceLine": 23,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceLine": 24,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceLine": 25,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceLine": 47,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
+      "sourceLine": 21,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
+      "sourceLine": 22,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/orders",
+      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
+      "sourceLine": 83,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/orders",
+      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
+      "sourceLine": 93,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/{id}",
+      "sourceFile": "packages/spark-data/src/tests/data-view-events.test.ts",
+      "sourceLine": 243,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/departments",
+      "sourceFile": "packages/spark-data/src/tests/dataset-json-prompt-validation.test.ts",
+      "sourceLine": 488,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/employees",
+      "sourceFile": "packages/spark-data/src/tests/dataset-json-prompt-validation.test.ts",
+      "sourceLine": 512,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/employees",
+      "sourceFile": "packages/spark-data/src/tests/dataset-json-prompt-validation.test.ts",
+      "sourceLine": 584,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/nodes",
+      "sourceFile": "packages/spark-data/src/tests/dataset-tree-4-plus-7.test.ts",
+      "sourceLine": 8,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/safety-guards.test.ts",
+      "sourceLine": 71,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "packages/spark-data/src/tests/safety-guards.test.ts",
+      "sourceLine": 79,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
+      "sourceLine": 158,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
+      "sourceLine": 159,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
+      "sourceLine": 160,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
+      "sourceLine": 161,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
+      "sourceLine": 225,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/types.ts",
+      "sourceLine": 471,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/DataOperation/GetBaseData",
+      "sourceFile": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "sourceLine": 244,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/content/text",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 36,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/content/text",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "sourceLine": 66,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/list",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "sourceLine": 78,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+      "sourceLine": 241,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+      "sourceLine": 72,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "sourceLine": 147,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.test.ts",
+      "sourceLine": 49,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/GetUserInfo",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 65,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/UserLoginByEnt",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 116,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetBaseData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 160,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/refresh",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 296,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/UserLogoutByEnt",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 339,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/refresh",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 426,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/GetUserInfo",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 433,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/sysCache/findByPatternPageWithTotal",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 449,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/sysCache/findByPatternPageWithTotal",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 454,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/register",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 498,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Ent/AddEnterprise",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 533,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/UserLoginByEnt",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 257,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetBaseData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 285,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/sysCache/findByPatternPageWithTotal",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 302,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/message/code/send/public",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 317,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/register",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 331,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Ent/AddEnterprise",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 354,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/refresh",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 388,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/UserLogoutByEnt",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 414,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/LoginAuthority/GetUserInfo",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 428,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 452,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sourceLine": 464,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Function/GetFormUserFunction",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts",
+      "sourceLine": 13,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts",
+      "sourceLine": 60,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts",
+      "sourceLine": 88,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
+      "sourceLine": 82,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Function/GetFormUserFunction",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+      "sourceLine": 40,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/exportDesignDoc",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.test.ts",
+      "sourceLine": 52,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.test.ts",
+      "sourceLine": 9,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.test.ts",
+      "sourceLine": 44,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+      "sourceLine": 25,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/exportSRS",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+      "sourceLine": 59,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/exportSDD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+      "sourceLine": 61,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/exportDesignDoc",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+      "sourceLine": 63,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/turns",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
+      "sourceLine": 21,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/turns",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
+      "sourceLine": 108,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/sessions/S1/turn/append",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
+      "sourceLine": 113,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/chat",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "sourceLine": 126,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/turns",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "sourceLine": 141,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/sse/connect",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "sourceLine": 242,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/logs/batch",
+      "sourceFile": "packages/spark-utils/src/tests/beacon.test.ts",
+      "sourceLine": 34,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 46,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 327,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 507,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 564,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 608,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 668,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 739,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/config",
+      "sourceFile": "packages/spark-utils/src/tests/file-loader.test.ts",
+      "sourceLine": 812,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/logs",
+      "sourceFile": "src/main.ts",
+      "sourceLine": 280,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/sse/connect",
+      "sourceFile": "src/services/sse-events.ts",
+      "sourceLine": 10,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/test",
+      "sourceFile": "src/views/app/CapabilityDemo.vue",
+      "sourceLine": 213,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/demo",
+      "sourceFile": "src/views/app/CapabilityDemo.vue",
+      "sourceLine": 315,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/Db/testConnection",
+      "sourceFile": "src/views/app/DBMS.vue",
+      "sourceLine": 1278,
+      "scope": "app-composition"
+    }
+  ]
+}

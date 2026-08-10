@@ -1,0 +1,1558 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-node",
+    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+    "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "blueprint/project-blueprint-node",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-node\n职责：提供项目蓝图节点、运行交付投影与页面身份闭包契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划项目蓝图、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 blueprint/project-blueprint-node。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ChildPlacement",
+      "ProjectBlueprintDeliveryKind",
+      "ProjectBlueprintNodeKind",
+      "ProjectBlueprintPermissionMode",
+      "ProjectBlueprintNodeFamily",
+      "ProjectDescriptionContext",
+      "ProjectBlueprintContextItem",
+      "ProjectBlueprintContextConfig",
+      "ProjectBlueprintTreeNodeData",
+      "ProjectBlueprintNodePatch",
+      "ProjectBlueprintTreeNodeLocation",
+      "ProjectBlueprintTreeData",
+      "ProjectPageSurface",
+      "ProjectPageNodeSummary",
+      "ProjectBlueprintNodeModelOptions",
+      "ProjectBlueprintNode"
+    ]
+  },
+  "$defs": {
+    "ChildPlacement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ChildPlacement",
+      "enum": [
+        "header",
+        "sidebar",
+        "toolbar",
+        "user-menu",
+        "parent",
+        "flat"
+      ]
+    },
+    "ProjectBlueprintDeliveryKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintDeliveryKind",
+      "enum": [
+        "system-directory",
+        "module",
+        "system-page",
+        "system-action",
+        "page",
+        "link",
+        "ref"
+      ]
+    },
+    "ProjectBlueprintNodeKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintNodeKind",
+      "enum": [
+        "project",
+        "module",
+        "requirement",
+        "prototype",
+        "data-space",
+        "page",
+        "sub-page",
+        "report",
+        "workflow",
+        "integration",
+        "action",
+        "external",
+        "permission-management",
+        "unresolved"
+      ]
+    },
+    "ProjectBlueprintPermissionMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintPermissionMode",
+      "enum": [
+        "none",
+        "masked",
+        "invisible"
+      ]
+    },
+    "ProjectBlueprintNodeFamily": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintNodeFamily",
+      "enum": [
+        "module",
+        "config-page",
+        "system-page",
+        "system-action",
+        "link",
+        "ref"
+      ]
+    },
+    "ProjectDescriptionContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectDescriptionContext",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "nodeKind": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "title",
+        "nodeKind",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintContextItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintContextItem",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintContextConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintContextConfig",
+      "properties": {
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ProjectBlueprintContextItem"
+              }
+            }
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "paramName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintTreeNodeData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintTreeNodeData",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "nodeKind": {
+          "$ref": "#/$defs/ProjectBlueprintDeliveryKind"
+        },
+        "blueprintKind": {
+          "$ref": "#/$defs/ProjectBlueprintNodeKind"
+        },
+        "childPlacement": {
+          "$ref": "#/$defs/ChildPlacement"
+        },
+        "context": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ProjectBlueprintContextItem"
+              }
+            },
+            {
+              "$ref": "#/$defs/ProjectBlueprintContextConfig"
+            }
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "dividerAfter": {
+          "type": "boolean"
+        },
+        "permissionMode": {
+          "$ref": "#/$defs/ProjectBlueprintPermissionMode"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+          }
+        },
+        "path": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "linkTarget": {
+          "enum": [
+            "iframe",
+            "new-tab",
+            "self"
+          ]
+        },
+        "redirect": {
+          "type": "string"
+        },
+        "refId": {
+          "type": "string"
+        },
+        "refPath": {
+          "type": "string"
+        },
+        "refProjectId": {
+          "type": "string"
+        },
+        "refBroken": {
+          "type": "boolean"
+        },
+        "implGate": {
+          "enum": [
+            "closed",
+            "open"
+          ]
+        },
+        "upstreamContractsSatisfied": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintNodePatch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintNodePatch",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "blueprintKind": {
+          "$ref": "#/$defs/ProjectBlueprintNodeKind"
+        },
+        "nodeKind": {
+          "$ref": "#/$defs/ProjectBlueprintDeliveryKind"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "dividerAfter": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "linkTarget": {
+          "type": "string"
+        },
+        "childPlacement": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "refId": {
+          "type": "string"
+        },
+        "permissionMode": {
+          "$ref": "#/$defs/ProjectBlueprintPermissionMode"
+        },
+        "context": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ProjectBlueprintContextItem"
+              }
+            },
+            {
+              "$ref": "#/$defs/ProjectBlueprintContextConfig"
+            }
+          ]
+        },
+        "implGate": {
+          "enum": [
+            "closed",
+            "open"
+          ]
+        },
+        "upstreamContractsSatisfied": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintTreeNodeLocation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintTreeNodeLocation",
+      "properties": {
+        "node": {
+          "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "node",
+        "parent",
+        "parentId",
+        "index"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintTreeData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintTreeData",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nodeKind": {
+          "enum": [
+            "module",
+            "system-directory"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "childPlacement": {
+          "enum": [
+            "header",
+            "sidebar"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+          }
+        },
+        "homePath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "childPlacement",
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectPageSurface": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectPageSurface",
+      "enum": [
+        "config-files",
+        "system-page",
+        "link",
+        "ref",
+        "none"
+      ]
+    },
+    "ProjectPageNodeSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPageNodeSummary",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "nodeKind": {
+          "$ref": "#/$defs/ProjectBlueprintDeliveryKind"
+        },
+        "designSurface": {
+          "$ref": "#/$defs/ProjectPageSurface"
+        },
+        "description": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "descriptionContext": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProjectDescriptionContext"
+          }
+        },
+        "effectiveDescription": {
+          "type": "string"
+        },
+        "implGate": {
+          "enum": [
+            "closed",
+            "open"
+          ]
+        },
+        "upstreamContractsSatisfied": {
+          "type": "boolean"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pageId",
+        "path",
+        "title",
+        "nodeId",
+        "nodeKind",
+        "designSurface",
+        "description",
+        "descriptionContext",
+        "effectiveDescription"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintNodeModelOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintNodeModelOptions",
+      "properties": {
+        "node": {
+          "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+        },
+        "pid": {
+          "type": "string"
+        },
+        "descriptionContext": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProjectDescriptionContext"
+          }
+        }
+      },
+      "required": [
+        "node",
+        "pid"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintNode",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ProjectBlueprintNodeModelOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toNodeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toNodeData.return": {
+          "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+        },
+        "method.applyBlueprintPatch.params": {
+          "type": "object",
+          "properties": {
+            "patch": {
+              "$ref": "#/$defs/ProjectBlueprintNodePatch"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyBlueprintPatch.return": true,
+        "method.rebindBlueprintNode.params": {
+          "type": "object",
+          "properties": {
+            "node": {
+              "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+            },
+            "pid": {
+              "type": "string"
+            },
+            "descriptionContext": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ProjectDescriptionContext"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rebindBlueprintNode.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T22:37:37.480Z",
+  "models": {
+    "ChildPlacement": {
+      "name": "ChildPlacement",
+      "jsdoc": "子节点布局位置：决定子节点在 UI 中的渲染区域。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'header' | 'sidebar' | 'toolbar' | 'user-menu' | 'parent' | 'flat'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'header'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'sidebar'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'toolbar'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'user-menu'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'parent'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'flat'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintDeliveryKind": {
+      "name": "ProjectBlueprintDeliveryKind",
+      "jsdoc": "项目蓝图向运行时交付的投影类型；不是蓝图业务类型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'system-directory' | 'module' | 'system-page' | 'system-action' | 'page' | 'link' | 'ref'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'system-directory'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'module'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-action'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'link'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ref'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintNodeKind": {
+      "name": "ProjectBlueprintNodeKind",
+      "jsdoc": "项目蓝图节点的业务种类；与运行导航 itemKind 严格分离。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'project' | 'module' | 'requirement' | 'prototype' | 'data-space' | 'page' | 'sub-page' | 'report' | 'workflow' | 'integration' | 'action' | 'external' | 'permission-management' | 'unresolved'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'project'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'module'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'requirement'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'prototype'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'data-space'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'sub-page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'report'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'workflow'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'integration'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'action'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'external'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'permission-management'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unresolved'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintPermissionMode": {
+      "name": "ProjectBlueprintPermissionMode",
+      "jsdoc": "权限未匹配时的展示模式。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'none' | 'masked' | 'invisible'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'none'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'masked'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'invisible'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintNodeFamily": {
+      "name": "ProjectBlueprintNodeFamily",
+      "jsdoc": "Project Node Family 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'module' | 'config-page' | 'system-page' | 'system-action' | 'link' | 'ref'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'module'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'config-page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-action'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'link'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ref'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectDescriptionContext": {
+      "name": "ProjectDescriptionContext",
+      "jsdoc": "Project Description Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 上下文来源节点 ID。 */\n    nodeId: string;\n    /** 上下文来源节点标题。 */\n    title: string;\n    /** 上下文来源节点类型。 */\n    nodeKind: string;\n    /** 上下文来源节点描述文本。 */\n    description: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "上下文来源节点 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "上下文来源节点标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeKind",
+              "jsdoc": "上下文来源节点类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "上下文来源节点描述文本。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintContextItem": {
+      "name": "ProjectBlueprintContextItem",
+      "jsdoc": "上下文下拉选项项。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 选项稳定值，会写入蓝图上下文状态。 */\n    id: string | number;\n    /** 选项展示标题。 */\n    title: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "选项稳定值，会写入蓝图上下文状态。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "选项展示标题。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintContextConfig": {
+      "name": "ProjectBlueprintContextConfig",
+      "jsdoc": "动态上下文配置：描述 ProjectNode 上下文的来源和交互行为。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 上下文选项来源；字符串表示远端/命名来源，数组表示内联静态选项。 */\n    source: string | ProjectBlueprintContextItem[];\n    /** 上下文未选择时的占位提示。 */\n    placeholder?: string | undefined;\n    /** 上下文默认选中值。 */\n    defaultValue?: string | number | undefined;\n    /** 写入路由或查询参数时使用的参数名。 */\n    paramName?: string | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "jsdoc": "上下文选项来源；字符串表示远端/命名来源，数组表示内联静态选项。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "上下文未选择时的占位提示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "jsdoc": "上下文默认选中值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paramName",
+              "jsdoc": "写入路由或查询参数时使用的参数名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintTreeNodeData": {
+      "name": "ProjectBlueprintTreeNodeData",
+      "jsdoc": "项目树节点的可序列化数据形状。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 项目蓝图节点唯一 ID。 */\n    id: string;\n    /** 项目蓝图节点标题。 */\n    title: string;\n    /** 节点业务描述，供 AI 策划和页面设计理解用途。 */\n    description?: string | undefined;\n    /** 节点策划详细说明附件引用；正文由工作区解析后传给 LLM。 */\n    planningAttachmentRef?: string | undefined;\n    /** 节点版本号或版本标签。 */\n    version?: string | undefined;\n    /** 节点图标名。 */\n    icon?: string | undefined;\n    /** 运行交付投影类型，决定菜单、页面、链接、引用等输出行为。 */\n    nodeKind?: ProjectBlueprintDeliveryKind | undefined;\n    /** 蓝图业务种类；nodeKind 仅是旧设计器的运行表面投影。 */\n    blueprintKind?: ProjectBlueprintNodeKind | undefined;\n    /** 子节点在应用壳中的布局区域。 */\n    childPlacement?: ChildPlacement | undefined;\n    /** 项目蓝图上下文配置或静态上下文选项。 */\n    context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig | undefined;\n    /** 同级排序值，数值越小越靠前。 */\n    order?: number | undefined;\n    /** 输出为运行菜单时是否隐藏。 */\n    hidden?: boolean | undefined;\n    /** 输出为运行菜单时是否禁用。 */\n    disabled?: boolean | undefined;\n    /** 是否在该节点后显示分隔线。 */\n    dividerAfter?: boolean | undefined;\n    /** 权限不匹配时的展示策略。 */\n    permissionMode?: ProjectBlueprintPermissionMode | undefined;\n    /** 子蓝图节点。 */\n    children?: ProjectBlueprintTreeNodeData[] | undefined;\n    /** 页面路由路径。 */\n    path?: string | undefined;\n    /** 页面消费的数据空间身份；不得由物理表名或 FormKey 推断。 */\n    dataSpaceId?: string | undefined;\n    /** 具体页面载体进入数据空间时使用的后端 FormKey。 */\n    formKey?: string | undefined;\n    /** 页面在数据空间内消费的唯一前端模型身份。 */\n    modelId?: string | undefined;\n    /** link 节点的打开目标。 */\n    linkTarget?: 'iframe' | 'new-tab' | 'self' | undefined;\n    /** 重定向目标路径。 */\n    redirect?: string | undefined;\n    /** ref 节点引用的目标节点 ID。 */\n    refId?: string | undefined;\n    /** ref 节点解析后的目标路径。 */\n    refPath?: string | undefined;\n    /** ref 节点引用的目标项目 ID。 */\n    refProjectId?: string | undefined;\n    /** ref 引用是否已失效。 */\n    refBroken?: boolean | undefined;\n    /** pageDesign 实现放行闸门；缺省过渡期为 open。 */\n    implGate?: 'closed' | 'open' | undefined;\n    /** 上游 iPaaS / 契约就绪；缺省 true。 */\n    upstreamContractsSatisfied?: boolean | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "项目蓝图节点唯一 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "项目蓝图节点标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "节点业务描述，供 AI 策划和页面设计理解用途。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "节点策划详细说明附件引用；正文由工作区解析后传给 LLM。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "jsdoc": "节点版本号或版本标签。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "节点图标名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeKind",
+              "jsdoc": "运行交付投影类型，决定菜单、页面、链接、引用等输出行为。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintKind",
+              "jsdoc": "蓝图业务种类；nodeKind 仅是旧设计器的运行表面投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childPlacement",
+              "jsdoc": "子节点在应用壳中的布局区域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "jsdoc": "项目蓝图上下文配置或静态上下文选项。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "jsdoc": "同级排序值，数值越小越靠前。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hidden",
+              "jsdoc": "输出为运行菜单时是否隐藏。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "输出为运行菜单时是否禁用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dividerAfter",
+              "jsdoc": "是否在该节点后显示分隔线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionMode",
+              "jsdoc": "权限不匹配时的展示策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "子蓝图节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "页面路由路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "jsdoc": "页面消费的数据空间身份；不得由物理表名或 FormKey 推断。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "jsdoc": "具体页面载体进入数据空间时使用的后端 FormKey。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "页面在数据空间内消费的唯一前端模型身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "linkTarget",
+              "jsdoc": "link 节点的打开目标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "redirect",
+              "jsdoc": "重定向目标路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refId",
+              "jsdoc": "ref 节点引用的目标节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refPath",
+              "jsdoc": "ref 节点解析后的目标路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refProjectId",
+              "jsdoc": "ref 节点引用的目标项目 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refBroken",
+              "jsdoc": "ref 引用是否已失效。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "implGate",
+              "jsdoc": "pageDesign 实现放行闸门；缺省过渡期为 open。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "upstreamContractsSatisfied",
+              "jsdoc": "上游 iPaaS / 契约就绪；缺省 true。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintNodePatch": {
+      "name": "ProjectBlueprintNodePatch",
+      "jsdoc": "Project Blueprint Node Patch 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 新标题。 */\n    title: string;\n    /** 新蓝图业务类型；不得由运行交付投影推断。 */\n    blueprintKind?: ProjectBlueprintNodeKind | undefined;\n    /** 新节点类型。 */\n    nodeKind?: ProjectBlueprintDeliveryKind | undefined;\n    /** 新图标名。 */\n    icon?: string | undefined;\n    /** 是否在节点后显示分隔线。 */\n    dividerAfter?: boolean | undefined;\n    /** 新节点描述。 */\n    description?: string | undefined;\n    /** 新策划详细说明附件引用。 */\n    planningAttachmentRef?: string | undefined;\n    /** 新路由路径。 */\n    path?: string | undefined;\n    /** link 节点新打开目标。 */\n    linkTarget?: string | undefined;\n    /** 新子节点布局区域。 */\n    childPlacement?: string | undefined;\n    /** 新同级排序值。 */\n    order?: number | undefined;\n    /** 是否隐藏节点。 */\n    hidden?: boolean | undefined;\n    /** 是否禁用节点。 */\n    disabled?: boolean | undefined;\n    /** 新 ref 目标节点 ID。 */\n    refId?: string | undefined;\n    /** 新权限展示策略。 */\n    permissionMode?: ProjectBlueprintPermissionMode | undefined;\n    /** 新项目蓝图上下文配置。 */\n    context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig | undefined;\n    /** 新 pageDesign 实现放行闸门。 */\n    implGate?: 'closed' | 'open' | undefined;\n    /** 新上游契约就绪状态。 */\n    upstreamContractsSatisfied?: boolean | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "新标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintKind",
+              "jsdoc": "新蓝图业务类型；不得由运行交付投影推断。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeKind",
+              "jsdoc": "新节点类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "新图标名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dividerAfter",
+              "jsdoc": "是否在节点后显示分隔线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "新节点描述。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "新策划详细说明附件引用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "新路由路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "linkTarget",
+              "jsdoc": "link 节点新打开目标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childPlacement",
+              "jsdoc": "新子节点布局区域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "jsdoc": "新同级排序值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hidden",
+              "jsdoc": "是否隐藏节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "是否禁用节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refId",
+              "jsdoc": "新 ref 目标节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionMode",
+              "jsdoc": "新权限展示策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "jsdoc": "新项目蓝图上下文配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "implGate",
+              "jsdoc": "新 pageDesign 实现放行闸门。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "upstreamContractsSatisfied",
+              "jsdoc": "新上游契约就绪状态。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintTreeNodeLocation": {
+      "name": "ProjectBlueprintTreeNodeLocation",
+      "jsdoc": "Project Node Location 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 命中的节点数据。 */\n    node: ProjectBlueprintTreeNodeData;\n    /** 父节点数据；根节点无父级时为 null。 */\n    parent: ProjectBlueprintTreeNodeData | null;\n    /** 父节点 ID；根节点无父级时为 null。 */\n    parentId: string | null;\n    /** 节点在父级 children 中的索引。 */\n    index: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "命中的节点数据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parent",
+              "jsdoc": "父节点数据；根节点无父级时为 null。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentId",
+              "jsdoc": "父节点 ID；根节点无父级时为 null。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "节点在父级 children 中的索引。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintTreeData": {
+      "name": "ProjectBlueprintTreeData",
+      "jsdoc": "项目模型的可序列化根数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ProjectBlueprintTreeNodeData, 'id' | 'nodeKind' | 'children' | 'childPlacement'> & {\n    /** 项目根节点 ID。 */\n    id?: string | undefined;\n    /** 项目根节点类型。 */\n    nodeKind?: 'module' | 'system-directory' | undefined;\n    /** 项目标题。 */\n    title: string;\n    /** 项目根节点子级布局区域。 */\n    childPlacement: 'header' | 'sidebar';\n    /** 项目蓝图根级子节点。 */\n    children: ProjectBlueprintTreeNodeData[];\n    /** 项目首页路径。 */\n    homePath?: string | undefined;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<ProjectBlueprintTreeNodeData, 'id' | 'nodeKind' | 'children' | 'childPlacement'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 项目根节点 ID。 */\n    id?: string | undefined;\n    /** 项目根节点类型。 */\n    nodeKind?: 'module' | 'system-directory' | undefined;\n    /** 项目标题。 */\n    title: string;\n    /** 项目根节点子级布局区域。 */\n    childPlacement: 'header' | 'sidebar';\n    /** 项目蓝图根级子节点。 */\n    children: ProjectBlueprintTreeNodeData[];\n    /** 项目首页路径。 */\n    homePath?: string | undefined;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "项目根节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeKind",
+              "jsdoc": "项目根节点类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "项目标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "childPlacement",
+              "jsdoc": "项目根节点子级布局区域。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "children",
+              "jsdoc": "项目蓝图根级子节点。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "homePath",
+              "jsdoc": "项目首页路径。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPageSurface": {
+      "name": "ProjectPageSurface",
+      "jsdoc": "蓝图交付页面在模型侧的页面表面（不携带应用框架实现细节）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'config-files' | 'system-page' | 'link' | 'ref' | 'none'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'config-files'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'link'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ref'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'none'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectPageNodeSummary": {
+      "name": "ProjectPageNodeSummary",
+      "jsdoc": "Project Page Node Summary 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown> & {\n    /** 配置页 pageId。 */\n    pageId: string;\n    /** 页面路由路径。 */\n    path: string;\n    /** 页面标题。 */\n    title: string;\n    /** 项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 运行交付投影类型。 */\n    nodeKind: ProjectBlueprintDeliveryKind;\n    /** 模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件 */\n    designSurface: ProjectPageSurface;\n    /** 页面节点自身描述。 */\n    description: string;\n    /** 页面节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 从祖先或上下文节点继承的描述列表。 */\n    descriptionContext: ProjectDescriptionContext[];\n    /** 聚合后的有效描述文本，供 AI 理解页面意图。 */\n    effectiveDescription: string;\n    /** 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */\n    implGate?: 'closed' | 'open';\n    /** 上游 iPaaS / 契约就绪；缺省 true。 */\n    upstreamContractsSatisfied?: boolean;\n    /** 页面图标名。 */\n    icon?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 配置页 pageId。 */\n    pageId: string;\n    /** 页面路由路径。 */\n    path: string;\n    /** 页面标题。 */\n    title: string;\n    /** 项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 运行交付投影类型。 */\n    nodeKind: ProjectBlueprintDeliveryKind;\n    /** 模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件 */\n    designSurface: ProjectPageSurface;\n    /** 页面节点自身描述。 */\n    description: string;\n    /** 页面节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 从祖先或上下文节点继承的描述列表。 */\n    descriptionContext: ProjectDescriptionContext[];\n    /** 聚合后的有效描述文本，供 AI 理解页面意图。 */\n    effectiveDescription: string;\n    /** 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */\n    implGate?: 'closed' | 'open';\n    /** 上游 iPaaS / 契约就绪；缺省 true。 */\n    upstreamContractsSatisfied?: boolean;\n    /** 页面图标名。 */\n    icon?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "配置页 pageId。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "jsdoc": "页面路由路径。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "页面标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "项目蓝图节点 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeKind",
+              "jsdoc": "运行交付投影类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "designSurface",
+              "jsdoc": "模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "页面节点自身描述。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "页面节点策划详细说明附件引用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "descriptionContext",
+              "jsdoc": "从祖先或上下文节点继承的描述列表。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveDescription",
+              "jsdoc": "聚合后的有效描述文本，供 AI 理解页面意图。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "implGate",
+              "jsdoc": "实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "upstreamContractsSatisfied",
+              "jsdoc": "上游 iPaaS / 契约就绪；缺省 true。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "页面图标名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintNodeModelOptions": {
+      "name": "ProjectBlueprintNodeModelOptions",
+      "jsdoc": "Project Node Model Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前项目蓝图节点数据快照。 */\n    node: ProjectBlueprintTreeNodeData;\n    /** 父节点 ID；根级节点传空字符串。 */\n    pid: string;\n    /** 祖先或上下文描述链。 */\n    descriptionContext?: readonly ProjectDescriptionContext[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "当前项目蓝图节点数据快照。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pid",
+              "jsdoc": "父节点 ID；根级节点传空字符串。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "descriptionContext",
+              "jsdoc": "祖先或上下文描述链。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintNode": {
+      "name": "ProjectBlueprintNode",
+      "jsdoc": "项目蓝图节点基类。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Project Node 实例。",
+          "signatureText": "constructor(options: ProjectBlueprintNodeModelOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintNodeModelOptions",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "toNodeData",
+              "jsdoc": "执行 to Node Data 操作。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeNodeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
+              "name": "applyBlueprintPatch",
+              "jsdoc": "蓝图编辑只能通过 class API 提交；DTO 快照不可作为包内可变真源。",
+              "parameters": [
+                {
+                  "name": "patch",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintNodePatch",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "rebindBlueprintNode",
+              "jsdoc": "重新绑定项目蓝图节点快照。",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeNodeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                },
+                {
+                  "name": "pid",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "descriptionContext",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ProjectDescriptionContext[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -5,10 +5,10 @@
  * AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。
  */
 /**
- * useDevSystem — 当前编辑 scope 导航设计器的单入口编排器。
+ * useDevSystem — 当前编辑 scope 项目蓝图设计器的单入口编排器。
  *
  * DevSystem 经当前 ProjectWorkspace 编辑对应 scope 的 ProjectModel（领域实例）；
- * 左侧导航树，右侧节点属性与（若为配置页）页面内容。
+ * 左侧项目蓝图树，右侧节点属性与（若为配置页）页面内容。
  */
 import { computed, onScopeDispose, ref, watch } from 'vue'
 import { useTenantRouter } from '@/composables/useTenantRouter'
@@ -44,7 +44,7 @@ export function useDevSystem() {
 
   // ─── 派生能力 ──────────────────────────────────────────
   const canPreviewCurrentPage = computed(
-    () => Boolean(state.navEditDto.path || state.activePageId.value),
+    () => Boolean(state.blueprintDraft.path || state.activePageId.value),
   )
   const activePageDescription = computed(() => {
     const pageId = state.activePageId.value

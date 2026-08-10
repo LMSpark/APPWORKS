@@ -4,7 +4,7 @@ import {
   PAGE_DATA_DESIGN_ALLOWED_OPERATIONS,
   PAGE_DATA_DESIGN_MODULE_ID,
   normalizePageDataDesignToPageDesignInput,
-} from '@/services/page-data-design/page-data-design-host-run-provider'
+} from '@/services/page-data-design/page-data-design-agent-run-provider'
 
 describe('normalizePageDataDesignToPageDesignInput', () => {
   it('maps pageDataDesign args to pageDesign input with dataSet-only preset', () => {

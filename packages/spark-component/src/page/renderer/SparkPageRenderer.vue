@@ -78,7 +78,7 @@ import {
 } from 'vue'
 import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
 import { Logger, isCallable, type HttpClientBase } from '@spark-appworks/spark-utils'
-import type { NavPermissionMode } from '../../core/capability-keys.js'
+import type { PagePermissionMode } from '../../core/capability-keys.js'
 import type { DataSet } from '@spark-appworks/spark-data'
 import { DataSetCrudTool } from '@spark-appworks/spark-data'
 import { SparkNodeTree } from '@spark-appworks/spark-data'
@@ -460,11 +460,11 @@ sparkProvide(CSS_SCOPE, { inject(css: string) { setScopedCss(currentPageId.value
 
 // ── 页面权限模式 ──
 // 与导航节点默认语义保持一致：未提供 permissionMode 时默认 'masked'。
-function isNavPermissionMode(value: unknown): value is NavPermissionMode {
+function isPagePermissionMode(value: unknown): value is PagePermissionMode {
   return value === 'none' || value === 'masked' || value === 'invisible'
 }
 
-sparkProvide(PAGE_PERMISSION_MODE, isNavPermissionMode(route.meta['permissionMode']) ? route.meta['permissionMode'] : 'masked')
+sparkProvide(PAGE_PERMISSION_MODE, isPagePermissionMode(route.meta['permissionMode']) ? route.meta['permissionMode'] : 'masked')
 
 // ── DataSet ──
 const pds = usePageDataSet({ enableDataSet: props.enableDataSet })

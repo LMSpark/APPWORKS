@@ -17,9 +17,7 @@ export function relativePath(root, filePath) {
 export function createDefaultExcluder(root) {
   return (filePath) => {
     const rel = relativePath(root, filePath)
-    return rel.startsWith('spark-ai-server/')
-      || rel === 'spark-ai-server'
-      || rel.startsWith('dist/')
+    return rel.startsWith('dist/')
       || rel.includes('/dist/')
       || rel.includes('/node_modules/')
       || rel.includes('/.git/')

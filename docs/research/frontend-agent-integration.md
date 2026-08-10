@@ -79,9 +79,9 @@ type StreamDisplayEntry =
 
 | 方法 | 方向 | 传输模式 |
 |------|------|----------|
-| `prepareSession` | APP → 后端 | POST `/api/ai/sessions` |
-| `executeTurn` | APP → 后端 → SSE 事件流 | POST `/api/ai/turns` + SSE `/api/events` |
-| `appendMessages` | APP → 后端 | POST `/api/ai/sessions/{id}/turn/append` |
+| `startAgentTurn` | APP → lowcode | POST `/api/ai/turns` |
+| `connect` | lowcode → APP | SSE `/api/sse/connect` |
+| `appendAgentToolResults` | APP → lowcode | POST `/api/ai/sessions/{id}/turn/append` |
 
 **方向是单向的**：APP 发请求 → 后端返回流式响应 → APP 消费事件。没有从 APP 主动推送给 Agent 的通道。
 

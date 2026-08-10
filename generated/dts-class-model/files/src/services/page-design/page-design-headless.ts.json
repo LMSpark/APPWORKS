@@ -7,7 +7,7 @@
     "sourceFile": "src/services/page-design/page-design-headless.ts",
     "packageName": "app",
     "modulePath": "services/page-design/page-design-headless",
-    "jsdoc": "@module app:services/page-design/page-design-headless\n职责：pageDesign 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Host Run 或四文件落盘。\nAI用途：SSE 或后端下发 Host Run 前需要隔离式 editor 时，用本模块获取 ProjectWorkspace。",
+    "jsdoc": "@module app:services/page-design/page-design-headless\n职责：pageDesign 隔离式 headless ProjectWorkspace 工厂与 registry getter。\n边界：只创建/解析 headless editor，不执行 Agent Run 或四文件落盘。\nAI用途：Agent Run 需要隔离式 editor 时，用本模块获取 ProjectWorkspace。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PageDesignEditorResolveContext"
@@ -29,7 +29,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-19T09:58:23.254Z",
+  "generatedAt": "2026-08-09T22:34:22.185Z",
   "models": {
     "PageDesignEditorResolveContext": {
       "name": "PageDesignEditorResolveContext",

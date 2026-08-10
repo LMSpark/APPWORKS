@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest'
-import { INSTANCE_PERMISSION_FIELD, MODEL_PERMISSION_FIELD } from '@spark-appworks/spark-data'
 import { CrudService } from '../crud-service'
 import { getMember, requireRecord } from './test-type-helpers'
 
@@ -26,25 +25,17 @@ describe('CrudService - Permission Data Sanitization', () => {
       list: { url: '/api/test', method: 'GET' }
     })
 
-    // Test data with permission fields
     const testData = {
       name: 'Test Item',
       value: 123,
-      [INSTANCE_PERMISSION_FIELD]: {
-        allowDelete: true,
-        permissionToken: 'instance-token'
-      },
-      [MODEL_PERMISSION_FIELD]: {
-        allowCreate: true,
-        permissionToken: 'model-token'
-      }
+      lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: true },
+      lingma_sys_key: 'signed-row-context'
     }
 
     const sanitized = sanitizeDataForUpload(service, testData)
 
-    // Verify permission fields are removed
-    expect(sanitized).not.toHaveProperty(INSTANCE_PERMISSION_FIELD)
-    expect(sanitized).not.toHaveProperty(MODEL_PERMISSION_FIELD)
+    expect(sanitized).not.toHaveProperty('lingma_sys_params')
+    expect(sanitized).not.toHaveProperty('lingma_sys_key')
 
     // Verify other fields are preserved
     expect(sanitized['name']).toBe('Test Item')
@@ -65,7 +56,7 @@ describe('CrudService - Permission Data Sanitization', () => {
 
     expect(sanitized['name']).toBe('Clean Item')
     expect(sanitized['value']).toBe(456)
-    expect(sanitized).not.toHaveProperty(INSTANCE_PERMISSION_FIELD)
-    expect(sanitized).not.toHaveProperty(MODEL_PERMISSION_FIELD)
+    expect(sanitized).not.toHaveProperty('lingma_sys_params')
+    expect(sanitized).not.toHaveProperty('lingma_sys_key')
   })
 })

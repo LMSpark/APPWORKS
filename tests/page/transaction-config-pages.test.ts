@@ -11,7 +11,7 @@ import { nodeToActionDescriptor } from '../../packages/spark-component/src/page/
 import { executeSaveDataSet } from '../../packages/spark-component/src/page/actions/action-data'
 import type { ActionDescriptor, ActionExecutionContext, SaveDataSetAction } from '../../packages/spark-component/src/page/actions/action-types'
 
-const pageRoot = join(process.cwd(), 'spark-ai-server/data/pages-config/lmspark/homepage')
+const pageRoot = join(process.cwd(), 'backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage')
 
 const pages: readonly string[] = ['tx-editing-rows', 'tx-transaction-commit', 'tx-transaction-retry']
 
@@ -146,7 +146,7 @@ describe('transaction validation page configs', () => {
     const result = await dataSet.saveChanges()
     expect(result.success).toBe(true)
     expect(posts).toHaveLength(1)
-    expect(posts[0]!.url).toBe('/tenants/lmspark/projects/homepage/data/transactions')
+    expect(posts[0]!.url).toBe('/data/transactions')
 
     const operations = readOperations(posts[0]!.data)
     expect(operations.map((operation) => `${operation['tableName']}:${operation['op']}`)).toEqual([

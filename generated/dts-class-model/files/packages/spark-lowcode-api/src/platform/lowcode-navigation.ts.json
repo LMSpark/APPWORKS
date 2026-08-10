@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-navigation",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-navigation",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: RuntimeNavigationTargetKind, RuntimeNavigationAuthorizationContext, RuntimeNavigationAuthorizationItem, RuntimeNavigationAuthorizationEvidence（共 4 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "RuntimeNavigationTargetKind",
+      "RuntimeNavigationAuthorizationContext",
+      "RuntimeNavigationAuthorizationItem",
+      "RuntimeNavigationAuthorizationEvidence"
+    ]
+  },
+  "$defs": {
+    "RuntimeNavigationTargetKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RuntimeNavigationTargetKind",
+      "enum": [
+        "empty",
+        "external",
+        "route",
+        "vue"
+      ]
+    },
+    "RuntimeNavigationAuthorizationContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationAuthorizationContext",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "navigationId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "childRowId": {
+          "type": "string"
+        },
+        "textParameterName": {
+          "type": "string"
+        },
+        "valueParameterName": {
+          "type": "string"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "flowState": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "textField": {
+          "type": "string"
+        },
+        "titlePlacement": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RuntimeNavigationAuthorizationItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationAuthorizationItem",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "targetKind": {
+          "$ref": "#/$defs/RuntimeNavigationTargetKind"
+        },
+        "formKey": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationAuthorizationItem"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "RuntimeNavigationAuthorizationEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeNavigationAuthorizationEvidence",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationAuthorizationItem"
+          }
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuntimeNavigationAuthorizationContext"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T23:52:24.327Z",
+  "models": {
+    "RuntimeNavigationTargetKind": {
+      "name": "RuntimeNavigationTargetKind",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'empty' | 'external' | 'route' | 'vue'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'empty'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'external'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'route'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'vue'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RuntimeNavigationAuthorizationContext": {
+      "name": "RuntimeNavigationAuthorizationContext",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    navigationId: string;\n    title: string;\n    childRowId: string;\n    textParameterName: string;\n    valueParameterName: string;\n    workflowId: string;\n    flowState: number | null;\n    valueField: string;\n    textField: string;\n    titlePlacement: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    navigationId: string;\n    title: string;\n    childRowId: string;\n    textParameterName: string;\n    valueParameterName: string;\n    workflowId: string;\n    flowState: number | null;\n    valueField: string;\n    textField: string;\n    titlePlacement: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childRowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textParameterName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueParameterName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowState",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titlePlacement",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigationAuthorizationItem": {
+      "name": "RuntimeNavigationAuthorizationItem",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    target: string;\n    targetKind: RuntimeNavigationTargetKind;\n    formKey: string | null;\n    children: readonly RuntimeNavigationAuthorizationItem[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    target: string;\n    targetKind: RuntimeNavigationTargetKind;\n    formKey: string | null;\n    children: readonly RuntimeNavigationAuthorizationItem[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeNavigationAuthorizationEvidence": {
+      "name": "RuntimeNavigationAuthorizationEvidence",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    items: readonly RuntimeNavigationAuthorizationItem[];\n    contexts: readonly RuntimeNavigationAuthorizationContext[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    items: readonly RuntimeNavigationAuthorizationItem[];\n    contexts: readonly RuntimeNavigationAuthorizationContext[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contexts",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

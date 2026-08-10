@@ -33,13 +33,13 @@
             "string"
           ]
         },
-        "navigationDirty": {
+        "blueprintDirty": {
           "type": "boolean"
         },
-        "navigationDirtyScope": {
+        "blueprintDirtyScope": {
           "anyOf": [
             {
-              "$ref": "project-types.ts.json#/$defs/ProjectNavigationDirtyScope"
+              "$ref": "project-types.ts.json#/$defs/ProjectBlueprintDirtyScope"
             },
             {
               "type": "null"
@@ -50,8 +50,8 @@
       "required": [
         "selectedNodeId",
         "activePageId",
-        "navigationDirty",
-        "navigationDirtyScope"
+        "blueprintDirty",
+        "blueprintDirtyScope"
       ],
       "additionalProperties": false
     },
@@ -72,7 +72,7 @@
         "method.findNodeById.return": {
           "anyOf": [
             {
-              "$ref": "../navigation/project-node.ts.json#/$defs/ProjectNode"
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
             },
             {
               "type": "null"
@@ -114,13 +114,13 @@
           },
           "additionalProperties": false
         },
-        "method.setNavigationDraft.params": {
+        "method.setBlueprintDraft.params": {
           "type": "object",
           "properties": {
             "draft": {
               "anyOf": [
                 {
-                  "$ref": "../navigation/navigation-edit.ts.json#/$defs/NavigationNodeDraft"
+                  "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
                 },
                 {
                   "type": "null"
@@ -130,41 +130,41 @@
           },
           "additionalProperties": false
         },
-        "method.setNavigationDraft.return": true,
-        "method.beginNavigationDraft.params": {
+        "method.setBlueprintDraft.return": true,
+        "method.beginBlueprintDraft.params": {
           "type": "object",
           "properties": {
             "draft": {
-              "$ref": "../navigation/navigation-edit.ts.json#/$defs/NavigationNodeDraft"
+              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
             }
           },
           "additionalProperties": false
         },
-        "method.beginNavigationDraft.return": {
-          "$ref": "../navigation/navigation-edit.ts.json#/$defs/NavigationNodeDraft"
+        "method.beginBlueprintDraft.return": {
+          "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
         },
-        "method.discardNavigationDraft.params": {
+        "method.discardBlueprintDraft.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.discardNavigationDraft.return": true,
-        "method.markNavigationDirty.params": {
+        "method.discardBlueprintDraft.return": true,
+        "method.markBlueprintDirty.params": {
           "type": "object",
           "properties": {
             "scope": {
-              "$ref": "project-types.ts.json#/$defs/ProjectNavigationDirtyScope"
+              "$ref": "project-types.ts.json#/$defs/ProjectBlueprintDirtyScope"
             }
           },
           "additionalProperties": false
         },
-        "method.markNavigationDirty.return": true,
-        "method.markNavigationClean.params": {
+        "method.markBlueprintDirty.return": true,
+        "method.markBlueprintClean.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.markNavigationClean.return": true,
+        "method.markBlueprintClean.return": true,
         "method.setSelectedNodeId.params": {
           "type": "object",
           "properties": {
@@ -209,14 +209,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:06:39.869Z",
+  "generatedAt": "2026-08-09T21:51:06.305Z",
   "models": {
     "ProjectSessionState": {
       "name": "ProjectSessionState",
       "jsdoc": "Project Session State 的运行状态。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** selected Node Id 标识。 */\n    selectedNodeId: string | null;\n    /** active Page Id 标识。 */\n    activePageId: string | null;\n    /** navigation Dirty 字段。 */\n    navigationDirty: boolean;\n    /** navigation Dirty Scope 字段。 */\n    navigationDirtyScope: ProjectNavigationDirtyScope | null;\n}",
+        "declarationTypeText": "{\n    /** selected Node Id 标识。 */\n    selectedNodeId: string | null;\n    /** active Page Id 标识。 */\n    activePageId: string | null;\n    /** navigation Dirty 字段。 */\n    blueprintDirty: boolean;\n    /** navigation Dirty Scope 字段。 */\n    blueprintDirtyScope: ProjectBlueprintDirtyScope | null;\n}",
         "members": {
           "attributes": [
             {
@@ -232,13 +232,13 @@
               "writable": true
             },
             {
-              "name": "navigationDirty",
+              "name": "blueprintDirty",
               "jsdoc": "navigation Dirty 字段。",
               "readable": true,
               "writable": true
             },
             {
-              "name": "navigationDirtyScope",
+              "name": "blueprintDirtyScope",
               "jsdoc": "navigation Dirty Scope 字段。",
               "readable": true,
               "writable": true
@@ -252,7 +252,7 @@
       "jsdoc": "Project Session Owner 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 按 nodeId 在导航树中查找项目节点；未找到返回 null */\n    findNodeById(nodeId: string): ProjectNode | null;\n    /** 按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 ConfigPageNode，未找到返回 null */\n    findConfigPageByPageId(pageId: string): ConfigPageNode | null;\n}",
+        "declarationTypeText": "{\n    /** 按 nodeId 在导航树中查找项目节点；未找到返回 null */\n    findNodeById(nodeId: string): ProjectBlueprintNode | null;\n    /** 按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 ConfigPageNode，未找到返回 null */\n    findConfigPageByPageId(pageId: string): ConfigPageNode | null;\n}",
         "members": {
           "methods": [
             {
@@ -272,8 +272,8 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "ProjectNode",
-                    "sourcePath": "packages/spark-project-model/src/navigation/project-node.ts"
+                    "name": "ProjectBlueprintNode",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                   },
                   {
                     "type": "literal",
@@ -335,7 +335,7 @@
         "members": {
           "methods": [
             {
-              "name": "setNavigationDraft",
+              "name": "setBlueprintDraft",
               "jsdoc": "设置 Navigation Draft。",
               "parameters": [
                 {
@@ -345,8 +345,8 @@
                     "types": [
                       {
                         "type": "reference",
-                        "name": "NavigationNodeDraft",
-                        "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts"
+                        "name": "BlueprintNodeDraft",
+                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
                       },
                       {
                         "type": "literal",
@@ -362,26 +362,26 @@
               }
             },
             {
-              "name": "beginNavigationDraft",
+              "name": "beginBlueprintDraft",
               "jsdoc": "执行 begin Navigation Draft 操作。",
               "parameters": [
                 {
                   "name": "draft",
                   "type": {
                     "type": "reference",
-                    "name": "NavigationNodeDraft",
-                    "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts"
+                    "name": "BlueprintNodeDraft",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
                   }
                 }
               ],
               "type": {
                 "type": "reference",
-                "name": "NavigationNodeDraft",
-                "sourcePath": "packages/spark-project-model/src/navigation/navigation-edit.ts"
+                "name": "BlueprintNodeDraft",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
               }
             },
             {
-              "name": "discardNavigationDraft",
+              "name": "discardBlueprintDraft",
               "jsdoc": "执行 discard Navigation Draft 操作。",
               "parameters": [],
               "type": {
@@ -390,14 +390,14 @@
               }
             },
             {
-              "name": "markNavigationDirty",
+              "name": "markBlueprintDirty",
               "jsdoc": "执行 mark Navigation Dirty 操作。",
               "parameters": [
                 {
                   "name": "scope",
                   "type": {
                     "type": "reference",
-                    "name": "ProjectNavigationDirtyScope",
+                    "name": "ProjectBlueprintDirtyScope",
                     "sourcePath": "packages/spark-project-model/src/project/project-types.ts"
                   }
                 }
@@ -408,7 +408,7 @@
               }
             },
             {
-              "name": "markNavigationClean",
+              "name": "markBlueprintClean",
               "jsdoc": "执行 mark Navigation Clean 操作。",
               "parameters": [],
               "type": {

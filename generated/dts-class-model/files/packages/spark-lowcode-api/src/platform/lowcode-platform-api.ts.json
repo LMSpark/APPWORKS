@@ -1,0 +1,1381 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-platform-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-platform-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-platform-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeCurrentUser, LowcodeLoginCredentials, LowcodeVerificationChannel, LowcodeVerificationScene, LowcodeVerificationRequest, LowcodeUserRegistration, LowcodeEnterpriseRegistration, LowcodeRegistrationResult 等（共 13 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeCurrentUser",
+      "LowcodeLoginCredentials",
+      "LowcodeVerificationChannel",
+      "LowcodeVerificationScene",
+      "LowcodeVerificationRequest",
+      "LowcodeUserRegistration",
+      "LowcodeEnterpriseRegistration",
+      "LowcodeRegistrationResult",
+      "LowcodeIdentity",
+      "LowcodeEnterprise",
+      "LowcodeCacheStats",
+      "LowcodeSession",
+      "LowcodePlatformApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeCurrentUser": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeCurrentUser",
+      "properties": {
+        "account": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "realName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "avatar": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "address": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "signature": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "orgId": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "orgName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "posName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "buttons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userInfo": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeLoginCredentials": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeLoginCredentials",
+      "properties": {
+        "enterpriseName": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeVerificationChannel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeVerificationChannel",
+      "enum": [
+        "EMAIL",
+        "MOBILE"
+      ]
+    },
+    "LowcodeVerificationScene": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeVerificationScene",
+      "enum": [
+        "REGISTER",
+        "REGISTER_ENT"
+      ]
+    },
+    "LowcodeVerificationRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeVerificationRequest",
+      "properties": {
+        "enterpriseName": {
+          "type": "string"
+        },
+        "channel": {
+          "$ref": "#/$defs/LowcodeVerificationChannel"
+        },
+        "account": {
+          "type": "string"
+        },
+        "scene": {
+          "$ref": "#/$defs/LowcodeVerificationScene"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeUserRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeUserRegistration",
+      "properties": {
+        "enterpriseName": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "sex": {
+          "enum": [
+            "F",
+            "M"
+          ]
+        },
+        "channel": {
+          "$ref": "#/$defs/LowcodeVerificationChannel"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "verificationCode": {
+          "type": "string"
+        },
+        "userType": {
+          "type": "string"
+        },
+        "departmentId": {
+          "type": "string"
+        },
+        "jobId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeEnterpriseRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeEnterpriseRegistration",
+      "properties": {
+        "englishName": {
+          "type": "string"
+        },
+        "chineseName": {
+          "type": "string"
+        },
+        "domainKey": {
+          "type": "string"
+        },
+        "chineseShortName": {
+          "type": "string"
+        },
+        "administratorAccount": {
+          "type": "string"
+        },
+        "administratorPassword": {
+          "type": "string"
+        },
+        "channel": {
+          "$ref": "#/$defs/LowcodeVerificationChannel"
+        },
+        "verificationAccount": {
+          "type": "string"
+        },
+        "verificationCode": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeRegistrationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRegistrationResult",
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "raw": true
+      },
+      "additionalProperties": false
+    },
+    "LowcodeIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeIdentity",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "enterpriseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "enterpriseShortName": {
+          "type": "string"
+        },
+        "role": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "raw": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeEnterprise": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeEnterprise",
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "code": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "shortName": {
+          "type": "string"
+        },
+        "shortCode": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "raw": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeCacheStats": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeCacheStats",
+      "properties": {
+        "dataSetModelCount": {
+          "type": "number"
+        },
+        "developmentFileCount": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSession",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "accessExpiresAt": {
+          "type": "number"
+        },
+        "refreshExpiresAt": {
+          "type": "number"
+        },
+        "identity": {
+          "$ref": "#/$defs/LowcodeIdentity"
+        },
+        "enterprise": {
+          "$ref": "#/$defs/LowcodeEnterprise"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodePlatformApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePlatformApi",
+      "properties": {
+        "session": {
+          "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+        },
+        "application": {
+          "$ref": "lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            },
+            "session": {
+              "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+            },
+            "application": {
+              "$ref": "lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.login.params": {
+          "type": "object",
+          "properties": {
+            "credentials": {
+              "$ref": "#/$defs/LowcodeLoginCredentials"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.login.return": {
+          "type": "object",
+          "title": "Promise<LowcodeSession>"
+        },
+        "method.listEnterprises.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listEnterprises.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeEnterpriseCatalogItem[]>"
+        },
+        "method.getEnterpriseInfo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getEnterpriseInfo.return": {
+          "type": "object",
+          "title": "Promise<LowcodeEnterpriseInfo>"
+        },
+        "method.getCacheStats.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCacheStats.return": {
+          "type": "object",
+          "title": "Promise<LowcodeCacheStats>"
+        },
+        "method.sendVerificationCode.params": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/LowcodeVerificationRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sendVerificationCode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.registerUser.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeUserRegistration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerUser.return": {
+          "type": "object",
+          "title": "Promise<LowcodeRegistrationResult>"
+        },
+        "method.registerEnterprise.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeEnterpriseRegistration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerEnterprise.return": {
+          "type": "object",
+          "title": "Promise<LowcodeRegistrationResult>"
+        },
+        "method.refreshSession.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshSession.return": {
+          "type": "object",
+          "title": "Promise<LowcodeSession>"
+        },
+        "method.logout.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.logout.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getCurrentUser.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCurrentUser.return": {
+          "type": "object",
+          "title": "Promise<LowcodeCurrentUser>"
+        },
+        "method.listApplications.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listApplications.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeApplication[]>"
+        },
+        "method.resolveNavigationRootId.params": {
+          "type": "object",
+          "properties": {
+            "systemId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveNavigationRootId.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.selectApplication.params": {
+          "type": "object",
+          "properties": {
+            "application": {
+              "$ref": "lowcode-application.ts.json#/$defs/LowcodeApplication"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectApplication.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T22:51:40.567Z",
+  "models": {
+    "LowcodeCurrentUser": {
+      "name": "LowcodeCurrentUser",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    account: string | null;\n    realName: string | null;\n    avatar: string | null;\n    address: string | null;\n    signature: string | null;\n    orgId: number | null;\n    orgName: string | null;\n    posName: string | null;\n    buttons: readonly string[] | null;\n    userInfo: Readonly<Record<string, unknown>> | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    account: string | null;\n    realName: string | null;\n    avatar: string | null;\n    address: string | null;\n    signature: string | null;\n    orgId: number | null;\n    orgName: string | null;\n    posName: string | null;\n    buttons: readonly string[] | null;\n    userInfo: Readonly<Record<string, unknown>> | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "realName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "avatar",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "address",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signature",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orgId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orgName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "posName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "buttons",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userInfo",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeLoginCredentials": {
+      "name": "LowcodeLoginCredentials",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    password: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    password: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "password",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeVerificationChannel": {
+      "name": "LowcodeVerificationChannel",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'EMAIL' | 'MOBILE'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'EMAIL'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'MOBILE'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeVerificationScene": {
+      "name": "LowcodeVerificationScene",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'REGISTER' | 'REGISTER_ENT'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'REGISTER'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'REGISTER_ENT'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeVerificationRequest": {
+      "name": "LowcodeVerificationRequest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    channel: LowcodeVerificationChannel;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    channel: LowcodeVerificationChannel;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scene",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeUserRegistration": {
+      "name": "LowcodeUserRegistration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: LowcodeVerificationChannel;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: LowcodeVerificationChannel;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "enterpriseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "password",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phone",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "email",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "departmentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "jobId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeEnterpriseRegistration": {
+      "name": "LowcodeEnterpriseRegistration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: LowcodeVerificationChannel;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: LowcodeVerificationChannel;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "englishName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "chineseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "domainKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "chineseShortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "administratorAccount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "administratorPassword",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "channel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationAccount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verificationCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phone",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "email",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeRegistrationResult": {
+      "name": "LowcodeRegistrationResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | null;\n    raw: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | null;\n    raw: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeIdentity": {
+      "name": "LowcodeIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    userId: string;\n    account: string;\n    displayName: string;\n    enterpriseId: string | null;\n    enterpriseShortName: string;\n    role: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    userId: string;\n    account: string;\n    displayName: string;\n    enterpriseId: string | null;\n    enterpriseShortName: string;\n    role: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "userId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "account",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseShortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "role",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeEnterprise": {
+      "name": "LowcodeEnterprise",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | null;\n    name: string | null;\n    code: string | null;\n    shortName: string;\n    shortCode: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | null;\n    name: string | null;\n    code: string | null;\n    shortName: string;\n    shortCode: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shortCode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeCacheStats": {
+      "name": "LowcodeCacheStats",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSetModelCount: number;\n    developmentFileCount: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSetModelCount: number;\n    developmentFileCount: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSetModelCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "developmentFileCount",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSession": {
+      "name": "LowcodeSession",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    accessToken: string;\n    refreshToken: string;\n    accessExpiresAt: number;\n    refreshExpiresAt: number;\n    identity: LowcodeIdentity;\n    enterprise: LowcodeEnterprise;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    accessToken: string;\n    refreshToken: string;\n    accessExpiresAt: number;\n    refreshExpiresAt: number;\n    identity: LowcodeIdentity;\n    enterprise: LowcodeEnterprise;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "accessToken",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshToken",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accessExpiresAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshExpiresAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterprise",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodePlatformApi": {
+      "name": "LowcodePlatformApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase, session: LowcodeSessionStore, application: LowcodeApplicationStore)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            },
+            {
+              "name": "session",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeSessionStore",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts"
+              }
+            },
+            {
+              "name": "application",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeApplicationStore",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "login",
+              "parameters": [
+                {
+                  "name": "credentials",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeLoginCredentials",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listEnterprises",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeEnterpriseCatalogItem[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getEnterpriseInfo",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeEnterpriseInfo",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getCacheStats",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeCacheStats",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "sendVerificationCode",
+              "parameters": [
+                {
+                  "name": "request",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeVerificationRequest",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "registerUser",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeUserRegistration",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeRegistrationResult",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "registerEnterprise",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeEnterpriseRegistration",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeRegistrationResult",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refreshSession",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "logout",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getCurrentUser",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeCurrentUser",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listApplications",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeApplication[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolveNavigationRootId",
+              "parameters": [
+                {
+                  "name": "systemId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectApplication",
+              "parameters": [
+                {
+                  "name": "application",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeApplication",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

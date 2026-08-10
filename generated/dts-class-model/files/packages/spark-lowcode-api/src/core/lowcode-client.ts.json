@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:core/lowcode-client",
+    "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "core/lowcode-client",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 core/lowcode-client 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeClient, LowcodeClientCommand（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeClient",
+      "LowcodeClientCommand"
+    ]
+  },
+  "$defs": {
+    "LowcodeClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.requestResult.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/LowcodeClientCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.requestResult.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        }
+      }
+    },
+    "LowcodeClientCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeClientCommand",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "method": {
+          "$ref": "../../../spark-utils/src/http/types.ts.json#/$defs/Method"
+        },
+        "data": true,
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "authenticated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T10:09:14.704Z",
+  "models": {
+    "LowcodeClient": {
+      "name": "LowcodeClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "requestResult",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeClientCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeClientCommand": {
+      "name": "LowcodeClientCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "method",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authenticated",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

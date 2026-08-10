@@ -11,12 +11,10 @@ import {
   createRuntimePageNode,
   PageContentLoader,
   type PageNodeLike,
-  type ProjectModelData,
-  type ProjectNodeData,
 } from '@spark-appworks/spark-project-model'
-import { HttpClientBase, Logger } from '@spark-appworks/spark-utils'
-import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
+import { Logger } from '@spark-appworks/spark-utils'
 import { getNavTree } from '../navigation/nav-access'
+import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
 
 type ReloadableRenderer = {
   reload?: () => Promise<void>}
@@ -44,25 +42,11 @@ routePath?: string | undefined
     /** route Meta 字段。 */
 routeMeta?: Record<string, unknown> | undefined}
 
-type ScopedHttpClientOptions = {
-  baseClient: HttpClientBase
-  scopedHeaders: Record<string, string>
-  tenantId: string
-  hostProjectId: string | null
-  targetProjectId: string}
-
 type RefTargetResolutionInput = Readonly<{
-  navTree: ProjectModelData | null
+  navTree: RuntimeNavigation | null
   routePath: string
   routeMeta: Record<string, unknown>
   hostProjectId: string | null
-}>
-
-type ScopedUrlRewriteInput = Readonly<{
-  url: string
-  tenantId: string
-  hostProjectId: string | null
-  targetProjectId: string
 }>
 
 const logger = Logger('CrossProjectRefPage')
@@ -150,7 +134,7 @@ function parseRefPath(refPath: string | null): ParsedRefPath {
   }
 }
 
-function refNodeHostPath(node: ProjectNodeData): string {
+function refNodeHostPath(node: RuntimeNavigationItem): string {
   const explicitPath = asNonEmptyString(node.path)
   if (explicitPath !== null && normalizePath(explicitPath).includes('/__ref/')) {
     return explicitPath
@@ -158,9 +142,9 @@ function refNodeHostPath(node: ProjectNodeData): string {
   return `/__ref/${encodeURIComponent(node.id)}`
 }
 
-function findRefNodeById(nodes: ProjectNodeData[], refNodeId: string): ProjectNodeData | null {
+function findRefNodeById(nodes: RuntimeNavigationItem[], refNodeId: string): RuntimeNavigationItem | null {
   for (const node of nodes) {
-    if (node.nodeKind === 'ref' && node.id === refNodeId) return node
+    if (node.itemKind === 'ref' && node.id === refNodeId) return node
     if (node.children?.length) {
       const match = findRefNodeById(node.children, refNodeId)
       if (match !== null) return match
@@ -169,10 +153,10 @@ function findRefNodeById(nodes: ProjectNodeData[], refNodeId: string): ProjectNo
   return null
 }
 
-function findRefNodeByHostPath(nodes: ProjectNodeData[], routePath: string): ProjectNodeData | null {
+function findRefNodeByHostPath(nodes: RuntimeNavigationItem[], routePath: string): RuntimeNavigationItem | null {
   const targetPath = stripTenantProjectPrefix(routePath)
   for (const node of nodes) {
-    if (node.nodeKind === 'ref' && stripTenantProjectPrefix(refNodeHostPath(node)) === targetPath) {
+    if (node.itemKind === 'ref' && stripTenantProjectPrefix(refNodeHostPath(node)) === targetPath) {
       return node
     }
     if (node.children?.length) {
@@ -183,13 +167,17 @@ function findRefNodeByHostPath(nodes: ProjectNodeData[], routePath: string): Pro
   return null
 }
 
-function findRouteRefNode(navTree: ProjectModelData | null, routePath: string, hostRefNodeId: string | null): ProjectNodeData | null {
+function findRouteRefNode(
+  navTree: RuntimeNavigation | null,
+  routePath: string,
+  hostRefNodeId: string | null,
+): RuntimeNavigationItem | null {
   if (navTree === null) return null
   if (hostRefNodeId !== null) {
-    const byId = findRefNodeById(navTree.children, hostRefNodeId)
+    const byId = findRefNodeById(navTree.items, hostRefNodeId)
     if (byId !== null) return byId
   }
-  return findRefNodeByHostPath(navTree.children, routePath)
+  return findRefNodeByHostPath(navTree.items, routePath)
 }
 
 function resolveRefTarget(input: RefTargetResolutionInput): ResolvedRefTarget {
@@ -217,77 +205,6 @@ function resolveRefTarget(input: RefTargetResolutionInput): ResolvedRefTarget {
     refPath,
     pageId,
   }
-}
-
-function mergeHeaders(
-  headers: Record<string, string> | undefined,
-  scopedHeaders: Record<string, string>,
-): Record<string, string> {
-  return { ...(headers ?? {}), ...scopedHeaders }
-}
-
-function rewriteScopedUrl(input: ScopedUrlRewriteInput): string {
-  const { url, tenantId, hostProjectId, targetProjectId } = input
-  let nextUrl = url.replace('{tenantId}', encodeURIComponent(tenantId))
-  nextUrl = nextUrl.replace('{projectId}', encodeURIComponent(targetProjectId))
-
-  if (hostProjectId === null || hostProjectId === targetProjectId) {
-    return nextUrl
-  }
-
-  const scopedPath = `/tenants/${encodeURIComponent(tenantId)}/projects/${encodeURIComponent(hostProjectId)}/`
-  const targetScopedPath = `/tenants/${encodeURIComponent(tenantId)}/projects/${encodeURIComponent(targetProjectId)}/`
-  return nextUrl.includes(scopedPath) ? nextUrl.replace(scopedPath, targetScopedPath) : nextUrl
-}
-
-class ScopedHttpClient extends HttpClientBase {
-  private readonly baseClient: HttpClientBase
-  private readonly scopedHeaders: Record<string, string>
-  private readonly tenantId: string
-  private readonly hostProjectId: string | null
-  private readonly targetProjectId: string
-
-  constructor(options: ScopedHttpClientOptions) {
-    super({}, 'ScopedHttpClient')
-    this.baseClient = options.baseClient
-    this.scopedHeaders = options.scopedHeaders
-    this.tenantId = options.tenantId
-    this.hostProjectId = options.hostProjectId
-    this.targetProjectId = options.targetProjectId
-  }
-
-  protected executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
-    return this.baseClient.requestFull(this.rewriteConfig(config))
-  }
-
-  override clearCache(url?: string): void {
-    if (url === undefined) {
-      this.baseClient.clearCache()
-      return
-    }
-    this.baseClient.clearCache(this.rewriteUrl(url))
-  }
-
-  private rewriteConfig(config: RequestConfig): RequestConfig {
-    return {
-      ...config,
-      url: this.rewriteUrl(config.url),
-      headers: mergeHeaders(config.headers, this.scopedHeaders),
-    }
-  }
-
-  private rewriteUrl(url: string): string {
-    return rewriteScopedUrl({
-      url,
-      tenantId: this.tenantId,
-      hostProjectId: this.hostProjectId,
-      targetProjectId: this.targetProjectId,
-    })
-  }
-}
-
-function createScopedHttpClient(options: ScopedHttpClientOptions): HttpClientBase {
-  return new ScopedHttpClient(options)
 }
 
 export const CrossProjectRefPage = defineComponent({
@@ -344,27 +261,13 @@ export const CrossProjectRefPage = defineComponent({
     const targetPageId = computed(() => refTarget.value.pageId)
 
     const scopedPageContentLoader = computed<PageContentLoader | null>(() => {
-      const scopedTenantId = tenantId.value
       const scopedProjectId = targetProjectId.value
-      if (scopedTenantId === null || scopedProjectId === null) return null
+      if (tenantId.value === null || scopedProjectId === null) return null
 
-      const baseClient = props.pageContentLoader.getHttpClient()
-      const scopedClient = createScopedHttpClient({
-        baseClient,
-        scopedHeaders: {
-          'X-Tenant-Id': scopedTenantId,
-          'X-Project-Id': scopedProjectId,
-        },
-        tenantId: scopedTenantId,
-        hostProjectId: hostProjectId.value,
-        targetProjectId: scopedProjectId,
-      })
-
-      const pagesConfigBaseUrl =
-        `/tenants/${encodeURIComponent(scopedTenantId)}/projects/${encodeURIComponent(scopedProjectId)}/pages-config`
+      const readPageFile = props.pageContentLoader.getPageFileReader()
       return new PageContentLoader({
-        pagesConfigBaseUrl,
-        httpClient: scopedClient,
+        projectId: scopedProjectId,
+        ...(readPageFile === undefined ? {} : { readPageFile }),
       })
     })
 

@@ -4,7 +4,7 @@
  * 边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。
  * AI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 router/route-helpers。
  */
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
+import type { RuntimeNavigationItem } from '../navigation/runtime-navigation'
 
 function normalizePath(path: string): string {
   const trimmed = path.trim()
@@ -28,8 +28,8 @@ export function resolveCrossProjectRefPageId(refPath: string | undefined): strin
   return pageId === '' ? null : pageId
 }
 
-export function resolveNavRoutePageId(node: ProjectNodeData, rawNodePath: string): string {
-  if (node.nodeKind === 'ref') {
+export function resolveNavRoutePageId(node: RuntimeNavigationItem, rawNodePath: string): string {
+  if (node.itemKind === 'ref') {
     return resolveCrossProjectRefPageId(node.refPath) ?? node.refId ?? node.id
   }
 
@@ -37,9 +37,9 @@ export function resolveNavRoutePageId(node: ProjectNodeData, rawNodePath: string
   const slug = normalizedPath.replace(/^\/+/, '').replace(/\/+$/, '')
   const slugSegments = slug.split('/').filter(Boolean)
   const isConfigLikeNode =
-    node.nodeKind !== 'system-page' &&
-    node.nodeKind !== 'system-action' &&
-    node.nodeKind !== 'link'
+    node.itemKind !== 'system-page' &&
+    node.itemKind !== 'system-action' &&
+    node.itemKind !== 'link'
 
   const firstSlugSegment = slugSegments[0]
   if (isConfigLikeNode && slugSegments.length === 1 && firstSlugSegment !== undefined) {

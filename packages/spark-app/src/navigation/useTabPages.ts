@@ -47,7 +47,7 @@ function toTab(route: RouteLocationNormalizedGeneric): TabPage | null {
   if (!title) return null
   const icon = readString(route.meta['icon'])
   const name = readString(route.name)
-  // pageId 由 DynamicRouter 从 ProjectNodeData.id 写入 route.meta
+  // pageId 由 DynamicRouter 从 ProjectBlueprintTreeNodeData.id 写入 route.meta
   const pageId = readString(route.meta['pageId'])
   return {
     path: route.path,

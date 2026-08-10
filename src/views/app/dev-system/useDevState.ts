@@ -1,25 +1,30 @@
 /**
  * @module app:views/app/dev-system/useDevState
- * 职责：提供 DevSystem 的 useDevState 能力，围绕 DevPageFileName、PageConfigPageSummary、NavigationNodeDraftNode 等 9 个公开契约 支撑配置调试、节点编辑、预览或开发态状态管理。
+ * 职责：提供 DevSystem 的 useDevState 能力，围绕 DevPageFileName、PageConfigPageSummary、BlueprintNodeDraftNode 等 9 个公开契约 支撑配置调试、节点编辑、预览或开发态状态管理。
  * 边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
  * AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。
  */
 /**
- * DevSystem — 当前编辑 scope 的导航设计器状态。
+ * DevSystem — 当前编辑 scope 的项目蓝图设计器状态。
  *
  * 本质：经 `ProjectModel` 领域实例编辑 `{ tenantId, projectId }` 指向的项目模型。
  * 它可以是当前运行项目，也可以是被委托编辑的其他租户项目。
  *
- * - `workspace` = `getAppProjectWorkspace(scope)`；领域真源在 `workspace.project`
+ * - `workspace` = `getAppProjectBlueprintWorkspace(scope)`；领域真源在 `workspace.project`
  * - `project` = `workspace.project`（ProjectModel；API、事件、revision、projection）
- * - 导航树 / 节点表单 / dirty：经模型 API + 显式投影 API 到 Vue ref
+ * - 项目蓝图树 / 节点表单 / dirty：经模型 API + 显式投影 API 到 Vue ref
  * - 配置页内容：写入走 `project.writePageFile()`，保存/版本走 ProjectWorkspace
  * - 本模块只编排：Vue ref、localStorage 活动页、autoSave、SSE、状态消息
  */
 import { ref, shallowRef, reactive, computed, getCurrentInstance, getCurrentScope, nextTick, onScopeDispose } from 'vue'
-import { createAiRunAdapter, createAiToolApprovalBridge, getNavTree } from '@spark-appworks/spark-app'
+import { createAiRunAdapter, createAiToolApprovalBridge } from '@spark-appworks/spark-app'
 import type { AiRunTimelineEvent } from '@spark-appworks/spark-app'
-import type { AiToolApprovalRequest, NavNodeKind, ProjectNodeData } from '@spark-appworks/spark-app'
+import type { AiToolApprovalRequest } from '@spark-appworks/spark-app'
+import type {
+  ProjectBlueprintDeliveryKind,
+  ProjectBlueprintNodeKind,
+  ProjectBlueprintTreeNodeData,
+} from '@spark-appworks/spark-project-model'
 import { useSparkComponent } from '@spark-appworks/spark-component'
 import type { ToolApprovalDisplayItem } from '@spark-appworks/spark-component'
 import {
@@ -34,11 +39,11 @@ import {
   normalizePageIdFromPath,
   PAGE_NODE_FILE_NAMES,
   type ProjectModel,
-  type ProjectNodeLocation,
+  type ProjectBlueprintTreeNodeLocation,
   type PageNodeFileName,
   type ProjectPageNodeSummary,
-  type NavigationNodeDraft,
-  type NavigationNodeDraftNode as ProjectNavigationNodeDraftNode,
+  type BlueprintNodeDraft,
+  type BlueprintNodeDraftNode as ProjectBlueprintNodeDraftNode,
   type ProjectWorkspace,
   type ProjectPageReference,
   type ProjectSummary,
@@ -52,12 +57,10 @@ import {
   isProjectPlanningDocumentFile,
   uploadProjectPlanningAttachment,
 } from '@/services/project-planning/project-planning-attachments'
-import { getAppProjectWorkspace } from '@/services/project/project-shell'
+import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
-import { reloadAndSyncNavigation, syncCommittedNavigationFromRouter } from '@/services/project/project-shell'
-import { getUser } from '@/services/auth'
-import { getProjectApi, getProjectDetailApi } from '@/services/api-paths'
-import { http } from '@/services/http'
+import { reloadAndSyncNavigation } from '@/services/project/project-shell'
+import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 
 /** Dev Page File Name 的语义模型。 */
 export type DevPageFileName = Extract<PageNodeFileName, string>
@@ -65,9 +68,9 @@ export type DevPageFileName = Extract<PageNodeFileName, string>
 export type PageConfigPageSummary = {
   [Key in keyof ProjectPageNodeSummary]: ProjectPageNodeSummary[Key]
 }
-/** Navigation Node Draft Node 的语义模型。 */
-export type NavigationNodeDraftNode = {
-  [Key in keyof ProjectNavigationNodeDraftNode]: ProjectNavigationNodeDraftNode[Key]
+/** Blueprint Node Draft Node 的语义模型。 */
+export type BlueprintNodeDraftNode = {
+  [Key in keyof ProjectBlueprintNodeDraftNode]: ProjectBlueprintNodeDraftNode[Key]
 }
 /** Run Page Design Ai Options 的调用配置。 */
 export type RunPageDesignAiOptions = {
@@ -136,13 +139,13 @@ export type DevWorkspaceTab = 'props' | 'preview' | DevPageFileName
 // ═══════════════════════════════════════════════════════════
 
 export function useDevState() {
-  const initialUser = getUser()
+  const initialPrincipal = readLowcodePrincipal()
   const initialScope: ProjectWorkspaceScope = {
-    tenantId: initialUser?.tenantId ?? 'platform',
-    projectId: initialUser?.defaultProjectId ?? 'homepage',
+    tenantId: initialPrincipal?.enterpriseName ?? 'platform',
+    projectId: initialPrincipal?.applicationId ?? 'homepage',
   }
   const activeEditScope = ref<ProjectWorkspaceScope>(initialScope)
-  const currentEditor = shallowRef<ProjectWorkspace>(getAppProjectWorkspace(initialScope))
+  const currentEditor = shallowRef<ProjectWorkspace>(getAppProjectBlueprintWorkspace(initialScope))
   const editor = createLiveTargetProxy<ProjectWorkspace>(() => currentEditor.value)
   const project = createLiveTargetProxy<ProjectModel>(() => currentEditor.value.project)
   const tenantId = computed(() => activeEditScope.value.tenantId)
@@ -158,32 +161,32 @@ export function useDevState() {
     ? null
     : useSparkComponent({ type: 'dev-system-ai-runner' }).sparkConsume
 
-  // ── 导航树（ProjectModel 投影，非独立真源）──
-  const navLoading = ref(false)
-  const navSaving = ref(false)
-  const navEditDtoRevision = ref(0)
+  // ── 项目蓝图树（ProjectModel 投影，非独立真源）──
+  const blueprintLoading = ref(false)
+  const blueprintSaving = ref(false)
+  const blueprintDraftRevision = ref(0)
   const projectRevision = ref(project.revision)
-  const loadedNavigationScopeKeys = new Set<string>()
+  const loadedBlueprintScopeKeys = new Set<string>()
 
   function currentScopeKey(): string {
     return `${activeEditScope.value.tenantId}:${activeEditScope.value.projectId}`
   }
 
   function isDefaultUserProjectScope(): boolean {
-    const user = getUser()
-    const runtimeScope = user === null
+    const principal = readLowcodePrincipal()
+    const runtimeScope = principal === null
       ? initialScope
-      : { tenantId: user.tenantId, projectId: user.defaultProjectId }
+      : { tenantId: principal.enterpriseName, projectId: principal.applicationId ?? 'homepage' }
     return activeEditScope.value.tenantId === runtimeScope.tenantId
       && activeEditScope.value.projectId === runtimeScope.projectId
   }
 
-  function readNavigationProjection() {
+  function readBlueprintProjection() {
     void projectRevision.value
-    return project.readNavigationProjection()
+    return project.readBlueprintProjection()
   }
 
-  const navigationProjection = computed(() => readNavigationProjection())
+  const blueprintProjection = computed(() => readBlueprintProjection())
   const activePageProjection = computed(() => {
     void projectRevision.value
     return project.readActivePageProjection()
@@ -192,15 +195,15 @@ export function useDevState() {
     void projectRevision.value
     return project.readDirtyProjection()
   })
-  const treeData = computed(() => navigationProjection.value.treeData)
-  const pageList = computed(() => navigationProjection.value.pageFeatures)
-  const selectedNode = computed(() => navigationProjection.value.selectedNode)
-  const navEmpty = computed(() => navigationProjection.value.treeData.length === 0)
+  const treeData = computed(() => blueprintProjection.value.tree)
+  const pageList = computed(() => blueprintProjection.value.pageDeliveries)
+  const selectedNode = computed(() => blueprintProjection.value.selectedNode)
+  const blueprintEmpty = computed(() => blueprintProjection.value.tree.length === 0)
   const activePageId = computed(() => activePageProjection.value.pageId)
 
   function handleProjectModelEvent(): void {
     projectRevision.value = project.revision
-    refreshNavEditDtoBindings()
+    refreshBlueprintDraftBindings()
   }
 
   let unsubscribeProjectModel = currentEditor.value.project.subscribe(handleProjectModelEvent)
@@ -209,7 +212,7 @@ export function useDevState() {
     unsubscribeProjectModel()
     unsubscribeProjectModel = currentEditor.value.project.subscribe(handleProjectModelEvent)
     projectRevision.value = currentEditor.value.project.revision
-    refreshNavEditDtoBindings()
+    refreshBlueprintDraftBindings()
   }
 
   if (getCurrentScope() !== undefined) {
@@ -248,7 +251,12 @@ export function useDevState() {
 
     projectOptionsLoading.value = true
     try {
-      const rows = await http.get<ProjectSummary[]>(getProjectApi(normalizedTenantId))
+      const rows: ProjectSummary[] = (await lowcodeApi.platform.listApplications()).map((application) => ({
+        projectId: application.id,
+        name: application.name,
+        icon: '',
+        description: application.description,
+      }))
       editableProjects.value = rows
         .filter(row => row.projectId.trim() !== '')
         .map(row => ({
@@ -284,11 +292,11 @@ export function useDevState() {
     activeEditScope.value = nextScope
     projectPicker.tenantId = nextScope.tenantId
     projectPicker.projectId = nextScope.projectId
-    currentEditor.value = getAppProjectWorkspace(nextScope)
+    currentEditor.value = getAppProjectBlueprintWorkspace(nextScope)
     bindProjectModelEvents()
     linkProbeInfo.value = null
     autoSaveStatus.value = 'idle'
-    await loadNavConfig({ preserveActivePageId: readPersistedActivePageId() })
+    await loadBlueprint({ preserveActivePageId: readPersistedActivePageId() })
     return true
   }
 
@@ -305,109 +313,111 @@ export function useDevState() {
     }
   }
 
-  function refreshNavEditDtoBindings(): void {
-    navEditDtoRevision.value++
+  function refreshBlueprintDraftBindings(): void {
+    blueprintDraftRevision.value++
   }
 
-  function readNavEditDto(): NavigationNodeDraft | null {
-    void navEditDtoRevision.value
-    return project.navigationDraft
+  function readBlueprintDraft(): BlueprintNodeDraft | null {
+    void blueprintDraftRevision.value
+    return project.blueprintDraft
   }
 
-  // ── 节点编辑表单（navEditDto：代理到 project.navigationDraft 工作副本）──
-  const navEditDto = reactive({
-    get id(): string { return readNavEditDto()?.node.id ?? '' },
+  // ── 节点编辑表单（blueprintDraft：代理到 project.blueprintDraft 工作副本）──
+  const blueprintDraft = reactive({
+    get id(): string { return readBlueprintDraft()?.node.id ?? '' },
     set id(_v: string) {},
-    get title(): string { return readNavEditDto()?.node.title ?? '' },
-    set title(v: string) { const dto = project.navigationDraft; if (dto) { dto.node.title = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get icon(): string { return readNavEditDto()?.node.icon ?? '' },
-    set icon(v: string) { const dto = project.navigationDraft; if (dto) { dto.node.icon = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get nodeKind(): NavNodeKind { return readNavEditDto()?.node.nodeKind ?? 'page' },
-    set nodeKind(v: NavNodeKind) { const dto = project.navigationDraft; if (dto) { dto.node.nodeKind = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get dividerAfter(): boolean { return readNavEditDto()?.node.dividerAfter ?? false },
-    set dividerAfter(v: boolean) { const dto = project.navigationDraft; if (dto) { dto.node.dividerAfter = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get description(): string { return readNavEditDto()?.node.description ?? '' },
-    set description(v: string) { const dto = project.navigationDraft; if (dto) { dto.node.description = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get path(): string { return readNavEditDto()?.node.path ?? '' },
-    set path(v: string) { const dto = project.navigationDraft; if (dto) { dto.node.path = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get linkTarget(): NavigationNodeDraftNode['linkTarget'] { return readNavEditDto()?.node.linkTarget ?? 'iframe' },
-    set linkTarget(v: NavigationNodeDraftNode['linkTarget']) { const dto = project.navigationDraft; if (dto) { dto.node.linkTarget = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get childPlacement(): string { return readNavEditDto()?.node.childPlacement ?? '' },
-    set childPlacement(v: string) { const dto = project.navigationDraft; if (dto) { dto.node.childPlacement = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get order(): number { return readNavEditDto()?.node.order ?? 0 },
-    set order(v: number) { const dto = project.navigationDraft; if (dto) { dto.node.order = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get hidden(): boolean { return readNavEditDto()?.node.hidden ?? false },
-    set hidden(v: boolean) { const dto = project.navigationDraft; if (dto) { dto.node.hidden = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get disabled(): boolean { return readNavEditDto()?.node.disabled ?? false },
-    set disabled(v: boolean) { const dto = project.navigationDraft; if (dto) { dto.node.disabled = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get refId(): string { return readNavEditDto()?.node.refId ?? '' },
-    set refId(v: string) { const dto = project.navigationDraft; if (dto) { dto.node.refId = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
-    get permissionMode(): 'none' | 'masked' | 'invisible' { return readNavEditDto()?.node.permissionMode ?? 'masked' },
-    set permissionMode(v: 'none' | 'masked' | 'invisible') { const dto = project.navigationDraft; if (dto) { dto.node.permissionMode = v; project.applyNavigationNodeEdit(dto); markNavDirty() } },
+    get title(): string { return readBlueprintDraft()?.node.title ?? '' },
+    set title(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.title = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get blueprintKind(): ProjectBlueprintNodeKind { return readBlueprintDraft()?.node.blueprintKind ?? 'unresolved' },
+    set blueprintKind(v: ProjectBlueprintNodeKind) { const dto = project.blueprintDraft; if (dto) { dto.node.blueprintKind = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get icon(): string { return readBlueprintDraft()?.node.icon ?? '' },
+    set icon(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.icon = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get nodeKind(): ProjectBlueprintDeliveryKind { return readBlueprintDraft()?.node.nodeKind ?? 'page' },
+    set nodeKind(v: ProjectBlueprintDeliveryKind) { const dto = project.blueprintDraft; if (dto) { dto.node.nodeKind = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get dividerAfter(): boolean { return readBlueprintDraft()?.node.dividerAfter ?? false },
+    set dividerAfter(v: boolean) { const dto = project.blueprintDraft; if (dto) { dto.node.dividerAfter = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get description(): string { return readBlueprintDraft()?.node.description ?? '' },
+    set description(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.description = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get path(): string { return readBlueprintDraft()?.node.path ?? '' },
+    set path(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.path = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get linkTarget(): BlueprintNodeDraftNode['linkTarget'] { return readBlueprintDraft()?.node.linkTarget ?? 'iframe' },
+    set linkTarget(v: BlueprintNodeDraftNode['linkTarget']) { const dto = project.blueprintDraft; if (dto) { dto.node.linkTarget = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get childPlacement(): string { return readBlueprintDraft()?.node.childPlacement ?? '' },
+    set childPlacement(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.childPlacement = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get order(): number { return readBlueprintDraft()?.node.order ?? 0 },
+    set order(v: number) { const dto = project.blueprintDraft; if (dto) { dto.node.order = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get hidden(): boolean { return readBlueprintDraft()?.node.hidden ?? false },
+    set hidden(v: boolean) { const dto = project.blueprintDraft; if (dto) { dto.node.hidden = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get disabled(): boolean { return readBlueprintDraft()?.node.disabled ?? false },
+    set disabled(v: boolean) { const dto = project.blueprintDraft; if (dto) { dto.node.disabled = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get refId(): string { return readBlueprintDraft()?.node.refId ?? '' },
+    set refId(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.refId = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get permissionMode(): 'none' | 'masked' | 'invisible' { return readBlueprintDraft()?.node.permissionMode ?? 'masked' },
+    set permissionMode(v: 'none' | 'masked' | 'invisible') { const dto = project.blueprintDraft; if (dto) { dto.node.permissionMode = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get implGate(): 'closed' | 'open' | undefined {
-      return readNavEditDto()?.node.implGate
+      return readBlueprintDraft()?.node.implGate
     },
     set implGate(v: 'closed' | 'open' | undefined) {
-      const dto = project.navigationDraft
+      const dto = project.blueprintDraft
       if (!dto) return
       dto.node.implGate = v
-      project.applyNavigationNodeEdit(dto)
-      markNavDirty()
+      project.applyBlueprintNodeEdit(dto)
+      markBlueprintDirty()
     },
     get upstreamContractsSatisfied(): boolean {
-      return readNavEditDto()?.node.upstreamContractsSatisfied ?? true
+      return readBlueprintDraft()?.node.upstreamContractsSatisfied ?? true
     },
     set upstreamContractsSatisfied(v: boolean) {
-      const dto = project.navigationDraft
+      const dto = project.blueprintDraft
       if (!dto) return
       if (v) {
         delete dto.node.upstreamContractsSatisfied
       } else {
         dto.node.upstreamContractsSatisfied = false
       }
-      project.applyNavigationNodeEdit(dto)
-      markNavDirty()
+      project.applyBlueprintNodeEdit(dto)
+      markBlueprintDirty()
     },
-    get hasContext(): boolean { return readNavEditDto()?.context.hasContext ?? false },
+    get hasContext(): boolean { return readBlueprintDraft()?.context.hasContext ?? false },
     set hasContext(v: boolean) {
-      const dto = project.navigationDraft
+      const dto = project.blueprintDraft
       if (dto) {
         dto.context.hasContext = v
         if (!v) { dto.context.items = [] }
-        project.applyNavigationNodeEdit(dto)
-        markNavDirty()
+        project.applyBlueprintNodeEdit(dto)
+        markBlueprintDirty()
       }
     },
   })
-  /** 模块上下文表单 — 代理到 project.navigationDraft.context（与 navEditDto 同模式）。 */
+  /** 模块上下文表单 — 代理到 project.blueprintDraft.context（与 blueprintDraft 同模式）。 */
   const contextEdit = reactive({
     get items(): Array<{ id: string; title: string }> {
-      void navEditDtoRevision.value
-      return project.navigationDraft?.context.items ?? []
+      void blueprintDraftRevision.value
+      return project.blueprintDraft?.context.items ?? []
     },
-    get placeholder(): string { return readNavEditDto()?.context.config.placeholder ?? '' },
+    get placeholder(): string { return readBlueprintDraft()?.context.config.placeholder ?? '' },
     set placeholder(v: string) {
-      const dto = project.navigationDraft
+      const dto = project.blueprintDraft
       if (!dto) return
       dto.context.config.placeholder = v
-      project.applyNavigationNodeEdit(dto)
-      markNavDirty()
+      project.applyBlueprintNodeEdit(dto)
+      markBlueprintDirty()
     },
-    get defaultValue(): string { return readNavEditDto()?.context.config.defaultValue ?? '' },
+    get defaultValue(): string { return readBlueprintDraft()?.context.config.defaultValue ?? '' },
     set defaultValue(v: string) {
-      const dto = project.navigationDraft
+      const dto = project.blueprintDraft
       if (!dto) return
       dto.context.config.defaultValue = v
-      project.applyNavigationNodeEdit(dto)
-      markNavDirty()
+      project.applyBlueprintNodeEdit(dto)
+      markBlueprintDirty()
     },
-    get paramName(): string { return readNavEditDto()?.context.config.paramName ?? '' },
+    get paramName(): string { return readBlueprintDraft()?.context.config.paramName ?? '' },
     set paramName(v: string) {
-      const dto = project.navigationDraft
+      const dto = project.blueprintDraft
       if (!dto) return
       dto.context.config.paramName = v
-      project.applyNavigationNodeEdit(dto)
-      markNavDirty()
+      project.applyBlueprintNodeEdit(dto)
+      markBlueprintDirty()
     },
   })
 
@@ -475,8 +485,8 @@ export function useDevState() {
     return pageFileNames.some((n) => dirty.has(n))
   })
 
-  const navDirty = computed(() => {
-    return dirtyProjection.value.navigationDirty
+  const blueprintDirty = computed(() => {
+    return dirtyProjection.value.blueprintDirty
   })
 
   const hasAnyDirty = computed(() => {
@@ -547,34 +557,34 @@ export function useDevState() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // 导航树工具
+  // 项目蓝图树工具
   // ═══════════════════════════════════════════════════════════
 
-  function isSystemRootDirectoryInTree(node: ProjectNodeData | null | undefined): boolean {
+  function isSystemRootDirectoryInTree(node: ProjectBlueprintTreeNodeData | null | undefined): boolean {
     return isSystemRootDirectory(node, treeData.value)
   }
 
-  function canUseModuleNodeKindInTree(node: ProjectNodeData | null | undefined): boolean {
+  function canUseModuleNodeKindInTree(node: ProjectBlueprintTreeNodeData | null | undefined): boolean {
     return canUseModuleNodeKind(node, treeData.value)
   }
 
   function syncActivePageContextByPath(path: string): void {
     const pageId = normalizePageIdFromPath(path)
-    if (pageId && isConfigNodeKind(navEditDto.nodeKind)) {
+    if (pageId && isConfigNodeKind(blueprintDraft.nodeKind)) {
       setActivePageContext(pageId, activePageId.value !== pageId)
       return
     }
     clearActivePageContext()
   }
 
-  function applyNodeKindPreset(kind: NavNodeKind): void {
+  function applyNodeKindPreset(kind: ProjectBlueprintDeliveryKind): void {
     project.applyNodeKindPreset(kind)
   }
 
   function applyNestedConfigPagePreset(): void {
     project.applyNestedConfigPagePreset()
-    markNavDirty()
-    syncActivePageContextByPath(navEditDto.path)
+    markBlueprintDirty()
+    syncActivePageContextByPath(blueprintDraft.path)
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -691,14 +701,9 @@ export function useDevState() {
     projectPlanningDocumentFileName.value = ''
   }
 
-  async function bindProjectPlanningAttachmentRef(attachmentRef: string): Promise<void> {
-    await http.put(getProjectDetailApi(projectId.value, tenantId.value), { planningAttachmentRef: attachmentRef })
-    project.replaceProjectInfo({
-      tenantId: tenantId.value,
-      projectId: projectId.value,
-      planningAttachmentRef: attachmentRef,
-    })
-    projectRevision.value += 1
+  function bindProjectPlanningAttachmentRef(attachmentRef: string): Promise<void> {
+    void attachmentRef
+    return Promise.reject(new Error('lowcode 项目附件绑定接口不满足写前镜像、journal、readback 与补偿门禁'))
   }
 
   async function handleProjectPlanningDocumentFileSelected(file: File): Promise<void> {
@@ -740,7 +745,7 @@ export function useDevState() {
     await nextTick()
 
     try {
-      addStatus('AI 开始读取项目策划附件并生成导航树...', 'info')
+      addStatus('AI 开始读取项目策划附件并生成项目蓝图...', 'info')
       const result = await runProjectPlanningAiSession({
         planningAttachmentRef: attachmentRef,
         editor,
@@ -748,7 +753,7 @@ export function useDevState() {
         adapter: projectPlanningAdapter,
         beforeFunctionCall: aiToolApprovals.beforeFunctionCall,
         onAbort: aiToolApprovals.cancelPending,
-        saveNavigationAfterRun: true,
+        saveBlueprintAfterRun: true,
         events: {
           onToolCall: (record) => {
             const type: StatusMessage['type'] = record.status === 'success' ? 'info' : 'warning'
@@ -757,10 +762,10 @@ export function useDevState() {
         },
       })
       addStatus(
-        result.savedNavigation
-          ? '项目策划完成，导航树已保存'
-          : '项目策划完成，请手动保存导航树',
-        result.savedNavigation ? 'success' : 'warning',
+        result.savedBlueprint
+          ? '项目策划完成，项目蓝图已保存'
+          : '项目策划完成，请手动保存项目蓝图',
+        result.savedBlueprint ? 'success' : 'warning',
       )
       closeProjectPlanningDocumentImportDialog()
     } catch (error) {
@@ -776,40 +781,33 @@ export function useDevState() {
   // 数据加载
   // ═══════════════════════════════════════════════════════════
 
-  async function ensureCurrentProjectNavigationLoaded(): Promise<void> {
+  async function ensureCurrentProjectBlueprintLoaded(): Promise<void> {
     const scopeKey = currentScopeKey()
-    if (loadedNavigationScopeKeys.has(scopeKey)) return
-    if (project.readNavigationProjection().treeData.length > 0) {
-      loadedNavigationScopeKeys.add(scopeKey)
+    if (loadedBlueprintScopeKeys.has(scopeKey)) return
+    if (project.readBlueprintProjection().tree.length > 0) {
+      loadedBlueprintScopeKeys.add(scopeKey)
       return
     }
 
-    const navFromRouter = isDefaultUserProjectScope() ? getNavTree() : null
-    if (navFromRouter && navFromRouter.children.length > 0) {
-      syncCommittedNavigationFromRouter()
-      loadedNavigationScopeKeys.add(scopeKey)
-      return
-    }
-
-    await editor.loadNavigation()
-    loadedNavigationScopeKeys.add(scopeKey)
+    await editor.loadBlueprint()
+    loadedBlueprintScopeKeys.add(scopeKey)
   }
 
-  async function loadNavConfig(options?: { preserveSelectedNodeId?: string | null; preserveActivePageId?: string | null }): Promise<void> {
+  async function loadBlueprint(options?: { preserveSelectedNodeId?: string | null; preserveActivePageId?: string | null }): Promise<void> {
     const preservedSelectedNodeId = options?.preserveSelectedNodeId ?? selectedNode.value?.id ?? null
     const preservedActivePageId = options?.preserveActivePageId?.trim() ?? ''
-    navLoading.value = true
+    blueprintLoading.value = true
     try {
-      await ensureCurrentProjectNavigationLoaded()
-      refreshNavEditDtoBindings()
-      addStatus(`项目 ${tenantId.value}/${projectId.value} 导航已就绪`, 'success')
+      await ensureCurrentProjectBlueprintLoaded()
+      refreshBlueprintDraftBindings()
+      addStatus(`项目 ${tenantId.value}/${projectId.value} 蓝图已就绪`, 'success')
     } catch (error) {
-      addStatus(`导航加载失败: ${String(error)}`, 'error')
+      addStatus(`项目蓝图加载失败: ${String(error)}`, 'error')
     } finally {
-      navLoading.value = false
+      blueprintLoading.value = false
     }
 
-    const snapTree = readNavigationProjection().treeData
+    const snapTree = readBlueprintProjection().tree
 
     if (preservedSelectedNodeId) {
       const matchedNode = findNodeById(snapTree, preservedSelectedNodeId)
@@ -849,11 +847,11 @@ export function useDevState() {
   // 节点表单
   // ═══════════════════════════════════════════════════════════
 
-  function loadNodeToForm(node: ProjectNodeData): void {
+  function loadNodeToForm(node: ProjectBlueprintTreeNodeData): void {
     const pageId = resolvePageNodePageId(node) || node.id || `nav-node-${node.id}`
     project.setActivePage(pageId)
     project.selectNode(node.id)
-    project.beginNavigationDraft()
+    project.beginBlueprintDraft()
     linkProbeInfo.value = null
   }
 
@@ -866,21 +864,21 @@ export function useDevState() {
       return
     }
 
-    if (navEditDto.nodeKind === 'module' && !canUseModuleNodeKindInTree(node)) {
+    if (blueprintDraft.nodeKind === 'module' && !canUseModuleNodeKindInTree(node)) {
       applyNodeKindPreset('page')
       addStatus('页面下不能创建模块，已自动改为普通页面', 'warning')
     }
 
-    const dto = project.navigationDraft
+    const dto = project.blueprintDraft
     if (dto) {
-      const result = project.applyNavigationNodeEdit(dto)
+      const result = project.applyBlueprintNodeEdit(dto)
       for (const warning of result.warnings) {
         addStatus(warning, 'warning')
       }
     }
   }
 
-  function markNavDirty(): void {
+  function markBlueprintDirty(): void {
     scheduleAutoSave()
   }
 
@@ -897,7 +895,7 @@ export function useDevState() {
 
   async function doAutoSave(): Promise<void> {
     autoSaveTimer = null
-    if (!project.readDirtyProjection().navigationDirty) { autoSaveStatus.value = 'idle'; return }
+    if (!project.readDirtyProjection().blueprintDirty) { autoSaveStatus.value = 'idle'; return }
     if (!selectedNode.value) { autoSaveStatus.value = 'idle'; return }
     if (isSystemRootDirectoryInTree(selectedNode.value)) { autoSaveStatus.value = 'idle'; return }
 
@@ -926,10 +924,10 @@ export function useDevState() {
       return true
     }
 
-    navSaving.value = true
+    blueprintSaving.value = true
     try {
       project.selectNode(node.id)
-      await editor.saveSelectedNavigationNode({ skipReload: true })
+      await editor.saveSelectedBlueprintNode({ skipReload: true })
       await syncRuntimeNavigationIfDefaultProject()
       addStatus(`节点 ${node.title} 已保存`, 'success')
       return true
@@ -937,7 +935,7 @@ export function useDevState() {
       addStatus(`节点保存失败: ${String(e)}`, 'error')
       return false
     } finally {
-      navSaving.value = false
+      blueprintSaving.value = false
     }
   }
 
@@ -962,9 +960,9 @@ export function useDevState() {
         icon: params.icon,
       })
 
-      navEditDto.path = `/${pageId}`
-      navEditDto.title = params.title
-      navEditDto.icon = params.icon
+      blueprintDraft.path = `/${pageId}`
+      blueprintDraft.title = params.title
+      blueprintDraft.icon = params.icon
       handlePathChange(`/${pageId}`)
 
       bumpPageCache(pageId, '__created')
@@ -984,7 +982,7 @@ export function useDevState() {
       await saveNodeChanges()
       return
     }
-    addStatus('未选中节点，无需保存导航属性', 'info')
+    addStatus('未选中节点，无需保存蓝图属性', 'info')
   }
 
   async function saveAllDirtyPageFiles(): Promise<void> {
@@ -1006,12 +1004,12 @@ export function useDevState() {
   }
 
   async function flushDirtyScopes(): Promise<void> {
-    if (navDirty.value) await saveCurrentNavScope()
+    if (blueprintDirty.value) await saveCurrentNavScope()
     if (hasAnyFileDirty.value) await saveAllDirtyPageFiles()
   }
 
   async function ensureCurrentNavScopePersistedWhenClean(): Promise<void> {
-    if (!navDirty.value && !hasAnyFileDirty.value) {
+    if (!blueprintDirty.value && !hasAnyFileDirty.value) {
       await saveCurrentNavScope()
     }
   }
@@ -1025,9 +1023,9 @@ export function useDevState() {
   // 节点选中
   // ═══════════════════════════════════════════════════════════
 
-  async function selectNode(node: ProjectNodeData): Promise<void> {
+  async function selectNode(node: ProjectBlueprintTreeNodeData): Promise<void> {
     cancelAutoSave()
-    if (navDirty.value && selectedNode.value) void saveNodeChanges()
+    if (blueprintDirty.value && selectedNode.value) void saveNodeChanges()
     project.selectNode(node.id)
     try {
       const pageId = resolvePageNodePageId(node)
@@ -1036,7 +1034,7 @@ export function useDevState() {
         persistActivePageId(pageId)
       } else {
         clearActivePageContext()
-        // Keep a navigation edit context for non-page nodes; this is not a pageModel.
+        // Keep a blueprint edit context for non-page nodes; this is not a pageModel.
         const navPageId = pageId || node.id || `nav-node-${node.id}`
         project.setActivePage(navPageId)
       }
@@ -1047,11 +1045,11 @@ export function useDevState() {
   }
 
   function handlePathChange(val: string): void {
-    markNavDirty()
+    markBlueprintDirty()
     syncActivePageContextByPath(val)
   }
 
-  function handleNodeKindChange(kind: NavNodeKind): void {
+  function handleNodeKindChange(kind: ProjectBlueprintDeliveryKind): void {
     if (kind === 'module' && !canUseModuleNodeKindInTree(selectedNode.value)) {
       addStatus('页面下不能创建模块', 'warning')
       const fallbackKind = selectedNode.value?.nodeKind ?? 'page'
@@ -1059,8 +1057,8 @@ export function useDevState() {
       return
     }
     applyNodeKindPreset(kind)
-    markNavDirty()
-    syncActivePageContextByPath(navEditDto.path)
+    markBlueprintDirty()
+    syncActivePageContextByPath(blueprintDraft.path)
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -1068,12 +1066,12 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   function onLinkUrlChanged(): void {
-    markNavDirty()
+    markBlueprintDirty()
     linkProbeInfo.value = null
   }
 
   async function probeLinkTarget(): Promise<void> {
-    const url = navEditDto.path.trim()
+    const url = blueprintDraft.path.trim()
     if (!url) {
       addStatus('请先输入超链接地址', 'warning')
       return
@@ -1085,9 +1083,9 @@ export function useDevState() {
       const embeddable = result.embeddable
       const reason = result.reason
 
-      navEditDto.linkTarget = embeddable ? 'iframe' : 'new-tab'
+      blueprintDraft.linkTarget = embeddable ? 'iframe' : 'new-tab'
       linkProbeInfo.value = { embeddable, reason }
-      markNavDirty()
+      markBlueprintDirty()
 
       addStatus(
         embeddable
@@ -1115,7 +1113,7 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   function addRootNode(): void {
-    const node: ProjectNodeData = {
+    const node: ProjectBlueprintTreeNodeData = {
       id: crypto.randomUUID(),
       nodeKind: 'module',
       title: '新模块',
@@ -1123,13 +1121,13 @@ export function useDevState() {
       childPlacement: 'sidebar',
       children: [],
     }
-    void editor.addNavigationNode({ node }).then(
+    void editor.addBlueprintNode({ node }).then(
       async () => {
         await syncRuntimeNavigationIfDefaultProject()
         addStatus('已添加根模块', 'info')
       },
       (e: unknown) => {
-        void editor.loadNavigation()
+        void editor.loadBlueprint()
         addStatus(`添加模块失败: ${String(e)}`, 'error')
       },
     )
@@ -1139,7 +1137,7 @@ export function useDevState() {
     return treeData.value.some((node) => node.childPlacement === placement)
   }
 
-  function getReservedRootGroupTemplate(placement: 'toolbar' | 'user-menu'): ProjectNodeData {
+  function getReservedRootGroupTemplate(placement: 'toolbar' | 'user-menu'): ProjectBlueprintTreeNodeData {
     if (placement === 'toolbar') {
       return {
         id: crypto.randomUUID(),
@@ -1168,22 +1166,22 @@ export function useDevState() {
 
     const node = getReservedRootGroupTemplate(placement)
     try {
-      await editor.addNavigationNode({ node, index: 0 })
+      await editor.addBlueprintNode({ node, index: 0 })
       await syncRuntimeNavigationIfDefaultProject()
       addStatus(`已恢复 ${node.title}`, 'success')
     } catch (e) {
-      await editor.loadNavigation()
+      await editor.loadBlueprint()
       addStatus(`恢复失败: ${String(e)}`, 'error')
     }
   }
 
-  async function addChildNode(parent: ProjectNodeData): Promise<void> {
+  async function addChildNode(parent: ProjectBlueprintTreeNodeData): Promise<void> {
     const pageId = normalizePageIdFromPath(`/child-${crypto.randomUUID().slice(0, 8)}`)
     try {
       await editor.createMountedPage({
         pageId,
         parentId: parent.id,
-        rollbackPageOnNavigationFailure: true,
+        rollbackPageOnBlueprintFailure: true,
       })
       await syncRuntimeNavigationIfDefaultProject()
       addStatus(`已在 ${parent.title} 下添加子节点`, 'info')
@@ -1192,7 +1190,7 @@ export function useDevState() {
     }
   }
 
-  function removeNodeFromTree(_node: { parent: { data: ProjectNodeData } }, data: ProjectNodeData): void {
+  function removeNodeFromTree(_node: { parent: { data: ProjectBlueprintTreeNodeData } }, data: ProjectBlueprintTreeNodeData): void {
     if (isSystemRootDirectoryInTree(data)) {
       addStatus(`系统目录 ${data.title} 不可删除，仅可编辑子项`, 'warning')
       return
@@ -1220,20 +1218,20 @@ export function useDevState() {
     )
   }
 
-  async function moveNodeInTree(data: ProjectNodeData): Promise<void> {
+  async function moveNodeInTree(data: ProjectBlueprintTreeNodeData): Promise<void> {
     if (isSystemRootDirectoryInTree(data)) return
-    const location: ProjectNodeLocation | null = findNodeLocation(treeData.value, data.id)
+    const location: ProjectBlueprintTreeNodeLocation | null = findNodeLocation(treeData.value, data.id)
     if (!location) return
-    navSaving.value = true
+    blueprintSaving.value = true
     try {
       await editor.moveMountedPage(data.id, location.parentId, location.index)
       await syncRuntimeNavigationIfDefaultProject()
       addStatus(`节点 ${data.title} 已移动`, 'success')
     } catch (e) {
       addStatus(`节点移动失败: ${String(e)}`, 'error')
-      await loadNavConfig({ preserveSelectedNodeId: data.id, preserveActivePageId: activePageId.value })
+      await loadBlueprint({ preserveSelectedNodeId: data.id, preserveActivePageId: activePageId.value })
     } finally {
-      navSaving.value = false
+      blueprintSaving.value = false
     }
   }
 
@@ -1242,34 +1240,34 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   function toggleContext(val: boolean): void {
-    const dto = project.navigationDraft
+    const dto = project.blueprintDraft
     if (val && dto?.context.items.length === 0) {
       dto.context.items.push({ id: '', title: '' })
-      project.applyNavigationNodeEdit(dto)
+      project.applyBlueprintNodeEdit(dto)
     }
-    navEditDto.hasContext = val
+    blueprintDraft.hasContext = val
   }
   function addContextItem(): void {
-    const dto = project.navigationDraft
+    const dto = project.blueprintDraft
     if (!dto) return
     dto.context.items.push({ id: '', title: '' })
-    project.applyNavigationNodeEdit(dto)
-    markNavDirty()
+    project.applyBlueprintNodeEdit(dto)
+    markBlueprintDirty()
   }
   function removeContextItem(idx: number): void {
-    const dto = project.navigationDraft
+    const dto = project.blueprintDraft
     if (!dto) return
     dto.context.items.splice(idx, 1)
-    project.applyNavigationNodeEdit(dto)
-    markNavDirty()
+    project.applyBlueprintNodeEdit(dto)
+    markBlueprintDirty()
   }
 
   /** 选项 id/title 就地编辑后提交到 DTO。 */
   function commitContextEdit(): void {
-    const dto = project.navigationDraft
+    const dto = project.blueprintDraft
     if (!dto) return
-    project.applyNavigationNodeEdit(dto)
-    markNavDirty()
+    project.applyBlueprintNodeEdit(dto)
+    markBlueprintDirty()
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -1279,28 +1277,28 @@ export function useDevState() {
   async function initialize(): Promise<void> {
     await loadEditableProjects(projectPicker.tenantId)
     const persistedActivePageId = readPersistedActivePageId()
-    await loadNavConfig({ preserveActivePageId: persistedActivePageId })
+    await loadBlueprint({ preserveActivePageId: persistedActivePageId })
   }
 
   return {
-    // 导航树
+    // 项目蓝图树
     get tenantId(): string { return tenantId.value },
     get projectId(): string { return projectId.value },
     projectPicker,
     editableProjects,
     projectOptionsLoading,
     treeData,
-    navLoading,
-    navSaving,
-    navDirty,
+    blueprintLoading,
+    blueprintSaving,
+    blueprintDirty,
     selectedNode,
 
-    // 编辑表单（navEditDto 代理到 project.navigationDraft 工作副本）
-    navEditDto,
+    // 编辑表单（blueprintDraft 代理到 project.blueprintDraft 工作副本）
+    blueprintDraft,
     contextEdit,
 
-    // 空导航状态
-    navEmpty,
+    // 空蓝图状态
+    blueprintEmpty,
 
     // 页面 4 文件
     pageFileNames,
@@ -1341,14 +1339,14 @@ export function useDevState() {
     loadEditableProjects,
     openEditingProject,
     openProjectPickerScope,
-    loadNavConfig,
+    loadBlueprint,
     clearActivePageContext,
     selectPage,
     createPageForSelectedNode,
     onLinkUrlChanged,
     probeLinkTarget,
     loadNodeToForm,
-    markNavDirty,
+    markBlueprintDirty,
     saveNodeChanges,
     saveAll,
     runPageDesignAi,

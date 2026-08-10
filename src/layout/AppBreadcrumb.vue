@@ -29,8 +29,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { ProjectNodeData } from '@spark-appworks/spark-project-model'
-import { getNavHomePath, useNav } from '@spark-appworks/spark-app'
+import { getNavHomePath, useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import NavIcon from '@/components/NavIcon.vue'
 
 type BreadcrumbItem = {
@@ -42,7 +41,7 @@ type BreadcrumbItem = {
 const route = useRoute()
 const router = useRouter()
 const nav = useNav()
-const safeActivePath = computed<ProjectNodeData[]>(() => Array.isArray(nav?.activePath.value) ? nav.activePath.value : [])
+const safeActivePath = computed<RuntimeNavigationItem[]>(() => Array.isArray(nav?.activePath.value) ? nav.activePath.value : [])
 
 function goHome() {
   nav?.navigateToPath(getNavHomePath())
@@ -51,7 +50,7 @@ function goHome() {
 const crumbs = computed<BreadcrumbItem[]>(() => {
   // 优先使用导航模型的 activePath
   if (safeActivePath.value.length > 0) {
-    return safeActivePath.value.map((node: ProjectNodeData) => ({
+    return safeActivePath.value.map((node: RuntimeNavigationItem) => ({
       id: node.id,
       path: node.path ?? '',
       title: node.title,
@@ -73,7 +72,7 @@ const crumbs = computed<BreadcrumbItem[]>(() => {
 function onCrumbClick(item: BreadcrumbItem) {
   // 优先使用导航模型的 navigateTo（处理重定向、首个叶子等）
   if (nav && item.id) {
-    const node = safeActivePath.value.find((n: ProjectNodeData) => n.id === item.id)
+    const node = safeActivePath.value.find((node: RuntimeNavigationItem) => node.id === item.id)
     if (node) {
       nav.navigateTo(node)
       return

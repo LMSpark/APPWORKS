@@ -51,7 +51,8 @@ function createPreviewState() {
     load: () => Promise.resolve(),
     toRenderConfig: () => ({
       pageId: activePageId.value,
-      navigation: null,
+      blueprintNode: null,
+      dataSpaceBinding: null,
       rule: [],
       data: {} as never,
       script: undefined,

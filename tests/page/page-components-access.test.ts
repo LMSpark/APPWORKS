@@ -67,13 +67,16 @@ describe('PageContext $components (metadata only)', () => {
     })
 
     expect(context.permission.isPermittedAction('create', {
-      modelPermission: { allowCreate: true },
+      permissionSnapshot: {
+        formKey: 'FORM', dataSpaceId: 'SPACE', modelId: 'MODEL', allowAdd: true,
+        systemKey: 'SYSTEM', originalRows: [], authorizedFeatureTags: [],
+      },
     })).toBe(true)
 
     const state = context.permission.resolveFieldPermissionState('name', {
       id: 1,
       name: 'Alice',
-      _perm: { editableFields: ['name'] },
+      lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: false },
     })
     expect(state?.editable).toBe(true)
   })
@@ -89,7 +92,10 @@ describe('PageContext $components (metadata only)', () => {
     const fns = compileFunctions(`
       function canCreate() {
         return permission.isPermittedAction('create', {
-          modelPermission: { allowCreate: true }
+          permissionSnapshot: {
+            formKey: 'FORM', dataSpaceId: 'SPACE', modelId: 'MODEL', allowAdd: true,
+            systemKey: 'SYSTEM', originalRows: [], authorizedFeatureTags: []
+          }
         })
       }
 
@@ -97,7 +103,7 @@ describe('PageContext $components (metadata only)', () => {
         var state = permission.resolveFieldPermissionState('name', {
           id: 1,
           name: 'Alice',
-          _perm: { editableFields: ['name'] }
+          lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: false }
         })
         return state ? state.editable : false
       }

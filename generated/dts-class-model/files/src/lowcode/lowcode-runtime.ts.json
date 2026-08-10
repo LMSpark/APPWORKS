@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/lowcode-runtime",
+    "sourcePath": "src/lowcode/lowcode-runtime.ts",
+    "sourceFile": "src/lowcode/lowcode-runtime.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/lowcode-runtime",
+    "jsdoc": "app 的 lowcode/lowcode-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodePrincipal, LowcodeRuntimeNavigationProjectionInput, LowcodeProjectGateways（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodePrincipal",
+      "LowcodeRuntimeNavigationProjectionInput",
+      "LowcodeProjectGateways"
+    ]
+  },
+  "$defs": {
+    "LowcodePrincipal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePrincipal",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enterpriseName": {
+          "type": "string"
+        },
+        "applicationId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeRuntimeNavigationProjectionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeRuntimeNavigationProjectionInput",
+      "properties": {
+        "applicationName": {
+          "type": "string"
+        },
+        "navigationRootId": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "LowcodeRuntimeNavigationItem"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeProjectGateways": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeProjectGateways",
+      "properties": {
+        "pageFiles": {
+          "$ref": "../../packages/spark-project-model/src/io/page-file-api.ts.json#/$defs/ProjectPageFileGateway"
+        },
+        "blueprint": {
+          "$ref": "../../packages/spark-project-model/src/io/project-blueprint-client.ts.json#/$defs/ProjectBlueprintGateway"
+        },
+        "projectReferences": {
+          "$ref": "../../packages/spark-project-model/src/io/project-reference-client.ts.json#/$defs/ProjectReferenceGateway"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T23:48:20.413Z",
+  "models": {
+    "LowcodePrincipal": {
+      "name": "LowcodePrincipal",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    userId: string;\n    username: string;\n    displayName: string;\n    roles: readonly string[];\n    enterpriseName: string;\n    applicationId: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    userId: string;\n    username: string;\n    displayName: string;\n    roles: readonly string[];\n    enterpriseName: string;\n    applicationId: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "userId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "username",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "roles",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeRuntimeNavigationProjectionInput": {
+      "name": "LowcodeRuntimeNavigationProjectionInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    applicationName: string;\n    navigationRootId: string;\n    items: readonly LowcodeRuntimeNavigationItem[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    applicationName: string;\n    navigationRootId: string;\n    items: readonly LowcodeRuntimeNavigationItem[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationRootId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "items",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeProjectGateways": {
+      "name": "LowcodeProjectGateways",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageFiles: ProjectPageFileGateway;\n    blueprint: ProjectBlueprintGateway;\n    projectReferences: ProjectReferenceGateway;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageFiles: ProjectPageFileGateway;\n    blueprint: ProjectBlueprintGateway;\n    projectReferences: ProjectReferenceGateway;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageFiles",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprint",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectReferences",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

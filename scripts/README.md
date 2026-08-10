@@ -1,18 +1,18 @@
 # 脚本目录索引
 
-`scripts/` 存放面向仓库维护的命令行脚本，主要负责开发启动、构建、发布和迁移，不承载运行时业务逻辑。
+`scripts/` 存放面向仓库维护的命令行脚本，主要负责前端开发、构建、发布和验证，不承载运行时业务逻辑。
 
 ## 编译流水线（分层）
 
 ```text
 开发 (pnpm run dev)
-  start-dev.mjs → Docker MySQL → Java spring-boot:run → Vite dev (alias → packages/*/src)
+  Vite dev (alias → packages/*/src；/api 代理到 LOWCODE_GATEWAY_URL)
 
 前端生产 (pnpm run build:fe)
   ensure:class-model-bundle → vite build (根应用；不预构建 packages dist)
 
 完整发布 (pnpm run build)
-  build-all.mjs → mvn package (Java JAR) + build-frontend.mjs
+  build-all.mjs → build-packages.mjs + build-frontend.mjs
 
 npm 包 (pnpm run build:packages)
   build-packages.mjs → 按依赖拓扑串行构建 packages/* (vite JS + tsc/vue-tsc .d.ts)
@@ -45,18 +45,15 @@ ClassModel 全量门禁 (verify:class-model:full)
 - `generated/dts-class-model/` 已入库（编译 SSOT，可人工评审）；Vite 插件 dev/build 映射到 `/dts-class-model/`。
 - `ensure:class-model-bundle` 在 manifest 缺失时 generate，并 `assertClassModelBundleComplete`。
 - ClassModel 运行时知识在 Web Worker 内按需加载；编译 refresh 见 `scripts/lib/class-model-knowledge-refresh.mjs`。
-- Java 改动后必须重启 `pnpm run dev`；纯前端走 Vite HMR。
+- `E:\lowcode-jdk17` 永久只读且不参与本仓构建；本仓只通过前端 API 合同消费其现有接口。
 
 ## 目录内容
 
-- `build-shared.mjs`：JAVA_HOME 探测、`runCommand`、路径常量（build / dev 共用）。
-- `build-all.mjs`：Java JAR + 前端生产构建。
+- `build-shared.mjs`：`runCommand` 与构建路径常量。
+- `build-all.mjs`：workspace 包 + 前端生产构建。
 - `build-frontend.mjs`：根 Vite 生产构建。
 - `build-packages.mjs`：workspace 包拓扑构建（`--only pkg1,pkg2` / `--dry-run`）。
-- `start-dev.mjs`：Docker MySQL + Java + Vite 开发栈。
 - `publish-packages.mjs`：构建并发布 `@spark-appworks/*`。
-- `migrate-navigation-sub-page.mjs`：legacy `sub-page` 行审计/迁移（Flyway V8）。
-- `migrate-pages-config-cleanup.mjs`：已删 pageId 的 MySQL 清理（Flyway V9）。
 - `verify-model-convergence-offline.mjs`：模型收敛离线验收。
 - `generate-dts-class-model.mjs`：ClassModel 编译（内存 emit → JSON bundle；`--model` 增量）。
 - `lib/class-model-knowledge-refresh.mjs`：Node 宿主 refreshBundle 回调（触发 targeted compile）。

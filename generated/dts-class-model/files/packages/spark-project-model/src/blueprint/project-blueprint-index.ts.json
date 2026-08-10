@@ -1,0 +1,342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-index",
+    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-index.ts",
+    "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-index.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "blueprint/project-blueprint-index",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-index\n职责：提供项目蓝图节点内存索引与树投影。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectBlueprintIndex — 蓝图 nodesById 的内存索引（树投影 / 查找），非存储形状。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectBlueprintTreeNodeLike",
+      "ProjectBlueprintIndex"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintTreeNodeLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintTreeNodeLike",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "pid": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.toNodeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toNodeData.return": {
+          "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+        }
+      }
+    },
+    "ProjectBlueprintIndex": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintIndex",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "nodesById": {
+              "type": "object",
+              "title": "Map<string, TNode>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rebuild.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.rebuild.return": true,
+        "method.invalidateTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidateTree.return": true,
+        "method.getChildren.params": {
+          "type": "object",
+          "properties": {
+            "pid": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getChildren.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "TNode"
+          }
+        },
+        "method.collectDescendants.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.collectDescendants.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "TNode"
+          }
+        },
+        "method.nextChildOrder.params": {
+          "type": "object",
+          "properties": {
+            "pid": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.nextChildOrder.return": {
+          "type": "number"
+        },
+        "method.buildTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.buildTree.return": {
+          "type": "array",
+          "items": {
+            "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+          }
+        },
+        "method.findNodeLocation.params": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.findNodeLocation.return": {
+          "anyOf": [
+            {
+              "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T22:37:59.548Z",
+  "models": {
+    "ProjectBlueprintTreeNodeLike": {
+      "name": "ProjectBlueprintTreeNodeLike",
+      "jsdoc": "Navigation Tree Node Like 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 唯一标识。 */\n    readonly id: string;\n    /** pid 字段。 */\n    readonly pid: string;\n    /** order 字段。 */\n    readonly order: number;\n    /** 将索引节点转回完整 ProjectBlueprintTreeNodeData；用于从扁平索引重建树结构或输出持久化格式 */\n    toNodeData(): ProjectBlueprintTreeNodeData;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "唯一标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pid",
+              "jsdoc": "pid 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "jsdoc": "order 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "toNodeData",
+              "jsdoc": "将索引节点转回完整 ProjectBlueprintTreeNodeData；用于从扁平索引重建树结构或输出持久化格式",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeNodeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintIndex": {
+      "name": "ProjectBlueprintIndex",
+      "jsdoc": "蓝图索引：id → node 映射 + pid → children 查询。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Navigation Index 实例。",
+          "signatureText": "constructor(nodesById: Map<string, TNode>)",
+          "parameters": [
+            {
+              "name": "nodesById",
+              "type": {
+                "type": "reference",
+                "name": "Map",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "TNode",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "rebuild",
+              "jsdoc": "执行 rebuild 操作。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "invalidateTree",
+              "jsdoc": "执行 invalidate Tree 操作。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getChildren",
+              "jsdoc": "读取 Children。",
+              "parameters": [
+                {
+                  "name": "pid",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly TNode[]"
+              }
+            },
+            {
+              "name": "collectDescendants",
+              "jsdoc": "执行 collect Descendants 操作。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "TNode",
+                  "refersToTypeParameter": true
+                }
+              }
+            },
+            {
+              "name": "nextChildOrder",
+              "jsdoc": "执行 next Child Order 操作。",
+              "parameters": [
+                {
+                  "name": "pid",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "buildTree",
+              "jsdoc": "执行 build Tree 操作。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ProjectBlueprintTreeNodeData",
+                  "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                }
+              }
+            },
+            {
+              "name": "findNodeLocation",
+              "jsdoc": "执行 find Node Location 操作。",
+              "parameters": [
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeNodeLocation",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

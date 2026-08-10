@@ -19,8 +19,6 @@ import type { ApiEnvelopeContext, ApiEnvelopeEvent } from '@spark-appworks/spark
  *   data-batch-job           — 批量数据任务状态
  *   data-change              — 数据变更通知
  *   notification             — 通用通知
- *   ai-host-run-request      — 定向触发 APP Host run
- *   ai-host-run-result       — APP Host run 执行回执
  *   llm-frame                — AI 推理帧事件（核心：delta/reasoning/result/error/done）
  *
  * `string & {}` 后缀允许业务方扩展自定义事件名，同时保留 IDE 自动补全。
@@ -30,8 +28,6 @@ export type AiAgentAppSseEventName =
   | 'data-batch-job'
   | 'data-change'
   | 'notification'
-  | 'ai-host-run-request'
-  | 'ai-host-run-result'
   | 'llm-frame'
   | (string & {})
 
@@ -53,7 +49,7 @@ export type AiAgentAppSseEventName =
  *   event           — API 信封事件（可选）
  */
 export type AiAgentAppSseEvent<T = unknown> = Readonly<{
-  /** 事件名；标识事件类型，如 llm-frame、ai-host-run-result 等。 */
+  /** 事件名；标识事件类型，如 llm-frame、page-config 等。 */
   name: AiAgentAppSseEventName
   /** 事件是否成功；false 表示 error 事件，消费方需检查 data 中的错误信息。 */
   ok: boolean

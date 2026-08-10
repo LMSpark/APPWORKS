@@ -134,7 +134,7 @@ function mountWithFieldContext(
 function createEditableFieldModel(content: unknown): Record<string, unknown> {
   return reactive<Record<string, unknown>>({
     content,
-    _perm: { editableFields: ['content'] },
+    lingma_sys_params: { r: [], e: ['content'], h: [], m: [], d: false },
   })
 }
 
@@ -157,7 +157,7 @@ describe('advanced renderer fields', () => {
   })
 
   it('date field should switch to range mode when range filtering is enabled', () => {
-    const model = reactive<Record<string, unknown>>({ content: ['2026-01-01', '2026-01-31'] })
+    const model = createEditableFieldModel(['2026-01-01', '2026-01-31'])
     const wrapper = mountWithFieldContext(FieldDate, model, undefined, { filterMode: 'range' })
 
     const picker = wrapper.findComponent({ name: 'ElDatePicker' })
@@ -193,7 +193,7 @@ describe('advanced renderer fields', () => {
   it('file browser should keep browse action when field is readonly', async () => {
     const model = reactive<Record<string, unknown>>({
       content: 'locked.txt',
-      _perm: { editableFields: [] },
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     let browseCalls = 0
     const wrapper = mountWithFieldContext(FieldFileBrowser, model, createPageService({
@@ -247,7 +247,7 @@ describe('advanced renderer fields', () => {
 
     const readonlyModel = reactive<Record<string, unknown>>({
       content: '/files/existing.pdf',
-      _perm: { editableFields: [] },
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     const readonlyWrapper = mountWithFieldContext(FieldUpload, readonlyModel, pageService, { action: '/api/upload' })
     expect(readonlyWrapper.find('.primary-action-button').text()).toBe('浏览')
@@ -293,7 +293,7 @@ describe('advanced renderer fields', () => {
 
     const readonlyModel = reactive<Record<string, unknown>>({
       content: '/files/existing.txt',
-      _perm: { editableFields: [] },
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     const readonlyWrapper = mountWithFieldContext(FieldFilePath, readonlyModel, pageService, { action: '/api/upload' })
     expect(readonlyWrapper.find('.primary-action-button').text()).toBe('浏览')
@@ -337,7 +337,7 @@ describe('advanced renderer fields', () => {
 
     const readonlyModel = reactive<Record<string, unknown>>({
       content: '/img/existing.png',
-      _perm: { editableFields: [] },
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     const readonlyWrapper = mountWithFieldContext(FieldImage, readonlyModel, pageService, { action: '/api/upload-image' })
     expect(readonlyWrapper.find('.image-preview').exists()).toBe(true)
@@ -351,7 +351,7 @@ describe('advanced renderer fields', () => {
   it('file path field should remain hidden when permission marks field hidden', () => {
     const hiddenModel = reactive<Record<string, unknown>>({
       content: '/files/secret.txt',
-      _perm: { hiddenFields: ['content'] },
+      lingma_sys_params: { r: [], e: [], h: ['content'], m: [], d: false },
     })
 
     const wrapper = mountWithFieldContext(FieldFilePath, hiddenModel, createPageService())
@@ -363,7 +363,7 @@ describe('advanced renderer fields', () => {
   it('textarea should remain rendered when the field is visible but empty', () => {
     const model = reactive<Record<string, unknown>>({
       content: '',
-      _perm: { editableFields: [] },
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
 
     const wrapper = mountWithFieldContext(FieldTextarea, model, createPageService())
@@ -375,7 +375,7 @@ describe('advanced renderer fields', () => {
 
   it('textarea should hide when hidden permission is explicit even if there is no field value', () => {
     const model = reactive<Record<string, unknown>>({
-      _perm: { hiddenFields: ['content'] },
+      lingma_sys_params: { r: [], e: [], h: ['content'], m: [], d: false },
     })
 
     const wrapper = mountWithFieldContext(FieldTextarea, model, createPageService())
@@ -386,7 +386,7 @@ describe('advanced renderer fields', () => {
   it('detail field should remove the whole block together with caption when hidden', () => {
     const model = reactive<Record<string, unknown>>({
       content: 'secret value',
-      _perm: { hiddenFields: ['content'] },
+      lingma_sys_params: { r: [], e: [], h: ['content'], m: [], d: false },
     })
 
     const wrapper = mountWithFieldContext(FieldText, model, createPageService(), {
@@ -404,10 +404,7 @@ describe('advanced renderer fields', () => {
   it('form field should stay writable without leaking hidden read-channel value', () => {
     const model = reactive<Record<string, unknown>>({
       content: 'secret value',
-      _perm: {
-        hiddenFields: ['content'],
-        editableFields: ['content'],
-      },
+      lingma_sys_params: { r: [], e: ['content'], h: ['content'], m: [], d: false },
     })
 
     const wrapper = mountWithFieldContext(FieldText, model, createPageService(), {
@@ -423,10 +420,7 @@ describe('advanced renderer fields', () => {
   it('form field should not reuse backend masked text as editable input value', () => {
     const model = reactive<Record<string, unknown>>({
       content: '138****1234',
-      _perm: {
-        maskedFields: ['content'],
-        editableFields: ['content'],
-      },
+      lingma_sys_params: { r: [], e: ['content'], h: [], m: ['content'], d: false },
     })
 
     const wrapper = mountWithFieldContext(FieldText, model, createPageService(), {
@@ -438,17 +432,16 @@ describe('advanced renderer fields', () => {
     expect(wrapper.text()).not.toContain('138****1234')
   })
 
-  it('image field should use backend-provided masked image value directly', () => {
+  it('image field should not expose a masked raw image value', () => {
     const maskedModel = reactive<Record<string, unknown>>({
       content: '/img/mosaic-secret.png',
-      _perm: { maskedFields: ['content'] },
+      lingma_sys_params: { r: [], e: [], h: [], m: ['content'], d: false },
     })
 
     const wrapper = mountWithFieldContext(FieldImage, maskedModel, createPageService())
 
-    expect(wrapper.find('.image-preview').exists()).toBe(true)
-    expect(wrapper.find('.image-preview').attributes('src')).toBe('/img/mosaic-secret.png')
-    expect(requireHtmlInput(wrapper.find('input').element, 'masked image input').value).toBe('/img/mosaic-secret.png')
+    expect(wrapper.find('.image-preview').exists()).toBe(false)
+    expect(requireHtmlInput(wrapper.find('input').element, 'masked image input').value).toBe('••••')
   })
 
   it('entity picker should sync selected entity values into context data', async () => {
@@ -474,7 +467,7 @@ describe('advanced renderer fields', () => {
   it('entity picker should still open selector in readonly mode without mutating value', async () => {
     const model = reactive<Record<string, unknown>>({
       content: 'dept-1',
-      _perm: { editableFields: [] },
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     let selectorCalls = 0
     const wrapper = mountWithFieldContext(FieldEntityPicker, model, createPageService({
@@ -513,7 +506,7 @@ describe('advanced renderer fields', () => {
   it('dept picker should use department-specific readonly action text', async () => {
     const model = reactive<Record<string, unknown>>({
       content: 'dept-1',
-      _perm: { editableFields: [] },
+      lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     const wrapper = mountWithFieldContext(FieldDeptPicker, model, createPageService({
       selectEntities: async () => [{ label: '研发部', value: 'dept-2' }],

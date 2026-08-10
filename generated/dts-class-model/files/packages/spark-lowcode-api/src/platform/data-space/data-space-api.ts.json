@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/data-space-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/data-space-api",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/data-space-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceApi（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceApi"
+    ]
+  },
+  "$defs": {
+    "DataSpaceApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceApi",
+      "properties": {
+        "design": {
+          "$ref": "design/data-space-design-api.ts.json#/$defs/DataSpaceDesignApi"
+        },
+        "runtime": {
+          "$ref": "runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T20:28:31.459Z",
+  "models": {
+    "DataSpaceApi": {
+      "name": "DataSpaceApi",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "design",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

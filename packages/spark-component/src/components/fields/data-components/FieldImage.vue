@@ -6,8 +6,8 @@ AI用途：需要理解 field image 的实际渲染结构、slot/toolbar/状态�
 -->
 <template>
   <FieldContextRenderer v-bind="fieldCtx">
-    <template #table-cell="{ row, value }">
-      <img v-if="showImage(getRowRawStringValue(row))" :src="getRowRawStringValue(row)" class="image-thumb" alt="image" />
+    <template #table-cell="{ value }">
+      <img v-if="showImage(String(value ?? ''))" :src="String(value ?? '')" class="image-thumb" alt="image" />
       <span v-else>{{ value }}</span>
     </template>
     <template #form>
@@ -21,12 +21,12 @@ AI用途：需要理解 field image 的实际渲染结构、slot/toolbar/状态�
           <el-button class="primary-action-button" type="primary" :disabled="!canPrimaryAction" @click="handlePrimaryAction">{{ primaryActionText }}</el-button>
           <el-button v-if="showClearButton" class="clear-action-button" @click="clearValue">清空</el-button>
         </div>
-        <img v-if="showImage(currentRawStringValue)" :src="currentRawStringValue" class="image-preview" alt="image" />
+        <img v-if="showImage(currentDisplayValue)" :src="currentDisplayValue" class="image-preview" alt="image" />
       </div>
     </template>
     <template #tree>
       <span class="tree-node-image">
-        <img v-if="showImage(currentRawStringValue)" :src="currentRawStringValue" class="image-thumb" alt="image" />
+        <img v-if="showImage(currentDisplayValue)" :src="currentDisplayValue" class="image-thumb" alt="image" />
         <span v-else>{{ currentDisplayValue }}</span>
       </span>
     </template>
@@ -34,7 +34,7 @@ AI用途：需要理解 field image 的实际渲染结构、slot/toolbar/状态�
       <div class="field-display">
         <span class="field-label">{{ fieldCtx.displayLabel }}：</span>
         <span class="field-value">
-          <img v-if="showImage(currentRawStringValue)" :src="currentRawStringValue" class="image-preview" alt="image" />
+          <img v-if="showImage(currentDisplayValue)" :src="currentDisplayValue" class="image-preview" alt="image" />
           <span v-else>{{ currentDisplayValue }}</span>
         </span>
       </div>
@@ -85,7 +85,6 @@ const {
   currentRawStringValue,
   isCurrentFieldEditable,
   currentDisplayValue,
-  getRowRawStringValue,
 } = permission
 
 const { hasBrowseCapability, hasUploadCapability, primaryAction, browseFiles, uploadFiles } = useFileFieldActions({
@@ -94,7 +93,7 @@ const { hasBrowseCapability, hasUploadCapability, primaryAction, browseFiles, up
 })
 
 function showImage(value: string): boolean {
-  return !!value && !value.includes('***')
+  return !!value && value !== '••••'
 }
 
 async function updateValue(value: string): Promise<void> {

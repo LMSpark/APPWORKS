@@ -40,11 +40,11 @@
         },
         "loadNavigation": {
           "type": "object",
-          "title": "() => Promise<ProjectModelData>"
+          "title": "() => Promise<RuntimeNavigation>"
         },
         "loadPlatformNavigation": {
           "type": "object",
-          "title": "() => Promise<ProjectModelData>"
+          "title": "() => Promise<RuntimeNavigation>"
         },
         "platformPathPrefix": {
           "type": "string"
@@ -54,7 +54,7 @@
           "title": "() => boolean"
         },
         "preAuthNavTree": {
-          "$ref": "../../../spark-project-model/src/navigation/project-node.ts.json#/$defs/ProjectModelData"
+          "$ref": "../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
         },
         "isAuthenticated": {
           "type": "object",
@@ -108,7 +108,7 @@
         },
         "method.refreshRoutes.return": {
           "type": "object",
-          "title": "Promise<ProjectModelData | null>"
+          "title": "Promise<RuntimeNavigation | null>"
         },
         "method.getNavTree.params": {
           "type": "object",
@@ -118,7 +118,7 @@
         "method.getNavTree.return": {
           "anyOf": [
             {
-              "$ref": "../../../spark-project-model/src/navigation/project-node.ts.json#/$defs/ProjectModelData"
+              "$ref": "../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
             },
             {
               "type": "null"
@@ -139,14 +139,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.949Z",
+  "generatedAt": "2026-08-09T23:25:35.633Z",
   "models": {
     "DynamicRouterOptions": {
       "name": "DynamicRouterOptions",
       "jsdoc": "动态路由注册选项",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** Vue Router 实例 */\n    router: Router;\n    /** 配置页四文件加载器 */\n    pageContentLoader: PageContentLoader;\n    /**\n     * 动态页面组件（必需）\n     * 用于渲染配置化页面\n     *\n     * @example\n     * ```typescript\n     * import { PageRenderer } from '@spark-appworks/spark-component'\n     * const options = { router, pageContentLoader, pageComponent: PageRenderer }\n     * ```\n     */\n    pageComponent: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 导航节点 nodeKind='system-page' 时，使用此映射解析组件。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀，使所有业务路由统一在租户 URL 下。\n     * system-page 路由不受影响（DB 中已含完整路径）。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 `registerRoutes()` 使用此函数加载远程导航树并派生路由。\n     * 返回的 ProjectModelData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。\n     */\n    loadNavigation?: (() => Promise<ProjectModelData>) | undefined;\n    /**\n     * 平台工作台导航加载函数。\n     *\n     * 返回的节点 path 仍保持相对形态（如 /dashboard、/tenants），\n     * 注册路由时统一映射到 platformPathPrefix 下（默认 /platform）。\n     */\n    loadPlatformNavigation?: (() => Promise<ProjectModelData>) | undefined;\n    /** 平台工作台路由前缀（默认 /platform）。 */\n    platformPathPrefix?: string | undefined;\n    /** 是否注册平台工作台导航。通常仅 platform_admin 返回 true。 */\n    isPlatformNavigationEnabled?: (() => boolean) | undefined;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当 `registerRoutes()` 在未登录状态调用时（无法调用 loadNavigation），\n     * 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: ProjectModelData | undefined;\n    /**\n     * 认证状态检查回调。\n     *\n     * `registerRoutes()` 在运行时通过此回调判断当前状态：\n     * - 已登录 → 使用 `loadNavigation` 加载远程导航树\n     * - 未登录 → 使用 `preAuthNavTree` 本地导航树\n     */\n    isAuthenticated?: (() => boolean) | undefined;\n}",
+        "declarationTypeText": "{\n    /** Vue Router 实例 */\n    router: Router;\n    /** 配置页四文件加载器 */\n    pageContentLoader: PageContentLoader;\n    /**\n     * 动态页面组件（必需）\n     * 用于渲染配置化页面\n     *\n     * @example\n     * ```typescript\n     * import { PageRenderer } from '@spark-appworks/spark-component'\n     * const options = { router, pageContentLoader, pageComponent: PageRenderer }\n     * ```\n     */\n    pageComponent: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 导航节点 nodeKind='system-page' 时，使用此映射解析组件。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀，使所有业务路由统一在租户 URL 下。\n     * system-page 路由不受影响（DB 中已含完整路径）。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 `registerRoutes()` 使用此函数加载远程导航树并派生路由。\n     * 返回的 ProjectBlueprintTreeData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。\n     */\n    loadNavigation?: (() => Promise<RuntimeNavigation>) | undefined;\n    /**\n     * 平台工作台导航加载函数。\n     *\n     * 返回的节点 path 仍保持相对形态（如 /dashboard、/tenants），\n     * 注册路由时统一映射到 platformPathPrefix 下（默认 /platform）。\n     */\n    loadPlatformNavigation?: (() => Promise<RuntimeNavigation>) | undefined;\n    /** 平台工作台路由前缀（默认 /platform）。 */\n    platformPathPrefix?: string | undefined;\n    /** 是否注册平台工作台导航。通常仅 platform_admin 返回 true。 */\n    isPlatformNavigationEnabled?: (() => boolean) | undefined;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当 `registerRoutes()` 在未登录状态调用时（无法调用 loadNavigation），\n     * 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: RuntimeNavigation | undefined;\n    /**\n     * 认证状态检查回调。\n     *\n     * `registerRoutes()` 在运行时通过此回调判断当前状态：\n     * - 已登录 → 使用 `loadNavigation` 加载远程导航树\n     * - 未登录 → 使用 `preAuthNavTree` 本地导航树\n     */\n    isAuthenticated?: (() => boolean) | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -181,7 +181,7 @@
             },
             {
               "name": "loadNavigation",
-              "jsdoc": "导航数据加载函数 — 导航树作为路由的唯一来源。\n已认证时 `registerRoutes()` 使用此函数加载远程导航树并派生路由。\n返回的 ProjectModelData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。",
+              "jsdoc": "导航数据加载函数 — 导航树作为路由的唯一来源。\n已认证时 `registerRoutes()` 使用此函数加载远程导航树并派生路由。\n返回的 ProjectBlueprintTreeData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。",
               "readable": true,
               "writable": false
             },
@@ -285,7 +285,8 @@
                     "types": [
                       {
                         "type": "reference",
-                        "name": "ProjectModelData"
+                        "name": "RuntimeNavigation",
+                        "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                       },
                       {
                         "type": "literal",
@@ -305,7 +306,8 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "ProjectModelData"
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
                   },
                   {
                     "type": "literal",

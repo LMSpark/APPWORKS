@@ -1,4 +1,4 @@
-﻿import { flushPromises, mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
@@ -1010,10 +1010,10 @@ describe('WorkflowDesigns visual editor', () => {
         manifestPath: 'generated/dts-class-model/manifest.json',
         sourcePath: 'packages/spark-project-model/src/project/project-model.ts',
         rootClassName: 'ProjectModel',
-        actionName: 'replaceNavigationChildren',
+        actionName: 'replaceBlueprintChildren',
         schemaRefs: {
           params: {
-            $ref: 'project-model.ts.json#/$defs/ProjectModel/$defs/method.replaceNavigationChildren.params',
+            $ref: 'project-model.ts.json#/$defs/ProjectModel/$defs/method.replaceBlueprintChildren.params',
           },
         },
       },

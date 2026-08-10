@@ -14,7 +14,7 @@ import type {
   AiAgentTurnCallbacks,
 } from '@spark-appworks/spark-ai/agent'
 import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
-import { HttpClientBase, type HttpResponse, type RequestConfig, type SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
+import type { SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
 import { runProjectPlanningAiSession } from '@/services/project-planning/project-planning-ai-runner'
 
 const mocks = vi.hoisted(() => {
@@ -39,27 +39,21 @@ vi.mock('@/services/ai/agent-workflow-bindings', async (importOriginal) => {
   }
 })
 
-class TestHttpClient extends HttpClientBase {
-  protected async executeRequest(_config: RequestConfig): Promise<HttpResponse<unknown>> {
-    return { data: null, status: 200, statusText: 'OK', headers: {} }
-  }
-}
-
 function createEditor(projectId = 'demo'): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId,
-    http: new TestHttpClient(),
-    getPageFilesApi: () => '/api/pages',
-    getNavigationApi: () => '/api/navigation',
+    pageFiles: { readPageFile: async () => '' },
+    blueprint: { loadRoot: async () => ({ children: [] }) },
   })
   seedPlanningProject(editor.project)
   return editor
 }
 
 function seedPlanningProject(project: ProjectModel): void {
-  project.replaceNavigationRoot({
+  project.replaceBlueprintTree({
     id: 'homepage_root',
     title: 'Demo',
+    blueprintKind: 'project',
     nodeKind: 'module',
     childPlacement: 'header',
     description: '订单与库存管理',
@@ -67,6 +61,7 @@ function seedPlanningProject(project: ProjectModel): void {
       {
         id: 'orders',
         title: '订单',
+        blueprintKind: 'page',
         nodeKind: 'page',
         path: '/orders',
         description: '订单页',
@@ -151,22 +146,24 @@ describe('runProjectPlanningAiSession', () => {
     })
 
     expect(result.sawToolCall).toBe(false)
-    expect(result.navigationDirty).toBe(false)
-    expect(result.savedNavigation).toBe(false)
+    expect(result.blueprintDirty).toBe(false)
+    expect(result.savedBlueprint).toBe(false)
     expect(result.input).toEqual({
       projectScopeKey: 'demo',
       projectId: 'demo',
       requirement: '订单与库存管理',
-      navigationNodes: [
+      blueprintNodes: [
         {
           nodeId: 'homepage_root',
           title: 'Demo',
+          blueprintKind: 'project',
           nodeKind: 'module',
           requirement: '订单与库存管理',
         },
         {
           nodeId: 'orders',
           title: '订单',
+          blueprintKind: 'page',
           nodeKind: 'page',
           requirement: '订单页',
         },
@@ -238,14 +235,15 @@ describe('runProjectPlanningAiSession', () => {
     expect(mocks.projectPlanningRun).toHaveBeenCalledOnce()
   })
 
-  it('saves navigation through delivery when saveNavigationAfterRun is true', async () => {
+  it('saves the blueprint through delivery when saveBlueprintAfterRun is true', async () => {
     const editor = createEditor('demo')
     const aiHost = createAiHost()
     const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
-    editor.project.replaceNavigationChildren([
+    editor.project.replaceBlueprintChildren([
       {
         id: 'orders',
         title: '订单',
+        blueprintKind: 'page',
         nodeKind: 'page',
         path: '/orders',
         description: '订单页',
@@ -255,11 +253,11 @@ describe('runProjectPlanningAiSession', () => {
     const result = await runProjectPlanningAiSession({
       editor,
       host: aiHost,
-      saveNavigationAfterRun: true,
+      saveBlueprintAfterRun: true,
     })
 
     expect(saveAll).toHaveBeenCalledOnce()
-    expect(result.navigationDirty).toBe(true)
-    expect(result.savedNavigation).toBe(true)
+    expect(result.blueprintDirty).toBe(true)
+    expect(result.savedBlueprint).toBe(true)
   })
 })

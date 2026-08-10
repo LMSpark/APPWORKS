@@ -11,8 +11,7 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "BeforeRenderContext",
-      "BeforeRenderState",
-      "MergeBeforeRenderOptions"
+      "BeforeRenderState"
     ],
     "componentLevel": "infrastructure",
     "componentLayer": "support",
@@ -35,8 +34,7 @@
           "title": "Record<string, unknown>"
         },
         "children": {
-          "type": "object",
-          "title": "SparkNodeChildren"
+          "$ref": "../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
         },
         "row": {
           "anyOf": [
@@ -125,7 +123,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T20:39:26.880Z",
+  "generatedAt": "2026-08-10T11:13:17.715Z",
   "models": {
     "BeforeRenderContext": {
       "name": "BeforeRenderContext",

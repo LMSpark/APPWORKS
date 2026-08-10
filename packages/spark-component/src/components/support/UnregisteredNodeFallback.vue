@@ -39,7 +39,7 @@ AI用途：需要理解 unregistered node fallback 的实际渲染结构、slot/
  * @category internal
  */
 import { computed, ref, useSlots } from 'vue'
-import type { SparkNode } from '../../core/types.js'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 /** 未注册节点兜底渲染属性。 */
 type Props = {

@@ -5,7 +5,7 @@
  * AI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。
  */
 
-import type { AiJsonValue } from '../../json'
+import type { JsonValue } from '@spark-appworks/spark-json-document'
 import type { AiAgentToolCheck, AiAgentToolResult } from '../tool-runtime'
 import type {
   AiAgentFunctionCallCheck,
@@ -25,7 +25,7 @@ import type {
  * 同时保留完整 checks，确保参数校验等工具失败细节会作为 tool result 回传给 LLM。
  */
 export function toFunctionCallResult(
-  result: AiAgentToolResult<AiJsonValue>,
+  result: AiAgentToolResult<JsonValue>,
 ): AiAgentFunctionCallResult<unknown> {
   if (result.ok) {
     const summary = firstInfoOrWarnSummary(result.checks)

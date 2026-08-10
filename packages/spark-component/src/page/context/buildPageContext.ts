@@ -12,8 +12,8 @@
  */
 
 import { h, type Ref } from 'vue'
-import type { PageServiceCapability } from '../../core/capability-keys.js'
-import type { ModuleContext, PageComponentRegistry } from '../../core/capability-keys.js'
+import type { PageServiceCapability, PageComponentRegistry } from '../../core/capability-keys.js'
+import type { ContextSnapshot } from '@spark-appworks/spark-utils'
 import type { PageRoute } from '../../runtime'
 import type { DataSet } from '@spark-appworks/spark-data'
 import { SparkData } from '@spark-appworks/spark-data'
@@ -94,7 +94,7 @@ pageService: PageServiceCapability
   /** 页面级组件注册中心 getter（可选） */
   getComponentRegistry?: () => PageComponentRegistry | null
   /** 模块上下文 getter（可选，每次调用返回最新快照） */
-  getModuleContext?: () => ModuleContext | null}
+  getModuleContext?: () => ContextSnapshot | null}
 
 function createComponentAccess(getRegistry?: () => PageComponentRegistry | null): PageContext['$components'] {
   return {

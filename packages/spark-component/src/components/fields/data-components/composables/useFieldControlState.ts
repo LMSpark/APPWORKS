@@ -9,6 +9,7 @@ import type { DataRow } from '@spark-appworks/spark-data'
 import type { FormItemRule } from '../../columnFormRules'
 import type { SparkFieldSemanticProps, SparkNodeProps } from '../../../shared-types.js'
 import { useFieldContext } from '../../context/useFieldContext'
+import type { FieldComposableProps } from '../../context/field-composable-props'
 import { useControlledFieldChange } from './useControlledFieldChange'
 
 /** 字段上下文对控件层暴露的只读显示和校验状态。 */
@@ -45,15 +46,10 @@ type ControlledFieldStateLike<TValue> = FieldContextStateLike & {
   syncValue: (value: TValue) => void
 }
 
-/** 将选中 props 的每个字段都允许显式传 undefined。 */
-type OptionalWithUndefined<T> = {
-  [K in keyof T]?: T[K] | undefined
-}
-
 /** 字段控件层消费的通用组件属性子集。 */
-type FieldControlProps = OptionalWithUndefined<Pick<SparkNodeProps,
+type FieldControlProps = FieldComposableProps<Pick<SparkNodeProps,
   | 'type' | 'children'
->> & OptionalWithUndefined<Pick<SparkFieldSemanticProps,
+>> & FieldComposableProps<Pick<SparkFieldSemanticProps,
   | 'width'
   | 'resizable'
   | 'onChange'

@@ -42,10 +42,9 @@ AI用途：需要理解 renderer popover 的实际渲染结构、slot/toolbar/�
  * @description 弹出提示容器，支持多种触发方式和位置。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RPopoverProps } from './RendererPopover.props'
-
-
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RPopoverProps>(), {
   type: 'r-popover',
@@ -61,5 +60,4 @@ const { isVisible, isDisabled } = useSparkPageComponent(props)
 const referenceChildren = computed(() => getSparkNodeChildren(props.children))
 const contentChildren = computed(() => getSparkNodeChildren(props.contentChildren))
 </script>
-
 

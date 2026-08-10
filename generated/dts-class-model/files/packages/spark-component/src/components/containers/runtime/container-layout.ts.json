@@ -12,7 +12,6 @@
     "symbols": [
       "UseContainerGridOptions",
       "ContainerGridState",
-      "UseCompositeItemGridOptions",
       "CompositeItemGridState"
     ]
   },
@@ -79,8 +78,7 @@
           "type": "object",
           "properties": {
             "child": {
-              "type": "object",
-              "title": "SparkNode"
+              "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
             },
             "index": {
               "type": "number"
@@ -194,8 +192,7 @@
           "type": "object",
           "properties": {
             "child": {
-              "type": "object",
-              "title": "SparkNode"
+              "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
             },
             "index": {
               "type": "number"
@@ -210,7 +207,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.962Z",
+  "generatedAt": "2026-08-10T11:22:51.215Z",
   "models": {
     "UseContainerGridOptions": {
       "name": "UseContainerGridOptions",
@@ -296,8 +293,7 @@
                   "name": "child",
                   "type": {
                     "type": "reference",
-                    "name": "SparkNode",
-                    "sourcePath": "packages/spark-component/src/components/internal.ts"
+                    "name": "SparkNode"
                   }
                 },
                 {
@@ -476,8 +472,7 @@
                   "name": "child",
                   "type": {
                     "type": "reference",
-                    "name": "SparkNode",
-                    "sourcePath": "packages/spark-component/src/components/internal.ts"
+                    "name": "SparkNode"
                   }
                 },
                 {

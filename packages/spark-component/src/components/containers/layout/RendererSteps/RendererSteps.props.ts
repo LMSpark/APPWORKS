@@ -5,8 +5,8 @@
  * AI用途：生成或修订页面配置时，用本模块判断 renderer steps 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
 import type { SparkNodeProps } from '../../../shared-types'
-import type { SparkNode } from '../../../internal'
 import type { RToolbarProps } from '../RendererToolbar.types'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 /** RSteps Props 的属性契约。 */
 export type RStepsProps = SparkNodeProps & {

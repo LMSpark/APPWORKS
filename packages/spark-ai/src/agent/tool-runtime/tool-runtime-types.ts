@@ -4,7 +4,7 @@
  * 边界：只声明工具运行协议，不实现具体工具、不控制 LLM 循环，也不处理传输层 SSE。
  * AI用途：新增或诊断工具时，用本模块确认 tool spec、tool result 和 runtime host context 的语义。
  */
-import type { AiJsonParams, AiJsonSchemaObject, AiJsonValue } from '../../json'
+import type { JsonParams, JsonSchemaObject, JsonValue } from '@spark-appworks/spark-json-document'
 
 /** Ai Agent Tool Check Level 的语义模型。 */
 export type AiAgentToolCheckLevel = 'error' | 'warn' | 'info'
@@ -119,7 +119,7 @@ export type AiAgentToolSpec = Readonly<{
   function: {
     readonly name: string
     readonly description: string
-    readonly parameters: AiJsonSchemaObject
+    readonly parameters: JsonSchemaObject
     readonly strict?: boolean
   }
 }>
@@ -171,9 +171,9 @@ export type AiAgentToolRuntime = Readonly<{
   /** 按名称执行工具，传入参数与 Host 上下文。 */
   executeTool(
     toolName: string,
-    args: AiJsonParams,
+    args: JsonParams,
     host: AiAgentRuntimeHostContext,
-  ): Promise<AiAgentToolResult<AiJsonValue>>
+  ): Promise<AiAgentToolResult<JsonValue>>
   /** 投影当前知识快照，供 LLM prompt 注入。 */
   projectKnowledge(): AiAgentToolRuntimeKnowledgeProjection
   /** 自检工具运行时配置与注册完整性。 */

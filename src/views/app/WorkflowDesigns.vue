@@ -1751,6 +1751,7 @@ import {
   createWorkerDtsClassModelKnowledgeProvider,
   type ClassModelKnowledgeProvider,
 } from '@spark-appworks/spark-ai/class-model'
+import { standardizeJsonSchema, type JsonSchema } from '@spark-appworks/spark-json-document'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
@@ -1973,6 +1974,20 @@ type StructuredFieldRow = {
   valueText: string
   valueBoolean: boolean
 }
+
+type StructuredRowsCollectionCommand = Readonly<{
+  value: unknown
+  path: string
+  rows: StructuredFieldRow[]
+  prefix: string
+}>
+
+type EditorLineEndpointCommand = Readonly<{
+  nodeId: string
+  modelId: string
+  memberName: string
+  dockText: string
+}>
 
 type StructuredSelectCard = {
   id: string
@@ -3298,25 +3313,31 @@ function referenceMemberOptionsForNode(node: WorkflowDesignNodeView['node']): st
 function structuredRowsFromRecord(value: unknown, prefix: string): StructuredFieldRow[] {
   if (!isJsonRecord(value)) return []
   const rows: StructuredFieldRow[] = []
-  collectStructuredRows(value, '', rows, prefix)
+  collectStructuredRows({ value, path: '', rows, prefix })
   return rows
 }
 
-function collectStructuredRows(
-  value: unknown,
-  path: string,
-  rows: StructuredFieldRow[],
-  prefix: string,
-): void {
+function collectStructuredRows(command: StructuredRowsCollectionCommand): void {
+  const { value, path, rows, prefix } = command
   if (isJsonRecord(value)) {
     for (const [key, child] of Object.entries(value)) {
-      collectStructuredRows(child, path.length === 0 ? key : `${path}.${key}`, rows, prefix)
+      collectStructuredRows({
+        value: child,
+        path: path.length === 0 ? key : `${path}.${key}`,
+        rows,
+        prefix,
+      })
     }
     return
   }
   if (Array.isArray(value)) {
     for (const [index, child] of value.entries()) {
-      collectStructuredRows(child, path.length === 0 ? String(index) : `${path}.${index}`, rows, prefix)
+      collectStructuredRows({
+        value: child,
+        path: path.length === 0 ? String(index) : `${path}.${index}`,
+        rows,
+        prefix,
+      })
     }
     return
   }
@@ -3475,12 +3496,8 @@ function lineViewKey(graphView: WorkflowDesignGraphView, line: WorkflowDesignLin
   return `${graphView.scopePath}:line:${line.id ?? index}`
 }
 
-function createEditorLineEndpoint(
-  nodeId: string,
-  modelId: string,
-  memberName: string,
-  dockText: string,
-): WorkflowDesignLineEndpoint {
+function createEditorLineEndpoint(command: EditorLineEndpointCommand): WorkflowDesignLineEndpoint {
+  const { nodeId, modelId, memberName, dockText } = command
   const dock = parseDockText(dockText)
   return {
     nodeId,
@@ -4087,18 +4104,18 @@ function applyLineEditorToSelected(options: { silent?: boolean } = {}): boolean 
   const document = currentDocument.value
   if (line === null || document === null) return true
 
-  const from = createEditorLineEndpoint(
-    String(lineFromNodeText.value ?? '').trim(),
-    String(lineFromModelText.value ?? '').trim(),
-    String(lineFromMemberText.value ?? '').trim(),
-    lineFromDockText.value,
-  )
-  const to = createEditorLineEndpoint(
-    String(lineToNodeText.value ?? '').trim(),
-    String(lineToModelText.value ?? '').trim(),
-    String(lineToMemberText.value ?? '').trim(),
-    lineToDockText.value,
-  )
+  const from = createEditorLineEndpoint({
+    nodeId: String(lineFromNodeText.value ?? '').trim(),
+    modelId: String(lineFromModelText.value ?? '').trim(),
+    memberName: String(lineFromMemberText.value ?? '').trim(),
+    dockText: lineFromDockText.value,
+  })
+  const to = createEditorLineEndpoint({
+    nodeId: String(lineToNodeText.value ?? '').trim(),
+    modelId: String(lineToModelText.value ?? '').trim(),
+    memberName: String(lineToMemberText.value ?? '').trim(),
+    dockText: lineToDockText.value,
+  })
   if (!validateLineEndpointPatch({ line, from, to, options })) return false
 
   updateWorkflowDesignLine(line.line, {
@@ -4689,68 +4706,62 @@ function createWorkflowRuntimeBindingFromEditor(
   existing: WorkflowDesignDocument['workflow']['runtimeBinding'],
   variables: readonly WorkflowDesignVariable[],
 ): WorkflowRuntimeBinding {
-  const current = recordOrEmpty(existing)
-  const registration = recordOrEmpty(current['registration'])
-  const inputContract = recordOrEmpty(current['inputContract'])
-  const systemPrompt = recordOrEmpty(current['systemPrompt'])
-  const modelProjectionRef = recordOrEmpty(current['modelProjectionRef'])
-  const executableRef = recordOrEmpty(current['executableRef'])
-  const resolveInstance = recordOrEmpty(current['resolveInstance'])
-  const binding: Record<string, unknown> = {
-    ...current,
+  const agentCompleteMethodName = workflowAgentCompleteMethodText.value.trim()
+  const executionToolNames = structuredCardsToStrings(workflowExecutionToolCards.value)
+  const planWithoutToolMarkers = structuredCardsToStrings(workflowPlanMarkerCards.value)
+  return {
     registration: {
-      ...registration,
+      ...existing?.registration,
       alias: workflowRuntimeAliasText.value.trim(),
       moduleId: workflowRuntimeModuleIdText.value.trim(),
       businessId: workflowRuntimeBusinessIdText.value.trim(),
     },
     inputContract: {
-      ...inputContract,
+      ...existing?.inputContract,
       identityField: workflowIdentityFieldText.value.trim(),
       messageField: workflowMessageFieldText.value.trim(),
-      paramsSchema: createWorkflowParamsSchema(inputContract['paramsSchema'], variables),
+      paramsSchema: createWorkflowParamsSchema(existing?.inputContract.paramsSchema, variables),
       readonlySteps: structuredCardsToStrings(workflowReadonlyStepCards.value),
     },
     systemPrompt: {
-      ...systemPrompt,
+      ...existing?.systemPrompt,
       template: workflowSystemPromptTemplateText.value.trim(),
     },
     modelProjectionRef: {
-      ...modelProjectionRef,
+      ...existing?.modelProjectionRef,
       kind: 'dts-class-model',
       rootClassName: workflowRootClassText.value.trim(),
       manifestUrlRef: workflowManifestUrlRefText.value.trim(),
     },
     executableRef: {
-      ...executableRef,
+      ...existing?.executableRef,
       kind: 'js-module',
       moduleSpecifier: workflowExecutableModuleSpecifierText.value.trim(),
       exportName: workflowExecutableExportNameText.value.trim(),
     },
     resolveInstance: {
-      ...resolveInstance,
+      ...existing?.resolveInstance,
       editorSource: workflowResolveEditorSourceText.value.trim(),
       identityField: workflowResolveIdentityFieldText.value.trim(),
     },
+    ...(existing?.toolLoopNudge === undefined ? {} : { toolLoopNudge: existing.toolLoopNudge }),
+    ...(existing?.beforeFunctionCall === undefined ? {} : { beforeFunctionCall: existing.beforeFunctionCall }),
+    ...(agentCompleteMethodName.length === 0 ? {} : { agentCompleteMethodName }),
+    ...(executionToolNames.length === 0 ? {} : { executionToolNames }),
+    ...(planWithoutToolMarkers.length === 0 ? {} : { planWithoutToolMarkers }),
   }
-  const agentCompleteMethodName = workflowAgentCompleteMethodText.value.trim()
-  if (agentCompleteMethodName.length > 0) binding['agentCompleteMethodName'] = agentCompleteMethodName
-  else delete binding['agentCompleteMethodName']
-  const executionToolNames = structuredCardsToStrings(workflowExecutionToolCards.value)
-  if (executionToolNames.length > 0) binding['executionToolNames'] = executionToolNames
-  else delete binding['executionToolNames']
-  const planWithoutToolMarkers = structuredCardsToStrings(workflowPlanMarkerCards.value)
-  if (planWithoutToolMarkers.length > 0) binding['planWithoutToolMarkers'] = planWithoutToolMarkers
-  else delete binding['planWithoutToolMarkers']
-  return binding as WorkflowRuntimeBinding
 }
 
-function createWorkflowParamsSchema(existing: unknown, variables: readonly WorkflowDesignVariable[]): Record<string, unknown> {
-  const current = isJsonRecord(existing) ? existing : {}
-  const properties: Record<string, unknown> = {}
+function createWorkflowParamsSchema(
+  existing: unknown,
+  variables: readonly WorkflowDesignVariable[],
+): WorkflowRuntimeBinding['inputContract']['paramsSchema'] {
+  const standardized = standardizeJsonSchema(existing)
+  const current = typeof standardized === 'boolean' ? {} : standardized
+  const properties: Record<string, JsonSchema> = {}
   const required: string[] = []
   for (const variable of variables) {
-    properties[variable.name] = isJsonRecord(variable.schema) ? variable.schema : { type: 'string' }
+    properties[variable.name] = standardizeJsonSchema(variable.schema ?? { type: 'string' })
     if (variable.required === true) required.push(variable.name)
   }
   return {

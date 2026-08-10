@@ -114,14 +114,11 @@ import { computed, toRef, useSlots } from 'vue'
 import {
   useSparkPageComponent,
   SparkComponentRenderer,
-  getSparkNodeChildren,
-  nodeId,
   DATA_SOURCE,
   MODULE_CONTEXT,
-  type SparkNode,
 } from '../../../internal'
 import type { RListProps } from './RendererList.props'
-import type { DataView, DataRow } from '@spark-appworks/spark-data'
+import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import type { RendererListApi } from './types'
 import { useContainerToolbar, useContainerModuleContext } from '../../runtime/container-ui'
 import { useContainerDataSource } from '../view-data-source'

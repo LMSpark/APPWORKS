@@ -192,7 +192,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useTheme } from '@spark-appworks/spark-app'
-import type { ThemeMode } from '@spark-appworks/spark-app'
+import type { ThemeMode } from '@spark-appworks/spark-component'
 import type { PageMode } from '@spark-appworks/spark-app'
 import { useColorScheme, PRIMARY_PRESETS, NAV_PRESETS, STYLE_PRESETS } from '@spark-appworks/spark-app'
 import type { StylePreset } from '@spark-appworks/spark-app'

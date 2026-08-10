@@ -54,8 +54,7 @@
               ]
             },
             "step": {
-              "type": "object",
-              "title": "SparkNode"
+              "$ref": "../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
             },
             "index": {
               "type": "number"
@@ -67,7 +66,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.447Z",
+  "generatedAt": "2026-08-10T11:13:17.753Z",
   "models": {
     "RStepsProps": {
       "name": "RStepsProps",
@@ -133,8 +132,7 @@
                   "name": "step",
                   "type": {
                     "type": "reference",
-                    "name": "SparkNode",
-                    "sourcePath": "packages/spark-component/src/components/internal.ts"
+                    "name": "SparkNode"
                   }
                 },
                 {

@@ -121,12 +121,11 @@
         "method.query.return": {
           "anyOf": [
             {
-              "type": "object",
-              "title": "AiJsonValue"
+              "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
             },
             {
               "type": "object",
-              "title": "Promise<AiJsonValue>"
+              "title": "Promise<JsonValue>"
             }
           ]
         },
@@ -233,8 +232,7 @@
           "additionalProperties": false
         },
         "method.query.return": {
-          "type": "object",
-          "title": "AiJsonValue"
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
         },
         "method.modelGuide.params": {
           "type": "object",
@@ -275,7 +273,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-22T14:42:33.802Z",
+  "generatedAt": "2026-08-10T10:00:08.505Z",
   "models": {
     "ClassModelKnowledgeQueryInput": {
       "name": "ClassModelKnowledgeQueryInput",
@@ -436,11 +434,11 @@
       "jsdoc": "Class Model Knowledge Provider 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 可选刷新钩子，重新加载 surface 或 bundle。 */\n    refresh?: (requestedClassName?: string) => Promise<void>;\n    /** 按 kind/keyword 查询可达模型知识。 */\n    query(input: ClassModelKnowledgeQueryInput): AiJsonValue | Promise<AiJsonValue>;\n    /** 返回单个模型的完整 guide 文本。 */\n    modelGuide(input: ClassModelModelGuideInput): string | Promise<string>;\n    /** 返回单个属性的 guide 文本。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): string | Promise<string>;\n    /** 返回单个方法的 guide 文本。 */\n    methodGuide(input: ClassModelMethodGuideInput): string | Promise<string>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 可选刷新钩子，重新加载 surface 或 bundle。 */\n    refresh?: (requestedClassName?: string) => Promise<void>;\n    /** 按 kind/keyword 查询可达模型知识。 */\n    query(input: ClassModelKnowledgeQueryInput): JsonValue | Promise<JsonValue>;\n    /** 返回单个模型的完整 guide 文本。 */\n    modelGuide(input: ClassModelModelGuideInput): string | Promise<string>;\n    /** 返回单个属性的 guide 文本。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): string | Promise<string>;\n    /** 返回单个方法的 guide 文本。 */\n    methodGuide(input: ClassModelMethodGuideInput): string | Promise<string>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 可选刷新钩子，重新加载 surface 或 bundle。 */\n    refresh?: (requestedClassName?: string) => Promise<void>;\n    /** 按 kind/keyword 查询可达模型知识。 */\n    query(input: ClassModelKnowledgeQueryInput): AiJsonValue | Promise<AiJsonValue>;\n    /** 返回单个模型的完整 guide 文本。 */\n    modelGuide(input: ClassModelModelGuideInput): string | Promise<string>;\n    /** 返回单个属性的 guide 文本。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): string | Promise<string>;\n    /** 返回单个方法的 guide 文本。 */\n    methodGuide(input: ClassModelMethodGuideInput): string | Promise<string>;\n}>",
+            "typeText": "Readonly<{\n    /** 可选刷新钩子，重新加载 surface 或 bundle。 */\n    refresh?: (requestedClassName?: string) => Promise<void>;\n    /** 按 kind/keyword 查询可达模型知识。 */\n    query(input: ClassModelKnowledgeQueryInput): JsonValue | Promise<JsonValue>;\n    /** 返回单个模型的完整 guide 文本。 */\n    modelGuide(input: ClassModelModelGuideInput): string | Promise<string>;\n    /** 返回单个属性的 guide 文本。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): string | Promise<string>;\n    /** 返回单个方法的 guide 文本。 */\n    methodGuide(input: ClassModelMethodGuideInput): string | Promise<string>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -490,8 +488,7 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "AiJsonValue",
-                    "sourcePath": "packages/spark-ai/src/json.ts"
+                    "name": "JsonValue"
                   },
                   {
                     "type": "reference",
@@ -499,8 +496,7 @@
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "name": "AiJsonValue",
-                        "sourcePath": "packages/spark-ai/src/json.ts"
+                        "name": "JsonValue"
                       }
                     ]
                   }
@@ -690,8 +686,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "AiJsonValue",
-                "sourcePath": "packages/spark-ai/src/json.ts"
+                "name": "JsonValue"
               }
             },
             {

@@ -20,8 +20,7 @@
       "title": "EnumMemberConstSchemaResult",
       "properties": {
         "schema": {
-          "type": "object",
-          "title": "AiJsonSchema"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
         },
         "nextAutoIndex": {
           "type": "number"
@@ -30,18 +29,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T19:54:27.124Z",
+  "generatedAt": "2026-08-10T10:00:08.498Z",
   "models": {
     "EnumMemberConstSchemaResult": {
       "name": "EnumMemberConstSchemaResult",
       "jsdoc": "Enum Member Const Schema 的提取结果。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 成员的 JSON Schema：有 initializer 时为 { const: value }，无 initializer 时数字 enum 自增为 { const: autoIndex }，名称无法解析时降级为 { type: 'string' }。 */\n    schema: AiJsonSchema;\n    /** 下一个成员的自增起始值；数字 enum 每次递增 1，字符串/布尔/null enum 保持不变。 */\n    nextAutoIndex: number;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 成员的 JSON Schema：有 initializer 时为 { const: value }，无 initializer 时数字 enum 自增为 { const: autoIndex }，名称无法解析时降级为 { type: 'string' }。 */\n    schema: JsonSchema;\n    /** 下一个成员的自增起始值；数字 enum 每次递增 1，字符串/布尔/null enum 保持不变。 */\n    nextAutoIndex: number;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 成员的 JSON Schema：有 initializer 时为 { const: value }，无 initializer 时数字 enum 自增为 { const: autoIndex }，名称无法解析时降级为 { type: 'string' }。 */\n    schema: AiJsonSchema;\n    /** 下一个成员的自增起始值；数字 enum 每次递增 1，字符串/布尔/null enum 保持不变。 */\n    nextAutoIndex: number;\n}>",
+            "typeText": "Readonly<{\n    /** 成员的 JSON Schema：有 initializer 时为 { const: value }，无 initializer 时数字 enum 自增为 { const: autoIndex }，名称无法解析时降级为 { type: 'string' }。 */\n    schema: JsonSchema;\n    /** 下一个成员的自增起始值；数字 enum 每次递增 1，字符串/布尔/null enum 保持不变。 */\n    nextAutoIndex: number;\n}>",
             "targetName": "Readonly"
           }
         ],

@@ -7,11 +7,11 @@
     "sourceFile": "src/lowcode/lowcode-runtime.ts",
     "packageName": "app",
     "modulePath": "lowcode/lowcode-runtime",
-    "jsdoc": "app 的 lowcode/lowcode-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodePrincipal, LowcodeRuntimeNavigationProjectionInput, LowcodeProjectGateways（共 3 个 symbol）。",
+    "jsdoc": "app 的 lowcode/lowcode-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodePrincipal, LowcodeRuntimeNavigationAssemblyInput, LowcodeProjectGateways（共 3 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
       "LowcodePrincipal",
-      "LowcodeRuntimeNavigationProjectionInput",
+      "LowcodeRuntimeNavigationAssemblyInput",
       "LowcodeProjectGateways"
     ]
   },
@@ -48,23 +48,28 @@
       },
       "additionalProperties": false
     },
-    "LowcodeRuntimeNavigationProjectionInput": {
+    "LowcodeRuntimeNavigationAssemblyInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "LowcodeRuntimeNavigationProjectionInput",
+      "title": "LowcodeRuntimeNavigationAssemblyInput",
       "properties": {
         "applicationName": {
+          "type": "string"
+        },
+        "projectId": {
           "type": "string"
         },
         "navigationRootId": {
           "type": "string"
         },
-        "items": {
+        "records": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "LowcodeRuntimeNavigationItem"
+            "$ref": "../../packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json#/$defs/LowcodeProjectBlueprintRecord"
           }
+        },
+        "authorization": {
+          "$ref": "../../packages/spark-lowcode-api/src/platform/lowcode-navigation.ts.json#/$defs/LowcodeNavigationAuthorizationEvidence"
         }
       },
       "additionalProperties": false
@@ -87,7 +92,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T23:48:20.413Z",
+  "generatedAt": "2026-08-10T12:16:41.576Z",
   "models": {
     "LowcodePrincipal": {
       "name": "LowcodePrincipal",
@@ -138,16 +143,16 @@
         }
       }
     },
-    "LowcodeRuntimeNavigationProjectionInput": {
-      "name": "LowcodeRuntimeNavigationProjectionInput",
+    "LowcodeRuntimeNavigationAssemblyInput": {
+      "name": "LowcodeRuntimeNavigationAssemblyInput",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    applicationName: string;\n    navigationRootId: string;\n    items: readonly LowcodeRuntimeNavigationItem[];\n}>",
+        "declarationTypeText": "Readonly<{\n    applicationName: string;\n    projectId: string;\n    navigationRootId: string;\n    records: readonly LowcodeProjectBlueprintRecord[];\n    authorization: LowcodeNavigationAuthorizationEvidence;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    applicationName: string;\n    navigationRootId: string;\n    items: readonly LowcodeRuntimeNavigationItem[];\n}>",
+            "typeText": "Readonly<{\n    applicationName: string;\n    projectId: string;\n    navigationRootId: string;\n    records: readonly LowcodeProjectBlueprintRecord[];\n    authorization: LowcodeNavigationAuthorizationEvidence;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -159,12 +164,22 @@
               "writable": false
             },
             {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "navigationRootId",
               "readable": true,
               "writable": false
             },
             {
-              "name": "items",
+              "name": "records",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authorization",
               "readable": true,
               "writable": false
             }

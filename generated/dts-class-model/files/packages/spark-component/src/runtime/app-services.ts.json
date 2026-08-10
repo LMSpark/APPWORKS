@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-component/src/runtime/app-services.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "runtime/app-services",
-    "jsdoc": "@module @spark-appworks/spark-component:runtime/app-services\n职责：提供 app services 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n页面运行时服务类型定义。\n描述页面在运行时可调用的宿主能力：消息提示、对话框、文件选择/上传、\n实体选择器、路由导航等。\n┌──────────────────────────────────────────────────────┐\n│  类型分组（按页面运行时交互流程）                      │\n│                                                      │\n│  1. 枚举联合：PageMessageType / PageDialogResult      │\n│  2. 消息/对话框：PageDialogOptions                    │\n│  3. 文件操作：  PageBrowseFilesOptions                │\n│                PageSelectedFile                       │\n│                PageUploadFilesOptions                 │\n│                PageUploadedFile                       │\n│  4. 实体选择器：PageSelectorOption                    │\n│                PageSelectEntitiesOptions              │\n│                PageSelectedEntity                     │\n│  5. 服务契约：  PageServiceCapability                 │\n│                PageRouterService                      │\n│                PageRuntimeServicesCapability          │\n│  6. 能力注册：  PAGE_RUNTIME_SERVICES                 │\n└──────────────────────────────────────────────────────┘",
+    "jsdoc": "@module @spark-appworks/spark-component:runtime/app-services\n职责：提供 app services 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n页面运行时服务类型定义。\n描述页面在运行时可调用的宿主能力：消息提示、对话框、文件选择/上传、\n实体选择器、路由导航等。\n┌──────────────────────────────────────────────────────┐\n│  类型分组（按页面运行时交互流程）                      │\n│                                                      │\n│  1. 枚举联合：PageMessageType / PageDialogResult      │\n│  2. 消息/对话框：PageDialogOptions                    │\n│  3. 文件操作：  PageBrowseFilesOptions                │\n│                PageSelectedFile                       │\n│                PageUploadFilesOptions                 │\n│                PageUploadedFile                       │\n│  4. 实体选择器：PageSelectorOption                    │\n│                PageSelectEntitiesOptions              │\n│                PageSelectorOption                     │\n│  5. 服务契约：  PageServiceCapability                 │\n│                PageRouterService                      │\n│                PageRuntimeServicesCapability          │\n│  6. 能力注册：  PAGE_RUNTIME_SERVICES                 │\n└──────────────────────────────────────────────────────┘",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PageMessageType",
@@ -151,11 +151,8 @@
           "type": "string"
         },
         "method": {
-          "enum": [
-            "POST",
-            "PUT",
-            "PATCH"
-          ]
+          "type": "object",
+          "title": "Extract<Method, 'POST' | 'PUT' | 'PATCH'>"
         },
         "fieldName": {
           "type": "string"
@@ -600,8 +597,7 @@
           "$ref": "#/$defs/PageRouterService"
         },
         "logger": {
-          "type": "object",
-          "title": "LoggerApi"
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
         },
         "tenant": {
           "type": "object",
@@ -626,7 +622,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.999Z",
+  "generatedAt": "2026-08-10T12:24:38.096Z",
   "models": {
     "PageMessageType": {
       "name": "PageMessageType",
@@ -827,7 +823,7 @@
       "jsdoc": "文件上传配置（在浏览选项基础上增加上传端点信息）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "PageBrowseFilesOptions & {\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: 'POST' | 'PUT' | 'PATCH';\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}",
+        "declarationTypeText": "PageBrowseFilesOptions & {\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: Extract<Method, 'POST' | 'PUT' | 'PATCH'>;\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -836,7 +832,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: 'POST' | 'PUT' | 'PATCH';\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}"
+            "typeText": "{\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: Extract<Method, 'POST' | 'PUT' | 'PATCH'>;\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}"
           }
         ],
         "members": {

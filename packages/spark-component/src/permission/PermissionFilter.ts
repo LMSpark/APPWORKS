@@ -12,18 +12,18 @@
 
 import type { DataRow } from '@spark-appworks/spark-data'
 import { FieldVisibility } from '@spark-appworks/spark-data'
-import type { PagePermissionMode } from '../core/capability-keys.js'
+import type { PermissionMode } from '@spark-appworks/spark-utils'
 import { canDelete, canEdit, isFieldEditable, isFieldVisible, getFieldVisibility } from './PermissionChecker'
 
-export function filterDeletableRows(rows: DataRow[], permissionMode?: PagePermissionMode): DataRow[] {
+export function filterDeletableRows(rows: DataRow[], permissionMode?: PermissionMode): DataRow[] {
   return rows.filter(row => canDelete(row, permissionMode))
 }
 
-export function filterEditableRows(rows: DataRow[], permissionMode?: PagePermissionMode): DataRow[] {
+export function filterEditableRows(rows: DataRow[], permissionMode?: PermissionMode): DataRow[] {
   return rows.filter(row => canEdit(row, permissionMode))
 }
 
-export function filterFields(row: DataRow, permissionMode?: PagePermissionMode): Record<string, unknown> {
+export function filterFields(row: DataRow, permissionMode?: PermissionMode): Record<string, unknown> {
   const filtered: Record<string, unknown> = {}
   for (const [field, value] of Object.entries(row)) {
     if (!field.startsWith('_') && isFieldVisible(field, row, permissionMode)) {
@@ -33,15 +33,15 @@ export function filterFields(row: DataRow, permissionMode?: PagePermissionMode):
   return filtered
 }
 
-export function getEditableFields(row: DataRow, allFields: string[], permissionMode?: PagePermissionMode): string[] {
+export function getEditableFields(row: DataRow, allFields: string[], permissionMode?: PermissionMode): string[] {
   return allFields.filter(field => isFieldEditable(field, row, permissionMode))
 }
 
-export function getVisibleFields(row: DataRow, allFields: string[], permissionMode?: PagePermissionMode): string[] {
+export function getVisibleFields(row: DataRow, allFields: string[], permissionMode?: PermissionMode): string[] {
   return allFields.filter(field => isFieldVisible(field, row, permissionMode))
 }
 
-export function filterDisplayableFields(row: DataRow, permissionMode?: PagePermissionMode): DataRow {
+export function filterDisplayableFields(row: DataRow, permissionMode?: PermissionMode): DataRow {
   const filtered: DataRow = {}
   for (const [field, value] of Object.entries(row)) {
     if (field.startsWith('_')) {

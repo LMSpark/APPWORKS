@@ -370,7 +370,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:37:59.552Z",
+  "generatedAt": "2026-08-10T07:40:20.657Z",
   "models": {
     "PageDataSpaceBinding": {
       "name": "PageDataSpaceBinding",
@@ -462,7 +462,7 @@
     },
     "PageNodeLike": {
       "name": "PageNodeLike",
-      "jsdoc": "Page Node Like 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** 页面唯一标识，与配置页存储目录名一致 */\n    readonly pageId: string;\n    /** 页面四文件（rule/pagedata/script/style）是否已从远端加载到内存 */\n    readonly isLoaded: boolean;\n    /** 从远端加载页面四文件到内存；重复加载会覆盖内存中未保存的变更 */\n    load(options?: PageNodeLoadOptions): Promise<void>;\n    /** 将已加载的页面内容组装为渲染配置；未加载时调用会抛异常 */\n    toRenderConfig(): PageNodeRenderConfig;\n}",
@@ -648,7 +648,6 @@
             },
             {
               "name": "markLoaded",
-              "jsdoc": "执行 mark Loaded 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -657,7 +656,6 @@
             },
             {
               "name": "markUnloaded",
-              "jsdoc": "执行 mark Unloaded 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -666,7 +664,6 @@
             },
             {
               "name": "markFileSaved",
-              "jsdoc": "执行 mark File Saved 操作。",
               "parameters": [
                 {
                   "name": "name",
@@ -763,7 +760,6 @@
             },
             {
               "name": "undoFile",
-              "jsdoc": "执行 undo File 操作。",
               "parameters": [
                 {
                   "name": "name",
@@ -781,7 +777,6 @@
             },
             {
               "name": "redoFile",
-              "jsdoc": "执行 redo File 操作。",
               "parameters": [
                 {
                   "name": "name",
@@ -952,7 +947,6 @@
             },
             {
               "name": "toSummary",
-              "jsdoc": "执行 to Summary 操作。",
               "parameters": [],
               "type": {
                 "type": "reference",

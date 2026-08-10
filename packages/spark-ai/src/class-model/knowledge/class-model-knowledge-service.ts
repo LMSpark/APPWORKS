@@ -4,7 +4,7 @@
  * 边界：只做知识检索和文本投影，不执行工具、不修改模型实例，也不读取生成文件系统。
  * AI用途：LLM 需要按 kind/action/attribute 获取模型知识时，用本模块理解查询如何收敛到可见上下文。
  */
-import type { AiJsonSchema, AiJsonValue } from '../../json'
+import type { JsonSchema, JsonValue } from '@spark-appworks/spark-json-document'
 import type {
   AttributeMeta,
   DtsTypeDeclarationModel,
@@ -82,7 +82,7 @@ export type ClassModelKnowledgeProvider = Readonly<{
   /** 可选刷新钩子，重新加载 surface 或 bundle。 */
   refresh?: (requestedClassName?: string) => Promise<void>
   /** 按 kind/keyword 查询可达模型知识。 */
-  query(input: ClassModelKnowledgeQueryInput): AiJsonValue | Promise<AiJsonValue>
+  query(input: ClassModelKnowledgeQueryInput): JsonValue | Promise<JsonValue>
   /** 返回单个模型的完整 guide 文本。 */
   modelGuide(input: ClassModelModelGuideInput): string | Promise<string>
   /** 返回单个属性的 guide 文本。 */
@@ -115,7 +115,7 @@ public constructor(options: ClassModelKnowledgeServiceOptions) {
   }
 
     /** 查询参数。 */
-public query(input: ClassModelKnowledgeQueryInput): AiJsonValue {
+public query(input: ClassModelKnowledgeQueryInput): JsonValue {
     const keyword = input.keyword?.toLowerCase()
     if (this.backend.mode === 'surface') {
       const { surface, rootClassName } = this.backend
@@ -347,7 +347,7 @@ function collectTypeRefs(surface: DtsClassModelSurfaceDocument, linked: Set<stri
 function collectSchemaTypeRefs(
   surface: DtsClassModelSurfaceDocument,
   linked: Set<string>,
-  schema: AiJsonSchema | undefined,
+  schema: JsonSchema | undefined,
 ): void {
   if (schema === undefined || schema === true || schema === false || typeof schema !== 'object') return
   if (typeof schema.$ref === 'string') collectTypeRefs(surface, linked, schema.$ref)

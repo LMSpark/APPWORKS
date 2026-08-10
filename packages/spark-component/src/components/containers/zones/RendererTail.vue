@@ -19,8 +19,9 @@ AI用途：需要理解 renderer tail 的实际渲染结构、slot/toolbar/状�
  * @description 尾部组件，在 r-toolbar 中作为工具栏末尾区域提取渲染。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId } from '../../internal'
+import { SparkComponentRenderer } from '../../internal'
 import type { RTailProps as Props } from './RendererTail.types'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-tail',

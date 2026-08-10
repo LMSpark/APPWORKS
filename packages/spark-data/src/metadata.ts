@@ -12,6 +12,13 @@ type TableMetadataLike = Omit<TableMetadata, 'tableName'> & {
     /** 数据表名。 */
 tableName?: string}
 
+type ViewFieldProjectionValidationCommand = Readonly<{
+  tableName: string
+  columns: TableMetadata['columns']
+  viewId: string
+  view: ViewMetadata
+}>
+
 function isTableMetadataLike(value: unknown): value is TableMetadataLike {
   if (!isRecord(value)) return false
   if (!Array.isArray(value['columns'])) return false
@@ -81,12 +88,8 @@ function normalizeViewMetadata(
   return normalized
 }
 
-function validateViewFieldProjection(
-  tableName: string,
-  columns: TableMetadata['columns'],
-  viewId: string,
-  view: ViewMetadata,
-): void {
+function validateViewFieldProjection(command: ViewFieldProjectionValidationCommand): void {
+  const { tableName, columns, viewId, view } = command
   const projection = view.fieldProjection
   if (projection === undefined) return
   const columnNames = new Set(columns.map((column) => column.name))
@@ -136,7 +139,7 @@ export function normalizeTableMetadata(
     normalizedViews[viewId] = normalizeViewMetadata(view, tableName, viewId)
   }
   for (const [viewId, view] of Object.entries(normalizedViews)) {
-    validateViewFieldProjection(tableName, input.columns, viewId, view)
+    validateViewFieldProjection({ tableName, columns: input.columns, viewId, view })
   }
 
   return {

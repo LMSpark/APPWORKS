@@ -1,3 +1,4 @@
+import type { SparkNode } from '@spark-appworks/spark-data'
 /**
  * Tests for Batch 4-6 display components:
  * - DisplayIcon (display-icon)
@@ -19,7 +20,6 @@ import {
   DATA_ROW,
   SPARK_REGISTRY_KEY,
 } from '@spark-appworks/spark-component'
-import type { SparkNode } from '@spark-appworks/spark-component'
 
 // ── Stubs ──
 

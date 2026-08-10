@@ -26,8 +26,9 @@ AI用途：需要理解 display result 的实际渲染结构、slot/toolbar/状�
  * @description 结果页组件，含标题、副标题和按钮区。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RResultProps } from './DisplayResult.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RResultProps>(), {
   type: 'r-result',
@@ -38,5 +39,4 @@ const { isVisible } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

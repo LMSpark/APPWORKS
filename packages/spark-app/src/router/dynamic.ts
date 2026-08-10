@@ -15,7 +15,9 @@ import type { Component } from 'vue'
 import {
   createRuntimePageNode,
   type PageContentLoader,
+  type PageDataSpaceBinding,
 } from '@spark-appworks/spark-project-model'
+import type { DataSet } from '@spark-appworks/spark-data'
 import { createLogger } from '../logger'
 import { readProperty } from '@spark-appworks/spark-utils/internal'
 import { CrossProjectRefPage, createCrossProjectRefRouteProps } from './cross-project-ref-page'
@@ -113,7 +115,14 @@ export type DynamicRouterOptions = {
    * - 已登录 → 使用 `loadNavigation` 加载远程导航树
    * - 未登录 → 使用 `preAuthNavTree` 本地导航树
    */
-  isAuthenticated?: (() => boolean) | undefined}
+  isAuthenticated?: (() => boolean) | undefined
+
+  /**
+   * 运行态 DataSet 装载器：配置页有 PageDataSpaceBinding 时由 SparkPageRenderer 调用。
+   * 有绑定则不得再把 pagedata.json 当运行数据真源。
+   */
+  loadRuntimeDataSet?: ((binding: PageDataSpaceBinding) => Promise<DataSet>) | undefined
+}
 
 type RouteRegistrationOptions = {
   skipTenantPrefix?: boolean
@@ -150,6 +159,7 @@ export class DynamicRouter {
   private _navTree: RuntimeNavigation | null = null
   /** ProjectBlueprintTreeNodeData → 注册路由路径追踪（弱引用，导航树刷新后自动 GC） */
   private _navRouteMap = new WeakMap<RuntimeNavigationItem, string>()
+  private _loadRuntimeDataSet: ((binding: PageDataSpaceBinding) => Promise<DataSet>) | undefined
 
     /** 创建 Dynamic Router 实例。 */
 constructor(options: DynamicRouterOptions) {
@@ -166,6 +176,7 @@ constructor(options: DynamicRouterOptions) {
     this.tenantPathRegex = this.tenantPathPrefix
       ? this.createTenantPathRegex(this.tenantPathPrefix)
       : null
+    this._loadRuntimeDataSet = options.loadRuntimeDataSet
 
     // 导航加载函数（统一数据源）
     this._loadNavigation = options.loadNavigation
@@ -579,6 +590,9 @@ constructor(options: DynamicRouterOptions) {
               ...(node.modelId === undefined ? {} : { modelId: node.modelId }),
             }),
             pageId,
+            ...(this._loadRuntimeDataSet === undefined
+              ? {}
+              : { loadRuntimeDataSet: this._loadRuntimeDataSet }),
           },
           meta: {
             type: 'config-page',

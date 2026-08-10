@@ -7,7 +7,7 @@
 
 import type { AiAgentScope } from '../business/scope-types'
 import type { AiAgentStreamEvent, AiAgentTurnMeta } from '../chat/chat-types'
-import type { AiJsonSchemaObject } from '../../json'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import type {
   AiAgentAppSseEvent,
   AiAgentAppSseEventName,
@@ -25,7 +25,7 @@ export type AiAgentTransportToolSpec = Readonly<{
   function: {
     readonly name: string
     readonly description: string
-    readonly parameters: AiJsonSchemaObject
+    readonly parameters: JsonSchemaObject
     /** OpenAI strict function calling：要求模型参数严格匹配 JSON Schema。 */
     readonly strict?: boolean
   }

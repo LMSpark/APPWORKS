@@ -60,12 +60,13 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
  */
 import { computed, getCurrentInstance, useSlots } from 'vue'
 import { useSparkPageComponent, SparkComponentRenderer } from '../../../internal'
-import { getSparkNodeChildren, nodeId } from '../../../internal'
+
 import type { RDialogProps } from './RendererDialog.props'
 import { useContainerGrid } from '../../runtime/container-layout'
-import type { RendererDialogApi } from './types'
+import type { VisibilityContainerApi } from '../../support/base-container-api'
 import { createVisibilityContainerZeroCode } from '../../support/visibility-container-zero-code'
 import { useUnifiedValueBridge } from '../state'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RDialogProps>(), {
   type: 'r-dialog',
@@ -140,7 +141,7 @@ const {
   handleOpened,
   handleClosed,
 }: {
-  api: RendererDialogApi
+  api: VisibilityContainerApi
   handleModelUpdate: (value: boolean) => void
   handleOpen: () => void
   handleClose: () => void
@@ -156,7 +157,6 @@ const {
 })
 
 registerApi(dialogApi)
-
 
 function getHeaderScope() {
   return {

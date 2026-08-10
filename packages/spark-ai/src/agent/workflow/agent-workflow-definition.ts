@@ -5,7 +5,7 @@
  * AI用途：需要判断 workflow definition 字段、业务节点、边投影或验证 action 格式时，用本模块确认契约。
  */
 
-import type { AiJsonSchemaObject } from '../../json'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 
 export type AgentWorkflowJsonRecord = Readonly<Record<string, unknown>>
 
@@ -135,7 +135,7 @@ export type AgentWorkflowNodeRuntimeRegistration = Readonly<{
 export type AgentWorkflowNodeInputContract = Readonly<{
   identityField: string
   messageField: string
-  paramsSchema: AiJsonSchemaObject
+  paramsSchema: JsonSchemaObject
   readonlySteps?: readonly string[]
 }>
 
@@ -193,8 +193,6 @@ export type AgentWorkflowNodeRuntimeBinding = Readonly<{
   planWithoutToolMarkers?: readonly string[]
   agentCompleteMethodName?: string
 }>
-
-export type AgentWorkflowDefinitionRuntimeBinding = AgentWorkflowNodeRuntimeBinding
 
 export type AgentWorkflowBusinessNodeData = Readonly<{
   type?: 'node'
@@ -273,7 +271,7 @@ export type AgentWorkflowGraph = Readonly<{
 export type AgentWorkflowBody = Readonly<{
   variables: readonly AgentWorkflowVariable[]
   capabilities: readonly AgentWorkflowCapability[]
-  runtimeBinding: AgentWorkflowDefinitionRuntimeBinding
+  runtimeBinding: AgentWorkflowNodeRuntimeBinding
   graph: AgentWorkflowGraph
 }>
 

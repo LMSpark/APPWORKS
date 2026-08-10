@@ -220,8 +220,7 @@
               }
             },
             "runtimeBinding": {
-              "type": "object",
-              "title": "SparkAgent.AgentWorkflowDefinitionRuntimeBinding"
+              "$ref": "../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeRuntimeBinding"
             },
             "graph": {
               "$ref": "#/$defs/WorkflowDesignGraph"
@@ -928,7 +927,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:51:49.593Z",
+  "generatedAt": "2026-08-10T11:32:46.066Z",
   "models": {
     "JsonRecord": {
       "name": "JsonRecord",
@@ -1131,7 +1130,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    kind: 'agent.workflow.design';\n    version: number;\n    id: string;\n    workflow: {\n        id: string;\n        version: number;\n        variables?: WorkflowDesignVariable[];\n        capabilities?: WorkflowDesignCapability[];\n        runtimeBinding?: SparkAgent.AgentWorkflowDefinitionRuntimeBinding;\n        graph: WorkflowDesignGraph;\n        [key: string]: unknown;\n    };\n    x_spark: {\n        schema?: string;\n        designer?: JsonRecord;\n        draft?: JsonRecord;\n        validation?: JsonRecord;\n        history?: JsonRecord;\n        [key: string]: unknown;\n    };\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    kind: 'agent.workflow.design';\n    version: number;\n    id: string;\n    workflow: {\n        id: string;\n        version: number;\n        variables?: WorkflowDesignVariable[];\n        capabilities?: WorkflowDesignCapability[];\n        runtimeBinding?: SparkAgent.AgentWorkflowNodeRuntimeBinding;\n        graph: WorkflowDesignGraph;\n        [key: string]: unknown;\n    };\n    x_spark: {\n        schema?: string;\n        designer?: JsonRecord;\n        draft?: JsonRecord;\n        validation?: JsonRecord;\n        history?: JsonRecord;\n        [key: string]: unknown;\n    };\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {

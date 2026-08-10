@@ -27,24 +27,25 @@
           "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
         },
         "permissionMode": {
-          "$ref": "../core/capability-keys.ts.json#/$defs/PagePermissionMode"
+          "type": "object",
+          "title": "PermissionMode"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:51:40.555Z",
+  "generatedAt": "2026-08-10T11:41:37.212Z",
   "models": {
     "FieldMaskInput": {
       "name": "FieldMaskInput",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    field: string;\n    value: unknown;\n    row: DataRow;\n    permissionMode?: PagePermissionMode;\n}>",
+        "declarationTypeText": "Readonly<{\n    field: string;\n    value: unknown;\n    row: DataRow;\n    permissionMode?: PermissionMode;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    field: string;\n    value: unknown;\n    row: DataRow;\n    permissionMode?: PagePermissionMode;\n}>",
+            "typeText": "Readonly<{\n    field: string;\n    value: unknown;\n    row: DataRow;\n    permissionMode?: PermissionMode;\n}>",
             "targetName": "Readonly"
           }
         ],

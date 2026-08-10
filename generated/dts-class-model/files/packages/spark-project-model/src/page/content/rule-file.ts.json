@@ -128,15 +128,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.284Z",
+  "generatedAt": "2026-08-10T07:44:12.940Z",
   "models": {
     "PageRuleFile": {
       "name": "PageRuleFile",
-      "jsdoc": "Page Rule File 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建 Page Rule File 实例。",
           "signatureText": "constructor(pageId: string)",
           "parameters": [
             {
@@ -208,7 +207,6 @@
             },
             {
               "name": "markSaved",
-              "jsdoc": "执行 mark Saved 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -226,7 +224,6 @@
             },
             {
               "name": "replaceTree",
-              "jsdoc": "执行 replace Tree 操作。",
               "parameters": [
                 {
                   "name": "tree",
@@ -243,7 +240,6 @@
             },
             {
               "name": "editTree",
-              "jsdoc": "执行 edit Tree 操作。",
               "parameters": [
                 {
                   "name": "run",
@@ -299,7 +295,6 @@
             },
             {
               "name": "undo",
-              "jsdoc": "执行 undo 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -308,7 +303,6 @@
             },
             {
               "name": "redo",
-              "jsdoc": "执行 redo 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

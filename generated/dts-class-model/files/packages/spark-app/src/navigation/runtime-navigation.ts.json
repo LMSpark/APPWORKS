@@ -7,14 +7,9 @@
     "sourceFile": "packages/spark-app/src/navigation/runtime-navigation.ts",
     "packageName": "@spark-appworks/spark-app",
     "modulePath": "navigation/runtime-navigation",
-    "jsdoc": "应用壳唯一可消费的运行导航合同。\n它只表达后端授权后可见的菜单、路由和动作，不是项目蓝图的持久化形状。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdoc": "@spark-appworks/spark-app 的 navigation/runtime-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: RuntimeNavigationContextState, RuntimeNavigationItem, RuntimeNavigation, RuntimeNavigationRegionItems, RuntimeNavigationRegionVisibility（共 5 个 symbol）。",
+    "jsdocSource": "inferred",
     "symbols": [
-      "RuntimeNavigationItemKind",
-      "RuntimeNavigationPlacement",
-      "RuntimeNavigationPermissionMode",
-      "RuntimeNavigationContextItem",
-      "RuntimeNavigationContextConfig",
       "RuntimeNavigationContextState",
       "RuntimeNavigationItem",
       "RuntimeNavigation",
@@ -23,105 +18,13 @@
     ]
   },
   "$defs": {
-    "RuntimeNavigationItemKind": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "RuntimeNavigationItemKind",
-      "enum": [
-        "system-directory",
-        "module",
-        "system-page",
-        "system-action",
-        "page",
-        "link",
-        "ref"
-      ]
-    },
-    "RuntimeNavigationPlacement": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "RuntimeNavigationPlacement",
-      "enum": [
-        "header",
-        "sidebar",
-        "toolbar",
-        "user-menu",
-        "parent",
-        "flat"
-      ]
-    },
-    "RuntimeNavigationPermissionMode": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "RuntimeNavigationPermissionMode",
-      "enum": [
-        "none",
-        "masked",
-        "invisible"
-      ]
-    },
-    "RuntimeNavigationContextItem": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "RuntimeNavigationContextItem",
-      "properties": {
-        "id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            }
-          ]
-        },
-        "title": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "RuntimeNavigationContextConfig": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "RuntimeNavigationContextConfig",
-      "properties": {
-        "source": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/RuntimeNavigationContextItem"
-              }
-            }
-          ]
-        },
-        "placeholder": {
-          "type": "string"
-        },
-        "defaultValue": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            }
-          ]
-        },
-        "paramName": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
     "RuntimeNavigationContextState": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "RuntimeNavigationContextState",
       "properties": {
         "config": {
-          "$ref": "#/$defs/RuntimeNavigationContextConfig"
+          "$ref": "../../../spark-utils/src/navigation-surface.ts.json#/$defs/NavigationContextConfig"
         },
         "nodeId": {
           "type": "string"
@@ -142,7 +45,7 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/RuntimeNavigationContextItem"
+            "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ContextItem"
           }
         },
         "loading": {
@@ -183,10 +86,12 @@
           "type": "string"
         },
         "itemKind": {
-          "$ref": "#/$defs/RuntimeNavigationItemKind"
+          "type": "object",
+          "title": "RuntimeNavigationItemKind"
         },
         "childPlacement": {
-          "$ref": "#/$defs/RuntimeNavigationPlacement"
+          "type": "object",
+          "title": "NavigationPlacement"
         },
         "context": {
           "anyOf": [
@@ -196,11 +101,11 @@
             {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/RuntimeNavigationContextItem"
+                "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ContextItem"
               }
             },
             {
-              "$ref": "#/$defs/RuntimeNavigationContextConfig"
+              "$ref": "../../../spark-utils/src/navigation-surface.ts.json#/$defs/NavigationContextConfig"
             }
           ]
         },
@@ -217,7 +122,8 @@
           "type": "boolean"
         },
         "permissionMode": {
-          "$ref": "#/$defs/RuntimeNavigationPermissionMode"
+          "type": "object",
+          "title": "PermissionMode"
         },
         "children": {
           "type": "array",
@@ -238,11 +144,8 @@
           "type": "string"
         },
         "linkTarget": {
-          "enum": [
-            "iframe",
-            "new-tab",
-            "self"
-          ]
+          "type": "object",
+          "title": "NavigationLinkTarget"
         },
         "redirect": {
           "type": "string"
@@ -281,10 +184,8 @@
           "type": "string"
         },
         "childPlacement": {
-          "enum": [
-            "header",
-            "sidebar"
-          ]
+          "type": "object",
+          "title": "NavigationRootPlacement"
         },
         "items": {
           "type": "array",
@@ -362,179 +263,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T21:27:23.886Z",
+  "generatedAt": "2026-08-10T12:07:49.400Z",
   "models": {
-    "RuntimeNavigationItemKind": {
-      "name": "RuntimeNavigationItemKind",
+    "RuntimeNavigationContextState": {
+      "name": "RuntimeNavigationContextState",
       "jsdoc": "应用壳唯一可消费的运行导航合同。\n它只表达后端授权后可见的菜单、路由和动作，不是项目蓝图的持久化形状。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'system-directory' | 'module' | 'system-page' | 'system-action' | 'page' | 'link' | 'ref'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'system-directory'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'module'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'system-page'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'system-action'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'page'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'link'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'ref'"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "RuntimeNavigationPlacement": {
-      "name": "RuntimeNavigationPlacement",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'header' | 'sidebar' | 'toolbar' | 'user-menu' | 'parent' | 'flat'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'header'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'sidebar'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'toolbar'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'user-menu'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'parent'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'flat'"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "RuntimeNavigationPermissionMode": {
-      "name": "RuntimeNavigationPermissionMode",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'none' | 'masked' | 'invisible'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'none'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'masked'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'invisible'"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "RuntimeNavigationContextItem": {
-      "name": "RuntimeNavigationContextItem",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string | number;\n    title: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    id: string | number;\n    title: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "id",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "title",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "RuntimeNavigationContextConfig": {
-      "name": "RuntimeNavigationContextConfig",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    source: string | readonly RuntimeNavigationContextItem[];\n    placeholder?: string;\n    defaultValue?: string | number;\n    paramName?: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    source: string | readonly RuntimeNavigationContextItem[];\n    placeholder?: string;\n    defaultValue?: string | number;\n    paramName?: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "source",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "placeholder",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "defaultValue",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "paramName",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "RuntimeNavigationContextState": {
-      "name": "RuntimeNavigationContextState",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    config: RuntimeNavigationContextConfig;\n    nodeId: string;\n    selected: string | number | null;\n    items: RuntimeNavigationContextItem[];\n    loading: boolean;\n    error: string | null;\n}",
+        "declarationTypeText": "{\n    config: NavigationContextConfig;\n    nodeId: string;\n    selected: string | number | null;\n    items: ContextItem[];\n    loading: boolean;\n    error: string | null;\n}",
         "members": {
           "attributes": [
             {
@@ -576,7 +312,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id: string;\n    title: string;\n    description?: string;\n    icon?: string;\n    itemKind?: RuntimeNavigationItemKind;\n    childPlacement?: RuntimeNavigationPlacement;\n    context?: string | readonly RuntimeNavigationContextItem[] | RuntimeNavigationContextConfig;\n    order?: number;\n    hidden?: boolean;\n    disabled?: boolean;\n    dividerAfter?: boolean;\n    permissionMode?: RuntimeNavigationPermissionMode;\n    children?: RuntimeNavigationItem[];\n    path?: string;\n    formKey?: string;\n    dataSpaceId?: string;\n    modelId?: string;\n    linkTarget?: 'iframe' | 'new-tab' | 'self';\n    redirect?: string;\n    refId?: string;\n    refPath?: string;\n    refProjectId?: string;\n    refBroken?: boolean;\n}",
+        "declarationTypeText": "{\n    id: string;\n    title: string;\n    description?: string;\n    icon?: string;\n    itemKind?: RuntimeNavigationItemKind;\n    childPlacement?: NavigationPlacement;\n    context?: string | readonly ContextItem[] | NavigationContextConfig;\n    order?: number;\n    hidden?: boolean;\n    disabled?: boolean;\n    dividerAfter?: boolean;\n    permissionMode?: PermissionMode;\n    children?: RuntimeNavigationItem[];\n    path?: string;\n    formKey?: string;\n    dataSpaceId?: string;\n    modelId?: string;\n    linkTarget?: NavigationLinkTarget;\n    redirect?: string;\n    refId?: string;\n    refPath?: string;\n    refProjectId?: string;\n    refBroken?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -703,7 +439,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id?: string;\n    projectId?: string;\n    title: string;\n    childPlacement: 'header' | 'sidebar';\n    items: RuntimeNavigationItem[];\n    homePath?: string;\n}",
+        "declarationTypeText": "{\n    id?: string;\n    projectId?: string;\n    title: string;\n    childPlacement: NavigationRootPlacement;\n    items: RuntimeNavigationItem[];\n    homePath?: string;\n}",
         "members": {
           "attributes": [
             {

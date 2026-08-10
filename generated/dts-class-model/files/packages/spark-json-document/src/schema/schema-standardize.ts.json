@@ -7,29 +7,14 @@
     "sourceFile": "packages/spark-json-document/src/schema/schema-standardize.ts",
     "packageName": "@spark-appworks/spark-json-document",
     "modulePath": "schema/schema-standardize",
-    "jsdoc": "@module @spark-appworks/spark-json-document:schema/schema-standardize\n职责：提供 JSON 文档和 schema 处理中的 schema-standardize 能力，围绕 StandardJsonSchema、StandardJsonSchemaObject 管理 schema 标准化、解析、校验或树策略。\n边界：只处理 JSON/schema/tree 抽象，不依赖 SPARK 页面运行时，也不直接操作业务 DataSet。\nAI用途：生成或校验 JSON 配置结构时，用本模块确认 schema/schema-standardize 的 schema 语义。",
+    "jsdoc": "@module @spark-appworks/spark-json-document:schema/schema-standardize\n职责：提供 JSON 文档和 schema 处理中的 schema-standardize 能力，围绕 StandardJsonSchema、StandardJsonSchemaObject 管理 schema 标准化、解析、校验或树策略。\n边界：只处理 JSON/schema/tree 抽象，不依赖 SPARK 页面运行时，也不直接操作业务 DataSet。\nAI用途：生成或校验 JSON 配置结构时，用本模块确认 schema/schema-standardize 的 schema 语义。\n\nCanonicalize JSON Schema fragments to Draft 2020-12 shapes used by spark-json-document.\nEvery schema node — primitives, pooled $defs, arrays, objects — must pass this pass.",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "JsonSchemaType",
-      "JsonLiteralValue",
       "StandardJsonSchema",
       "StandardJsonSchemaObject"
     ]
   },
   "$defs": {
-    "JsonSchemaType": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "JsonSchemaType",
-      "enum": [
-        "null",
-        "boolean",
-        "object",
-        "array",
-        "number",
-        "integer",
-        "string"
-      ]
-    },
     "JsonLiteralValue": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "JsonLiteralValue",
@@ -75,12 +60,12 @@
         "type": {
           "anyOf": [
             {
-              "$ref": "#/$defs/JsonSchemaType"
+              "$ref": "schema-types.ts.json#/$defs/JsonSchemaType"
             },
             {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/JsonSchemaType"
+                "$ref": "schema-types.ts.json#/$defs/JsonSchemaType"
               }
             }
           ]
@@ -151,47 +136,8 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.260Z",
+  "generatedAt": "2026-08-10T12:17:50.878Z",
   "models": {
-    "JsonSchemaType": {
-      "name": "JsonSchemaType",
-      "jsdoc": "Draft 2020-12 `type` 关键字允许的基础 JSON 类型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'null' | 'boolean' | 'object' | 'array' | 'number' | 'integer' | 'string'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'null'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'boolean'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'object'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'array'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'number'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'integer'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'string'"
-          }
-        ],
-        "members": {}
-      }
-    },
     "JsonLiteralValue": {
       "name": "JsonLiteralValue",
       "jsdoc": "JSON Schema enum/const 可承载的 JSON 标量值。",

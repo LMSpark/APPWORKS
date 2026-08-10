@@ -21,7 +21,7 @@
  * │                PageUploadedFile                       │
  * │  4. 实体选择器：PageSelectorOption                    │
  * │                PageSelectEntitiesOptions              │
- * │                PageSelectedEntity                     │
+ * │                PageSelectorOption                     │
  * │  5. 服务契约：  PageServiceCapability                 │
  * │                PageRouterService                      │
  * │                PageRuntimeServicesCapability          │
@@ -29,7 +29,7 @@
  * └──────────────────────────────────────────────────────┘
  */
 
-import { defineCapability, type LoggerApi } from '@spark-appworks/spark-utils'
+import { defineCapability, type LoggerApi, type Method } from '@spark-appworks/spark-utils'
 import { isRecord } from '@spark-appworks/spark-utils'
 
 // ═══════════════════════════════════════════════════════
@@ -108,7 +108,7 @@ export type PageUploadFilesOptions = PageBrowseFilesOptions & {
   /** 上传目标 URL */
   action: string
   /** HTTP 方法 */
-  method?: 'POST' | 'PUT' | 'PATCH'
+  method?: Extract<Method, 'POST' | 'PUT' | 'PATCH'>
   /** 文件字段名 */
   fieldName?: string
   /** 附加请求头 */
@@ -173,8 +173,7 @@ export type PageSelectEntitiesOptions = {
   options?: PageSelectorOption[]
 }
 
-/** 已选中的实体项，复用候选项结构 */
-export type { PageSelectorOption as PageSelectedEntity }
+/** 已选中的实体项与候选项同形（统一用 PageSelectorOption，禁止 PageSelectedEntity 别名） */
 
 // ═══════════════════════════════════════════════════════
 // 5. 服务契约

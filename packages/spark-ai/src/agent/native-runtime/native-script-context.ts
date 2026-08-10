@@ -5,7 +5,7 @@
  * AI用途：编写或审查 AI 生成脚本时，用本模块确认脚本能调用哪些 API、错误如何返回。
  */
 import { readJsonProperty } from '@spark-appworks/spark-json-document'
-import { AiJsonSchemaValidator, type AiJsonParams, type AiJsonSchemaValidateOptions } from '../../json'
+import { JsonSchemaValidator, type JsonParams, type JsonSchemaValidateOptions } from '@spark-appworks/spark-json-document'
 import { AiAgentToolResult, type AiAgentRuntimeHostContext } from '../tool-runtime'
 import type { AiApiActionMetadata, AiApiObjectMetadata, AiApiResultApiRef } from '../../class-model'
 
@@ -13,7 +13,7 @@ type MethodTarget = Readonly<Record<string, unknown>>
 /** Script Callback 的语义模型。 */
 type ScriptCallback = (...args: readonly unknown[]) => unknown
 /** Script Action Arg 的语义模型。 */
-type ScriptActionArg = AiJsonParams | ScriptCallback
+type ScriptActionArg = JsonParams | ScriptCallback
 /** Ai Native Path Context 的运行上下文。 */
 type AiNativePathContext = Readonly<{
   /** 从 root 到当前 API 对象的路径段（属性/action 名序列）。 */
@@ -21,13 +21,13 @@ type AiNativePathContext = Readonly<{
   /** 可选 Host 运行时上下文，供 takesContext action 注入。 */
   host?: AiAgentRuntimeHostContext
 }>
-type ApiMethod = (first: AiNativePathContext | AiJsonParams, second?: AiJsonParams) => unknown
+type ApiMethod = (first: AiNativePathContext | JsonParams, second?: JsonParams) => unknown
 
 type ApiProxyState = Readonly<{
   value: Promise<unknown>
   api: AiApiObjectMetadata
   resolved: ResolvedValue
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type ResolvedValue = {
@@ -44,7 +44,7 @@ export type AiApiScriptContextCommand = Readonly<{
   /** 路径与 Host 上下文，供 action 调用链传递。 */
   ctx: AiNativePathContext
   /** 参数校验选项，控制 schema 校验严格度。 */
-  validateOptions?: AiJsonSchemaValidateOptions
+  validateOptions?: JsonSchemaValidateOptions
 }>
 
 /** Execute Ai Api Action Command 的命令参数。 */
@@ -58,7 +58,7 @@ export type ExecuteAiApiActionCommand = Readonly<{
   /** 路径与 Host 上下文，供 takesContext action 使用。 */
   ctx: AiNativePathContext
   /** 参数校验选项，控制 schema 校验严格度。 */
-  validateOptions?: AiJsonSchemaValidateOptions
+  validateOptions?: JsonSchemaValidateOptions
 }>
 
 type ExecuteAiApiActionValueCommand = Readonly<{
@@ -66,15 +66,15 @@ type ExecuteAiApiActionValueCommand = Readonly<{
   action: AiApiActionMetadata
   args: ScriptActionArg
   ctx: AiNativePathContext
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type WrapAsyncApiActionCommand = Readonly<{
   target: unknown
   action: AiApiActionMetadata
-  args: AiJsonParams
+  args: JsonParams
   ctx: AiNativePathContext
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type CreateResolvedApiSurfaceCommand = Readonly<{
@@ -82,22 +82,22 @@ type CreateResolvedApiSurfaceCommand = Readonly<{
   api: AiApiObjectMetadata
   ctx: AiNativePathContext
   options: ApiProxyOptions
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type CallApiActionInScriptCommand = Readonly<{
   target: unknown
   action: AiApiActionMetadata
-  args: AiJsonParams
+  args: JsonParams
   ctx: AiNativePathContext
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type WrapResultApisCommand = Readonly<{
   value: unknown
   resultApis: readonly AiApiResultApiRef[]
   ctx: AiNativePathContext
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type CreateResultProxyCommand = Readonly<{
@@ -105,7 +105,7 @@ type CreateResultProxyCommand = Readonly<{
   resultApis: readonly AiApiResultApiRef[]
   path: readonly string[]
   ctx: AiNativePathContext
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type CreateResolvedResultProxyCommand = Readonly<{
@@ -113,7 +113,7 @@ type CreateResolvedResultProxyCommand = Readonly<{
   resultApis: readonly AiApiResultApiRef[]
   path: readonly string[]
   ctx: AiNativePathContext
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type CreateResultPathSurfaceCommand = CreateResultProxyCommand & Readonly<{
@@ -126,7 +126,7 @@ type CreateResolvedResultPathSurfaceCommand = Readonly<{
   path: readonly string[]
   ctx: AiNativePathContext
   options: ApiProxyOptions
-  validateOptions: AiJsonSchemaValidateOptions
+  validateOptions: JsonSchemaValidateOptions
 }>
 
 type CallApiMethodCommand = Readonly<{
@@ -134,7 +134,7 @@ type CallApiMethodCommand = Readonly<{
   target: MethodTarget
   action: AiApiActionMetadata
   ctx: AiNativePathContext
-  args: AiJsonParams
+  args: JsonParams
 }>
 
 type ApiProxyOptions = Readonly<{
@@ -185,7 +185,7 @@ function executeAiApiActionValue(
   command: ExecuteAiApiActionValueCommand,
 ): AiAgentToolResult<unknown> | Promise<AiAgentToolResult<unknown>> {
   const normalizedArgs = normalizeScriptActionArgs(command.action, command.args)
-  const validation = AiJsonSchemaValidator.validateDeserializedParams(
+  const validation = JsonSchemaValidator.validateDeserializedParams(
     normalizedArgs,
     command.action.paramsSchema,
     command.validateOptions,
@@ -259,7 +259,7 @@ function createApiProxy(state: ApiProxyState, ctx: AiNativePathContext): unknown
 function createApiProxyState(
   value: Promise<unknown>,
   api: AiApiObjectMetadata,
-  validateOptions: AiJsonSchemaValidateOptions,
+  validateOptions: JsonSchemaValidateOptions,
 ): ApiProxyState {
   const resolved: ResolvedValue = { settled: false }
   void value.then(target => {
@@ -715,7 +715,7 @@ function actionRequiresRun(action: AiApiActionMetadata): boolean {
 
 function readMutatorRunArgument(
   action: AiApiActionMetadata,
-  args: AiJsonParams,
+  args: JsonParams,
 ): ScriptCallback | undefined {
   if (!actionRequiresRun(action)) return undefined
   const runValue = args['run']
@@ -724,7 +724,7 @@ function readMutatorRunArgument(
     : undefined
 }
 
-function projectPositionalArgs(action: AiApiActionMetadata, args: AiJsonParams): readonly unknown[] {
+function projectPositionalArgs(action: AiApiActionMetadata, args: JsonParams): readonly unknown[] {
   const properties = action.paramsSchema.properties
   if (properties === undefined) return []
   return Object.keys(properties).map(name => args[name])
@@ -733,7 +733,7 @@ function projectPositionalArgs(action: AiApiActionMetadata, args: AiJsonParams):
 function normalizeScriptActionArgList(
   action: AiApiActionMetadata,
   args: readonly unknown[],
-): AiJsonParams {
+): JsonParams {
   if (args.length === 0) return normalizeScriptActionArgs(action, {})
   if (args.length === 1) return normalizeScriptActionArgs(action, args[0])
   return normalizePositionalScriptArgs(action, args)
@@ -743,7 +743,7 @@ function normalizeScriptActionArgList(
 function normalizeScriptActionArgs(
   action: AiApiActionMetadata,
   args: unknown,
-): AiJsonParams {
+): JsonParams {
   if (typeof args === 'function') {
     if (actionRequiresRun(action)) return paramsFromRecord({ run: args })
     return {}
@@ -753,13 +753,13 @@ function normalizeScriptActionArgs(
   if (paramName !== undefined && paramNames.length === 1 && shouldWrapSingleNativeArgument(action, args)) {
     return paramsFromRecord({ [paramName]: args })
   }
-  return isAiJsonParams(args) ? args : {}
+  return isJsonParams(args) ? args : {}
 }
 
 function normalizePositionalScriptArgs(
   action: AiApiActionMetadata,
   args: readonly unknown[],
-): AiJsonParams {
+): JsonParams {
   const paramNames = actionParamNames(action)
   if (paramNames.length === 0) return {}
   const next: Record<string, unknown> = {}
@@ -770,11 +770,11 @@ function normalizePositionalScriptArgs(
   return paramsFromRecord(next)
 }
 
-function paramsFromRecord(record: Record<string, unknown>): AiJsonParams {
-  return isAiJsonParams(record) ? record : {}
+function paramsFromRecord(record: Record<string, unknown>): JsonParams {
+  return isJsonParams(record) ? record : {}
 }
 
-function isAiJsonParams(value: unknown): value is AiJsonParams {
+function isJsonParams(value: unknown): value is JsonParams {
   return isRecord(value)
 }
 

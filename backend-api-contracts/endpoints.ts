@@ -339,7 +339,7 @@ export const backendApiEndpoints = [
       p("qy_api", "query", "string", true, "QYAPI 接口标识。"),
       p("body", "body", "Record<string,unknown>", true, "完整透传给目标接口的 JSON 对象。"),
     ],
-    requestType: "JsonObject",
+    requestType: "WireJsonObject",
     responseType: "AjaxResult<unknown>",
   },
   {
@@ -354,7 +354,7 @@ export const backendApiEndpoints = [
       p("qy_is_filter", "query", "boolean|string", true, "是否应用过滤。"),
       p("body", "body", "Record<string,unknown>", true, "目标接口业务参数。"),
     ],
-    requestType: "JsonObject",
+    requestType: "WireJsonObject",
     responseType: "AjaxResult<unknown>",
   },
   {
@@ -617,7 +617,7 @@ export const backendApiEndpoints = [
       p("workflowId", "path", "string", true, "工作流定义 ID。"),
       p("body", "body", "Array<Record<string,unknown>>", true, "工作流输入记录数组。"),
     ],
-    requestType: "JsonObject[]",
+    requestType: "WireJsonObject[]",
     responseType: "AjaxResult<unknown>",
   },
   // 单节点测试与完整工作流测试共用 WorkflowTestRequest 请求体。
@@ -747,7 +747,7 @@ export const backendApiEndpoints = [
       p("dbId", "path", "string", true, "数据库 ID。"),
       p("body", "body", "Record<string,unknown>[]", true, "后端未声明专用 DTO 的表描述对象数组。"),
     ],
-    requestType: "JsonObject[]",
+    requestType: "WireJsonObject[]",
     responseType: "AjaxResult<unknown>",
   },
   {
@@ -787,7 +787,7 @@ export const backendApiEndpoints = [
       p("dbId", "path", "string", true, "数据库 ID。"),
       p("body", "body", "Record<string,unknown>[]", true, "后端未声明专用 DTO 的视图描述对象数组。"),
     ],
-    requestType: "JsonObject[]",
+    requestType: "WireJsonObject[]",
     responseType: "AjaxResult<unknown>",
   },
 
@@ -885,7 +885,7 @@ export const backendApiEndpoints = [
     parameters: [
       p("body", "body", "Record<string,unknown>", true, "后端使用动态 Map 接收的 JSON 对象。"),
     ],
-    requestType: "JsonObject",
+    requestType: "WireJsonObject",
     responseType: "AjaxResult<unknown>",
   })),
   {
@@ -897,7 +897,7 @@ export const backendApiEndpoints = [
     parameters: [
       p("body", "body", "Record<string,unknown>[]", true, "动态 JSON 对象数组。"),
     ],
-    requestType: "JsonObject[]",
+    requestType: "WireJsonObject[]",
     responseType: "AjaxResult<unknown>",
   },
   {
@@ -910,7 +910,7 @@ export const backendApiEndpoints = [
       p("jsonId", "query", "string", true, "JSON 记录 ID。"),
       p("body", "body", "Record<string,unknown>[]", true, "待保存的 JSON 对象数组。"),
     ],
-    requestType: "JsonObject[]",
+    requestType: "WireJsonObject[]",
     responseType: "AjaxResult<unknown>",
   },
 
@@ -1164,7 +1164,7 @@ export const backendApiEndpoints = [
     parameters: [
       p("body", "body", "Record<string,unknown>", true, "控制器以 Map 接收的初始化参数。"),
     ],
-    requestType: "JsonObject",
+    requestType: "WireJsonObject",
     responseType: "AjaxResult<unknown>",
   },
 

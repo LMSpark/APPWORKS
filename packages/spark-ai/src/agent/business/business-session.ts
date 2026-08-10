@@ -5,7 +5,7 @@
  * AI用途：排查用户消息进入工具循环、会话记录落库或 turn 回调触发顺序时，优先从本模块建立调用链。
  */
 
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { AiAgentToolLoopRunner } from '../tool-loop/tool-loop-runner'
 import {
   createAiAgentScopeFromTarget,
@@ -42,7 +42,7 @@ type AiAgentSendInput = Readonly<{
 }>
 
 /** Ai Agent Run Command 的命令参数。 */
-export type AiAgentRunCommand<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiAgentRunCommand<TInput extends JsonParams = JsonParams> = Readonly<{
   /** Host 配置（含 registry、turnCallbacks、maxToolRounds），用于创建 session 和 tool-loop。 */
   options: AiAgentOptions<TInput>
   /** 业务注册 kindID，runAiAgent 据此从 registry 查找 AiAgentRegistration。 */
@@ -54,7 +54,7 @@ export type AiAgentRunCommand<TInput extends AiJsonParams = AiJsonParams> = Read
 }>
 
 /** Ai Agent Run Result 的返回结果。 */
-export type AiAgentRunResult<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiAgentRunResult<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 已构造的 task，含归一化输入、scope、编排计划和 toChatRequest 方法。 */
   task: AiAgentTask<TInput>
   /** 已启动并完成首轮 send 的业务会话，可用于后续 send/stop/getSessionRecord。 */
@@ -291,7 +291,7 @@ export function createAiAgentSession(
  *
  * 用于 AiAgent 门面按 alias 解析出 kindID 后，创建 task、启动 session 并发送首轮请求。
  */
-export async function runAiAgent<TInput extends AiJsonParams = AiJsonParams>(
+export async function runAiAgent<TInput extends JsonParams = JsonParams>(
   command: AiAgentRunCommand<TInput>,
 ): Promise<AiAgentRunResult<TInput>> {
   const task = createAiAgentTask(command.options.registry, command.kindID, command.input)
@@ -312,7 +312,7 @@ export async function runAiAgent<TInput extends AiJsonParams = AiJsonParams>(
  */
 // AI_AGENT_TRACE[agent-session-start]: startAiAgentRegistrationSession 负责调用业务 onStartSession，并投影固定 module 工具。
 // AI_AGENT_REFACTOR_SOURCE[tool-schema-projection]: runtime 是 LLM function schema 的来源；业务壳层不要手写工具 schema。
-export async function startAiAgentRegistrationSession<TInput extends AiJsonParams>(
+export async function startAiAgentRegistrationSession<TInput extends JsonParams>(
   registration: AiAgentRegistration<TInput>,
   context: AiAgentRuntimeContext,
 ): Promise<AiAgentStartSessionResult> {

@@ -101,8 +101,6 @@ export type {
   RPopoverProps,
   RSectionProps,
   RendererCollapseApi,
-  RendererDialogApi,
-  RendererDrawerApi,
   RendererSectionApi,
   RendererStepsApi,
   RendererTabsApi,
@@ -251,7 +249,6 @@ export type {
   RResultProps,
   RSkeletonProps,
   RTimelineItemProps,
-  RTimelineProps,
 } from './display/non-data-components/index.js'
 
 // ── 注册 & composable ────────────────────────────────────────────────────────

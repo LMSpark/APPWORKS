@@ -4,7 +4,7 @@
  * 边界：只做 JSON 协议解析和 fail-fast 校验，不生成 bundle、不访问网络，也不修复缺失语义。
  * AI用途：运行时或测试加载 generated/dts-class-model 失败时，用本模块确认是哪一层 JSON 字段不符合协议。
  */
-import type { AiJsonSchema, AiJsonSchemaObject } from '../../json'
+import type { JsonSchema, JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import { assertDraft2020Schema } from '@spark-appworks/spark-json-document'
 import type {
   AttributeMeta,
@@ -207,9 +207,9 @@ function readRequiredSchemaDefs(
   record: Record<string, unknown>,
   field: string,
   path: string,
-): Readonly<Record<string, AiJsonSchemaObject>> {
+): Readonly<Record<string, JsonSchemaObject>> {
   const defs = readRequiredRecord(record, field, path)
-  const result: Record<string, AiJsonSchemaObject> = {}
+  const result: Record<string, JsonSchemaObject> = {}
   for (const [name, value] of Object.entries(defs)) {
     const schema = parseJsonSchemaObject(value, `${path}.${name}`)
     assertDraft2020Schema(schema, `${path}.${name}`)
@@ -759,7 +759,7 @@ function readOptionalJsonSchemaObject(
   record: Record<string, unknown>,
   field: string,
   path: string,
-): AiJsonSchemaObject | undefined {
+): JsonSchemaObject | undefined {
   if (!Object.hasOwn(record, field)) return undefined
   return parseJsonSchemaObject(record[field], path)
 }
@@ -928,18 +928,18 @@ function readOptionalJsonSchema(
   record: Record<string, unknown>,
   field: string,
   path: string,
-): AiJsonSchema | undefined {
+): JsonSchema | undefined {
   if (!Object.hasOwn(record, field)) return undefined
   return parseJsonSchema(record[field], path)
 }
 
-function parseJsonSchema(value: unknown, path: string): AiJsonSchema {
+function parseJsonSchema(value: unknown, path: string): JsonSchema {
   if (value === true || value === false) return value
   if (isJsonRecord(value)) return value
   throw new Error(`${path} must be a JSON Schema object or boolean.`)
 }
 
-function parseJsonSchemaObject(value: unknown, path: string): AiJsonSchemaObject {
+function parseJsonSchemaObject(value: unknown, path: string): JsonSchemaObject {
   if (!isJsonRecord(value)) {
     throw new Error(`${path} must be a JSON Schema object.`)
   }

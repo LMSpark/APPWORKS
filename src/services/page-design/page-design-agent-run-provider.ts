@@ -9,7 +9,7 @@ import type {
   AiAgentTaskChatOptions,
   AiAgentHostRunResult,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { PageNodeFileName, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import {
   PAGE_DESIGN_MODULE_ID,
@@ -237,7 +237,7 @@ function createSavingPageDesignHost(
     },
     async run(
       alias: string,
-      args: AiJsonParams,
+      args: JsonParams,
       chat?: AiAgentTaskChatOptions,
     ): Promise<AiAgentHostRunResult> {
       const editor = pageId === null ? undefined : editors.get(pageId)

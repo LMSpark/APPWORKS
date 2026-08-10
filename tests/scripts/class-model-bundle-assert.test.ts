@@ -41,6 +41,20 @@ describe('class-model-bundle-assert', () => {
     }
   })
 
+  it('throws when public symbols remain duplicated', () => {
+    const root = mkdtempSync(join(tmpdir(), 'spark-class-model-assert-'))
+    try {
+      writeFileSync(join(root, 'manifest.json'), JSON.stringify({
+        files: {},
+        duplicates: [{ className: 'SharedApi', keptFile: 'a.ts', skippedFile: 'b.ts' }],
+      }))
+
+      expect(() => assertClassModelBundleComplete(root)).toThrow(/public symbol index contains 1 duplicate/i)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it('passes when guide manifest shards are complete', () => {
     const root = mkdtempSync(join(tmpdir(), 'spark-class-model-assert-'))
     try {

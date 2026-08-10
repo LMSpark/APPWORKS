@@ -17,7 +17,7 @@ import {
   type AiAgentHostRunResult,
   type AiAgentTaskChatOptions,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type {
   AiAgentRunPrepare,
@@ -178,7 +178,7 @@ function createScopedProjectPlanningHost(
     },
     async run(
       alias: string,
-      args: AiJsonParams,
+      args: JsonParams,
       chat?: AiAgentTaskChatOptions,
     ): Promise<AiAgentHostRunResult> {
       const normalizedInput = alias === PROJECT_PLANNING_MODULE_ID
@@ -234,7 +234,7 @@ function normalizeProjectPlanningAgentRunInput(
   args: unknown,
   scope: ProjectPlanningAgentRunScope,
   editor: ProjectWorkspace,
-): AiJsonParams {
+): JsonParams {
   if (!isJsonObjectRecord(args)) {
     throw new Error('projectPlanning Agent Run args must be a JSON object.')
   }

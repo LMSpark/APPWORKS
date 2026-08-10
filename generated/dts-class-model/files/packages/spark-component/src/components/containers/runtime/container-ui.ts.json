@@ -11,8 +11,6 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ToolbarPosition",
-      "ToolbarLike",
-      "UseContainerToolbarOptions",
       "ContainerToolbarState",
       "DataViewSyncGuardState"
     ]
@@ -34,8 +32,7 @@
       "title": "ToolbarLike",
       "properties": {
         "children": {
-          "type": "object",
-          "title": "SparkNodeChildren"
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
         },
         "position": {
           "type": "string"
@@ -159,7 +156,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.963Z",
+  "generatedAt": "2026-08-10T11:48:18.819Z",
   "models": {
     "ToolbarPosition": {
       "name": "ToolbarPosition",

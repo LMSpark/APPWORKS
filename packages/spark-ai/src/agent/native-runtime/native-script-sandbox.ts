@@ -13,7 +13,7 @@
  */
 
 import { toErrorMessage } from '@spark-appworks/spark-utils'
-import { coerceJsonValue, type AiJsonValue } from '../../json'
+import { coerceJsonValue, type JsonValue } from '@spark-appworks/spark-json-document'
 import { AiAgentToolCheck, AiAgentToolResult } from '../tool-runtime'
 
 const SCRIPT_RECOVERY_HINT = '按 tool result RECOVERY_HINT 修正；契约见 model_action_guide / model_class_guide（ClassModel 知识索引）。'
@@ -26,7 +26,7 @@ const GENERATED_STACK_LINE_FOR_SCRIPT_LINE_1 = 6
 export async function executeModuleScript(
   script: string,
   context: AiNativeScriptSandboxContext,
-): Promise<AiAgentToolResult<AiJsonValue>> {
+): Promise<AiAgentToolResult<JsonValue>> {
   try {
     const result = await runScript(script, context)
     const data = coerceJsonValue(result)

@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/lowcode-session-store",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-session-store 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeSessionStorage, LowcodeSessionStoreOptions, LowcodeSessionStore（共 3 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "低代码会话持久化：内存缓存 + 可选 storage 后端。\n持久化 JSON 结构须与 {@link LowcodeSession} 一致；解析失败 fail-fast，不静默降级。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "LowcodeSessionStorage",
       "LowcodeSessionStoreOptions",
@@ -135,11 +135,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T10:09:14.702Z",
+  "generatedAt": "2026-08-10T07:31:51.320Z",
   "models": {
     "LowcodeSessionStorage": {
       "name": "LowcodeSessionStorage",
-      "jsdoc": "",
+      "jsdoc": "会话 storage 契约；与 Web Storage 键值语义一致。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    getItem(key: string): string | null;\n    setItem(key: string, value: string): void;\n    removeItem(key: string): void;\n}>",
@@ -222,7 +222,7 @@
     },
     "LowcodeSessionStoreOptions": {
       "name": "LowcodeSessionStoreOptions",
-      "jsdoc": "",
+      "jsdoc": "会话 store 配置；未提供 storage 时仅内存持有，刷新页面后丢失。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
@@ -251,7 +251,7 @@
     },
     "LowcodeSessionStore": {
       "name": "LowcodeSessionStore",
-      "jsdoc": "",
+      "jsdoc": "低代码会话读写；get 首次命中 storage 后写入内存，后续读内存副本。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -274,6 +274,7 @@
           "methods": [
             {
               "name": "get",
+              "jsdoc": "读取当前会话；无数据返回 null，JSON 或字段非法时抛 LowcodeApiError。",
               "parameters": [],
               "type": {
                 "type": "union",
@@ -292,6 +293,7 @@
             },
             {
               "name": "save",
+              "jsdoc": "保存会话到内存与 storage（若已配置）。",
               "parameters": [
                 {
                   "name": "session",
@@ -309,6 +311,7 @@
             },
             {
               "name": "clear",
+              "jsdoc": "清空内存与 storage 中的会话。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -317,6 +320,7 @@
             },
             {
               "name": "isAuthenticated",
+              "jsdoc": "是否仍视为已认证；以 refreshExpiresAt 为准，access token 过期不单独判定。",
               "parameters": [
                 {
                   "name": "now",

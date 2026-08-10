@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/permission/design/permission-design-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/design/permission-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionFeatureTag, PermissionDataObjectPolicy, PermissionGrantSubjectKind, PermissionGrantOrganizationScope, PermissionObjectGrant, PermissionDesignSnapshot, PermissionDesignApi（共 7 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "权限设计态只读 API：按 formKey 拉取功能标签、数据对象策略与对象授权快照。\n变更须走 {@link prepareMutation}，与 runtime 入口分离；无法解析的 granttype 记入 diagnostics。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PermissionFeatureTag",
       "PermissionDataObjectPolicy",
@@ -280,11 +280,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T21:37:38.204Z",
+  "generatedAt": "2026-08-10T07:32:15.055Z",
   "models": {
     "PermissionFeatureTag": {
       "name": "PermissionFeatureTag",
-      "jsdoc": "",
+      "jsdoc": "功能标签节点；对应 _Base_FunctionNode。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    tagId: string;\n    parentId: string;\n    title: string;\n    description: string;\n    code: string;\n    order: number;\n}>",
@@ -333,7 +333,7 @@
     },
     "PermissionDataObjectPolicy": {
       "name": "PermissionDataObjectPolicy",
-      "jsdoc": "",
+      "jsdoc": "数据对象字段级策略；对应 Base_FunctionDetail。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    policyId: string;\n    featureTagId: string;\n    resourceName: string;\n    databaseName: string;\n    readableFields: readonly string[];\n    editableFields: readonly string[];\n    maskedFields: readonly string[];\n    showFilter: string;\n    addFilter: string;\n    editFilter: string;\n    deleteFilter: string;\n    saveFilter: string;\n}>",
@@ -412,7 +412,7 @@
     },
     "PermissionGrantSubjectKind": {
       "name": "PermissionGrantSubjectKind",
-      "jsdoc": "",
+      "jsdoc": "授权主体类型；granttype 0/1/2 映射 role/position/user，其余为 unresolved。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'role' | 'position' | 'user' | 'unresolved'",
@@ -439,7 +439,7 @@
     },
     "PermissionGrantOrganizationScope": {
       "name": "PermissionGrantOrganizationScope",
-      "jsdoc": "",
+      "jsdoc": "组织范围；fixed-organization 或 business-field-organization 二选一，否则 unscoped。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    kind: 'unscoped';\n}> | Readonly<{\n    kind: 'fixed-organization';\n    organizationId: string;\n}> | Readonly<{\n    kind: 'business-field-organization';\n    field: string;\n}>",
@@ -465,7 +465,7 @@
     },
     "PermissionObjectGrant": {
       "name": "PermissionObjectGrant",
-      "jsdoc": "",
+      "jsdoc": "页面对象授权；对应 FunctionNodeAuth。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    grantId: string;\n    pageId: string;\n    featureTagIds: readonly string[];\n    subjectKind: PermissionGrantSubjectKind;\n    subjectIds: readonly string[];\n    organizationScope: PermissionGrantOrganizationScope;\n    businessId: string;\n    enabled: boolean;\n    rawGrantType: number | null;\n}>",
@@ -529,7 +529,7 @@
     },
     "PermissionDesignSnapshot": {
       "name": "PermissionDesignSnapshot",
-      "jsdoc": "",
+      "jsdoc": "权限设计态完整快照；作为 mutation 写前镜像与读回验收基准。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    formKey: string;\n    featureTags: readonly PermissionFeatureTag[];\n    dataObjectPolicies: readonly PermissionDataObjectPolicy[];\n    grants: readonly PermissionObjectGrant[];\n    diagnostics: readonly string[];\n}>",
@@ -573,7 +573,7 @@
     },
     "PermissionDesignApi": {
       "name": "PermissionDesignApi",
-      "jsdoc": "",
+      "jsdoc": "权限设计态门面；只读拉取与 mutation 命令 prepare，不执行线上写入。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {

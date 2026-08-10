@@ -1,15 +1,17 @@
 /**
  * @module @spark-appworks/spark-component:components/fields/context/useFieldContext
- * 职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldContext 的模块能力，围绕 FieldContextProps、FieldPermissionForContext、OptionalWithUndefined 等 4 个公开契约 提供稳定的公开契约。
+ * 职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldContext 的字段上下文投影。
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/fields/context/useFieldContext 的声明、导出和使用边界时，从本模块开始。
  */
 import { computed } from 'vue'
 import type { ComputedRef } from 'vue'
-import { getSparkNodeChildren, type SparkNode } from '../../internal'
-import type { DataRow } from '@spark-appworks/spark-data'
+
+import { type DataRow, getSparkNodeChildren } from '@spark-appworks/spark-data'
 import type { FormItemRule } from '../columnFormRules'
 import type { SparkFieldSemanticProps, SparkNodeProps } from '../../shared-types.js'
+import type { SparkNode } from '@spark-appworks/spark-data'
+import type { FieldComposableProps } from './field-composable-props'
 
 /** Field Context Props 的属性契约。 */
 export type FieldContextProps = {
@@ -71,15 +73,10 @@ getTableCellDisplayValue: (row: DataRow) => string
     /** validation Rules 字段。 */
 validationRules: ComputedRef<FormItemRule[]>}
 
-/** Optional With Undefined 的语义模型。 */
-type OptionalWithUndefined<T> = {
-  [K in keyof T]?: T[K] | undefined
-}
-
 /** Field Context Input Props 的属性契约。 */
-type FieldContextInputProps = OptionalWithUndefined<Pick<SparkNodeProps,
+type FieldContextInputProps = FieldComposableProps<Pick<SparkNodeProps,
   | 'type' | 'children'
->> & OptionalWithUndefined<Pick<SparkFieldSemanticProps,
+>> & FieldComposableProps<Pick<SparkFieldSemanticProps,
   | 'width'
   | 'resizable'
   | 'titleAlign' | 'valueAlign'

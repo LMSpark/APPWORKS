@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/from-runtime-metadata 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonSchemaObject } from '../../json'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import type { AiRuntimeApiMetadataJson } from '../metadata'
 import type { ClassModelDocument } from './types'
 import { CLASS_MODEL_DOCUMENT_VERSION } from './types'
@@ -12,7 +12,7 @@ import { CLASS_MODEL_DOCUMENT_VERSION } from './types'
 /** Runtime Document Input 的输入数据。 */
 type RuntimeDocumentInput = Readonly<{
   /** 共享 JSON Schema 定义，映射为 ClassModelDocument.$defs。 */
-  $defs?: Readonly<Record<string, AiJsonSchemaObject>>
+  $defs?: Readonly<Record<string, JsonSchemaObject>>
   /** 运行时 API 元数据数组；首元素作为 ClassModelDocument.module（真源），缺失时 throw。 */
   modules: readonly AiRuntimeApiMetadataJson[]
 }>
@@ -33,7 +33,7 @@ export function createClassModelDocumentFromRuntimeDocument(
 
 export function createClassModelDocumentFromRuntimeApiMetadata(command: Readonly<{
   module: AiRuntimeApiMetadataJson
-  schemaDefs?: Readonly<Record<string, AiJsonSchemaObject>>
+  schemaDefs?: Readonly<Record<string, JsonSchemaObject>>
 }>): ClassModelDocument {
   return {
     schemaVersion: CLASS_MODEL_DOCUMENT_VERSION,

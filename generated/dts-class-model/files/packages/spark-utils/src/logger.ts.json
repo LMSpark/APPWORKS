@@ -105,7 +105,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:18:43.821Z",
+  "generatedAt": "2026-08-10T11:26:54.503Z",
   "models": {
     "LogLevel": {
       "name": "LogLevel",
@@ -240,7 +240,7 @@
     },
     "LogTransport": {
       "name": "LogTransport",
-      "jsdoc": "日志传输器接口（与 spark-app LogTransport 结构兼容）\nspark-utils 是最底层包，此接口定义为传输器的基础契约。\nspark-app 的 LogTransport 扩展了 `flush?()` / `destroy?()`，但 send 签名一致，\n因此同一个 transport 实例可同时注册到两个系统。",
+      "jsdoc": "日志传输器接口（SSoT）。应用壳批量传输见 spark-app `AppLogTransport`（额外 flush/destroy）。\nspark-utils 是最底层包，此接口定义为传输器的基础契约。\nspark-app 的 AppLogTransport 扩展了 `flush?()` / `destroy?()`，但 send 签名一致，\n因此同一个 transport 实例可同时注册到两个系统。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** 将结构化日志发送到传输目标；实现同步或异步均可，异常不会影响日志主流程。 */\n    send(level: LogLevel, message: string, meta?: Record<string, unknown>): void | Promise<void>;\n}",

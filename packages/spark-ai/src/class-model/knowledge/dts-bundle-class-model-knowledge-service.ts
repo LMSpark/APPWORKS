@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/knowledge/dts-bundle-class-model-knowledge-service 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonValue } from '../../json'
+import type { JsonValue } from '@spark-appworks/spark-json-document'
 import { DtsClassModelBundleLoader, type DtsClassModelComponentQuery } from '../class-model/dts-class-model-bundle-loader'
 import {
   ClassModelKnowledgeService,
@@ -106,7 +106,7 @@ public async refresh(requestedClassName?: string): Promise<void> {
   }
 
     /** 查询参数。 */
-public async query(input: ClassModelKnowledgeQueryInput): Promise<AiJsonValue> {
+public async query(input: ClassModelKnowledgeQueryInput): Promise<JsonValue> {
     await this.loadForInput(input.kind)
     const componentQuery = componentQueryFromKnowledgeInput(input)
     if (componentQuery !== undefined) await this.options.loader.ensureComponentQuery(componentQuery)

@@ -4,16 +4,18 @@
  * 边界：只描述配置与项目结构；不渲染 Vue，不直接操作 spark-data 运行态。
  * AI用途：同步或生成页面配置时，用本模块确认草稿字段与 patch 边界。
  */
+import type { ProjectBlueprintNodePatch, ProjectBlueprintTreeNodeData } from './project-blueprint-node'
 import type {
-  ChildPlacement,
-  ProjectBlueprintContextConfig,
-  ProjectBlueprintContextItem,
-  ProjectBlueprintDeliveryKind,
+  ContextItem,
+  NavigationContextConfig,
+  PermissionMode,
   ProjectBlueprintNodeKind,
-  ProjectBlueprintPermissionMode,
-  ProjectBlueprintNodePatch,
-  ProjectBlueprintTreeNodeData,
-} from './project-blueprint-node'
+  RuntimeNavigationItemKind,
+} from '@spark-appworks/spark-utils'
+import {
+  isNavigationLinkTarget,
+  isNavigationPlacement,
+} from '@spark-appworks/spark-utils'
 import { isNestedConfigPageNode } from './project-blueprint-tree'
 
 /** 蓝图节点表单草稿字段；可编辑字段由节点 class 持有，草稿仅在表单边界即时生成。 */
@@ -23,7 +25,7 @@ export type BlueprintNodeDraftNode = {
   /** 蓝图业务类型；与运行交付投影 nodeKind 相互独立。 */
   blueprintKind: ProjectBlueprintNodeKind
   icon: string
-  nodeKind: ProjectBlueprintDeliveryKind
+  nodeKind: RuntimeNavigationItemKind
   dividerAfter: boolean
   description: string
   planningAttachmentRef: string
@@ -34,13 +36,13 @@ export type BlueprintNodeDraftNode = {
   hidden: boolean
   disabled: boolean
   refId: string
-  permissionMode: ProjectBlueprintPermissionMode
+  permissionMode: PermissionMode
   implGate?: ProjectBlueprintTreeNodeData['implGate']
   upstreamContractsSatisfied?: boolean
 }
 
 export type BlueprintNodePatch = Partial<Omit<BlueprintNodeDraftNode, 'id'>> & {
-  context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig
+  context?: string | ContextItem[] | NavigationContextConfig
 }
 
 type NavigationContextEditConfigDto = {
@@ -71,7 +73,7 @@ type BlueprintNodePatchTarget = {
   applyBlueprintPatch(patch: ProjectBlueprintNodePatch): void
 }
 
-const DEFAULT_NAV_ICON_BY_KIND: Record<ProjectBlueprintDeliveryKind, string> = {
+const DEFAULT_NAV_ICON_BY_KIND: Record<RuntimeNavigationItemKind, string> = {
   'system-directory': 'FolderOpened',
   'module': 'FolderOpened',
   'system-page': 'Monitor',
@@ -81,25 +83,19 @@ const DEFAULT_NAV_ICON_BY_KIND: Record<ProjectBlueprintDeliveryKind, string> = {
   'ref': 'Connection',
 }
 
-const CHILD_PLACEMENT_VALUES: ReadonlySet<string> = new Set(['header', 'sidebar', 'toolbar', 'user-menu', 'parent', 'flat'])
-
 function emptyContextConfig(): NavigationContextEditConfigDto {
   return { placeholder: '', defaultValue: '', paramName: '' }
 }
 
-function isBlueprintContextConfig(value: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig | undefined): value is ProjectBlueprintContextConfig {
+function isBlueprintContextConfig(value: string | ContextItem[] | NavigationContextConfig | undefined): value is NavigationContextConfig {
   return typeof value === 'object' && !Array.isArray(value) && 'source' in value
 }
 
-function isChildPlacement(value: string): value is ChildPlacement {
-  return CHILD_PLACEMENT_VALUES.has(value)
-}
-
-function normalizeContextItems(items: readonly ProjectBlueprintContextItem[]): Array<{ id: string; title: string }> {
+function normalizeContextItems(items: readonly ContextItem[]): Array<{ id: string; title: string }> {
   return items.map(item => ({ id: String(item.id), title: item.title }))
 }
 
-export function defaultNavIconByKind(kind: ProjectBlueprintDeliveryKind): string {
+export function defaultNavIconByKind(kind: RuntimeNavigationItemKind): string {
   return DEFAULT_NAV_ICON_BY_KIND[kind]
 }
 
@@ -119,7 +115,7 @@ export function createBlueprintNodeDraft(navNode: ProjectBlueprintTreeNodeData):
     description: navNode.description ?? '',
     planningAttachmentRef: navNode.planningAttachmentRef ?? '',
     path: navNode.path ?? '',
-    linkTarget: navNode.linkTarget === 'new-tab' || navNode.linkTarget === 'self' ? navNode.linkTarget : 'iframe',
+    linkTarget: isNavigationLinkTarget(navNode.linkTarget) ? navNode.linkTarget : 'iframe',
     refId: navNode.refId ?? '',
     childPlacement: navNode.childPlacement ?? '',
     order: navNode.order ?? 0,
@@ -182,7 +178,7 @@ export function applyNestedConfigPagePresetToDraft(node: BlueprintNodeDraftNode)
   return next
 }
 
-export function applyNodeKindPresetToDraft(node: BlueprintNodeDraftNode, kind: ProjectBlueprintDeliveryKind): BlueprintNodeDraftNode {
+export function applyNodeKindPresetToDraft(node: BlueprintNodeDraftNode, kind: RuntimeNavigationItemKind): BlueprintNodeDraftNode {
   const next = { ...node }
   const previousKind = next.nodeKind
   next.nodeKind = kind
@@ -281,7 +277,7 @@ export function createBlueprintNodePatch(input: BlueprintNodeDraft): BlueprintNo
       patch.refId = nodeDto.refId
     }
   }
-  if (nodeDto.childPlacement && !isChildPlacement(nodeDto.childPlacement)) patch.childPlacement = ''
+  if (nodeDto.childPlacement && !isNavigationPlacement(nodeDto.childPlacement)) patch.childPlacement = ''
 
   patch.context = ''
   if (input.context.hasContext && input.context.items.length > 0) {
@@ -292,7 +288,7 @@ export function createBlueprintNodePatch(input: BlueprintNodeDraft): BlueprintNo
         || input.context.config.defaultValue
         || input.context.config.paramName
       ) {
-        const ctx: ProjectBlueprintContextConfig = { source: items }
+        const ctx: NavigationContextConfig = { source: items }
         if (input.context.config.placeholder) ctx.placeholder = input.context.config.placeholder
         if (input.context.config.defaultValue) ctx.defaultValue = input.context.config.defaultValue
         if (input.context.config.paramName) ctx.paramName = input.context.config.paramName

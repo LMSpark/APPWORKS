@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/lowcode-enterprise",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-enterprise 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeEnterpriseCatalogItem, LowcodeEnterprisePolicy, LowcodeEnterpriseInfo（共 3 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "企业目录与企业详情归一化：GetBaseData / 会话 entinfo 的 wire 字段映射。\n企业 wire 键多为 PascalCase（ShortName、CName、ent_config 等）；目录按 ShortName 去重。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "LowcodeEnterpriseCatalogItem",
       "LowcodeEnterprisePolicy",
@@ -186,11 +186,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T12:08:47.491Z",
+  "generatedAt": "2026-08-10T07:31:56.240Z",
   "models": {
     "LowcodeEnterpriseCatalogItem": {
       "name": "LowcodeEnterpriseCatalogItem",
-      "jsdoc": "",
+      "jsdoc": "企业目录条目；shortName 为登录 entName 与域标识。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    shortName: string;\n    shortCode: string;\n}>",
@@ -229,7 +229,7 @@
     },
     "LowcodeEnterprisePolicy": {
       "name": "LowcodeEnterprisePolicy",
-      "jsdoc": "",
+      "jsdoc": "企业 ent_config JSON 中的密码与审核策略；wire 键为 snake_case。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    userAudit: boolean | null;\n    passwordMinLength: number | null;\n    passwordMaxLength: number | null;\n    passwordRequiresLetter: boolean | null;\n    passwordRequiresDigit: boolean | null;\n    passwordRequiresSpecial: boolean | null;\n    passwordSpecialCharacters: string | null;\n    verificationCodeLength: number | null;\n}>",
@@ -288,7 +288,7 @@
     },
     "LowcodeEnterpriseInfo": {
       "name": "LowcodeEnterpriseInfo",
-      "jsdoc": "",
+      "jsdoc": "完整企业信息；domainKey 取自 ShortName，缺失时 fail-fast。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    id: string | null;\n    englishName: string | null;\n    chineseName: string | null;\n    chineseShortName: string | null;\n    domainKey: string;\n    domainName: string | null;\n    iconUrl: string | null;\n    portalUrl: string | null;\n    administratorAccount: string | null;\n    checkState: number | null;\n    createdAt: string | null;\n    loginPolicy: string | null;\n    storageMode: number | null;\n    policy: LowcodeEnterprisePolicy | null;\n}>",

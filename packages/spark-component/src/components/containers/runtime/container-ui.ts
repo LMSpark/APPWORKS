@@ -7,13 +7,10 @@
 
 import { computed, onUnmounted, ref, toValue } from 'vue'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
-import {
-  getSparkNodeChildren,
-  type ModuleContext,
-  type ModuleContextCapability,
-  type SparkNode,
-  type SparkNodeChildren,
-} from '../../internal.js'
+import type { ContextSnapshot } from '@spark-appworks/spark-utils'
+import type { ModuleContextCapability } from '../../../core/capability-keys.js'
+import { getSparkNodeChildren } from '@spark-appworks/spark-data'
+import type { SparkNode, SparkNodeChildren } from '@spark-appworks/spark-data'
 
 // ============================================================
 // § 工具栏常量
@@ -31,15 +28,15 @@ const DEFAULT_TOOLBAR_POSITION: ToolbarPosition = 'top'
 // ============================================================
 
 /**
- * 订阅 ModuleContext 并在组件卸载时自动取消。
+ * 订阅 ContextSnapshot 并在组件卸载时自动取消。
  *
  * - 无 capability 时返回 `ref(null)`（fail-safe，无副作用）
  * - 有 capability 时同步到 moduleContext ref，并注册 onUnmounted 清理
  */
 export function useContainerModuleContext(
   capability: ModuleContextCapability | null,
-): Ref<ModuleContext | null> {
-  const moduleContext = ref<ModuleContext | null>(capability?.getCurrent() ?? null)
+): Ref<ContextSnapshot | null> {
+  const moduleContext = ref<ContextSnapshot | null>(capability?.getCurrent() ?? null)
 
   const unsubscribe = capability?.subscribe((next) => {
     moduleContext.value = next

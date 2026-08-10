@@ -13,7 +13,6 @@
       "AiAgentOrchestrationPlan",
       "AiAgentInputContract",
       "AiAgentTaskChatOptions",
-      "AiAgentTaskRegistry",
       "AiAgentTask"
     ]
   },
@@ -47,8 +46,7 @@
       "title": "AiAgentInputContract",
       "properties": {
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "identityField": {
           "allOf": [
@@ -69,7 +67,7 @@
           "properties": {
             "input": {
               "type": "object",
-              "title": "AiJsonParams"
+              "title": "JsonParams"
             }
           },
           "additionalProperties": false
@@ -194,7 +192,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.053Z",
+  "generatedAt": "2026-08-10T10:00:08.476Z",
   "models": {
     "AiAgentOrchestrationPlan": {
       "name": "AiAgentOrchestrationPlan",
@@ -244,11 +242,11 @@
       "jsdoc": "输入契约：定义一种业务 Task 的输入 schema、归一化函数、scope 和编排生成",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 输入参数的 JSON Schema；createAiAgentTask 在 normalize 前后各校验一次，确保归一化结果仍合法。 */\n    paramsSchema: AiJsonSchemaObject;\n    /** 业务实体标识字段名；其值用于生成 scope.businessInstanceId，需为 TInput 中的非空字符串键。 */\n    identityField: keyof TInput & string;\n    /** 将原始输入归一化为 TInput；业务方可在此做类型转换、默认值填充、字段重命名。 */\n    normalize(input: AiJsonParams): TInput;\n    /** 从归一化输入生成业务 scope；返回的 businessRegistrationId 必须等于 kindID，否则 createAiAgentTask 抛错。 */\n    toScope(normalizedInput: TInput): AiAgentScope;\n    /** 从归一化输入生成编排计划；返回的 userMessage 和 systemPrompt 不允许为空串。 */\n    toOrchestration(normalizedInput: TInput): AiAgentOrchestrationPlan;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 输入参数的 JSON Schema；createAiAgentTask 在 normalize 前后各校验一次，确保归一化结果仍合法。 */\n    paramsSchema: JsonSchemaObject;\n    /** 业务实体标识字段名；其值用于生成 scope.businessInstanceId，需为 TInput 中的非空字符串键。 */\n    identityField: keyof TInput & string;\n    /** 将原始输入归一化为 TInput；业务方可在此做类型转换、默认值填充、字段重命名。 */\n    normalize(input: JsonParams): TInput;\n    /** 从归一化输入生成业务 scope；返回的 businessRegistrationId 必须等于 kindID，否则 createAiAgentTask 抛错。 */\n    toScope(normalizedInput: TInput): AiAgentScope;\n    /** 从归一化输入生成编排计划；返回的 userMessage 和 systemPrompt 不允许为空串。 */\n    toOrchestration(normalizedInput: TInput): AiAgentOrchestrationPlan;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 输入参数的 JSON Schema；createAiAgentTask 在 normalize 前后各校验一次，确保归一化结果仍合法。 */\n    paramsSchema: AiJsonSchemaObject;\n    /** 业务实体标识字段名；其值用于生成 scope.businessInstanceId，需为 TInput 中的非空字符串键。 */\n    identityField: keyof TInput & string;\n    /** 将原始输入归一化为 TInput；业务方可在此做类型转换、默认值填充、字段重命名。 */\n    normalize(input: AiJsonParams): TInput;\n    /** 从归一化输入生成业务 scope；返回的 businessRegistrationId 必须等于 kindID，否则 createAiAgentTask 抛错。 */\n    toScope(normalizedInput: TInput): AiAgentScope;\n    /** 从归一化输入生成编排计划；返回的 userMessage 和 systemPrompt 不允许为空串。 */\n    toOrchestration(normalizedInput: TInput): AiAgentOrchestrationPlan;\n}>",
+            "typeText": "Readonly<{\n    /** 输入参数的 JSON Schema；createAiAgentTask 在 normalize 前后各校验一次，确保归一化结果仍合法。 */\n    paramsSchema: JsonSchemaObject;\n    /** 业务实体标识字段名；其值用于生成 scope.businessInstanceId，需为 TInput 中的非空字符串键。 */\n    identityField: keyof TInput & string;\n    /** 将原始输入归一化为 TInput；业务方可在此做类型转换、默认值填充、字段重命名。 */\n    normalize(input: JsonParams): TInput;\n    /** 从归一化输入生成业务 scope；返回的 businessRegistrationId 必须等于 kindID，否则 createAiAgentTask 抛错。 */\n    toScope(normalizedInput: TInput): AiAgentScope;\n    /** 从归一化输入生成编排计划；返回的 userMessage 和 systemPrompt 不允许为空串。 */\n    toOrchestration(normalizedInput: TInput): AiAgentOrchestrationPlan;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -276,8 +274,7 @@
                   "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "AiJsonParams",
-                    "sourcePath": "packages/spark-ai/src/json.ts"
+                    "name": "JsonParams"
                   }
                 }
               ],

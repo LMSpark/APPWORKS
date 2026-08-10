@@ -10,20 +10,21 @@
     "jsdoc": "@module @spark-appworks/spark-component:permission/PermissionResolver\n职责：提供 Permission Resolver 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n权限动作解析器 — 纯函数集\n统一的动作级权限判断 + 字段权限状态解析。\n合并了动作权限相关的模型/行级判断。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "PermissionActionContext",
+      "ComponentPermissionActionContext",
       "PermissionActionName",
       "PermissionAction",
       "ResolveFieldPermissionStateInput"
     ]
   },
   "$defs": {
-    "PermissionActionContext": {
+    "ComponentPermissionActionContext": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "PermissionActionContext",
+      "title": "ComponentPermissionActionContext",
       "properties": {
         "permissionMode": {
-          "$ref": "../core/capability-keys.ts.json#/$defs/PagePermissionMode"
+          "type": "object",
+          "title": "PermissionMode"
         }
       },
       "additionalProperties": false
@@ -84,29 +85,30 @@
           "title": "Omit<FieldRenderConfig, 'field'>"
         },
         "permissionMode": {
-          "$ref": "../core/capability-keys.ts.json#/$defs/PagePermissionMode"
+          "type": "object",
+          "title": "PermissionMode"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:04:31.136Z",
+  "generatedAt": "2026-08-10T11:41:37.213Z",
   "models": {
-    "PermissionActionContext": {
-      "name": "PermissionActionContext",
-      "jsdoc": "Permission Action Context 的运行上下文。",
+    "ComponentPermissionActionContext": {
+      "name": "ComponentPermissionActionContext",
+      "jsdoc": "组件渲染层权限动作上下文：脚本层 PermissionActionContext + 页面 permissionMode。\n禁止与 spark-data 的 PermissionActionContext 同名。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ScriptPermissionActionContext & {\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}",
+        "declarationTypeText": "PermissionActionContext & {\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PermissionMode | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "ScriptPermissionActionContext",
-            "targetName": "ScriptPermissionActionContext"
+            "typeText": "PermissionActionContext",
+            "targetName": "PermissionActionContext"
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}"
+            "typeText": "{\n    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PermissionMode | undefined;\n}"
           }
         ],
         "members": {
@@ -181,11 +183,11 @@
       "jsdoc": "Resolve Field Permission State Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PermissionMode | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PagePermissionMode | undefined;\n}>",
+            "typeText": "Readonly<{\n    /** 待判断权限状态的字段名。 */\n    field: string | undefined;\n    /** 数据行（需包含后端返回的 lingma_sys_params 五个稀疏权限集合）。 */\n    row: DataRow | null | undefined;\n    /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */\n    config?: Omit<FieldRenderConfig, 'field'> | undefined;\n    /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */\n    permissionMode?: PermissionMode | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],

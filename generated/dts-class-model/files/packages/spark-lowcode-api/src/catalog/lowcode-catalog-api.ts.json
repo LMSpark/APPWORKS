@@ -7,15 +7,18 @@
     "sourceFile": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "catalog/lowcode-catalog-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 catalog/lowcode-catalog-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDatabaseServer, LowcodeDatabase, LowcodeDatabaseTable, LowcodeDatabaseField, LowcodeDatabaseCatalog, LowcodeCatalogSourceError, LowcodeCatalogApi（共 7 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "数据库元数据目录只读门面：从设计态 dataSpace（FormKey）拉取服务器/库/表/视图/字段快照。\n多 FormKey 时逐源容错合并；单表读取失败记入 `sourceErrors` 而非整包失败，解析资源前须检查对应 source。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeDatabaseServer",
       "LowcodeDatabase",
       "LowcodeDatabaseTable",
+      "LowcodeDatabaseView",
       "LowcodeDatabaseField",
       "LowcodeDatabaseCatalog",
       "LowcodeCatalogSourceError",
+      "LowcodeDatabaseResourceSelector",
+      "LowcodeDatabaseResource",
       "LowcodeCatalogApi"
     ]
   },
@@ -122,6 +125,38 @@
       },
       "additionalProperties": false
     },
+    "LowcodeDatabaseView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseView",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "databaseId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "schemaName": {
+          "type": "string"
+        },
+        "status": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "objectId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "LowcodeDatabaseField": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -213,6 +248,12 @@
             "$ref": "#/$defs/LowcodeDatabaseTable"
           }
         },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeDatabaseView"
+          }
+        },
         "fields": {
           "type": "array",
           "items": {
@@ -242,6 +283,57 @@
         },
         "message": {
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDatabaseResourceSelector": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseResourceSelector",
+      "properties": {
+        "databaseId": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "object",
+          "title": "DataSpaceDatabaseResourceType"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDatabaseResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseResource",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "databaseId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "schemaName": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "object",
+          "title": "DataSpaceDatabaseResourceType"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeDatabaseField"
+          }
         }
       },
       "additionalProperties": false
@@ -282,11 +374,26 @@
         "method.getDatabaseCatalog.return": {
           "type": "object",
           "title": "Promise<LowcodeDatabaseCatalog>"
+        },
+        "method.resolveDatabaseResource.params": {
+          "type": "object",
+          "properties": {
+            "catalog": {
+              "$ref": "#/$defs/LowcodeDatabaseCatalog"
+            },
+            "selector": {
+              "$ref": "#/$defs/LowcodeDatabaseResourceSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveDatabaseResource.return": {
+          "$ref": "#/$defs/LowcodeDatabaseResource"
         }
       }
     }
   },
-  "generatedAt": "2026-08-09T22:51:40.556Z",
+  "generatedAt": "2026-08-10T12:27:53.468Z",
   "models": {
     "LowcodeDatabaseServer": {
       "name": "LowcodeDatabaseServer",
@@ -455,6 +562,60 @@
         }
       }
     },
+    "LowcodeDatabaseView": {
+      "name": "LowcodeDatabaseView",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    databaseId: string;\n    name: string;\n    description: string;\n    schemaName: string;\n    status: number | null;\n    objectId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    databaseId: string;\n    name: string;\n    description: string;\n    schemaName: string;\n    status: number | null;\n    objectId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDatabaseField": {
       "name": "LowcodeDatabaseField",
       "jsdoc": "",
@@ -551,14 +712,14 @@
     },
     "LowcodeDatabaseCatalog": {
       "name": "LowcodeDatabaseCatalog",
-      "jsdoc": "",
+      "jsdoc": "一次目录聚合结果；`sourceErrors` 非空表示部分底层表未成功读取，下游解析可能缺项或应 fail-fast。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    views: readonly LowcodeDatabaseView[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
+            "typeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    views: readonly LowcodeDatabaseView[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -576,6 +737,11 @@
             },
             {
               "name": "tables",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
               "readable": true,
               "writable": false
             },
@@ -600,7 +766,7 @@
     },
     "LowcodeCatalogSourceError": {
       "name": "LowcodeCatalogSourceError",
-      "jsdoc": "",
+      "jsdoc": "单张目录源表读取失败记录；`source` 为内部 CatalogTable 标识，便于与 resolve 报错对齐。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    source: string;\n    message: string;\n}>",
@@ -627,9 +793,97 @@
         }
       }
     },
+    "LowcodeDatabaseResourceSelector": {
+      "name": "LowcodeDatabaseResourceSelector",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    databaseId: string;\n    resourceName: string;\n    resourceType: DataSpaceDatabaseResourceType;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    databaseId: string;\n    resourceName: string;\n    resourceType: DataSpaceDatabaseResourceType;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "databaseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDatabaseResource": {
+      "name": "LowcodeDatabaseResource",
+      "jsdoc": "解析后的表/视图资源快照，含去歧义后的字段列表。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    databaseId: string;\n    name: string;\n    description: string;\n    schemaName: string;\n    resourceType: DataSpaceDatabaseResourceType;\n    fields: readonly LowcodeDatabaseField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    databaseId: string;\n    name: string;\n    description: string;\n    schemaName: string;\n    resourceType: DataSpaceDatabaseResourceType;\n    fields: readonly LowcodeDatabaseField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeCatalogApi": {
       "name": "LowcodeCatalogApi",
-      "jsdoc": "",
+      "jsdoc": "数据库设计目录 API；所有读操作经 GetBaseData，依赖 x-FormKey 绑定 dataSpace。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -648,6 +902,7 @@
           "methods": [
             {
               "name": "getDatabaseCatalog",
+              "jsdoc": "并行拉取五张目录表并归一化；FormKey 去重后逐个尝试，直至某源成功或全部失败。",
               "parameters": [
                 {
                   "name": "dataSpaceIds",
@@ -676,6 +931,33 @@
                     "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "resolveDatabaseResource",
+              "jsdoc": "在内存 catalog 中解析单张表/视图及其字段；要求候选唯一且字段 id/name 无歧义。\n相关 source 曾失败或匹配不唯一时抛 `LowcodeApiError`，避免静默返回不完整资源。",
+              "parameters": [
+                {
+                  "name": "catalog",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDatabaseCatalog",
+                    "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts"
+                  }
+                },
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDatabaseResourceSelector",
+                    "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDatabaseResource",
+                "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts"
               }
             }
           ]

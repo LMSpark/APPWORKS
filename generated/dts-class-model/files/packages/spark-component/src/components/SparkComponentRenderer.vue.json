@@ -9,9 +9,7 @@
     "modulePath": "components/SparkComponentRenderer",
     "jsdoc": "@module @spark-appworks/spark-component:components/SparkComponentRenderer\n职责：维护 @spark-appworks/spark-component 中 components/SparkComponentRenderer 的模块能力，围绕 RendererProps 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/SparkComponentRenderer 的声明、导出和使用边界时，从本模块开始。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [
-      "RendererProps"
-    ]
+    "symbols": []
   },
   "$defs": {
     "RendererProps": {
@@ -20,12 +18,10 @@
       "title": "RendererProps",
       "properties": {
         "config": {
-          "type": "object",
-          "title": "SparkNode"
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "parentContext": {
-          "type": "object",
-          "title": "CapabilityContext"
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
         }
       },
       "required": [
@@ -34,7 +30,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T20:39:26.882Z",
+  "generatedAt": "2026-08-10T11:27:07.893Z",
   "models": {
     "RendererProps": {
       "name": "RendererProps",

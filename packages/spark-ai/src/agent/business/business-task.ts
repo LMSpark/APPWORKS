@@ -6,12 +6,12 @@
  */
 
 import {
-  AiJsonSchemaValidator,
+  JsonSchemaValidator,
   coerceStrictJsonValue,
-  type AiJsonParams,
-  type AiJsonSchemaObject,
-  type AiJsonValue,
-} from '../../json'
+  type JsonParams,
+  type JsonSchemaObject,
+  type JsonValue,
+} from '@spark-appworks/spark-json-document'
 import type { AiAgentChatMessage, AiAgentChatRequest } from '../chat/chat-types'
 import type { AiAgentRegistration } from './registration-types'
 import { AiAgentTarget, type AiAgentScope } from './scope-types'
@@ -21,7 +21,7 @@ import { AiAgentTarget, type AiAgentScope } from './scope-types'
 // ═══════════════════════════════════════════════════════════════
 
 /** 任务输入：仅允许 JSON 可序列化的键值对 */
-type AiAgentTaskInput = Readonly<Record<string, AiJsonValue>>
+type AiAgentTaskInput = Readonly<Record<string, JsonValue>>
 
 /** 编排计划：LLM 对话的 userMessage、systemPrompt 和可选标题/步骤 */
 export type AiAgentOrchestrationPlan = Readonly<{
@@ -36,13 +36,13 @@ export type AiAgentOrchestrationPlan = Readonly<{
 }>
 
 /** 输入契约：定义一种业务 Task 的输入 schema、归一化函数、scope 和编排生成 */
-export type AiAgentInputContract<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiAgentInputContract<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 输入参数的 JSON Schema；createAiAgentTask 在 normalize 前后各校验一次，确保归一化结果仍合法。 */
-  paramsSchema: AiJsonSchemaObject
+  paramsSchema: JsonSchemaObject
   /** 业务实体标识字段名；其值用于生成 scope.businessInstanceId，需为 TInput 中的非空字符串键。 */
   identityField: keyof TInput & string
   /** 将原始输入归一化为 TInput；业务方可在此做类型转换、默认值填充、字段重命名。 */
-  normalize(input: AiJsonParams): TInput
+  normalize(input: JsonParams): TInput
   /** 从归一化输入生成业务 scope；返回的 businessRegistrationId 必须等于 kindID，否则 createAiAgentTask 抛错。 */
   toScope(normalizedInput: TInput): AiAgentScope
   /** 从归一化输入生成编排计划；返回的 userMessage 和 systemPrompt 不允许为空串。 */
@@ -60,7 +60,7 @@ export type AiAgentTaskChatOptions = Omit<AiAgentChatRequest, 'historyMsgs' | 's
 // ═══════════════════════════════════════════════════════════════
 
 /** 任务注册表查找接口 */
-type AiAgentTaskRegistry<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+type AiAgentTaskRegistry<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 按 kindID 查找已注册业务；未找到时返回 undefined，调用方据此抛错。 */
   get(kindID: string): AiAgentRegistration<TInput> | undefined
 }>
@@ -71,7 +71,7 @@ type AiAgentTaskRegistry<TInput extends AiJsonParams = AiJsonParams> = Readonly<
  * 持有归一化输入、scope 和编排计划。通过 toChatRequest 生成
  * 标准 LLM 对话请求，自动拼接业务 systemPrompt + 编排 systemPrompt。
  */
-export class AiAgentTask<TInput extends AiJsonParams = AiJsonParams> {
+export class AiAgentTask<TInput extends JsonParams = JsonParams> {
     /** 目标对象。 */
 public readonly target: AiAgentTarget
 
@@ -117,7 +117,7 @@ public constructor(
  *
  * 任何步骤失败均抛错，确保只有合法输入能进入 LLM 对话。
  */
-export function createAiAgentTask<TInput extends AiJsonParams = AiJsonParams>(
+export function createAiAgentTask<TInput extends JsonParams = JsonParams>(
   registry: AiAgentTaskRegistry<TInput>,
   kindID: string,
   input: unknown,
@@ -166,7 +166,7 @@ function createRegisteredTaskSystemPrompt(task: AiAgentTask): string {
 /** 生成 prompt 用输入摘要（过滤掉与 userMessage 重复的字段） */
 function createRegisteredTaskPromptInput(task: AiAgentTask): AiAgentTaskInput {
   const userMessage = task.orchestration.userMessage.trim()
-  const out: Record<string, AiJsonValue> = {}
+  const out: Record<string, JsonValue> = {}
   for (const [key, value] of Object.entries(task.normalizedInput)) {
     if (typeof value === 'string' && value.trim() === userMessage) continue
     out[key] = value
@@ -177,13 +177,13 @@ function createRegisteredTaskPromptInput(task: AiAgentTask): AiAgentTaskInput {
 /** 用 JSON Schema 校验 Task 输入 */
 function validateTaskInput(
   kindID: string,
-  schema: AiJsonSchemaObject,
+  schema: JsonSchemaObject,
   input: AiAgentTaskInput,
 ): void {
-  const validation = AiJsonSchemaValidator.validateDeserializedParams(input, schema)
+  const validation = JsonSchemaValidator.validateDeserializedParams(input, schema)
   if (!validation.ok) {
     throw new Error(
-      `AI host business task input for "${kindID}" failed schema validation: ${AiJsonSchemaValidator.formatAiJsonValidationIssues(validation.issues)}`,
+      `AI host business task input for "${kindID}" failed schema validation: ${JsonSchemaValidator.formatJsonValidationIssues(validation.issues)}`,
     )
   }
 }
@@ -217,7 +217,7 @@ function coerceInputRecord(input: unknown, label: string): AiAgentTaskInput {
   if (!isPlainRecord(input)) {
     throw new Error(`AI host business task ${label} must be a JSON object.`)
   }
-  const out: Record<string, AiJsonValue> = {}
+  const out: Record<string, JsonValue> = {}
   for (const [key, value] of Object.entries(input)) {
     const coerced = coerceStrictJsonValue(value)
     if (coerced === undefined) {

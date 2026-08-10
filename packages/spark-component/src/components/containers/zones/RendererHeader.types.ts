@@ -4,8 +4,8 @@
  * 边界：只提供 container/zone-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。
  * AI用途：需要判断 renderer header 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。
  */
-import type { SparkNode } from '../../internal'
 import type { SparkNodeProps } from '../../shared-types'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 /**
  * `RendererHeader` 运行时公开属性。

@@ -10,16 +10,10 @@
     "jsdoc": "@module @spark-appworks/spark-component:core/useSparkComponent\n职责：维护 @spark-appworks/spark-component 中 core/useSparkComponent 的模块能力，围绕 CapabilityKey、CapabilityContext、LoggerApi 等 11 个公开契约 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 core/useSparkComponent 的声明、导出和使用边界时，从本模块开始。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "CapabilityKey",
-      "CapabilityContext",
-      "LoggerApi",
-      "SparkCapabilityConsumer",
       "UseSparkComponentReturn",
       "UseSparkPageComponentReturn",
       "UseSparkCapabilityReaderReturn",
       "UseSparkComponentOptions",
-      "HostTypeResolverOptions",
-      "ResolvedHostType",
       "SparkNodeInput"
     ]
   },
@@ -75,12 +69,10 @@
           "additionalProperties": false
         },
         "sparkConsume": {
-          "type": "object",
-          "title": "SparkCapabilityConsumer"
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
         },
         "logger": {
-          "type": "object",
-          "title": "LoggerApi"
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
         }
       },
       "required": [
@@ -98,8 +90,7 @@
           "type": "object",
           "properties": {
             "name": {
-              "type": "object",
-              "title": "CapabilityKey<T>"
+              "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityKey"
             }
           },
           "additionalProperties": false
@@ -168,12 +159,10 @@
           "additionalProperties": false
         },
         "sparkConsume": {
-          "type": "object",
-          "title": "SparkCapabilityConsumer"
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
         },
         "logger": {
-          "type": "object",
-          "title": "LoggerApi"
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
         }
       },
       "additionalProperties": false,
@@ -197,8 +186,7 @@
           "additionalProperties": false
         },
         "sparkConsume": {
-          "type": "object",
-          "title": "SparkCapabilityConsumer"
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
         }
       },
       "required": [
@@ -213,8 +201,7 @@
       "title": "UseSparkComponentOptions",
       "properties": {
         "parentContext": {
-          "type": "object",
-          "title": "CapabilityContext"
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
         }
       },
       "additionalProperties": false
@@ -245,11 +232,14 @@
           ]
         },
         "parentContext": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "CapabilityContext"
+          "anyOf": [
+            {
+              "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -281,72 +271,8 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.601Z",
+  "generatedAt": "2026-08-10T12:37:59.750Z",
   "models": {
-    "CapabilityKey": {
-      "name": "CapabilityKey",
-      "jsdoc": "Capability Key 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "SparkUtils.CapabilityKey<T>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "SparkUtils.CapabilityKey<T>",
-            "targetName": "SparkUtils.CapabilityKey"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "CapabilityContext": {
-      "name": "CapabilityContext",
-      "jsdoc": "Capability Context 的运行上下文。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "SparkUtils.CapabilityContext",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "SparkUtils.CapabilityContext",
-            "targetName": "SparkUtils.CapabilityContext"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "LoggerApi": {
-      "name": "LoggerApi",
-      "jsdoc": "Logger Api 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "SparkUtils.LoggerApi",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "SparkUtils.LoggerApi",
-            "targetName": "SparkUtils.LoggerApi"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "SparkCapabilityConsumer": {
-      "name": "SparkCapabilityConsumer",
-      "jsdoc": "Spark Capability Consumer 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "SparkUtils.SparkCapabilityConsumer",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "SparkUtils.SparkCapabilityConsumer",
-            "targetName": "SparkUtils.SparkCapabilityConsumer"
-          }
-        ],
-        "members": {}
-      }
-    },
     "UseSparkComponentReturn": {
       "name": "UseSparkComponentReturn",
       "jsdoc": "组件上下文完整返回 — 容器 / 字段 / 页面组件的标准上下文入口。\n`provider` — provider 查询接口：\n- `nearestCapabilityProvider(key)` — 按能力键查最近 provider context\n- `nearestCapabilityProviderByKeys(keys)` — 按能力键集合查最近 provider context\n容器可通过上下文 type 语义驱动子级渲染模式，子级按需消费并自决。\n子级独立自决：收到能力后，自己决定何时消费、如何使用，保持渲染自主权。",
@@ -408,7 +334,6 @@
                   "type": {
                     "type": "reference",
                     "name": "CapabilityKey",
-                    "sourcePath": "packages/spark-component/src/core/useSparkComponent.ts",
                     "typeArguments": [
                       {
                         "type": "reference",

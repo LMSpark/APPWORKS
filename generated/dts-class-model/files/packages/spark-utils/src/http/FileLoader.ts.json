@@ -10,7 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-utils:http/FileLoader\n职责：提供框架无关的 File Loader 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。\n\nFileLoader — HTTP 文件加载 + 自动计算结果缓存\n## 基础用法（返回原始 JSON）\n```ts\nconst result = await loader.load<RuleConfig[]>('/page/rule.json')\n```\n## 内联变换（一次性）\n```ts\nconst result = await loader.load<DataSet>('/pagedata.json', {\ntransform: buildDataSet\n})\n```\n## 预绑定变换（业务代码零感知）\n```ts\n// 基础设施层：\nconst dataSetLoader = fileLoader.withTransform(buildDataSet)\n// 业务代码：\nconst ds = await dataSetLoader.load('/order-page/pagedata.json')\n```\n缓存策略：所有结果（原始内容 & 变换产物）均以 sourceTimestamp 标记。\n源文件变更 → timestamp 变化 → 缓存自动失效 → 重新加载并计算。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "LoadOptionBase",
       "FileLoaderStoreInput",
       "JsonLoadOptions",
       "TextLoadOptions",

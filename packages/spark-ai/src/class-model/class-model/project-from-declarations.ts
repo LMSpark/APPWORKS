@@ -40,7 +40,7 @@ import {
 } from './dts-bundle-types'
 import {
   paramsSchemaFromParameters,
-  typeNodeToAiJsonSchema,
+  typeNodeToJsonSchema,
 } from './dts-type-schema'
 import { enumMemberConstSchema } from './dts-enum-schema'
 import {
@@ -120,7 +120,7 @@ type InterfaceDeclarationProjectionCommand = Readonly<{
 
 type ObjectSchemaAttributesCommand = Readonly<{
   site: ProjectionSite
-  schema: ReturnType<typeof typeNodeToAiJsonSchema>
+  schema: ReturnType<typeof typeNodeToJsonSchema>
   typeNode: ts.TypeNode
 }>
 
@@ -224,7 +224,7 @@ export function projectDtsSourceFileProjection(
   const symbols: string[] = []
   ts.forEachChild(options.sourceFile, node => {
     const className = projectTopLevelDeclaration(context, options.sourceFile, node)
-    if (className !== undefined) symbols.push(className)
+    if (className !== undefined && hasExportModifier(node)) symbols.push(className)
   })
   const emitSourcePath = normalizeRepoPath(absolutePath, repoRoot)
   const sourcePath = sourceFileFromEmitPath(emitSourcePath)
@@ -522,7 +522,7 @@ function projectTypeAliasDeclaration(
   const propsComponentName = readComponentNameFromPropsFile(file)
   const typeText = node.type.getText(sourceFile)
   const declarationRelations = typeAliasDeclarationRelations(node.type, sourceFile)
-  const objectSchema = typeNodeToAiJsonSchema(node.type, sourceFile)
+  const objectSchema = typeNodeToJsonSchema(node.type, sourceFile)
   const site = projectionSite(context, sourceFile, name)
   const attributes = attributesFromObjectSchema({
     site,
@@ -569,7 +569,7 @@ function projectTypeAliasDeclaration(
 function typeAliasJsonSchema(command: Readonly<{
   className: string
   jsdoc: string
-  schema: ReturnType<typeof typeNodeToAiJsonSchema>
+  schema: ReturnType<typeof typeNodeToJsonSchema>
 }>): ReturnType<typeof finalizeDraft2020SchemaDocument> | undefined {
   if (isLowInformationTypeAliasSchema(command.schema)) return undefined
   const description = modelDescription(command.jsdoc)
@@ -583,7 +583,7 @@ function typeAliasJsonSchema(command: Readonly<{
   )
 }
 
-function isLowInformationTypeAliasSchema(schema: ReturnType<typeof typeNodeToAiJsonSchema>): boolean {
+function isLowInformationTypeAliasSchema(schema: ReturnType<typeof typeNodeToJsonSchema>): boolean {
   if (typeof schema === 'boolean') return true
   if (typeof schema !== 'object' || Array.isArray(schema)) return false
   return schema.type === 'object'
@@ -864,7 +864,7 @@ function projectPropertyMember(command: PropertyMemberCommand): AttributeMeta {
   const line = sourceFile.getLineAndCharacterOfPosition(member.getStart(sourceFile)).line + 1
   return {
     name: memberName,
-    schema: typeNodeToAiJsonSchema(member.type, sourceFile),
+    schema: typeNodeToJsonSchema(member.type, sourceFile),
     readable: true,
     writable: member.questionToken === undefined && !hasReadonlyModifier(member),
     jsdoc: readJsDoc(member, sourceFile),
@@ -884,7 +884,7 @@ function projectPropertySignature(command: PropertySignatureCommand): AttributeM
   const line = sourceFile.getLineAndCharacterOfPosition(member.getStart(sourceFile)).line + 1
   return {
     name: memberName,
-    schema: typeNodeToAiJsonSchema(member.type, sourceFile),
+    schema: typeNodeToJsonSchema(member.type, sourceFile),
     readable: true,
     writable: member.questionToken === undefined && !hasReadonlyModifier(member),
     jsdoc: readJsDoc(member, sourceFile),
@@ -909,7 +909,7 @@ function projectFunctionPropertySignature(command: FunctionPropertySignatureComm
     parameters: methodParametersFromDeclaration(context.repoRoot, typeNode, sourceFile),
     type: dtsTypeMetaFromTypeNode(context.repoRoot, typeNode.type, sourceFile),
     paramsSchema: paramsSchemaFromParameters(typeNode.parameters, sourceFile),
-    returnSchema: typeNodeToAiJsonSchema(typeNode.type, sourceFile),
+    returnSchema: typeNodeToJsonSchema(typeNode.type, sourceFile),
     jsdoc: readJsDoc(member, sourceFile),
     provenance: createProvenance({
       file: sourceFileFromEmitPath(normalizeRepoPath(sourceFile.fileName, context.repoRoot)),
@@ -933,7 +933,7 @@ function projectMethodMember(command: MethodMemberCommand): MethodMeta {
     parameters: methodParametersFromDeclaration(context.repoRoot, member, sourceFile),
     type: returnTypeMeta,
     paramsSchema: paramsSchemaFromParameters(member.parameters, sourceFile),
-    returnSchema: typeNodeToAiJsonSchema(member.type, sourceFile),
+    returnSchema: typeNodeToJsonSchema(member.type, sourceFile),
     jsdoc: readJsDoc(member, sourceFile),
     provenance: createProvenance({
       file: sourceFileFromEmitPath(normalizeRepoPath(sourceFile.fileName, context.repoRoot)),
@@ -957,7 +957,7 @@ function projectMethodSignature(command: MethodSignatureCommand): MethodMeta {
     parameters: methodParametersFromDeclaration(context.repoRoot, member, sourceFile),
     type: returnTypeMeta,
     paramsSchema: paramsSchemaFromParameters(member.parameters, sourceFile),
-    returnSchema: typeNodeToAiJsonSchema(member.type, sourceFile),
+    returnSchema: typeNodeToJsonSchema(member.type, sourceFile),
     jsdoc: readJsDoc(member, sourceFile),
     provenance: createProvenance({
       file: sourceFileFromEmitPath(normalizeRepoPath(sourceFile.fileName, context.repoRoot)),

@@ -12,7 +12,7 @@
  * 2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：
  *    MODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE
  * 3. 页面 UI 服务与权限键（从 spark-utils 迁入）：
- *    PAGE_SERVICE / PAGE_PERMISSION_MODE / PagePermissionMode
+ *    PAGE_SERVICE / PAGE_PERMISSION_MODE
  * 4. 字段渲染局部策略：
  *    SUBTREE_FIELD_POLICY
  *
@@ -20,14 +20,19 @@
  * @spark-appworks/spark-component/runtime 为 SSOT。
  */
 
-import { defineCapability, isCallable, isRecord } from '@spark-appworks/spark-utils'
+import {
+  defineCapability,
+  isCallable,
+  isPermissionMode,
+  isRecord,
+  type ComponentInstanceSnapshot,
+  type ContextSnapshot,
+  type PermissionMode,
+} from '@spark-appworks/spark-utils'
 import { DataView, isDataRow, type DataRow, type DataSetContract } from '@spark-appworks/spark-data'
 import type {
   PageServiceCapability,
 } from '../runtime'
-
-/** 页面组件在完整后端权限快照改造完成前使用的三态过渡模式。 */
-export type PagePermissionMode = 'none' | 'masked' | 'invisible'
 
 /** 子树级字段输入策略 — 仅描述子树内字段输入行为，不改变全局 permissionMode。 */
 export type SubtreeFieldPolicy = 'unrestricted'
@@ -42,7 +47,6 @@ export type {
   PageUploadedFile,
   PageSelectorOption,
   PageSelectEntitiesOptions,
-  PageSelectedEntity,
   PageServiceCapability,
 } from '../runtime'
 
@@ -54,6 +58,11 @@ function hasCallable(record: Record<string, unknown>, key: string): boolean {
 
 /** 主题模式 */
 export type ThemeMode = 'light' | 'dark' | 'auto'
+
+/** 运行时判定 ThemeMode。 */
+export function isThemeMode(value: unknown): value is ThemeMode {
+  return value === 'light' || value === 'dark' || value === 'auto'
+}
 
 /** 主题服务能力接口（最小契约，不含 Vue 响应式） */
 export type ThemeCapability = {
@@ -71,40 +80,15 @@ export type ThemeCapability = {
 
 // ── 模块上下文能力 ────────────────────────────────────────────────────────
 
-/** 模块列表项 */
-export type ModuleContextItem = {
-    /** 唯一标识。 */
-id: string | number
-    /** 显示标题。 */
-title: string}
-
-/** 当前模块上下文快照 */
-export type ModuleContext = {
-    /** selected 字段。 */
-selected: string | number | null
-    /** items 字段。 */
-items: readonly ModuleContextItem[]
-    /** node Id 标识。 */
-nodeId: string}
-
 /** MODULE_CONTEXT 能力接口 */
 export type ModuleContextCapability = {
   /** 获取当前模块上下文快照。 */
-  getCurrent(): ModuleContext | null
+  getCurrent(): ContextSnapshot | null
   /** 订阅模块上下文变更，返回取消订阅函数。 */
-  subscribe(handler: (next: ModuleContext | null, prev: ModuleContext | null) => void): () => void
+  subscribe(handler: (next: ContextSnapshot | null, prev: ContextSnapshot | null) => void): () => void
 }
 
 // ── 页面组件注册表能力 ─────────────────────────────────────────────────────
-
-/** Page Component Instance Entry 的语义模型。 */
-export type PageComponentInstanceEntry = {
-    /** 唯一标识。 */
-id: string
-    /** 类型标识。 */
-type: string
-    /** 组件属性集合。 */
-props?: Record<string, unknown>}
 
 /** Page Component Api Entry 的语义模型。 */
 export type PageComponentApiEntry = {
@@ -118,13 +102,13 @@ api: unknown}
 /** 页面内组件实例/API 注册表能力接口 */
 export type PageComponentRegistry = {
   /** 注册组件实例元数据。 */
-  registerInstance(entry: PageComponentInstanceEntry): void
+  registerInstance(entry: ComponentInstanceSnapshot): void
   /** 注销指定 id 的组件实例。 */
   unregisterInstance(id: string): void
   /** 列出已注册实例，可按 type 过滤。 */
-  listInstances(type?: string): PageComponentInstanceEntry[]
+  listInstances(type?: string): ComponentInstanceSnapshot[]
   /** 按 id 获取组件实例元数据。 */
-  getInstance(id: string): PageComponentInstanceEntry | null
+  getInstance(id: string): ComponentInstanceSnapshot | null
 
   /** 注册组件暴露的运行时 API。 */
   registerApi(entry: PageComponentApiEntry): void
@@ -157,7 +141,7 @@ declare module '@spark-appworks/spark-utils' {
     'spark:capability:module-context': ModuleContextCapability
     'spark:capability:css-scope': PageCssScopeCapability
     'spark:capability:page-service': PageServiceCapability
-    'spark:capability:permission-mode': PagePermissionMode
+    'spark:capability:permission-mode': PermissionMode
     'spark:capability:subtree-field-policy': SubtreeFieldPolicy
   }
 }
@@ -225,9 +209,6 @@ function isPageServiceCapability(value: unknown): value is PageServiceCapability
     && hasCallable(value, 'navigate')
 }
 
-function isPagePermissionMode(value: unknown): value is PagePermissionMode {
-  return value === 'none' || value === 'masked' || value === 'invisible'
-}
 
 function isSubtreeFieldPolicy(value: unknown): value is SubtreeFieldPolicy {
   return value === 'unrestricted'
@@ -244,5 +225,5 @@ export const PAGE_COMPONENT_REGISTRY = defineCapability<PageComponentRegistry>('
 export const CSS_SCOPE = defineCapability<PageCssScopeCapability>('spark:capability:css-scope', isPageCssScopeCapability)
 
 export const PAGE_SERVICE = defineCapability<PageServiceCapability>('spark:capability:page-service', isPageServiceCapability)
-export const PAGE_PERMISSION_MODE = defineCapability<PagePermissionMode>('spark:capability:permission-mode', isPagePermissionMode)
+export const PAGE_PERMISSION_MODE = defineCapability<PermissionMode>('spark:capability:permission-mode', isPermissionMode)
 export const SUBTREE_FIELD_POLICY = defineCapability<SubtreeFieldPolicy>('spark:capability:subtree-field-policy', isSubtreeFieldPolicy)

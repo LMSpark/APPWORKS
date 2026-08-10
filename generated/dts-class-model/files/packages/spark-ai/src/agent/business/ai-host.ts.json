@@ -203,7 +203,7 @@
             },
             "normalizedInput": {
               "type": "object",
-              "title": "AiJsonParams"
+              "title": "JsonParams"
             },
             "scope": {
               "type": "object",
@@ -440,7 +440,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T14:57:11.209Z",
+  "generatedAt": "2026-08-10T10:00:08.471Z",
   "models": {
     "CreateAiAgentHostOptions": {
       "name": "CreateAiAgentHostOptions",
@@ -531,7 +531,7 @@
       "jsdoc": "从 registration 泛型参数中提取输入类型",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "TRegistration extends AiAgentRegistration<infer TInput> ? TInput : AiJsonParams",
+        "declarationTypeText": "TRegistration extends AiAgentRegistration<infer TInput> ? TInput : JsonParams",
         "members": {}
       }
     },
@@ -761,11 +761,11 @@
       "jsdoc": "Ai Agent Host Dry Run Result 的返回结果。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    ok: true;\n    alias: string;\n    moduleId: string;\n    normalizedInput: AiJsonParams;\n    scope: AiAgentScope;\n    orchestration: AiAgentOrchestrationPlan;\n    orchestrationSummary: AiAgentHostOrchestrationSummary;\n    tools: readonly string[];\n    inspectReport: AiAgentToolRuntimeInspectReport;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n} | {\n    ok: false;\n    alias: string;\n    error: Readonly<{\n        message: string;\n    }>;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n}>",
+        "declarationTypeText": "Readonly<{\n    ok: true;\n    alias: string;\n    moduleId: string;\n    normalizedInput: JsonParams;\n    scope: AiAgentScope;\n    orchestration: AiAgentOrchestrationPlan;\n    orchestrationSummary: AiAgentHostOrchestrationSummary;\n    tools: readonly string[];\n    inspectReport: AiAgentToolRuntimeInspectReport;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n} | {\n    ok: false;\n    alias: string;\n    error: Readonly<{\n        message: string;\n    }>;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    ok: true;\n    alias: string;\n    moduleId: string;\n    normalizedInput: AiJsonParams;\n    scope: AiAgentScope;\n    orchestration: AiAgentOrchestrationPlan;\n    orchestrationSummary: AiAgentHostOrchestrationSummary;\n    tools: readonly string[];\n    inspectReport: AiAgentToolRuntimeInspectReport;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n} | {\n    ok: false;\n    alias: string;\n    error: Readonly<{\n        message: string;\n    }>;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n}>",
+            "typeText": "Readonly<{\n    ok: true;\n    alias: string;\n    moduleId: string;\n    normalizedInput: JsonParams;\n    scope: AiAgentScope;\n    orchestration: AiAgentOrchestrationPlan;\n    orchestrationSummary: AiAgentHostOrchestrationSummary;\n    tools: readonly string[];\n    inspectReport: AiAgentToolRuntimeInspectReport;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n} | {\n    ok: false;\n    alias: string;\n    error: Readonly<{\n        message: string;\n    }>;\n    diagnostics: readonly AiAgentHostDryRunDiagnostic[];\n}>",
             "targetName": "Readonly"
           }
         ],

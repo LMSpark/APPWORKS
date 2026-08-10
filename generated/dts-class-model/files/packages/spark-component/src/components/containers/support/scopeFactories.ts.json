@@ -37,11 +37,14 @@
           ]
         },
         "moduleContext": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ModuleContext"
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-utils/src/script-types.ts.json#/$defs/ContextSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -51,14 +54,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T20:39:26.884Z",
+  "generatedAt": "2026-08-10T11:47:56.627Z",
   "models": {
     "BaseScopeContext": {
       "name": "BaseScopeContext",
       "jsdoc": "Base Scope Context 的运行上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** data Source 字段。 */\n    dataSource: TSource | null | undefined;\n    /** model Permission 字段。 */\n    permissionSnapshot: DataPermissionSnapshot | null;\n    /** module Context 字段。 */\n    moduleContext?: ModuleContext | null | undefined;\n}",
+        "declarationTypeText": "{\n    /** data Source 字段。 */\n    dataSource: TSource | null | undefined;\n    /** model Permission 字段。 */\n    permissionSnapshot: DataPermissionSnapshot | null;\n    /** module Context 字段。 */\n    moduleContext?: ContextSnapshot | null | undefined;\n}",
         "members": {
           "attributes": [
             {

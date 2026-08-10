@@ -25,7 +25,6 @@ export type {
 } from './app-services'
 
 export type {
-  PageSelectedEntity,
   PageSelectEntitiesOptions,
   PageSelectorOption,
 } from './app-services'

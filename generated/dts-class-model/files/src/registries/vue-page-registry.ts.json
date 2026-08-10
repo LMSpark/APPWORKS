@@ -10,9 +10,7 @@
     "jsdoc": "@module app:registries/vue-page-registry\n职责：提供 src 应用层的 vue page registry 能力，连接运行时上下文、视图组件和服务。\n边界：只服务应用入口和组合层，不修改基础包协议，也不承担服务端职责。\nAI用途：排查应用启动、运行时上下文或局部 UI 接线时，用本模块确认源码入口。\n\nVue system-page registry.\nJSON config only declares pages. This registry binds those declarations to\nVite component loaders and exposes the derived route/navigation helpers.",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "PageScope",
-      "VuePageConfigEntry",
-      "VuePageEntry"
+      "PageScope"
     ]
   },
   "$defs": {

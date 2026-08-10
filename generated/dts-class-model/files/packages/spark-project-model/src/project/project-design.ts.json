@@ -288,7 +288,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:36:48.880Z",
+  "generatedAt": "2026-08-10T07:40:20.651Z",
   "models": {
     "ProjectBlueprintDesignNodeEditResult": {
       "name": "ProjectBlueprintDesignNodeEditResult",
@@ -320,7 +320,6 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建 Project Blueprint Design 实例。",
           "signatureText": "constructor(options: ProjectModelInitOptions)",
           "parameters": [
             {
@@ -361,7 +360,6 @@
             },
             {
               "name": "forEachNode",
-              "jsdoc": "执行 for Each Node 操作。",
               "parameters": [
                 {
                   "name": "callback",
@@ -416,7 +414,6 @@
             },
             {
               "name": "replaceProjectInfo",
-              "jsdoc": "执行 replace Project Info 操作。",
               "parameters": [
                 {
                   "name": "project",
@@ -457,7 +454,6 @@
             },
             {
               "name": "findNodeById",
-              "jsdoc": "find Node By Id 标识。",
               "parameters": [
                 {
                   "name": "nodeId",
@@ -484,7 +480,6 @@
             },
             {
               "name": "findNodeLocation",
-              "jsdoc": "执行 find Node Location 操作。",
               "parameters": [
                 {
                   "name": "nodeId",
@@ -511,7 +506,6 @@
             },
             {
               "name": "findConfigPageByPageId",
-              "jsdoc": "find Config Page By Page Id 标识。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -564,7 +558,6 @@
             },
             {
               "name": "openPageDesign",
-              "jsdoc": "执行 open Page Design 操作。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -582,7 +575,6 @@
             },
             {
               "name": "closePageDesign",
-              "jsdoc": "执行 close Page Design 操作。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -612,7 +604,6 @@
             },
             {
               "name": "addRootModule",
-              "jsdoc": "执行 add Root Module 操作。",
               "parameters": [
                 {
                   "name": "createId",
@@ -640,7 +631,6 @@
             },
             {
               "name": "addChildPage",
-              "jsdoc": "执行 add Child Page 操作。",
               "parameters": [
                 {
                   "name": "createId",
@@ -724,7 +714,6 @@
             },
             {
               "name": "toTree",
-              "jsdoc": "执行 to Tree 操作。",
               "parameters": [],
               "type": {
                 "type": "array",

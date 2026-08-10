@@ -4,7 +4,7 @@
  * 边界：不生成 JSON Schema、不解析 TypeScript AST，只做 DtsTypeDeclarationModel 与 shard schema 的投影还原。
  * AI用途：排查生成产物为什么没有成员级 paramsSchema/returnSchema，或读盘后 schema 如何恢复时，用本模块定位。
  */
-import type { AiJsonSchema, AiJsonSchemaObject } from '../../json'
+import type { JsonSchema, JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import { standardizeJsonSchema } from '@spark-appworks/spark-json-document'
 import type { AttributeMeta, DtsTypeDeclarationModel, ConstructorMeta, MethodMeta } from './types'
 import {
@@ -13,7 +13,7 @@ import {
   classModelMethodReturnDefKey,
 } from './class-model-json-schema-def-keys'
 
-function isJsonSchemaObject(schema: AiJsonSchema | undefined): schema is AiJsonSchemaObject {
+function isJsonSchemaObject(schema: JsonSchema | undefined): schema is JsonSchemaObject {
   return schema !== undefined && schema !== true && schema !== false && typeof schema === 'object' && !Array.isArray(schema)
 }
 
@@ -118,7 +118,7 @@ export function hydrateModelSchemasFromJsonSchema(model: DtsTypeDeclarationModel
 
 function hydrateEnumModel(
   model: Extract<DtsTypeDeclarationModel, { declarationKind: 'enum' }>,
-  jsonSchema: AiJsonSchemaObject,
+  jsonSchema: JsonSchemaObject,
 ): DtsTypeDeclarationModel {
   const enumValues = Array.isArray(jsonSchema.enum)
     ? jsonSchema.enum.filter(isJsonLiteralValue)
@@ -145,11 +145,11 @@ function isJsonLiteralValue(value: unknown): value is string | number | boolean 
     || value === null
 }
 
-function hydrateTypeAliasModel(model: DtsTypeDeclarationModel, jsonSchema: AiJsonSchemaObject): DtsTypeDeclarationModel {
+function hydrateTypeAliasModel(model: DtsTypeDeclarationModel, jsonSchema: JsonSchemaObject): DtsTypeDeclarationModel {
   return hydrateObjectModel(model, jsonSchema)
 }
 
-function hydrateObjectModel(model: DtsTypeDeclarationModel, jsonSchema: AiJsonSchemaObject): DtsTypeDeclarationModel {
+function hydrateObjectModel(model: DtsTypeDeclarationModel, jsonSchema: JsonSchemaObject): DtsTypeDeclarationModel {
   const properties = jsonSchema.properties ?? {}
   const defs = readSchemaDefs(jsonSchema)
   if (model.declarationKind === 'class') {
@@ -199,7 +199,7 @@ function hydrateObjectModel(model: DtsTypeDeclarationModel, jsonSchema: AiJsonSc
 
 function hydrateAttributes(
   attributes: readonly AttributeMeta[],
-  properties: Readonly<Record<string, AiJsonSchema>>,
+  properties: Readonly<Record<string, JsonSchema>>,
 ): readonly AttributeMeta[] {
   return attributes.map((attribute) => {
     const existing = attribute.schema
@@ -211,7 +211,7 @@ function hydrateAttributes(
 
 function hydrateMethods(
   methods: readonly MethodMeta[],
-  defs: Readonly<Record<string, AiJsonSchema>>,
+  defs: Readonly<Record<string, JsonSchema>>,
 ): readonly MethodMeta[] {
   return methods.map(method => ({
     ...method,
@@ -224,10 +224,10 @@ function hydrateMethods(
   }))
 }
 
-function readSchemaDefs(jsonSchema: AiJsonSchemaObject): Readonly<Record<string, AiJsonSchema>> {
+function readSchemaDefs(jsonSchema: JsonSchemaObject): Readonly<Record<string, JsonSchema>> {
   const defs = jsonSchema['$defs']
   if (defs === undefined || defs === null || typeof defs !== 'object' || Array.isArray(defs)) return {}
-  const result: Record<string, AiJsonSchema> = {}
+  const result: Record<string, JsonSchema> = {}
   for (const [name, schema] of Object.entries(defs)) {
     if (isJsonSchema(schema)) {
       result[name] = schema
@@ -236,17 +236,17 @@ function readSchemaDefs(jsonSchema: AiJsonSchemaObject): Readonly<Record<string,
   return result
 }
 
-function isJsonSchema(value: unknown): value is AiJsonSchema {
+function isJsonSchema(value: unknown): value is JsonSchema {
   return value === true
     || value === false
     || (value !== null && typeof value === 'object' && !Array.isArray(value))
 }
 
 function readObjectDefProperty(
-  defs: Readonly<Record<string, AiJsonSchema>>,
+  defs: Readonly<Record<string, JsonSchema>>,
   key: string,
   label: string,
-): { paramsSchema?: AiJsonSchemaObject } {
+): { paramsSchema?: JsonSchemaObject } {
   const schema = defs[key]
   if (isJsonSchemaObject(schema)) return { paramsSchema: schema }
   if (schema === undefined) return {}

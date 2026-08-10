@@ -6,17 +6,16 @@
  */
 import { reactive } from 'vue'
 import { createRequest, isRecord } from '@spark-appworks/spark-utils'
-import type {
-  PageBrowseFilesOptions,
-  PageDialogOptions,
-  PageDialogResult,
-  PageSelectedFile,
-  PageSelectorOption,
-  PageSelectEntitiesOptions,
-  PageServiceCapability,
-  PageUploadedFile,
-  PageUploadFilesOptions,
-} from './spark-component-page-bindings'
+import type { PageServiceCapability } from '@spark-appworks/spark-component'
+
+type PageDialogOptions = Parameters<PageServiceCapability['showDialog']>[0]
+type PageDialogResult = Awaited<ReturnType<PageServiceCapability['showDialog']>>
+type PageSelectEntitiesOptions = Parameters<PageServiceCapability['selectEntities']>[0]
+type PageSelectorOption = Awaited<ReturnType<PageServiceCapability['selectEntities']>>[number]
+type PageBrowseFilesOptions = Parameters<PageServiceCapability['browseFiles']>[0]
+type PageSelectedFile = Awaited<ReturnType<PageServiceCapability['browseFiles']>>[number]
+type PageUploadFilesOptions = Parameters<PageServiceCapability['uploadFiles']>[0]
+type PageUploadedFile = Awaited<ReturnType<PageServiceCapability['uploadFiles']>>[number]
 type PageSelectorValue = PageSelectorOption['value']
 type PageSelectorCurrentValue = PageSelectorValue | PageSelectorValue[]
 

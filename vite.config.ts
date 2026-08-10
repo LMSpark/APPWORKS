@@ -90,7 +90,6 @@ export default defineConfig(({ command, mode }) => {
       '@spark-appworks/spark-json-document': path.resolve(root, 'packages', 'spark-json-document', 'src', 'index.ts'),
       '@spark-appworks/spark-project-model': path.resolve(root, 'packages', 'spark-project-model', 'src', 'index.ts'),
       '@spark-appworks/spark-app': path.resolve(root, 'packages', 'spark-app', 'src', 'index.ts'),
-      '@spark-appworks/spark-ai/json': path.resolve(root, 'packages', 'spark-ai', 'src', 'json', 'index.ts'),
       '@spark-appworks/spark-ai/agent': path.resolve(root, 'packages', 'spark-ai', 'src', 'agent', 'index.ts'),
       '@spark-appworks/spark-ai/class-model': path.resolve(root, 'packages', 'spark-ai', 'src', 'class-model', 'index.ts'),
       '@spark-appworks/spark-ai': path.resolve(root, 'packages', 'spark-ai', 'src', 'index.ts'),

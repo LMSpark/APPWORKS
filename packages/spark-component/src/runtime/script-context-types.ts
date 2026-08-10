@@ -245,10 +245,7 @@ export type PageComponentAccessInScript = {
   getApisByType<T = unknown>(type: string): T[]
 }
 
-// ==================== 模块上下文（内联类型）====================
+// ==================== 模块上下文 ====================
 //
-// 以下类型现已统一管理在 @spark-appworks/spark-utils:
-//   ContextItem (= 原 ModuleContextItemInScript)
-//   ContextSnapshot (= 原 ModuleContextInScript)
-//
-// 渲染层以 ModuleContext 作为实现类型；两者通过结构化类型兼容。
+// ContextItem / ContextSnapshot SSOT：@spark-appworks/spark-utils
+// MODULE_CONTEXT 能力接口仍在 capability-keys（ModuleContextCapability）。

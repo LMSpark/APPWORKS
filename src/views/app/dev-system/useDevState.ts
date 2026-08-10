@@ -1,6 +1,6 @@
 /**
  * @module app:views/app/dev-system/useDevState
- * 职责：提供 DevSystem 的 useDevState 能力，围绕 DevPageFileName、PageConfigPageSummary、BlueprintNodeDraftNode 等 9 个公开契约 支撑配置调试、节点编辑、预览或开发态状态管理。
+ * 职责：提供 DevSystem 的 useDevState 能力，围绕 EditableProjectOption 等公开契约支撑配置调试、节点编辑、预览或开发态状态管理。
  * 边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
  * AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。
  */
@@ -20,34 +20,10 @@ import { ref, shallowRef, reactive, computed, getCurrentInstance, getCurrentScop
 import { createAiRunAdapter, createAiToolApprovalBridge } from '@spark-appworks/spark-app'
 import type { AiRunTimelineEvent } from '@spark-appworks/spark-app'
 import type { AiToolApprovalRequest } from '@spark-appworks/spark-app'
-import type {
-  ProjectBlueprintDeliveryKind,
-  ProjectBlueprintNodeKind,
-  ProjectBlueprintTreeNodeData,
-} from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintNodeKind, RuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
+import * as ProjectModelDomain from '@spark-appworks/spark-project-model'
 import { useSparkComponent } from '@spark-appworks/spark-component'
 import type { ToolApprovalDisplayItem } from '@spark-appworks/spark-component'
-import {
-  isConfigFilesPageSurface,
-  isConfigNodeKind,
-  findNodeById,
-  findPageNodeByPageId,
-  findNodeLocation,
-  isSystemRootDirectory,
-  canUseModuleNodeKind,
-  resolvePageNodePageId,
-  normalizePageIdFromPath,
-  PAGE_NODE_FILE_NAMES,
-  type ProjectModel,
-  type ProjectBlueprintTreeNodeLocation,
-  type PageNodeFileName,
-  type ProjectPageNodeSummary,
-  type BlueprintNodeDraft,
-  type BlueprintNodeDraftNode as ProjectBlueprintNodeDraftNode,
-  type ProjectWorkspace,
-  type ProjectPageReference,
-  type ProjectSummary,
-} from '@/views/app/dev-system/project-model-dev-bindings'
 import {
   runPageDesignAiSession,
   type PageDesignAiRunOptions,
@@ -62,22 +38,21 @@ import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 
-/** Dev Page File Name 的语义模型。 */
-export type DevPageFileName = Extract<PageNodeFileName, string>
-/** Page Config Page Summary 的语义模型。 */
-export type PageConfigPageSummary = {
-  [Key in keyof ProjectPageNodeSummary]: ProjectPageNodeSummary[Key]
-}
-/** Blueprint Node Draft Node 的语义模型。 */
-export type BlueprintNodeDraftNode = {
-  [Key in keyof ProjectBlueprintNodeDraftNode]: ProjectBlueprintNodeDraftNode[Key]
-}
-/** Run Page Design Ai Options 的调用配置。 */
-export type RunPageDesignAiOptions = {
-  [Key in keyof PageDesignAiRunOptions]: PageDesignAiRunOptions[Key]
-}
+const {
+  isConfigFilesPageSurface,
+  isConfigNodeKind,
+  findNodeById,
+  findPageNodeByPageId,
+  findNodeLocation,
+  isSystemRootDirectory,
+  canUseModuleNodeKind,
+  resolvePageNodePageId,
+  normalizePageIdFromPath,
+  PAGE_NODE_FILE_NAMES,
+} = ProjectModelDomain
+
 /** Editable Project Option 的语义模型。 */
-export type EditableProjectOption = ProjectSummary & {
+export type EditableProjectOption = ProjectModelDomain.ProjectSummary & {
     /** tenant Id 标识。 */
 tenantId: string
 }
@@ -132,7 +107,7 @@ defaultValue: string
 paramName: string}
 
 /** Dev Workspace Tab 的语义模型。 */
-export type DevWorkspaceTab = 'props' | 'preview' | DevPageFileName
+export type DevWorkspaceTab = 'props' | 'preview' | ProjectModelDomain.PageNodeFileName
 
 // ═══════════════════════════════════════════════════════════
 // 共享状态工厂
@@ -145,9 +120,9 @@ export function useDevState() {
     projectId: initialPrincipal?.applicationId ?? 'homepage',
   }
   const activeEditScope = ref<ProjectWorkspaceScope>(initialScope)
-  const currentEditor = shallowRef<ProjectWorkspace>(getAppProjectBlueprintWorkspace(initialScope))
-  const editor = createLiveTargetProxy<ProjectWorkspace>(() => currentEditor.value)
-  const project = createLiveTargetProxy<ProjectModel>(() => currentEditor.value.project)
+  const currentEditor = shallowRef<ProjectModelDomain.ProjectWorkspace>(getAppProjectBlueprintWorkspace(initialScope))
+  const editor = createLiveTargetProxy<ProjectModelDomain.ProjectWorkspace>(() => currentEditor.value)
+  const project = createLiveTargetProxy<ProjectModelDomain.ProjectModel>(() => currentEditor.value.project)
   const tenantId = computed(() => activeEditScope.value.tenantId)
   const projectId = computed(() => activeEditScope.value.projectId)
   const projectPicker = reactive({
@@ -251,7 +226,7 @@ export function useDevState() {
 
     projectOptionsLoading.value = true
     try {
-      const rows: ProjectSummary[] = (await lowcodeApi.platform.listApplications()).map((application) => ({
+      const rows: ProjectModelDomain.ProjectSummary[] = (await lowcodeApi.platform.listApplications()).map((application) => ({
         projectId: application.id,
         name: application.name,
         icon: '',
@@ -317,7 +292,7 @@ export function useDevState() {
     blueprintDraftRevision.value++
   }
 
-  function readBlueprintDraft(): BlueprintNodeDraft | null {
+  function readBlueprintDraft(): ProjectModelDomain.BlueprintNodeDraft | null {
     void blueprintDraftRevision.value
     return project.blueprintDraft
   }
@@ -332,16 +307,16 @@ export function useDevState() {
     set blueprintKind(v: ProjectBlueprintNodeKind) { const dto = project.blueprintDraft; if (dto) { dto.node.blueprintKind = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get icon(): string { return readBlueprintDraft()?.node.icon ?? '' },
     set icon(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.icon = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
-    get nodeKind(): ProjectBlueprintDeliveryKind { return readBlueprintDraft()?.node.nodeKind ?? 'page' },
-    set nodeKind(v: ProjectBlueprintDeliveryKind) { const dto = project.blueprintDraft; if (dto) { dto.node.nodeKind = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get nodeKind(): RuntimeNavigationItemKind { return readBlueprintDraft()?.node.nodeKind ?? 'page' },
+    set nodeKind(v: RuntimeNavigationItemKind) { const dto = project.blueprintDraft; if (dto) { dto.node.nodeKind = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get dividerAfter(): boolean { return readBlueprintDraft()?.node.dividerAfter ?? false },
     set dividerAfter(v: boolean) { const dto = project.blueprintDraft; if (dto) { dto.node.dividerAfter = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get description(): string { return readBlueprintDraft()?.node.description ?? '' },
     set description(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.description = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get path(): string { return readBlueprintDraft()?.node.path ?? '' },
     set path(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.path = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
-    get linkTarget(): BlueprintNodeDraftNode['linkTarget'] { return readBlueprintDraft()?.node.linkTarget ?? 'iframe' },
-    set linkTarget(v: BlueprintNodeDraftNode['linkTarget']) { const dto = project.blueprintDraft; if (dto) { dto.node.linkTarget = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
+    get linkTarget(): ProjectModelDomain.BlueprintNodeDraftNode['linkTarget'] { return readBlueprintDraft()?.node.linkTarget ?? 'iframe' },
+    set linkTarget(v: ProjectModelDomain.BlueprintNodeDraftNode['linkTarget']) { const dto = project.blueprintDraft; if (dto) { dto.node.linkTarget = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get childPlacement(): string { return readBlueprintDraft()?.node.childPlacement ?? '' },
     set childPlacement(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.childPlacement = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get order(): number { return readBlueprintDraft()?.node.order ?? 0 },
@@ -354,10 +329,10 @@ export function useDevState() {
     set refId(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.refId = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get permissionMode(): 'none' | 'masked' | 'invisible' { return readBlueprintDraft()?.node.permissionMode ?? 'masked' },
     set permissionMode(v: 'none' | 'masked' | 'invisible') { const dto = project.blueprintDraft; if (dto) { dto.node.permissionMode = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
-    get implGate(): 'closed' | 'open' | undefined {
+    get implGate(): ProjectModelDomain.ProjectBlueprintImplGate | undefined {
       return readBlueprintDraft()?.node.implGate
     },
-    set implGate(v: 'closed' | 'open' | undefined) {
+    set implGate(v: ProjectModelDomain.ProjectBlueprintImplGate | undefined) {
       const dto = project.blueprintDraft
       if (!dto) return
       dto.node.implGate = v
@@ -426,7 +401,7 @@ export function useDevState() {
 
   function bumpPageCache(
     pageId: string,
-    filename: PageNodeFileName | '__created' | '__deleted' | '__bulk',
+    filename: ProjectModelDomain.PageNodeFileName | '__created' | '__deleted' | '__bulk',
   ): void {
     editor.notifyPageFileChanged(pageId, filename)
   }
@@ -529,7 +504,7 @@ export function useDevState() {
   }
 
   function isBackendConfigPage(pageId: string): boolean {
-    const pageMeta = pageList.value.find((page: PageConfigPageSummary) => page.pageId === pageId)
+    const pageMeta = pageList.value.find((page: ProjectModelDomain.ProjectPageNodeSummary) => page.pageId === pageId)
     if (!pageMeta) return treeData.value.length === 0
     return isConfigFilesPageSurface(pageMeta.designSurface)
   }
@@ -560,11 +535,11 @@ export function useDevState() {
   // 项目蓝图树工具
   // ═══════════════════════════════════════════════════════════
 
-  function isSystemRootDirectoryInTree(node: ProjectBlueprintTreeNodeData | null | undefined): boolean {
+  function isSystemRootDirectoryInTree(node: ProjectModelDomain.ProjectBlueprintTreeNodeData | null | undefined): boolean {
     return isSystemRootDirectory(node, treeData.value)
   }
 
-  function canUseModuleNodeKindInTree(node: ProjectBlueprintTreeNodeData | null | undefined): boolean {
+  function canUseModuleNodeKindInTree(node: ProjectModelDomain.ProjectBlueprintTreeNodeData | null | undefined): boolean {
     return canUseModuleNodeKind(node, treeData.value)
   }
 
@@ -577,7 +552,7 @@ export function useDevState() {
     clearActivePageContext()
   }
 
-  function applyNodeKindPreset(kind: ProjectBlueprintDeliveryKind): void {
+  function applyNodeKindPreset(kind: RuntimeNavigationItemKind): void {
     project.applyNodeKindPreset(kind)
   }
 
@@ -847,7 +822,7 @@ export function useDevState() {
   // 节点表单
   // ═══════════════════════════════════════════════════════════
 
-  function loadNodeToForm(node: ProjectBlueprintTreeNodeData): void {
+  function loadNodeToForm(node: ProjectModelDomain.ProjectBlueprintTreeNodeData): void {
     const pageId = resolvePageNodePageId(node) || node.id || `nav-node-${node.id}`
     project.setActivePage(pageId)
     project.selectNode(node.id)
@@ -1023,7 +998,7 @@ export function useDevState() {
   // 节点选中
   // ═══════════════════════════════════════════════════════════
 
-  async function selectNode(node: ProjectBlueprintTreeNodeData): Promise<void> {
+  async function selectNode(node: ProjectModelDomain.ProjectBlueprintTreeNodeData): Promise<void> {
     cancelAutoSave()
     if (blueprintDirty.value && selectedNode.value) void saveNodeChanges()
     project.selectNode(node.id)
@@ -1049,7 +1024,7 @@ export function useDevState() {
     syncActivePageContextByPath(val)
   }
 
-  function handleNodeKindChange(kind: ProjectBlueprintDeliveryKind): void {
+  function handleNodeKindChange(kind: RuntimeNavigationItemKind): void {
     if (kind === 'module' && !canUseModuleNodeKindInTree(selectedNode.value)) {
       addStatus('页面下不能创建模块', 'warning')
       const fallbackKind = selectedNode.value?.nodeKind ?? 'page'
@@ -1100,11 +1075,11 @@ export function useDevState() {
     }
   }
 
-  async function listReferenceProjects(): Promise<ProjectSummary[]> {
+  async function listReferenceProjects(): Promise<ProjectModelDomain.ProjectSummary[]> {
     return editor.listReferenceProjects()
   }
 
-  async function listReferenceProjectPages(targetProjectId: string): Promise<ProjectPageReference[]> {
+  async function listReferenceProjectPages(targetProjectId: string): Promise<ProjectModelDomain.ProjectPageReference[]> {
     return editor.listReferenceProjectPages(targetProjectId)
   }
 
@@ -1113,7 +1088,7 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   function addRootNode(): void {
-    const node: ProjectBlueprintTreeNodeData = {
+    const node: ProjectModelDomain.ProjectBlueprintTreeNodeData = {
       id: crypto.randomUUID(),
       nodeKind: 'module',
       title: '新模块',
@@ -1137,7 +1112,7 @@ export function useDevState() {
     return treeData.value.some((node) => node.childPlacement === placement)
   }
 
-  function getReservedRootGroupTemplate(placement: 'toolbar' | 'user-menu'): ProjectBlueprintTreeNodeData {
+  function getReservedRootGroupTemplate(placement: 'toolbar' | 'user-menu'): ProjectModelDomain.ProjectBlueprintTreeNodeData {
     if (placement === 'toolbar') {
       return {
         id: crypto.randomUUID(),
@@ -1175,7 +1150,7 @@ export function useDevState() {
     }
   }
 
-  async function addChildNode(parent: ProjectBlueprintTreeNodeData): Promise<void> {
+  async function addChildNode(parent: ProjectModelDomain.ProjectBlueprintTreeNodeData): Promise<void> {
     const pageId = normalizePageIdFromPath(`/child-${crypto.randomUUID().slice(0, 8)}`)
     try {
       await editor.createMountedPage({
@@ -1190,7 +1165,7 @@ export function useDevState() {
     }
   }
 
-  function removeNodeFromTree(_node: { parent: { data: ProjectBlueprintTreeNodeData } }, data: ProjectBlueprintTreeNodeData): void {
+  function removeNodeFromTree(_node: { parent: { data: ProjectModelDomain.ProjectBlueprintTreeNodeData } }, data: ProjectModelDomain.ProjectBlueprintTreeNodeData): void {
     if (isSystemRootDirectoryInTree(data)) {
       addStatus(`系统目录 ${data.title} 不可删除，仅可编辑子项`, 'warning')
       return
@@ -1218,9 +1193,9 @@ export function useDevState() {
     )
   }
 
-  async function moveNodeInTree(data: ProjectBlueprintTreeNodeData): Promise<void> {
+  async function moveNodeInTree(data: ProjectModelDomain.ProjectBlueprintTreeNodeData): Promise<void> {
     if (isSystemRootDirectoryInTree(data)) return
-    const location: ProjectBlueprintTreeNodeLocation | null = findNodeLocation(treeData.value, data.id)
+    const location: ProjectModelDomain.ProjectBlueprintTreeNodeLocation | null = findNodeLocation(treeData.value, data.id)
     if (!location) return
     blueprintSaving.value = true
     try {

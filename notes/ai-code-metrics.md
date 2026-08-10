@@ -2,6 +2,67 @@
 
 > 本文件属于 AI 编码赋能层，只记录 AI 助手在本项目执行任务时的复杂度、返工、审查和存活率。它不是产品路线图，也不是 SPARK AI 产品契约或架构事实源。
 
+### 2026-08-10 SSOT H1 项目蓝图节点实体归并
+
+- **复杂度**：复杂（跨 lowcode 公共合同、wire、输出、mutation、测试和门禁）
+- **总耗时**：约 35 分钟
+- **返工次数**：1（并行 G7b 改动短暂造成类型/Lint 基线失败，未覆盖对方代码）
+- **审查轮次**：1（用户锁定项目模型唯一所有者和零兼容删断策略）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：候选规则保留在 SSOT round2 研读，待总体归并完成后统一裁决
+- **人工干预**：用户要求不兼容、不转发，允许先删除再逐批修复直到零回归
+- **验证摘要**：lowcode 13 文件/44 项、根导航 5 项、容器 23 项、全量 169 文件/1250 项测试通过；根与包类型检查、Lint、架构和项目蓝图 SSOT 门禁通过
+
+### 2026-08-10 SSOT G7b + WireJsonObject
+
+- **复杂度**：中等
+- **总耗时**：约 40 分钟
+- **返工次数**：1（批量改 import 脚本打断多行 import；包内仍保留 SparkNode 桥）
+- **审查轮次**：1（用户重申零兼容循环）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：是
+- **人工干预**：继续循环；公共面去 SparkNode 再导出；台账 JsonObject 改名
+
+### 2026-08-10 SSOT G7+G8（类型再导出 / AjaxResult）
+
+- **复杂度**：中等
+- **总耗时**：约 35 分钟
+- **返工次数**：1（internal.ts 仍 re-export LoggerApi）
+- **审查轮次**：1（用户重申零兼容循环）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：是
+- **人工干预**：授权继续循环；本批含 G7 收窄面 + G8
+
+### 2026-08-10 SSOT G3+G5+G6（kit verify / 宿主 re-export）
+
+- **复杂度**：中等
+- **总耗时**：约 25 分钟
+- **返工次数**：0
+- **审查轮次**：1（用户「全部」）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：是（monorepo G1/G2；vue-frontend G3/G5/G6）
+- **人工干预**：授权 G3+G5+G6 与上轮知识一并沉淀
+
+### 2026-08-10 SSOT G1+G2+G4（死别名 / PAGE_FILES / 文档）
+
+- **复杂度**：简单
+- **总耗时**：约 20 分钟
+- **返工次数**：0
+- **审查轮次**：1（用户选选项 1）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：是（monorepo-dependencies：paths / PAGE_NODE_FILE_NAMES）
+- **人工干预**：明确本轮只做 G1+G2+G4
+
+### 2026-08-10 系统结构 SSOT 归并（A–F）
+
+- **复杂度**：复杂（跨包删断双真源 + 运行轴改线）
+- **总耗时**：约跨多会话合计（本轮 D/E/F 收尾约 90 分钟）
+- **返工次数**：1（宿主 Vue wrapper 触发 pageNode 类型与路径大小写问题，改走 DynamicRouter 注入）
+- **审查轮次**：多轮（策略锁定：零兼容、无 shim；用户选「全部」推进 D+E+F）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：是（page-design / vue-frontend 各条目）
+- **人工干预**：确认零兼容无转发；批次 A+B 后曾暂停再续；「全部」含权限 mapper、文档、pagedata 运行轴断开
+
 ### 2026-08-10 冗余过时代码安全清除（续）
 
 - **复杂度**：中等（注释/文档收束）
@@ -256,3 +317,201 @@
 - **知识沉淀**：待用户确认“公开合同破坏性正名必须同步 capability 运行时校验”和“consumer ledger 在源码消费面变化后必须由生成器刷新”两条规则
 - **人工干预**：用户明确 DataTable 对应数据资源、DataView 对应资源视图、DataSet 层保持稳定；后端混合关系由前端分别投影为资源关系和 UI 输入级联；模型必须经过独立适配器；不改 lowcode-jdk17，不保留旧合同兼容层。
 - **验证摘要**：spark-data 类型检查与 28 文件/401 项测试、spark-lowcode-api 类型检查与 13 文件/44 项测试、根类型检查、Lint、架构门禁、168 文件/1246 项测试和 lowcode 合同账本校验全部通过；未执行后端、数据库或 live mutation。
+
+### 2026-08-10 SSOT 包内 SparkNode / CapabilityContext / page-bindings / REGISTRY_KEY
+
+- **复杂度**：中等（机械面大，语义清晰）
+- **总耗时**：约 40 分钟（含多行 import 损坏修复）
+- **返工次数**：1（多行 `import { type SparkNode` 机械改写插入损坏，已逐文件修复）
+- **审查轮次**：延续已批准 SSOT 策略（断开→删除→改消费方）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` 已更新 SparkNode/CapabilityContext 规则
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：`spark-component` / `spark-app` / 根 `typecheck` 通过
+
+### 2026-08-10 SSOT SparkNode helpers 停公共/包内薄包转发
+
+- **复杂度**：中等
+- **总耗时**：约 25 分钟
+- **返工次数**：1（verbatimModuleSyntax 类型导入 + 4 处嵌套 import 修复）
+- **审查轮次**：延续 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` 已更新 helpers 规则
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：component/app/根 typecheck 通过；相关 4 个测试文件 26 项通过
+
+### 2026-08-10 SSOT AppThemeCapability / AppLogTransport / CapabilityContext
+
+- **复杂度**：中等
+- **总耗时**：约 20 分钟
+- **返工次数**：0
+- **审查轮次**：延续 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` CapabilityContext 规则已更新
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：component / 根 typecheck 通过
+
+### 2026-08-10 SSOT gate/README + Environment/isThemeMode
+
+- **复杂度**：中等
+- **总耗时**：约 25 分钟
+- **返工次数**：0
+- **审查轮次**：plan-project-blueprint-aggregate-ssot 收尾 + 下一批死符号
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` 已更新 isThemeMode；packages README / lowcode README / verify gate 已对齐
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：component/app/根 typecheck、verify:project-blueprint-ssot、auth-nav 5 测通过
+
+### 2026-08-10 SSOT ContextItem + lowcode 聚合拆除消费方
+
+
+- **复杂度**：复杂
+- **总耗时**：约 50 分钟
+- **返工次数**：2（与并行会话抢改 lowcode-runtime；半迁移死代码清理）
+- **审查轮次**：延续 plan-project-blueprint-aggregate-ssot
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` 已更新 ContextItem / lowcode 记录层规则
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：component/app/project-model/lowcode/根 typecheck 通过；auth-nav 导航测试随命令链执行
+
+### 2026-08-10 SSOT TreeNode / PermissionMode / 薄包拆除
+
+
+- **复杂度**：复杂
+- **总耗时**：约 45 分钟
+- **返工次数**：2（TreeNode 误伤 `moveTreeNode`；blueprint 文件中途被掏空后重建）
+- **审查轮次**：延续已批准 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` 已更新 TreeNode / PermissionMode / LowcodeProjectBlueprint
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：utils/component/project-model/app/lowcode-api + 根 typecheck 通过；lowcode blueprint 10 测、json-document 20 测通过
+
+### 2026-08-10 SSOT Permission/Dialog/别名收口
+
+
+- **复杂度**：中等
+- **总耗时**：约 25 分钟
+- **返工次数**：1（data-view 重复导入 DataPermissionSnapshotInput）
+- **审查轮次**：延续 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` 已更新 ComponentPermissionActionContext / VisibilityContainerApi / DataPermissionSnapshotInput
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：component / data / ai / 根 typecheck 通过
+
+### 2026-08-10 SSOT navigation-surface（kind/placement/linkTarget/root）
+
+
+- **复杂度**：中等
+- **总耗时**：约 40 分钟
+- **返工次数**：1（`NavigationContextConfig` 误套 Readonly 导致草稿字段不可写）
+- **审查轮次**：延续 SSOT 断开策略（无薄包转发）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` 运行导航表面规则；`packages/README.md` SSOT 行已更新
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：utils/project-model/app/根 typecheck；project-model 26 测；auth-nav 导航测；verify:project-blueprint-ssot 通过
+
+### 2026-08-10 SSOT SendCodeType 台账/运行同形
+
+
+- **复杂度**：简单
+- **总耗时**：约 20 分钟
+- **返工次数**：0
+- **审查轮次**：延续 SSOT 断开策略（删 LowcodeVerificationChannel，无薄转发）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` SendCodeType 规则；`verify:send-code-type-parity` 入 verify:rules
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：lowcode-api / 根 typecheck；verify:send-code-type-parity；verify:ajax-result-parity 通过
+
+### 2026-08-10 SSOT WireFilterOperator / OrderType
+
+
+- **复杂度**：中等
+- **总耗时**：约 25 分钟
+- **返工次数**：1（parity EXPECTED 字典序；printViolations 签名）
+- **审查轮次**：延续 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` wire-query 分层；assembler 映射修正到台账字面量
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：根 typecheck；verify:wire-query-parity；data-space-runtime 5 测通过
+
+### 2026-08-10 SSOT Lowcode* 蓝图/导航授权命名
+
+
+- **复杂度**：中等
+- **总耗时**：约 20 分钟
+- **返工次数**：0
+- **审查轮次**：延续 SSOT 断开策略（无薄转发）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` lowcode Lowcode* 正式名；gate 禁旧 RuntimeNavigation*/ProjectBlueprintApi
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：lowcode typecheck；根 typecheck；verify:project-blueprint-ssot；blueprint 7 测；auth-nav 5 测通过
+
+### 2026-08-10 SSOT GroupFunType / Method / ImplGate
+
+
+- **复杂度**：中等
+- **总耗时**：约 25 分钟
+- **返工次数**：0
+- **审查轮次**：延续 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` GroupFunType/AggregateType、ProjectBlueprintImplGate、Method
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：data/project-model/lowcode/根 typecheck；verify:wire-query-parity；page-design-gates 15 测通过
+
+### 2026-08-10 SSOT data-space resource-type / ElementPlus sort / 薄再导出拆除
+
+
+- **复杂度**：中等
+- **总耗时**：约 30 分钟
+- **返工次数**：1（design-api 误删 serializedText 后恢复）
+- **审查轮次**：延续 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` DataSpace 资源类型 / ElementPlus sort；packages README
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：lowcode/component/根 typecheck；data-space 测；verify:wire-query-parity 通过
+
+### 2026-08-10 SSOT SendCodeScene / 死别名 / NavExternalLinkMode
+
+
+- **复杂度**：简单
+- **总耗时**：约 20 分钟
+- **返工次数**：0
+- **审查轮次**：延续 SSOT 断开策略（扫尾）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：`vue-frontend.md` SendCodeScene Extract；删 LowcodeDatabaseResourceType
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：lowcode/app/根 typecheck；verify:send-code-parity（Type+Scene）；runtime-target 3 测通过
+
+### 2026-08-10 SSOT 战役冻结（0 高价值残留）
+
+
+- **复杂度**：简单
+- **总耗时**：约 10 分钟（终扫 + DevPageFileName 死别名删除）
+- **返工次数**：0
+- **审查轮次**：终扫确认无同名双真源 / 无薄包转发 / 无禁名复活
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：有意分层适配保留（wire↔DataView、ledger↔runtime parity）
+- **人工干预**：用户锁定循环至 0 回归；本轮宣告高价值 SSOT 归并完成
+- **验证摘要**：send-code / wire-query / ajax-result / project-blueprint-ssot；根 typecheck 通过
+
+### 2026-08-10 SSOT spark-component 能力类型身份收口
+
+- **复杂度**：简单
+- **总耗时**：约 15 分钟
+- **返工次数**：0
+- **审查轮次**：延续已批准 SSOT 断开策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：研读文件记录能力类型所有权；无新增产品规则
+- **人工干预**：用户锁定不兼容、不薄包、循环到 0 回归
+- **验证摘要**：ClassModel 重复项 20 降至 16；component typecheck/lint/90 测、ClassModel 47 测、根 typecheck、全量构建通过
+
+### 2026-08-10 AI 代码规则与 ClassModel 公共索引零回归收尾
+
+- **复杂度**：复杂（跨 workflow、data、lowcode、component、app、project-model 与生成治理）
+- **总耗时**：约 90 分钟
+- **返工次数**：3（无效定向测试路径；Windows 非 PTY 测试会话被提前回收；`spark-component` 命名空间触发受限能力导入）
+- **审查轮次**：延续用户已批准的零兼容、无薄转发、逐批清零策略
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：无新增产品事实；实施约束与验证证据写入 `notes/research-ai-codegen-zero-regression.md`
+- **人工干预**：用户明确不做一问一答，要求断开旧面、删除旧实现并循环至零回归
+- **验证摘要**：AI codegen 924 文件 0 违规；根 169 文件/1252 项测试、包 814 项测试、ClassModel 49 项测试通过；typecheck、lint、build、默认治理与 lowcode 385 端点/125 消费者账本通过；ClassModel 702 分片/1264 公共索引，历史 semantic gap 保持 1469 无新增

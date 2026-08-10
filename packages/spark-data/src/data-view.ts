@@ -25,7 +25,7 @@ import type {
   SparkEventEmitter,
   DataViewEditingFieldChangeEvent, DataViewApplyEditingRowsResult,
   DataPermissionSnapshot, DataPermissionSnapshotInput,
-  DataViewFieldProjection, DataViewQueryContext, DataViewQueryResult,
+  DataViewFieldProjection, DataViewQueryContext,
 } from './types'
 
 /** 过滤值字段引用形状（与 types.ts 中 FilterValueExpression 的内联形状一致） */
@@ -195,7 +195,7 @@ function getArrayFilterValue(value: unknown): unknown[] | null {
   return Array.isArray(value) ? value : null
 }
 
-function isDataViewQueryResult(value: unknown): value is DataViewQueryResult {
+function isDataPermissionSnapshotInput(value: unknown): value is DataPermissionSnapshotInput {
   if (!isRecord(value)) return false
   return typeof value['formKey'] === 'string'
     && typeof value['dataSpaceId'] === 'string'
@@ -1373,7 +1373,7 @@ protected logger = Logger('DataView')
       }
 
       if (result.success && result.data !== undefined) {
-        if (isDataViewQueryResult(result.data)) {
+        if (isDataPermissionSnapshotInput(result.data)) {
           this.ingestPermissionSnapshot(result.data)
         } else {
           this.updateFromServer(normalizeServerRowsData(result.data, `DataView.loadFromServer ${this.tableName}@${this.viewId}`))

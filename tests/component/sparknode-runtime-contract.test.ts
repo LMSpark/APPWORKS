@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { Spark, PAGE_COMPONENT_REGISTRY, registerAllRenderers, useSparkComponent } from '@spark-appworks/spark-component'
-import type { SparkNode } from '@spark-appworks/spark-component'
 import { createPageComponentRegistry } from '../../packages/spark-component/src/page/context/page-component-registry'
 import { buildPageChildren } from '../../packages/spark-component/src/page/binding/build-page-children'
 import type { BuildPageChildrenOptions } from '../../packages/spark-component/src/page/binding/build-page-children'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 describe('SparkNode runtime contract', () => {
   function createTestPlugin() {

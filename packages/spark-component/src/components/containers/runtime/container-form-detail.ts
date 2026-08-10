@@ -6,13 +6,11 @@
  */
 
 import { computed, shallowReactive, toRef, watch } from 'vue'
-import { DataMember, type DataColumn, type DataView, type DataRow } from '@spark-appworks/spark-data'
+import { DataMember, getSparkNodeChildren, type DataColumn, type DataRow, type DataView, type SparkNode } from '@spark-appworks/spark-data'
 import {
   DATA_SOURCE,
   MODULE_CONTEXT,
-  getSparkNodeChildren,
   useSparkPageComponent,
-  type SparkNode,
 } from '../../internal.js'
 import type { RToolbarProps } from '../layout/RendererToolbar.types'
 import { createCurrentRowScope } from '../support/scopeFactories'

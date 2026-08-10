@@ -8,14 +8,13 @@
   "sideEffects": false,
   "private": false,
   "license": "MIT",
-  "description": "Spark AI agent runtime - json schema, ClassModel tools, sessions, tool loop, and transport contracts",
+  "description": "Spark AI agent runtime - ClassModel tools, sessions, tool loop, and transport contracts",
   "keywords": [
     "spark",
     "ai",
     "agent",
     "class-model",
     "tool-calling",
-    "json-schema",
     "sse"
   ],
   "files": [
@@ -30,10 +29,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./json": {
-      "types": "./dist/json/index.d.ts",
-      "import": "./dist/json/index.js"
     },
     "./agent": {
       "types": "./dist/agent/index.d.ts",

@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-app/src/types.ts",
     "packageName": "@spark-appworks/spark-app",
     "modulePath": "types",
-    "jsdoc": "@module @spark-appworks/spark-app:types\n职责：提供 spark-app 应用壳中的 types 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nSPARK Application Layer Types\n应用层类型定义\n\n日志级别（从 spark-utils 统一导入）",
+    "jsdoc": "@module @spark-appworks/spark-app:types\n职责：提供 spark-app 应用壳中的 types 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nSPARK Application Layer Types\n应用层类型定义\n\n日志级别（从 spark-utils 统一导入；本模块不 re-export）",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "AppEnvironment",
@@ -229,7 +229,7 @@
           "title": "Router"
         },
         "theme": {
-          "$ref": "theme/index.ts.json#/$defs/ThemeCapability"
+          "$ref": "theme/index.ts.json#/$defs/AppThemeCapability"
         }
       },
       "required": [
@@ -267,7 +267,7 @@
           "type": "string"
         },
         "themeService": {
-          "$ref": "theme/index.ts.json#/$defs/ThemeCapability"
+          "$ref": "theme/index.ts.json#/$defs/AppThemeCapability"
         }
       },
       "required": [
@@ -417,7 +417,7 @@
       ]
     }
   },
-  "generatedAt": "2026-08-09T10:48:11.001Z",
+  "generatedAt": "2026-08-10T11:26:01.133Z",
   "models": {
     "AppEnvironment": {
       "name": "AppEnvironment",
@@ -678,7 +678,7 @@
       "jsdoc": "Bootstrap Context - 扩展 AppContext，包含 Vue 应用实例和路由",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "AppContext & {\n    /** Vue 应用实例 */\n    app: App;\n    /** Vue Router 实例 */\n    router: Router;\n    /** 主题服务（仅在启用 theme 选项时存在） */\n    theme?: ThemeCapability;\n}",
+        "declarationTypeText": "AppContext & {\n    /** Vue 应用实例 */\n    app: App;\n    /** Vue Router 实例 */\n    router: Router;\n    /** 主题服务（仅在启用 theme 选项时存在） */\n    theme?: AppThemeCapability;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -687,7 +687,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** Vue 应用实例 */\n    app: App;\n    /** Vue Router 实例 */\n    router: Router;\n    /** 主题服务（仅在启用 theme 选项时存在） */\n    theme?: ThemeCapability;\n}"
+            "typeText": "{\n    /** Vue 应用实例 */\n    app: App;\n    /** Vue Router 实例 */\n    router: Router;\n    /** 主题服务（仅在启用 theme 选项时存在） */\n    theme?: AppThemeCapability;\n}"
           }
         ],
         "members": {
@@ -719,7 +719,7 @@
       "jsdoc": "初始化选项",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** Vue 应用实例 */\n    app: App;\n    /** Vue Router 实例 */\n    router: Router;\n    /** 应用配置 */\n    config: AppConfig;\n    /** 认证上下文解析器；生产环境必须由应用宿主显式提供。 */\n    authenticate?: BootstrapAuthenticate;\n    /** 挂载目标元素选择器（默认 '#app'） */\n    mountTarget?: string;\n    /** 主题服务实例（由 start() 创建并传入，或手动传入） */\n    themeService?: ThemeCapability;\n    /** 挂载前钩子 */\n    beforeMount?: (context: BootstrapContext) => void | Promise<void>;\n    /** 挂载后钩子 */\n    afterMount?: (context: BootstrapContext) => void | Promise<void>;\n}",
+        "declarationTypeText": "{\n    /** Vue 应用实例 */\n    app: App;\n    /** Vue Router 实例 */\n    router: Router;\n    /** 应用配置 */\n    config: AppConfig;\n    /** 认证上下文解析器；生产环境必须由应用宿主显式提供。 */\n    authenticate?: BootstrapAuthenticate;\n    /** 挂载目标元素选择器（默认 '#app'） */\n    mountTarget?: string;\n    /** 主题服务实例（由 start() 创建并传入，或手动传入） */\n    themeService?: AppThemeCapability;\n    /** 挂载前钩子 */\n    beforeMount?: (context: BootstrapContext) => void | Promise<void>;\n    /** 挂载后钩子 */\n    afterMount?: (context: BootstrapContext) => void | Promise<void>;\n}",
         "members": {
           "attributes": [
             {

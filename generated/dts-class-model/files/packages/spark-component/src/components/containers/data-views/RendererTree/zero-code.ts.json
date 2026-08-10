@@ -10,15 +10,13 @@
     "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTree/zero-code\n职责：封装 RendererTree（r-tree）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 table-level/data-view-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer tree 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "TreeNode",
+      "RendererTreeNode",
       "ElTreeNode",
       "ElTreeComponent",
       "NativeTreeLike",
-      "NativeTreeNodeLike",
+      "NativeRendererTreeNodeLike",
       "TreeEventControl",
-      "TreeEventHandler",
-      "RendererTreeBehaviorProps",
-      "RendererTreeZeroCodeOptions"
+      "TreeEventHandler"
     ],
     "componentName": "RendererTree",
     "componentType": "r-tree",
@@ -27,10 +25,10 @@
     "componentDirectory": "containers/data-views"
   },
   "$defs": {
-    "TreeNode": {
+    "RendererTreeNode": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "TreeNode",
+      "title": "RendererTreeNode",
       "properties": {
         "id": {
           "anyOf": [
@@ -51,7 +49,7 @@
         "children": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/TreeNode"
+            "$ref": "#/$defs/RendererTreeNode"
           }
         },
         "disabled": {
@@ -251,14 +249,14 @@
           "additionalProperties": false
         },
         "method.getNode.return": {
-          "$ref": "#/$defs/NativeTreeNodeLike"
+          "$ref": "#/$defs/NativeRendererTreeNodeLike"
         }
       }
     },
-    "NativeTreeNodeLike": {
+    "NativeRendererTreeNodeLike": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "NativeTreeNodeLike",
+      "title": "NativeRendererTreeNodeLike",
       "properties": {
         "data": {
           "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
@@ -327,8 +325,7 @@
           "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
         },
         "logger": {
-          "type": "object",
-          "title": "LoggerApi"
+          "$ref": "../../../../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
         },
         "nodeKeyField": {
           "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
@@ -349,10 +346,10 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.400Z",
+  "generatedAt": "2026-08-10T11:35:59.403Z",
   "models": {
-    "TreeNode": {
-      "name": "TreeNode",
+    "RendererTreeNode": {
+      "name": "RendererTreeNode",
       "jsdoc": "r-tree 对外暴露的树节点数据形态，兼容普通 DataRow 和嵌套 children。",
       "declarationKind": "typeAlias",
       "component": {
@@ -363,7 +360,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 树节点的业务主键；用于选中、拖拽移动和 Element Plus 节点定位。 */\n    id?: string | number;\n    /** 节点展示文本；优先用于树节点标题。 */\n    label?: string;\n    /** 兼容后端常见字段名的节点展示文本。 */\n    name?: string;\n    /** 子节点集合；存在时按嵌套树数据渲染。 */\n    children?: TreeNode[];\n    /** 是否禁用该节点的选择、勾选或交互。 */\n    disabled?: boolean;\n    /** 允许保留业务行上的额外字段，供脚本和动作读取。 */\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    /** 树节点的业务主键；用于选中、拖拽移动和 Element Plus 节点定位。 */\n    id?: string | number;\n    /** 节点展示文本；优先用于树节点标题。 */\n    label?: string;\n    /** 兼容后端常见字段名的节点展示文本。 */\n    name?: string;\n    /** 子节点集合；存在时按嵌套树数据渲染。 */\n    children?: RendererTreeNode[];\n    /** 是否禁用该节点的选择、勾选或交互。 */\n    disabled?: boolean;\n    /** 允许保留业务行上的额外字段，供脚本和动作读取。 */\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -471,7 +468,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 返回当前选中的原生树节点数据。 */\n    getCurrentNode?: () => unknown;\n    /** 按节点 key 设置当前选中节点；传 null 清空选中。 */\n    setCurrentKey?: (key: string | number | null) => void;\n    /** 按关键字触发 Element Plus 树过滤。 */\n    filter?: (value: string) => void;\n    /** 返回当前勾选的节点数据。 */\n    getCheckedNodes?: (leafOnly?: boolean, includeHalfChecked?: boolean) => unknown[];\n    /** 返回当前勾选节点的 key 集合。 */\n    getCheckedKeys?: (leafOnly?: boolean) => Array<string | number>;\n    /** 设置当前勾选节点的 key 集合。 */\n    setCheckedKeys?: (keys: Array<string | number>, leafOnly?: boolean) => void;\n    /** 将节点数据追加到父节点下。 */\n    append?: (data: unknown, parentNode: unknown) => void;\n    /** 将节点数据插入到参考节点之前。 */\n    insertBefore?: (data: unknown, refNode: unknown) => void;\n    /** 将节点数据插入到参考节点之后。 */\n    insertAfter?: (data: unknown, refNode: unknown) => void;\n    /** 从树中移除节点实例或节点数据。 */\n    remove?: (nodeOrData: unknown) => void;\n    /** 按业务 key 获取原生树节点实例。 */\n    getNode?: (key: string | number) => NativeTreeNodeLike | undefined;\n}",
+        "declarationTypeText": "{\n    /** 返回当前选中的原生树节点数据。 */\n    getCurrentNode?: () => unknown;\n    /** 按节点 key 设置当前选中节点；传 null 清空选中。 */\n    setCurrentKey?: (key: string | number | null) => void;\n    /** 按关键字触发 Element Plus 树过滤。 */\n    filter?: (value: string) => void;\n    /** 返回当前勾选的节点数据。 */\n    getCheckedNodes?: (leafOnly?: boolean, includeHalfChecked?: boolean) => unknown[];\n    /** 返回当前勾选节点的 key 集合。 */\n    getCheckedKeys?: (leafOnly?: boolean) => Array<string | number>;\n    /** 设置当前勾选节点的 key 集合。 */\n    setCheckedKeys?: (keys: Array<string | number>, leafOnly?: boolean) => void;\n    /** 将节点数据追加到父节点下。 */\n    append?: (data: unknown, parentNode: unknown) => void;\n    /** 将节点数据插入到参考节点之前。 */\n    insertBefore?: (data: unknown, refNode: unknown) => void;\n    /** 将节点数据插入到参考节点之后。 */\n    insertAfter?: (data: unknown, refNode: unknown) => void;\n    /** 从树中移除节点实例或节点数据。 */\n    remove?: (nodeOrData: unknown) => void;\n    /** 按业务 key 获取原生树节点实例。 */\n    getNode?: (key: string | number) => NativeRendererTreeNodeLike | undefined;\n}",
         "members": {
           "methods": [
             {
@@ -748,7 +745,7 @@
                 "type": "optional",
                 "elementType": {
                   "type": "reference",
-                  "name": "NativeTreeNodeLike",
+                  "name": "NativeRendererTreeNodeLike",
                   "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts"
                 }
               }
@@ -757,8 +754,8 @@
         }
       }
     },
-    "NativeTreeNodeLike": {
-      "name": "NativeTreeNodeLike",
+    "NativeRendererTreeNodeLike": {
+      "name": "NativeRendererTreeNodeLike",
       "jsdoc": "Element Plus 原生树节点实例的最小能力集合。",
       "declarationKind": "typeAlias",
       "component": {
@@ -830,7 +827,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 树节点交互回调；可通过 control.cancel() 接管默认选中、展开等行为。 */\n    (data: TreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>;\n}",
+        "declarationTypeText": "{\n    /** 树节点交互回调；可通过 control.cancel() 接管默认选中、展开等行为。 */\n    (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>;\n}",
         "members": {}
       }
     },

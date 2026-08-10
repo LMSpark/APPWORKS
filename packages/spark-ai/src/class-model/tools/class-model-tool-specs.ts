@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/tools/class-model-tool-specs 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonSchemaObject } from '../../json'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import { CLASS_MODEL_TOOL_NAMES, type ClassModelToolName } from './tool-names'
 
 /** Class Model Tool Spec 的语义模型。 */
@@ -15,7 +15,7 @@ export type ClassModelToolSpec = Readonly<{
   function: {
     readonly name: string
     readonly description: string
-    readonly parameters: AiJsonSchemaObject
+    readonly parameters: JsonSchemaObject
   }
 }>
 
@@ -137,7 +137,7 @@ function buildAgentCompleteTool(): ClassModelToolSpec {
 function toolSpec(input: Readonly<{
   name: ClassModelToolName
   description: string
-  properties: NonNullable<AiJsonSchemaObject['properties']>
+  properties: NonNullable<JsonSchemaObject['properties']>
   required?: readonly string[]
 }>): ClassModelToolSpec {
   return {

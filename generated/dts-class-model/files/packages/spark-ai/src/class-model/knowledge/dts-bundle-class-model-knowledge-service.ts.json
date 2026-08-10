@@ -146,7 +146,7 @@
         },
         "method.query.return": {
           "type": "object",
-          "title": "Promise<AiJsonValue>"
+          "title": "Promise<JsonValue>"
         },
         "method.modelGuide.params": {
           "type": "object",
@@ -190,7 +190,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-15T02:29:20.546Z",
+  "generatedAt": "2026-08-10T10:00:08.506Z",
   "models": {
     "DtsBundleClassModelKnowledgeRefreshInput": {
       "name": "DtsBundleClassModelKnowledgeRefreshInput",
@@ -454,8 +454,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "AiJsonValue",
-                    "sourcePath": "packages/spark-ai/src/json.ts"
+                    "name": "JsonValue"
                   }
                 ]
               }

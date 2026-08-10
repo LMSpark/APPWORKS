@@ -35,10 +35,9 @@ AI用途：需要理解 renderer popconfirm 的实际渲染结构、slot/toolbar
  * @description 确认气泡组件。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RPopconfirmProps } from './RendererPopconfirm.props'
-
-
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RPopconfirmProps>(), {
   type: 'r-popconfirm',
@@ -60,5 +59,4 @@ const { isVisible } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

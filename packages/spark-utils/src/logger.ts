@@ -35,10 +35,10 @@ export type LoggerApi = {
 // ─── 全局传输器（结构化，APP 层贯穿） ────────────────────────────────────────
 
 /**
- * 日志传输器接口（与 spark-app LogTransport 结构兼容）
+ * 日志传输器接口（SSoT）。应用壳批量传输见 spark-app `AppLogTransport`（额外 flush/destroy）。
  *
  * spark-utils 是最底层包，此接口定义为传输器的基础契约。
- * spark-app 的 LogTransport 扩展了 `flush?()` / `destroy?()`，但 send 签名一致，
+ * spark-app 的 AppLogTransport 扩展了 `flush?()` / `destroy?()`，但 send 签名一致，
  * 因此同一个 transport 实例可同时注册到两个系统。
  */
 export type LogTransport = {

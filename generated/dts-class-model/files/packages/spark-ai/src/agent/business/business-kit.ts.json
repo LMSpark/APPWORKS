@@ -33,8 +33,7 @@
       "title": "AiBusinessInputOptions",
       "properties": {
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "identityField": {
           "allOf": [
@@ -102,7 +101,7 @@
           "properties": {
             "input": {
               "type": "object",
-              "title": "AiJsonParams"
+              "title": "JsonParams"
             }
           },
           "additionalProperties": false
@@ -131,8 +130,7 @@
           "type": "string"
         },
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "identityField": {
           "allOf": [
@@ -196,7 +194,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:00:28.620Z",
+  "generatedAt": "2026-08-10T10:00:08.474Z",
   "models": {
     "AiBusinessIdOptions": {
       "name": "AiBusinessIdOptions",
@@ -228,11 +226,11 @@
       "jsdoc": "Ai Business Input Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 输入参数的 JSON Schema，用于 normalize 前后双次校验。 */\n    paramsSchema: AiJsonSchemaObject;\n    /** 实体标识字段名，其值用于生成 scope.businessInstanceId。 */\n    identityField: keyof TInput & string;\n    /** 用户消息字段名，其值作为 LLM 首轮 user message 内容。 */\n    messageField: keyof TInput & string;\n    /** 自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。 */\n    normalize?: (input: AiJsonParams) => TInput;\n    /** 系统提示，支持静态文本或从输入动态生成；空串会 throw。 */\n    systemPrompt: string | ((input: TInput) => string);\n    /** 可选 turn 标题，支持静态文本或从输入动态生成。 */\n    title?: string | ((input: TInput) => string | undefined);\n    /** 可选只读步骤列表，支持静态数组或从输入动态生成。 */\n    readonlySteps?: readonly string[] | ((input: TInput) => readonly string[] | undefined);\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 输入参数的 JSON Schema，用于 normalize 前后双次校验。 */\n    paramsSchema: JsonSchemaObject;\n    /** 实体标识字段名，其值用于生成 scope.businessInstanceId。 */\n    identityField: keyof TInput & string;\n    /** 用户消息字段名，其值作为 LLM 首轮 user message 内容。 */\n    messageField: keyof TInput & string;\n    /** 自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。 */\n    normalize?: (input: JsonParams) => TInput;\n    /** 系统提示，支持静态文本或从输入动态生成；空串会 throw。 */\n    systemPrompt: string | ((input: TInput) => string);\n    /** 可选 turn 标题，支持静态文本或从输入动态生成。 */\n    title?: string | ((input: TInput) => string | undefined);\n    /** 可选只读步骤列表，支持静态数组或从输入动态生成。 */\n    readonlySteps?: readonly string[] | ((input: TInput) => readonly string[] | undefined);\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 输入参数的 JSON Schema，用于 normalize 前后双次校验。 */\n    paramsSchema: AiJsonSchemaObject;\n    /** 实体标识字段名，其值用于生成 scope.businessInstanceId。 */\n    identityField: keyof TInput & string;\n    /** 用户消息字段名，其值作为 LLM 首轮 user message 内容。 */\n    messageField: keyof TInput & string;\n    /** 自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。 */\n    normalize?: (input: AiJsonParams) => TInput;\n    /** 系统提示，支持静态文本或从输入动态生成；空串会 throw。 */\n    systemPrompt: string | ((input: TInput) => string);\n    /** 可选 turn 标题，支持静态文本或从输入动态生成。 */\n    title?: string | ((input: TInput) => string | undefined);\n    /** 可选只读步骤列表，支持静态数组或从输入动态生成。 */\n    readonlySteps?: readonly string[] | ((input: TInput) => readonly string[] | undefined);\n}>",
+            "typeText": "Readonly<{\n    /** 输入参数的 JSON Schema，用于 normalize 前后双次校验。 */\n    paramsSchema: JsonSchemaObject;\n    /** 实体标识字段名，其值用于生成 scope.businessInstanceId。 */\n    identityField: keyof TInput & string;\n    /** 用户消息字段名，其值作为 LLM 首轮 user message 内容。 */\n    messageField: keyof TInput & string;\n    /** 自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。 */\n    normalize?: (input: JsonParams) => TInput;\n    /** 系统提示，支持静态文本或从输入动态生成；空串会 throw。 */\n    systemPrompt: string | ((input: TInput) => string);\n    /** 可选 turn 标题，支持静态文本或从输入动态生成。 */\n    title?: string | ((input: TInput) => string | undefined);\n    /** 可选只读步骤列表，支持静态数组或从输入动态生成。 */\n    readonlySteps?: readonly string[] | ((input: TInput) => readonly string[] | undefined);\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -284,8 +282,7 @@
                   "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "AiJsonParams",
-                    "sourcePath": "packages/spark-ai/src/json.ts"
+                    "name": "JsonParams"
                   }
                 }
               ],

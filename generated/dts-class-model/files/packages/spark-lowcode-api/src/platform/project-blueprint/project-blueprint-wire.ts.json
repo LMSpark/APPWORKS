@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/project-blueprint/project-blueprint-wire",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/project-blueprint-wire 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
-    "jsdocSource": "inferred",
+    "jsdoc": "项目蓝图 wire 层：GetData 查询体构造与 Base_NavigationInfo 行归一化。\n未知 BlueprintNodeKind fail-fast；缺失 kind 的非根节点降级为 unresolved。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-09T21:02:20.924Z",
+  "generatedAt": "2026-08-10T12:16:41.565Z",
   "models": {}
 }

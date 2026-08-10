@@ -420,7 +420,7 @@ const filteredRows = computed<DisplayRow[]>(() => {
 
   if (!hasFilter) return allRows.value
 
-  return Sjd.filterTreeNodes<DisplayRow>(allRows.value, (row) => {
+  return Sjd.filterJsonTreeNodes<DisplayRow>(allRows.value, (row) => {
     if (row.depth > 0 && typeFilter.value !== 'all' && row.type !== typeFilter.value) {
       return false
     }

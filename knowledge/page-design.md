@@ -35,3 +35,10 @@
 - **场景**：AI 修改页面规则配置
 - **规则**：`rule.json` 不是自由结构，有严格的 schema 约束（条件表达式、权限规则、联动规则各有固定格式）。修改 rule 时应通过 `ConfigPageNode` 的 rule 子模型 API，不要直接拼 JSON。
 - **违反后果**：拼出的 JSON 不符合 schema → 前端解析报错或运行时行为异常
+
+### 有 PageDataSpaceBinding 时运行 DataSet 不以 pagedata 为真源
+
+- **场景**：配置页蓝图节点带齐 `formKey + dataSpaceId + modelId`（`PageDataSpaceBinding`），运行态打开该页
+- **规则**：运行态 DataSet 只经宿主 `loadBoundDataSpaceDataSet`（DataSpace 设计 + `PermissionRuntimeSnapshot` → `LowcodeDataSpaceAssembler`）装载。`pagedata.json` 仅属设计/AI 轴与无绑定预览；`SparkPageRenderer` 在 binding 存在时必须调用注入的 `loadRuntimeDataSet`，禁止再用四文件 hydrate 当运行数据。
+- **违反后果**：设计器草稿与平台权限/模型双真源并行 → UI 授权与查询结果和平台不一致；缺装载器时 fail-closed 抛错
+- **发现来源**：2026-08 系统结构 SSOT 归并（批次 F）

@@ -9,9 +9,7 @@
     "modulePath": "components/fields/non-data-components/FieldContextRenderer",
     "jsdoc": "@module @spark-appworks/spark-component:components/fields/non-data-components/FieldContextRenderer\n职责：实现 FieldContextRenderer（r-context-renderer）的 Vue 渲染入口，把配置 props、数据上下文和事件桥接成用户可见的组件界面。\n边界：负责 field-level/field-support 的视图组合与事件转发，不定义跨组件数据模型，也不替代 zero-code 行为 API。\nAI用途：需要理解 field context renderer 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [
-      "Props"
-    ],
+    "symbols": [],
     "componentName": "FieldContextRenderer",
     "componentType": "r-context-renderer",
     "componentLevel": "field-level",
@@ -96,8 +94,7 @@
         "mergedChildren": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "SparkNode"
+            "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
           }
         },
         "isCurrentFieldHidden": {
@@ -153,7 +150,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.590Z",
+  "generatedAt": "2026-08-10T11:22:51.265Z",
   "models": {
     "Props": {
       "name": "Props",

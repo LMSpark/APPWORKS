@@ -108,7 +108,7 @@ AI用途：需要理解应用层如何把路由、服务和组件系统组装起
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { PageSelectedEntity } from '@spark-appworks/spark-component'
+import type { PageSelectorOption } from '@spark-appworks/spark-component'
 import {
   appPageUiState,
   cancelAppDialog,
@@ -142,7 +142,7 @@ function handleSearchKeywordUpdate(value: string): void {
   appPageUiState.selector.searchKeyword = value
 }
 
-function toggleSelectorOption(option: PageSelectedEntity, checked: boolean): void {
+function toggleSelectorOption(option: PageSelectorOption, checked: boolean): void {
   const key = String(option.value)
   if (checked) {
     if (!appPageUiState.selector.selectedValues.includes(key)) {
@@ -153,14 +153,14 @@ function toggleSelectorOption(option: PageSelectedEntity, checked: boolean): voi
   appPageUiState.selector.selectedValues = appPageUiState.selector.selectedValues.filter(value => value !== key)
 }
 
-function handleSelectorCheckboxChange(option: PageSelectedEntity, event: Event): void {
+function handleSelectorCheckboxChange(option: PageSelectorOption, event: Event): void {
   if (!(event.target instanceof HTMLInputElement)) {
     throw new Error('App page selector checkbox change event target must be an HTMLInputElement')
   }
   toggleSelectorOption(option, event.target.checked)
 }
 
-function selectSingleOption(option: PageSelectedEntity): void {
+function selectSingleOption(option: PageSelectorOption): void {
   appPageUiState.selector.selectedValues = [String(option.value)]
 }
 </script>

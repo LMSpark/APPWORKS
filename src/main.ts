@@ -52,6 +52,7 @@ import type {
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
 import { SparkPageRenderer, Spark } from '@spark-appworks/spark-component'
+import { loadBoundDataSpaceDataSet } from './lowcode/data-space/lowcode-data-space-runtime'
 import { addLogTransport, isRecord } from '@spark-appworks/spark-utils'
 
 import {
@@ -402,6 +403,10 @@ async function startApp() {
         getProjectId: () => lowcodeApi.application.get()?.application.id ?? 'homepage',
         readPageFile: readLowcodePageFile,
         pageComponent: SparkPageRenderer,
+        loadRuntimeDataSet: async (binding) => {
+          const result = await loadBoundDataSpaceDataSet(binding)
+          return result.dataSet
+        },
         componentMap,
         isAuthenticated: hasLowcodeSession,
         tenantPathPrefix: '/t/:tenantId/:projectId',

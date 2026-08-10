@@ -6,7 +6,6 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
-        'json/index': resolve(__dirname, 'src/json/index.ts'),
         'agent/index': resolve(__dirname, 'src/agent/index.ts'),
         'class-model/index': resolve(__dirname, 'src/class-model/index.ts'),
       },

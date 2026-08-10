@@ -6,7 +6,7 @@
  */
 
 import { defineCapability, isCallable, isRecord } from '@spark-appworks/spark-utils'
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { AiAgentRegistry } from './business-registry'
 import { runAiAgent, type AiAgentSession } from './business-session'
 import {
@@ -49,10 +49,10 @@ export type AiAgentHostEntryMap = Record<string, AiAgentRegistration>
 
 /** 从 registration 泛型参数中提取输入类型 */
 export type AiAgentHostRegistrationInput<TRegistration> =
-  TRegistration extends AiAgentRegistration<infer TInput> ? TInput : AiJsonParams
+  TRegistration extends AiAgentRegistration<infer TInput> ? TInput : JsonParams
 
 /** ensure 命令：延迟创建 registration 的工厂指令 */
-export type AiAgentHostEnsureCommand<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiAgentHostEnsureCommand<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 延迟创建的 registration 所属业务模块标识，必须与 create() 返回的 registration.moduleId 一致 */
   moduleId: string
   /** 延迟工厂：仅在 alias 不存在时调用，返回的 registration.moduleId 必须与命令的 moduleId 匹配 */
@@ -113,7 +113,7 @@ export type AiAgentHostDryRunResult = Readonly<
     ok: true
     alias: string
     moduleId: string
-    normalizedInput: AiJsonParams
+    normalizedInput: JsonParams
     scope: AiAgentScope
     orchestration: AiAgentOrchestrationPlan
     orchestrationSummary: AiAgentHostOrchestrationSummary
@@ -179,7 +179,7 @@ export class AiAgentHost<TEntries extends AiAgentHostEntryMap = {}> {
    * 流程：规范化别名 → 查重（重复抛错）→ 写入 registry + 双向映射 → 返回新实例。
    * 返回类型窄化后的新 Host 实例，旧实例不受影响。
    */
-  public register<K extends string, TInput extends AiJsonParams>(
+  public register<K extends string, TInput extends JsonParams>(
     alias: K,
     registration: AiAgentRegistration<TInput>,
   ): AiAgentHost<TEntries & Record<K, AiAgentRegistration<TInput>>> {
@@ -202,7 +202,7 @@ export class AiAgentHost<TEntries extends AiAgentHostEntryMap = {}> {
    *   2. alias 已绑定到不同 moduleId → 抛错
    *   3. alias 不存在 → 调用 command.create() 创建并注册
    */
-  public ensure<K extends string, TInput extends AiJsonParams>(
+  public ensure<K extends string, TInput extends JsonParams>(
     alias: K,
     command: AiAgentHostEnsureCommand<TInput>,
   ): AiAgentHost<TEntries & Record<K, AiAgentRegistration<TInput>>> {
@@ -344,14 +344,14 @@ export class AiAgentHost<TEntries extends AiAgentHostEntryMap = {}> {
     chat?: AiAgentTaskChatOptions,
   ): Promise<AiAgentHostRunResult>
   /** 按动态 alias 运行注册业务。 */
-  public async run<TInput extends AiJsonParams = AiJsonParams>(
+  public async run<TInput extends JsonParams = JsonParams>(
     alias: string,
     args: TInput,
     chat?: AiAgentTaskChatOptions,
   ): Promise<AiAgentHostRunResult>
   public async run(
     alias: string,
-    args: AiJsonParams,
+    args: JsonParams,
     chat?: AiAgentTaskChatOptions,
   ): Promise<AiAgentHostRunResult> {
     const normalizedAlias = normalizeAlias(alias)

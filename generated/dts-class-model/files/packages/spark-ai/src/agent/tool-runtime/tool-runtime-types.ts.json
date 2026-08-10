@@ -277,8 +277,7 @@
               "type": "string"
             },
             "parameters": {
-              "type": "object",
-              "title": "AiJsonSchemaObject"
+              "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
             },
             "strict": {
               "type": "boolean"
@@ -400,7 +399,7 @@
             },
             "args": {
               "type": "object",
-              "title": "AiJsonParams"
+              "title": "JsonParams"
             },
             "host": {
               "$ref": "#/$defs/AiAgentRuntimeHostContext"
@@ -410,7 +409,7 @@
         },
         "method.executeTool.return": {
           "type": "object",
-          "title": "Promise<AiAgentToolResult<AiJsonValue>>"
+          "title": "Promise<AiAgentToolResult<JsonValue>>"
         },
         "method.projectKnowledge.params": {
           "type": "object",
@@ -431,7 +430,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.106Z",
+  "generatedAt": "2026-08-10T10:00:08.491Z",
   "models": {
     "AiAgentToolCheckLevel": {
       "name": "AiAgentToolCheckLevel",
@@ -916,11 +915,11 @@
       "jsdoc": "Ai Agent Tool Spec 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** OpenAI function tool 类型标识，固定为 'function'。 */\n    type: 'function';\n    /** function 工具的名称、描述与 JSON Schema 参数。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: AiJsonSchemaObject;\n        readonly strict?: boolean;\n    };\n}>",
+        "declarationTypeText": "Readonly<{\n    /** OpenAI function tool 类型标识，固定为 'function'。 */\n    type: 'function';\n    /** function 工具的名称、描述与 JSON Schema 参数。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n        readonly strict?: boolean;\n    };\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** OpenAI function tool 类型标识，固定为 'function'。 */\n    type: 'function';\n    /** function 工具的名称、描述与 JSON Schema 参数。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: AiJsonSchemaObject;\n        readonly strict?: boolean;\n    };\n}>",
+            "typeText": "Readonly<{\n    /** OpenAI function tool 类型标识，固定为 'function'。 */\n    type: 'function';\n    /** function 工具的名称、描述与 JSON Schema 参数。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n        readonly strict?: boolean;\n    };\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1095,11 +1094,11 @@
       "jsdoc": "Ai Agent Tool Runtime 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 返回当前可用的 OpenAI function tool 规格列表。 */\n    getTools(): readonly AiAgentToolSpec[];\n    /** 按名称执行工具，传入参数与 Host 上下文。 */\n    executeTool(toolName: string, args: AiJsonParams, host: AiAgentRuntimeHostContext): Promise<AiAgentToolResult<AiJsonValue>>;\n    /** 投影当前知识快照，供 LLM prompt 注入。 */\n    projectKnowledge(): AiAgentToolRuntimeKnowledgeProjection;\n    /** 自检工具运行时配置与注册完整性。 */\n    inspect(): AiAgentToolRuntimeInspectReport;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 返回当前可用的 OpenAI function tool 规格列表。 */\n    getTools(): readonly AiAgentToolSpec[];\n    /** 按名称执行工具，传入参数与 Host 上下文。 */\n    executeTool(toolName: string, args: JsonParams, host: AiAgentRuntimeHostContext): Promise<AiAgentToolResult<JsonValue>>;\n    /** 投影当前知识快照，供 LLM prompt 注入。 */\n    projectKnowledge(): AiAgentToolRuntimeKnowledgeProjection;\n    /** 自检工具运行时配置与注册完整性。 */\n    inspect(): AiAgentToolRuntimeInspectReport;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 返回当前可用的 OpenAI function tool 规格列表。 */\n    getTools(): readonly AiAgentToolSpec[];\n    /** 按名称执行工具，传入参数与 Host 上下文。 */\n    executeTool(toolName: string, args: AiJsonParams, host: AiAgentRuntimeHostContext): Promise<AiAgentToolResult<AiJsonValue>>;\n    /** 投影当前知识快照，供 LLM prompt 注入。 */\n    projectKnowledge(): AiAgentToolRuntimeKnowledgeProjection;\n    /** 自检工具运行时配置与注册完整性。 */\n    inspect(): AiAgentToolRuntimeInspectReport;\n}>",
+            "typeText": "Readonly<{\n    /** 返回当前可用的 OpenAI function tool 规格列表。 */\n    getTools(): readonly AiAgentToolSpec[];\n    /** 按名称执行工具，传入参数与 Host 上下文。 */\n    executeTool(toolName: string, args: JsonParams, host: AiAgentRuntimeHostContext): Promise<AiAgentToolResult<JsonValue>>;\n    /** 投影当前知识快照，供 LLM prompt 注入。 */\n    projectKnowledge(): AiAgentToolRuntimeKnowledgeProjection;\n    /** 自检工具运行时配置与注册完整性。 */\n    inspect(): AiAgentToolRuntimeInspectReport;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1129,8 +1128,7 @@
                   "name": "args",
                   "type": {
                     "type": "reference",
-                    "name": "AiJsonParams",
-                    "sourcePath": "packages/spark-ai/src/json.ts"
+                    "name": "JsonParams"
                   }
                 },
                 {
@@ -1153,8 +1151,7 @@
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "name": "AiJsonValue",
-                        "sourcePath": "packages/spark-ai/src/json.ts"
+                        "name": "JsonValue"
                       }
                     ]
                   }

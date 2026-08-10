@@ -5,7 +5,7 @@
  * AI用途：需要定位 components/fields/context/useResolvedFieldContext 的声明、导出和使用边界时，从本模块开始。
  */
 import { computed, getCurrentInstance } from 'vue'
-import type { CapabilityContext } from '../../internal'
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
 import { type SparkRuntimeOwner, sparkResolveParentContext } from '../../../core/capability-context.js'
 
 // 这里不再为 JS 基础类型保留导出别名，字段渲染模式直接使用 string。

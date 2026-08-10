@@ -5,7 +5,7 @@
  * AI用途：新增业务入口或生成注册代码时，用本模块确认 registration 必填字段和可扩展能力。
  */
 
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { EnrichFunctionCallFailureCommand } from '../tool-loop/function-call-recovery-enricher'
 import type { AiAgentSessionStore } from '../session/session-types'
 import type { AiAgentToolRuntime } from '../tool-runtime'
@@ -42,7 +42,7 @@ export type AiAgentToolLoopNudgeContext = Readonly<{
  * ----------------------------------------------------------------------------- */
 
 /** Ai Agent Registration Options 的调用配置。 */
-export type AiAgentRegistrationOptions<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiAgentRegistrationOptions<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 业务模块唯一标识，对应注册 runtime 的根业务 ID */
   moduleId: string
   /** 面向 LLM 的业务名称，出现在系统提示中 */
@@ -109,7 +109,7 @@ export type AiAgentRegistrationOptions<TInput extends AiJsonParams = AiJsonParam
  * ----------------------------------------------------------------------------- */
 
 /** Ai Agent Registration 的语义模型。 */
-export class AiAgentRegistration<TInput extends AiJsonParams = AiJsonParams> {
+export class AiAgentRegistration<TInput extends JsonParams = JsonParams> {
   /* ── 基础标识 ─────────────────────────────────────────── */
 
     /** module Id 标识。 */

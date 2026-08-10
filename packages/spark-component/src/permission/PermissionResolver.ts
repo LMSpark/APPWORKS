@@ -11,24 +11,29 @@
  * 合并了动作权限相关的模型/行级判断。
  */
 
-import type {
-  DataRow,
-  DataPermissionSnapshot,
-  PermissionActionContext as ScriptPermissionActionContext,
+import {
+  nodeInputProp,
+  type SparkNode,
+  type DataRow,
+  type DataPermissionSnapshot,
+  type PermissionActionContext,
 } from '@spark-appworks/spark-data'
-import type { PagePermissionMode } from '../core/capability-keys.js'
-import type { SparkNode } from '../core/types'
-import { nodeInputProp } from '../core/types'
+import type { PermissionMode } from '@spark-appworks/spark-utils'
+
 import { canCreate, canImport, canExport, canDelete, canCreateChild, canEdit } from './PermissionChecker'
 import { computeFieldState } from './FieldRenderHelper'
-import type { FieldRenderConfig, FieldRenderState } from './FieldRenderHelper'
+import type { FieldRenderConfig } from '@spark-appworks/spark-utils'
+import type { FieldRenderState } from '@spark-appworks/spark-data'
 
 // ── 动作权限上下文 ──
 
-/** Permission Action Context 的运行上下文。 */
-export type PermissionActionContext = ScriptPermissionActionContext & {
-    /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */
-permissionMode?: PagePermissionMode | undefined
+/**
+ * 组件渲染层权限动作上下文：脚本层 PermissionActionContext + 页面 permissionMode。
+ * 禁止与 spark-data 的 PermissionActionContext 同名。
+ */
+export type ComponentPermissionActionContext = PermissionActionContext & {
+  /** 导航权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */
+  permissionMode?: PermissionMode | undefined
 }
 
 /** Permission Action Name 的语义模型。 */
@@ -86,7 +91,7 @@ function resolveNodePermAction(node: SparkNode): ResolvedPermAction {
  */
 export function isPermittedAction(
   action: PermissionAction | undefined,
-  context: PermissionActionContext,
+  context: ComponentPermissionActionContext,
 ): boolean {
   if (action === undefined) return true
 
@@ -126,7 +131,7 @@ export type ResolveFieldPermissionStateInput = Readonly<{
   /** 字段渲染配置（如 editable / visible），与 FieldRenderConfig 合并判断。 */
   config?: Omit<FieldRenderConfig, 'field'> | undefined
   /** 权限模式：none=不控制，masked=可见+脱敏，invisible=后端控制导航可见性。 */
-  permissionMode?: PagePermissionMode | undefined
+  permissionMode?: PermissionMode | undefined
 }>
 
 export function resolveFieldPermissionState(input: ResolveFieldPermissionStateInput): FieldRenderState | null {
@@ -148,14 +153,14 @@ export function isRowScopedPermAction(action: PermissionAction | undefined): boo
 }
 
 /** 判断 SparkNode 的模型级动作（create/import/export）是否被权限允许 */
-export function isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined, permissionMode?: PagePermissionMode): boolean {
+export function isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined, permissionMode?: PermissionMode): boolean {
   const permAction = resolveNodePermAction(action).action
   if (!isModelScopedPermAction(permAction)) return true
   return isPermittedAction(permAction, { permissionSnapshot: snapshot ?? null, permissionMode })
 }
 
 /** 判断 SparkNode 的行级动作（edit/delete/create-child）是否被权限允许 */
-export function isRowActionAllowed(action: SparkNode, row: DataRow | undefined, permissionMode?: PagePermissionMode): boolean {
+export function isRowActionAllowed(action: SparkNode, row: DataRow | undefined, permissionMode?: PermissionMode): boolean {
   const permAction = resolveNodePermAction(action).action
   if (!isRowScopedPermAction(permAction)) return true
 

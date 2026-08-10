@@ -4,7 +4,7 @@
  * 边界：只做 JSON surface → runtime API metadata 的薄映射，不访问语义求值器，也不读取 runtime/manifest.json。
  * AI用途：确认 script 执行契约是否直接来自 guide manifest shard 中的 paramsSchema / returnSchema。
  */
-import type { AiJsonSchema, AiJsonSchemaObject } from '../../json'
+import type { JsonSchema, JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import type {
   AiApiActionMetadata,
   AiApiAttributeMetadata,
@@ -135,7 +135,7 @@ function collectApiRegistry(rootApi: AiApiObjectMetadata): Readonly<Record<strin
 
 function apiRefProperty(
   surface: DtsClassModelSurfaceDocument,
-  schema: AiJsonSchema,
+  schema: JsonSchema,
   toApi: (className: string) => AiApiObjectMetadata,
 ): { api?: AiApiObjectMetadata } {
   const className = resolveSchemaClassName(surface, schema)
@@ -153,7 +153,7 @@ function resultApiProperty(
     : { resultApis: [{ resultPath: [], api: toApi(className) }] }
 }
 
-function requiredMethodParamsSchema(className: string, method: MethodMeta): AiJsonSchemaObject {
+function requiredMethodParamsSchema(className: string, method: MethodMeta): JsonSchemaObject {
   if (method.paramsSchema === undefined) {
     throw new Error(
       `DTS method "${className}.${method.name}" must preserve executable paramsSchema in the guide bundle shard.`,
@@ -165,7 +165,7 @@ function requiredMethodParamsSchema(className: string, method: MethodMeta): AiJs
 function requiredConstructorParamsSchema(
   className: string,
   constructorMeta: ConstructorMeta,
-): AiJsonSchemaObject {
+): JsonSchemaObject {
   if (constructorMeta.paramsSchema === undefined) {
     throw new Error(
       `DTS constructor "${className}" must preserve executable paramsSchema in the guide bundle shard.`,
@@ -225,7 +225,7 @@ function firstDefined<T>(items: ReadonlyArray<T | undefined>): T | undefined {
 
 function resolveSchemaClassName(
   surface: DtsClassModelSurfaceDocument,
-  schema: AiJsonSchema | undefined,
+  schema: JsonSchema | undefined,
 ): string | undefined {
   if (schema === undefined || schema === true || schema === false || typeof schema !== 'object') return undefined
   return resolveClassNameFromSchemaRef(surface, schema.$ref)
@@ -239,7 +239,7 @@ function resolveSchemaClassName(
 
 function resolveClassNameFromSchema(
   surface: DtsClassModelSurfaceDocument,
-  schema: AiJsonSchema | undefined,
+  schema: JsonSchema | undefined,
 ): string | undefined {
   return resolveSchemaClassName(surface, schema)
 }

@@ -7,14 +7,13 @@
     "sourceFile": "packages/spark-app/src/logger/index.ts",
     "packageName": "@spark-appworks/spark-app",
     "modulePath": "logger/index",
-    "jsdoc": "@module @spark-appworks/spark-app:logger/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n日志级别（与 spark-utils 共享）",
+    "jsdoc": "@module @spark-appworks/spark-app:logger/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n日志级别（与 spark-utils 共享；本模块只 import 使用，不再 re-export）",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "AppLoggerApi",
       "AppLoggerConfig",
-      "LogTransport",
-      "BatchTransportOptions",
-      "AppLogger"
+      "AppLogTransport",
+      "BatchTransportOptions"
     ]
   },
   "$defs": {
@@ -138,10 +137,10 @@
       },
       "additionalProperties": false
     },
-    "LogTransport": {
+    "AppLogTransport": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "LogTransport",
+      "title": "AppLogTransport",
       "$defs": {
         "method.flush.params": {
           "type": "object",
@@ -211,7 +210,7 @@
           "type": "object",
           "properties": {
             "transport": {
-              "$ref": "#/$defs/LogTransport"
+              "$ref": "#/$defs/AppLogTransport"
             }
           },
           "additionalProperties": false
@@ -298,7 +297,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T01:31:35.630Z",
+  "generatedAt": "2026-08-10T11:26:11.323Z",
   "models": {
     "AppLoggerApi": {
       "name": "AppLoggerApi",
@@ -572,8 +571,8 @@
         }
       }
     },
-    "LogTransport": {
-      "name": "LogTransport",
+    "AppLogTransport": {
+      "name": "AppLogTransport",
       "jsdoc": "日志传输器接口\n继承 spark-utils LogTransport（SSoT）并补充批量传输需要的 flush/destroy。",
       "declarationKind": "typeAlias",
       "typeAlias": {
@@ -701,7 +700,7 @@
                   "name": "transport",
                   "type": {
                     "type": "reference",
-                    "name": "LogTransport",
+                    "name": "AppLogTransport",
                     "sourcePath": "packages/spark-app/src/logger/index.ts"
                   }
                 }

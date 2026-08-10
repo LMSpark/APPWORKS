@@ -34,9 +34,10 @@ AI用途：需要理解 renderer step item 的实际渲染结构、slot/toolbar/
  */
 import { computed } from 'vue'
 import { SparkComponentRenderer, useSparkComponent } from '../../internal'
-import { nodeId } from '../../internal'
+
 import { useCompositeItemGrid } from '../runtime/container-layout'
 import type { SparkNodeProps } from '../../shared-types'
+import { nodeId } from '@spark-appworks/spark-data'
 
 /** r-steps 内部步骤项属性，兼容步骤头部和步骤内容区。 */
 type Props = SparkNodeProps & {

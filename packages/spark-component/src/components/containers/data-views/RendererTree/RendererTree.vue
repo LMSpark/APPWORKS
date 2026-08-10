@@ -98,17 +98,14 @@ import { computed, nextTick, ref, toRef, watch } from 'vue'
 import {
   useSparkPageComponent,
   SparkComponentRenderer,
-  nodeId,
-  nodeInputProp,
   DATA_SOURCE,
-  type SparkNode,
 } from '../../../internal'
 import type { RTreeProps } from './RendererTree.props'
-import type { DataRow, DataView } from '@spark-appworks/spark-data'
+import { type SparkNode, type DataRow, type DataView, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 import type { RendererTreeApi } from './types'
 import {
   createRendererTreeZeroCode,
-  type TreeNode,
+  type RendererTreeNode,
   type NativeTreeLike,
   type ElTreeNode,
   type ElTreeComponent,
@@ -223,9 +220,9 @@ const {
   treeApi: RendererTreeApi
   getNodeKey: (data: unknown) => string | number | null
   syncCurrentByKey: (key: string | number | null | undefined) => void
-  handleNodeClick: (data: TreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
-  handleNodeExpand: (data: TreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
-  handleNodeCollapse: (data: TreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
+  handleNodeClick: (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
+  handleNodeExpand: (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
+  handleNodeCollapse: (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => Promise<void>
   handleNodeDrop: (draggingNode: ElTreeNode, dropNode: ElTreeNode, dropType: string) => Promise<void>
 } = createRendererTreeZeroCode({
   props,
@@ -288,7 +285,7 @@ type ApplyExpandLevelOptions = Readonly<{
 }>
 
 async function applyExpandLevel(
-  nextTreeData: TreeNode[],
+  nextTreeData: RendererTreeNode[],
   options: ApplyExpandLevelOptions,
 ): Promise<void> {
   const { treeRef, resolveNodeKey, level } = options
@@ -308,7 +305,7 @@ type CollectExpandKeysOptions = Readonly<{
 }>
 
 function collectExpandKeysByLevel(
-  nodes: TreeNode[],
+  nodes: RendererTreeNode[],
   options: CollectExpandKeysOptions,
 ): Array<string | number> {
   const { resolveNodeKey, targetLevel } = options

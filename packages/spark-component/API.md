@@ -108,7 +108,7 @@ const {
 |------|------|------|
 | `config` | `ComponentConfig` | 组件配置，通常来自 `props.config` |
 | `options.registry` | `ComponentRegistry?` | 覆盖注入的注册表（测试用） |
-| `options.hostContext` | `SparkCapabilityContext?` | 覆盖注入的宿主上下文（测试用） |
+| `options.hostContext` | `CapabilityContext?` | 覆盖注入的宿主上下文（测试用） |
 | `options.mode` | `'full' \| 'consume-only'` | `full` 返回完整组件能力对象；`consume-only` 仅返回轻量能力读取接口 |
 
 ### 轻量只读模式
@@ -211,19 +211,12 @@ type MyGridConfig = ComponentConfig & {
 defineProps<{ config: MyGridConfig }>()
 ```
 
-### `SparkCapabilityContext`
+### `CapabilityContext`
 
-组件的最小运行时能力上下文。
+SSOT 在 `@spark-appworks/spark-utils`；本包不再再导出。
 
 ```typescript
-type CapabilityContextContract = {
-  id: string
-  type: string
-  parent?: CapabilityContextContract
-  capabilities: Map<CapabilityName, unknown>
-}
-
-type SparkCapabilityContext = CapabilityContextContract
+import type { CapabilityContext, CapabilityName } from '@spark-appworks/spark-utils'
 ```
 
 ### `ComponentDefinition`
@@ -285,7 +278,7 @@ cap?.doWork()
 | `PAGE_DATASET` | `DataSetContract` | 页面级 DataSet，由 PageRenderer 提供 |
 | `DATA_SOURCE` | `DataSource` | 组件级 DataView，由容器组件提供 |
 | `DATA_ROW` | `DataRow` | 当前行作用域 |
-| `PAGE_PERMISSION_MODE` | `PagePermissionMode` | 页面权限模式 |
+| `PAGE_PERMISSION_MODE` | `PermissionMode` | 页面权限模式（SSOT：`@spark-appworks/spark-utils`） |
 
 ---
 
@@ -316,12 +309,9 @@ export type { UseSparkComponentReturn }
 
 // 核心类型
 export type {
-  CapabilityName,
   ComponentConfig,
-  SparkCapabilityContext,
   ComponentDefinition,
   ComponentRegistry,
-  LoggerApi,
 }
 
 // 注册表与 Vue 插件统一从 Spark 命名空间进入：

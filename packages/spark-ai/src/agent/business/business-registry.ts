@@ -6,11 +6,11 @@
  */
 
 import { isRecord } from '@spark-appworks/spark-utils'
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { AiAgentRegistration } from './registration-types'
 
 /** Host 内部业务注册表，按 moduleId 保存 AI 业务定义并保护注册期不变量。 */
-export class AiAgentRegistry<TInput extends AiJsonParams = AiJsonParams> {
+export class AiAgentRegistry<TInput extends JsonParams = JsonParams> {
   /** moduleId → AiAgentRegistration */
   private readonly registrations = new Map<string, AiAgentRegistration<TInput>>()
 

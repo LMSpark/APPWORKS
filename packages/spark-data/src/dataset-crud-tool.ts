@@ -293,9 +293,6 @@ type DataSetCrudToolUpdateResourceRelationParams = {
   updates: Partial<DataResourceRelation>
 }
 
-/** DataView 输入级联定位参数。 */
-type DataSetCrudToolCascadeSelectorParams = DataViewCascadeSelector
-
 /** 创建 DataView 输入级联参数。 */
 type DataSetCrudToolCreateCascadeParams = {
   /** 新 DataView 输入级联定义。 */
@@ -303,7 +300,7 @@ type DataSetCrudToolCreateCascadeParams = {
 }
 
 /** 更新 DataView 输入级联参数。 */
-type DataSetCrudToolUpdateCascadeParams = DataSetCrudToolCascadeSelectorParams & {
+type DataSetCrudToolUpdateCascadeParams = DataViewCascadeSelector & {
   /** 要合并到级联定义上的更新内容。 */
   updates: Partial<DataViewCascade>
 }
@@ -1443,7 +1440,7 @@ export class DataSetCrudTool {
    * @param childTable 子表名。
    * @returns 命中的级联；不存在时返回 undefined。
    */
-  getCascade(params: DataSetCrudToolCascadeSelectorParams): DataViewCascade | undefined {
+  getCascade(params: DataViewCascadeSelector): DataViewCascade | undefined {
     const parentTable = this.requireNonEmptyString(params.parentTable, 'getCascade.parentTable')
     const parentViewId = this.requireNonEmptyString(params.parentViewId, 'getCascade.parentViewId')
     const childTable = this.requireNonEmptyString(params.childTable, 'getCascade.childTable')
@@ -1514,7 +1511,7 @@ export class DataSetCrudTool {
    * @param childTable 子表名。
    * @throws 当级联不存在时抛错。
    */
-  deleteCascade(params: DataSetCrudToolCascadeSelectorParams): void {
+  deleteCascade(params: DataViewCascadeSelector): void {
     const parentTable = this.requireNonEmptyString(params.parentTable, 'deleteCascade.parentTable')
     const parentViewId = this.requireNonEmptyString(params.parentViewId, 'deleteCascade.parentViewId')
     const childTable = this.requireNonEmptyString(params.childTable, 'deleteCascade.childTable')

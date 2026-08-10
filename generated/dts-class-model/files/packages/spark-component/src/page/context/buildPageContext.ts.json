@@ -9,9 +9,7 @@
     "modulePath": "page/context/buildPageContext",
     "jsdoc": "@module @spark-appworks/spark-component:page/context/buildPageContext\n职责：提供 build Page Context 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n脚本沙箱上下文（PageContext）构建工厂\n构建传入 `with (__ctx)` 沙箱的完整上下文对象。\n$dataSet 使用 getter，保证脚本每次访问都拿到最新值。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "PageContextDeps"
-    ]
+    "symbols": []
   },
   "$defs": {
     "PageContextDeps": {
@@ -77,7 +75,7 @@
         "method.getModuleContext.return": {
           "anyOf": [
             {
-              "$ref": "../../core/capability-keys.ts.json#/$defs/ModuleContext"
+              "$ref": "../../../../spark-utils/src/script-types.ts.json#/$defs/ContextSnapshot"
             },
             {
               "type": "null"
@@ -87,14 +85,14 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:39:26.877Z",
+  "generatedAt": "2026-08-10T11:47:56.424Z",
   "models": {
     "PageContextDeps": {
       "name": "PageContextDeps",
       "jsdoc": "buildPageContext 所需的依赖引用",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** DataSet getter（闭包引用，每次调用返回最新值） */\n    getDataSet: () => DataSet | null;\n    /** page Route 字段。 */\n    pageRoute: PageRoute;\n    /** page Container 字段。 */\n    pageContainer: Ref<HTMLElement | null>;\n    /** page Service 字段。 */\n    pageService: PageServiceCapability;\n    /** 页面级组件注册中心 getter（可选） */\n    getComponentRegistry?: () => PageComponentRegistry | null;\n    /** 模块上下文 getter（可选，每次调用返回最新快照） */\n    getModuleContext?: () => ModuleContext | null;\n}",
+        "declarationTypeText": "{\n    /** DataSet getter（闭包引用，每次调用返回最新值） */\n    getDataSet: () => DataSet | null;\n    /** page Route 字段。 */\n    pageRoute: PageRoute;\n    /** page Container 字段。 */\n    pageContainer: Ref<HTMLElement | null>;\n    /** page Service 字段。 */\n    pageService: PageServiceCapability;\n    /** 页面级组件注册中心 getter（可选） */\n    getComponentRegistry?: () => PageComponentRegistry | null;\n    /** 模块上下文 getter（可选，每次调用返回最新快照） */\n    getModuleContext?: () => ContextSnapshot | null;\n}",
         "members": {
           "attributes": [
             {
@@ -163,8 +161,7 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "ModuleContext",
-                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                    "name": "ContextSnapshot"
                   },
                   {
                     "type": "literal",

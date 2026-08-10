@@ -7,13 +7,8 @@
 
 import { computed, reactive, toValue, watch } from 'vue'
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
-import type {
-  FilterExpression,
-  FilterOperator,
-  FilterValueExpression,
-} from '@spark-appworks/spark-data'
+import { type SparkNode, type FilterExpression, type FilterOperator, type FilterValueExpression, nodeInputProp } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { nodeInputProp, type SparkNode } from '../../internal.js'
 
 // ============================================================
 // § 过滤器常量

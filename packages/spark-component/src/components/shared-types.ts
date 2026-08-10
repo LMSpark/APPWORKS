@@ -10,8 +10,8 @@
  * ValueRef<T> 是 Vue Ref<T> 的最小结构约束，
  * 用于纯 TS 文件中接受 ref-like 对象而无需 import vue。
  */
-import type { SparkNodeChildren } from '../core/types.js'
 import type { DataMember, DataView } from '@spark-appworks/spark-data'
+import type { SparkNodeChildren } from '@spark-appworks/spark-data'
 import type {
   AddRowHandler,
   EditRowHandler,

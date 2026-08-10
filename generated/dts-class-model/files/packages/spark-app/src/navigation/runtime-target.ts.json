@@ -12,6 +12,7 @@
     "symbols": [
       "NavNodeRouteTargetKind",
       "NavNodeRouteTarget",
+      "NavNodeExternalLinkMode",
       "NavNodeExternalTarget",
       "NavNodeActionTarget",
       "NavNodeContainerTarget",
@@ -59,10 +60,8 @@
           "const": "external"
         },
         "mode": {
-          "enum": [
-            "new-tab",
-            "self"
-          ]
+          "type": "object",
+          "title": "NavNodeExternalLinkMode"
         },
         "href": {
           "type": "string"
@@ -133,7 +132,7 @@
       ]
     }
   },
-  "generatedAt": "2026-08-09T23:25:35.630Z",
+  "generatedAt": "2026-08-10T12:27:53.521Z",
   "models": {
     "NavNodeRouteTargetKind": {
       "name": "NavNodeRouteTargetKind",
@@ -188,12 +187,28 @@
         }
       }
     },
+    "NavNodeExternalLinkMode": {
+      "name": "NavNodeExternalLinkMode",
+      "jsdoc": "外链打开方式；NavigationLinkTarget 去掉 iframe（iframe 走壳内路由宿主）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Exclude<NavigationLinkTarget, 'iframe'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Exclude<NavigationLinkTarget, 'iframe'>",
+            "targetName": "Exclude"
+          }
+        ],
+        "members": {}
+      }
+    },
     "NavNodeExternalTarget": {
       "name": "NavNodeExternalTarget",
       "jsdoc": "Nav Node External Target 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 类型判别字段。 */\n    kind: 'external';\n    /** mode 字段。 */\n    mode: 'new-tab' | 'self';\n    /** href 字段。 */\n    href: string;\n}",
+        "declarationTypeText": "{\n    /** 类型判别字段。 */\n    kind: 'external';\n    /** mode 字段。 */\n    mode: NavNodeExternalLinkMode;\n    /** href 字段。 */\n    href: string;\n}",
         "members": {
           "attributes": [
             {

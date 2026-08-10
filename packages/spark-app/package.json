@@ -36,6 +36,8 @@
   "dependencies": {
     "@spark-appworks/spark-ai": "workspace:*",
     "@spark-appworks/spark-component": "workspace:*",
+    "@spark-appworks/spark-data": "workspace:*",
+    "@spark-appworks/spark-json-document": "workspace:*",
     "@spark-appworks/spark-project-model": "workspace:*",
     "@spark-appworks/spark-utils": "workspace:*"
   },

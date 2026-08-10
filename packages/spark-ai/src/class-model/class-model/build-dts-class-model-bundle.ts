@@ -24,7 +24,7 @@ import {
   type DtsFileProjectionDocument,
 } from './dts-bundle-types'
 import type { AttributeMeta, DtsTypeDeclarationModel, ConstructorMeta, MethodMeta, SourceProvenanceMeta, ComponentProfileMeta } from './types'
-import type { AiJsonSchema, AiJsonSchemaObject } from '../../json'
+import type { JsonSchema, JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import { canRenderMethodSignatureFromTypeTree, resolveMethodReturnType } from './dts-type-meta-ops'
 import {
   isClassModelEmitPath,
@@ -504,7 +504,7 @@ function compactDtsFileProjectionForBundle(
   }
   const modelsWithJsonSchema = attachModelJsonSchemas(models)
   const persistedModels: Record<string, unknown> = {}
-  const schemaDefs: Record<string, AiJsonSchemaObject> = {}
+  const schemaDefs: Record<string, JsonSchemaObject> = {}
   for (const [className, model] of Object.entries(modelsWithJsonSchema)) {
     const stripped = stripRedundantModelSchemas(model)
     const jsonSchema = compactPersistedJsonSchemaForBundle(stripped)
@@ -599,7 +599,7 @@ function compactPersistedShapePayloadForBundle(model: DtsTypeDeclarationModel): 
   }
 }
 
-function compactPersistedJsonSchemaForBundle(model: DtsTypeDeclarationModel): AiJsonSchemaObject | undefined {
+function compactPersistedJsonSchemaForBundle(model: DtsTypeDeclarationModel): JsonSchemaObject | undefined {
   if (model.jsonSchema === undefined) return undefined
   const jsonSchema: Record<string, unknown> = { ...model.jsonSchema }
   const description = jsonSchema['description']
@@ -759,29 +759,29 @@ function compactMethodMetaForBundle(method: MethodMeta, refContext: BundleSchema
   return { ...compact, signatureText }
 }
 
-function isJsonSchemaObject(schema: AiJsonSchema | undefined): schema is AiJsonSchemaObject {
+function isJsonSchemaObject(schema: JsonSchema | undefined): schema is JsonSchemaObject {
   return schema !== undefined && schema !== true && schema !== false && typeof schema === 'object' && !Array.isArray(schema)
 }
 
 function referenceRequiredSchemaForBundle(
-  schema: AiJsonSchema,
+  schema: JsonSchema,
   refContext: BundleSchemaRefContext,
-): AiJsonSchema {
+): JsonSchema {
   return referenceSchemaForBundle(schema, refContext) ?? true
 }
 
 function referenceSchemaObjectForBundle(
-  schema: AiJsonSchemaObject,
+  schema: JsonSchemaObject,
   refContext: BundleSchemaRefContext,
-): AiJsonSchemaObject {
+): JsonSchemaObject {
   const referenced = referenceSchemaForBundle(schema, refContext)
   return isJsonSchemaObject(referenced) ? referenced : {}
 }
 
 function referenceSchemaForBundle(
-  schema: AiJsonSchema | undefined,
+  schema: JsonSchema | undefined,
   refContext: BundleSchemaRefContext,
-): AiJsonSchema | undefined {
+): JsonSchema | undefined {
   if (schema === undefined || schema === true || schema === false || typeof schema !== 'object' || Array.isArray(schema)) {
     return schema
   }
@@ -792,7 +792,7 @@ function referenceSchemaForBundle(
   const next: Record<string, unknown> = { ...schema }
   if (schema['items'] !== undefined) next['items'] = referenceSchemaForBundle(schema['items'], refContext)
   if (schema['properties'] !== undefined) {
-    const properties: Record<string, AiJsonSchema> = {}
+    const properties: Record<string, JsonSchema> = {}
     for (const [name, child] of Object.entries(schema['properties'])) {
       const referenced = referenceSchemaForBundle(child, refContext)
       if (referenced !== undefined) properties[name] = referenced
@@ -813,9 +813,9 @@ function referenceSchemaForBundle(
 }
 
 function directSchemaRefForBundle(
-  schema: AiJsonSchemaObject,
+  schema: JsonSchemaObject,
   refContext: BundleSchemaRefContext,
-): AiJsonSchemaObject | undefined {
+): JsonSchemaObject | undefined {
   if (!isTypeReferencePlaceholderSchema(schema)) return undefined
   const title = schema.title
   if (typeof title !== 'string') return undefined
@@ -975,7 +975,7 @@ function refTargetExists(
   return refContext.schemaClassNamesBySourcePath.get(target.targetSourcePath)?.has(target.targetName) ?? false
 }
 
-function isTypeReferencePlaceholderSchema(schema: AiJsonSchemaObject): boolean {
+function isTypeReferencePlaceholderSchema(schema: JsonSchemaObject): boolean {
   return schema.type === 'object'
     && typeof schema.title === 'string'
     && schema.properties === undefined

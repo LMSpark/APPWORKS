@@ -10,9 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-ai:agent/native-runtime/native-script-context\n职责：构建 native script 可访问的受控上下文，封装路径上下文、动作调用、回调和失败结果。\n边界：只暴露白名单脚本能力，不泄露浏览器全局对象、不绕过 Host 工具审批，也不直接修改业务存储。\nAI用途：编写或审查 AI 生成脚本时，用本模块确认脚本能调用哪些 API、错误如何返回。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "ScriptCallback",
-      "ScriptActionArg",
-      "AiNativePathContext",
       "AiApiScriptContextCommand",
       "ExecuteAiApiActionCommand",
       "AiApiScriptActionFailure"
@@ -25,7 +22,7 @@
       "anyOf": [
         {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         },
         {
           "type": "object",
@@ -65,8 +62,7 @@
           "$ref": "#/$defs/AiNativePathContext"
         },
         "validateOptions": {
-          "type": "object",
-          "title": "AiJsonSchemaValidateOptions"
+          "$ref": "../../../../spark-json-document/src/schema/schema-validator.ts.json#/$defs/JsonSchemaValidateOptions"
         }
       },
       "additionalProperties": false
@@ -88,8 +84,7 @@
           "$ref": "#/$defs/AiNativePathContext"
         },
         "validateOptions": {
-          "type": "object",
-          "title": "AiJsonSchemaValidateOptions"
+          "$ref": "../../../../spark-json-document/src/schema/schema-validator.ts.json#/$defs/JsonSchemaValidateOptions"
         }
       },
       "additionalProperties": false
@@ -125,7 +120,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.080Z",
+  "generatedAt": "2026-08-10T10:00:08.482Z",
   "models": {
     "ScriptCallback": {
       "name": "ScriptCallback",
@@ -141,12 +136,12 @@
       "jsdoc": "Script Action Arg 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "AiJsonParams | ScriptCallback",
+        "declarationTypeText": "JsonParams | ScriptCallback",
         "declarationRelations": [
           {
             "kind": "union",
-            "typeText": "AiJsonParams",
-            "targetName": "AiJsonParams"
+            "typeText": "JsonParams",
+            "targetName": "JsonParams"
           },
           {
             "kind": "union",
@@ -193,11 +188,11 @@
       "jsdoc": "Ai Api Script Context Command 的命令参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 业务实例对象，作为 script 上下文的 root target。 */\n    instance: unknown;\n    /** 该实例对应的 API 对象元数据（actions/attributes 白名单）。 */\n    api: AiApiObjectMetadata;\n    /** 路径与 Host 上下文，供 action 调用链传递。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: AiJsonSchemaValidateOptions;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 业务实例对象，作为 script 上下文的 root target。 */\n    instance: unknown;\n    /** 该实例对应的 API 对象元数据（actions/attributes 白名单）。 */\n    api: AiApiObjectMetadata;\n    /** 路径与 Host 上下文，供 action 调用链传递。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 业务实例对象，作为 script 上下文的 root target。 */\n    instance: unknown;\n    /** 该实例对应的 API 对象元数据（actions/attributes 白名单）。 */\n    api: AiApiObjectMetadata;\n    /** 路径与 Host 上下文，供 action 调用链传递。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: AiJsonSchemaValidateOptions;\n}>",
+            "typeText": "Readonly<{\n    /** 业务实例对象，作为 script 上下文的 root target。 */\n    instance: unknown;\n    /** 该实例对应的 API 对象元数据（actions/attributes 白名单）。 */\n    api: AiApiObjectMetadata;\n    /** 路径与 Host 上下文，供 action 调用链传递。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -236,11 +231,11 @@
       "jsdoc": "Execute Ai Api Action Command 的命令参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 接收 action 调用的业务 target 对象。 */\n    target: unknown;\n    /** 待执行的 API action 元数据。 */\n    action: AiApiActionMetadata;\n    /** script 传入的参数或 callback，归一化前原始形态。 */\n    args: ScriptActionArg;\n    /** 路径与 Host 上下文，供 takesContext action 使用。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: AiJsonSchemaValidateOptions;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 接收 action 调用的业务 target 对象。 */\n    target: unknown;\n    /** 待执行的 API action 元数据。 */\n    action: AiApiActionMetadata;\n    /** script 传入的参数或 callback，归一化前原始形态。 */\n    args: ScriptActionArg;\n    /** 路径与 Host 上下文，供 takesContext action 使用。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 接收 action 调用的业务 target 对象。 */\n    target: unknown;\n    /** 待执行的 API action 元数据。 */\n    action: AiApiActionMetadata;\n    /** script 传入的参数或 callback，归一化前原始形态。 */\n    args: ScriptActionArg;\n    /** 路径与 Host 上下文，供 takesContext action 使用。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: AiJsonSchemaValidateOptions;\n}>",
+            "typeText": "Readonly<{\n    /** 接收 action 调用的业务 target 对象。 */\n    target: unknown;\n    /** 待执行的 API action 元数据。 */\n    action: AiApiActionMetadata;\n    /** script 传入的参数或 callback，归一化前原始形态。 */\n    args: ScriptActionArg;\n    /** 路径与 Host 上下文，供 takesContext action 使用。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
             "targetName": "Readonly"
           }
         ],

@@ -19,30 +19,32 @@
 // 一、通用响应与分页
 // ============================================================================
 
-/** 任意 JSON 对象。 */
-export type JsonObject = Record<string, unknown>;
-/** JSON 对象数组。 */
-export type JsonArray = JsonObject[];
+/** 未定型后端 JSON 对象袋（台账用）。不是 `@spark-appworks/spark-json-document` 的递归 `JsonObject`。 */
+export type WireJsonObject = Record<string, unknown>;
+/** 未定型后端 JSON 对象数组。 */
+export type WireJsonArray = WireJsonObject[];
 
 /**
  * 后端通用响应外壳 AjaxResult。
  *
  * 注意：字段为首字母大写，由后端 Jackson 序列化决定，不可改小写。
+ * 与 `@spark-appworks/spark-lowcode-api` 的 `AjaxResult` 同形（`tools/verify-ajax-result-parity.mjs`）。
+ * `Code` 必填：运行客户端按数字 Code 解包，台账不得再声明可选 Code。
  */
-export interface AjaxResult<T = unknown> {
+export type AjaxResult<T = unknown> = Readonly<{
   /** 业务状态码。 */
-  Code?: number;
+  Code: number
   /** 提示或错误信息。 */
-  Message?: string;
+  Message?: string | null
   /** 业务结果数据，泛型由调用方决定。 */
-  Result?: T;
+  Result?: T
   /** 消息类型：success / warn / error 或其它字符串。 */
-  Type?: string;
-  /** 额外附加数据。 */
-  Extras?: unknown;
-  /** 服务器时间戳字符串。 */
-  Time?: string;
-}
+  Type?: string | null
+  /** 附加数据。 */
+  Extras?: unknown
+  /** 服务端时间戳字符串。 */
+  Time?: string | null
+}>
 
 /** 分页参数：页码与每页条数。 */
 export interface PageParam {
@@ -56,7 +58,7 @@ export interface PageParam {
 // 二、认证与登录
 // ============================================================================
 
-/** 验证码发送渠道：手机或邮箱。 */
+/** 验证码发送渠道：手机或邮箱。与 `@spark-appworks/spark-lowcode-api` 的 `SendCodeType` 同形（`tools/verify-send-code-parity.mjs`）。 */
 export type SendCodeType = "MOBILE" | "EMAIL";
 
 /**
@@ -80,6 +82,9 @@ export type SendCodeType = "MOBILE" | "EMAIL";
  * - IDENTITY_VERIFY_BIND：实名认证绑定
  * - ALIYUN_IDENTITY_VERIFY_BIND：阿里云实名认证绑定
  * - ADMIN_RESET_PASSWORD：管理员重置密码
+ *
+ * 与 `@spark-appworks/spark-lowcode-api` 的 `SendCodeScene` 同形（`tools/verify-send-code-parity.mjs`）。
+ * 门面注册子集为 Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>。
  */
 export type SendCodeScene =
   | "REGISTER" | "LOGIN" | "REGISTER_ENT" | "ENT_USER_LOGIN"
@@ -258,14 +263,14 @@ export interface OfflineMessageVo {
   /** 用户 ID。 */
   userId: string;
   /** 离线消息列表。 */
-  messageList?: JsonObject[];
+  messageList?: WireJsonObject[];
 }
 
 // ============================================================================
 // 四、数据查询协议（TableInput / DataManager）
 // ============================================================================
 
-/** 排序方向。 */
+/** 排序方向。与 `@spark-appworks/spark-lowcode-api` 的 `OrderType` 同形（`tools/verify-wire-query-parity.mjs`）。 */
 export type OrderType = "ascending" | "descending";
 
 /** 字段查询参数。 */
@@ -301,14 +306,17 @@ export interface ValueFun {
 }
 
 /**
- * 过滤操作符。
+ * wire 过滤操作符（Jackson Filter.Operator）。
  *
  * 比较类：equal / notequal / greaterthan / greaterthanorequal / lessthan / lessthanorequal
  * 空值类：isnull / isnotnull / isempty / isnotempty
  * 模糊类：contains / nolike / startswith / nostartswith / endswith / notendswith
  * 集合类：in / notin
+ *
+ * 正式名 `WireFilterOperator`，禁止与 spark-data `FilterOperator` 同名混用。
+ * 与 `@spark-appworks/spark-lowcode-api` 同形（`tools/verify-wire-query-parity.mjs`）。
  */
-export type FilterOperator =
+export type WireFilterOperator =
   | "equal" | "notequal" | "greaterthan" | "greaterthanorequal"
   | "lessthan" | "lessthanorequal" | "isnull" | "isnotnull"
   | "contains" | "nolike" | "startswith" | "nostartswith"
@@ -324,7 +332,7 @@ export interface BaseCondition {
   /** 字段名。 */
   Field?: string;
   /** 操作符。 */
-  Operator?: FilterOperator;
+  Operator?: WireFilterOperator;
   /** 字段值函数。 */
   ValueFun?: ValueFun;
   /** 比较值。 */
@@ -364,7 +372,7 @@ export interface TableParam {
   /** 连接过滤条件。 */
   JoinFilter?: BaseCondition;
   /** 输入参数。 */
-  inputParams?: JsonObject;
+  inputParams?: WireJsonObject;
   /** 是否去重。 */
   DISTINCT?: boolean;
 }
@@ -433,7 +441,7 @@ export interface QDFilter {
   /** 字段名。 */
   Field?: string;
   /** 操作符。 */
-  Operator?: FilterOperator;
+  Operator?: WireFilterOperator;
   /** 字段值函数。 */
   ValueFun?: ValueFun;
   /** 比较值。 */
@@ -469,7 +477,7 @@ export interface DataManagerRequest {
   /** 是否有子节点字段。 */
   HasChildField?: string;
   /** ID 映射。 */
-  IdMapping?: JsonObject;
+  IdMapping?: WireJsonObject;
   /** 返回类型。 */
   ReturnType?: string;
   /** 数据源表定义。 */
@@ -483,7 +491,7 @@ export interface DataManagerRequest {
   /** 选择字段列表。 */
   select?: string[];
   /** 排序定义。 */
-  sorted?: JsonObject[];
+  sorted?: WireJsonObject[];
   /** 过滤条件。 */
   where?: EJFilter;
 }
@@ -496,6 +504,9 @@ export interface DataManagerRequest {
  * - min：最小值
  * - max：最大值
  * - count：计数
+ *
+ * 与 `@spark-appworks/spark-lowcode-api` 的 `GroupFunType` 同形（`tools/verify-wire-query-parity.mjs`）。
+ * 前端视图聚合用 spark-data `AggregateType`（额外含 join），禁止混名。
  */
 export type GroupFunType = "sum" | "avg" | "min" | "max" | "count";
 
@@ -514,11 +525,11 @@ export interface GroupDataParam {
 /** CRUD 变更模型。 */
 export interface CrudModel {
   /** 新增行数组。 */
-  added?: JsonObject[];
+  added?: WireJsonObject[];
   /** 修改行数组。 */
-  changed?: JsonObject[];
+  changed?: WireJsonObject[];
   /** 删除行数组。 */
-  deleted?: JsonObject[];
+  deleted?: WireJsonObject[];
 }
 
 /** 单表 CRUD 请求。 */
@@ -556,7 +567,7 @@ export interface FlowExecObjInput {
   /** 表单键。 */
   formKey?: string;
   /** 表单参数。 */
-  formParams?: JsonObject;
+  formParams?: WireJsonObject;
   /** 业务数据行 ID。 */
   busRowid?: string;
   /** 流程对象 ID（JSON 字段 flowObjId）。 */
@@ -720,9 +731,9 @@ export interface WFMNODEREALATION {
   /** 提交类型。 */
   submitType?: string;
   /** 撤回条件配置。 */
-  RevokeConditionConfig?: JsonObject;
+  RevokeConditionConfig?: WireJsonObject;
   /** 流程自动提交配置。 */
-  FlowAutoSubmitConfig?: JsonObject;
+  FlowAutoSubmitConfig?: WireJsonObject;
   /** 方向。 */
   direction?: string;
 }
@@ -883,11 +894,11 @@ export interface BatchJsonData {
   /** 数据集名称。 */
   name: string;
   /** 新增 JSON 数据。 */
-  addJsonData?: JsonObject[];
+  addJsonData?: WireJsonObject[];
   /** 修改 JSON 数据。 */
-  editJsonData?: JsonObject[];
+  editJsonData?: WireJsonObject[];
   /** 删除 JSON 数据。 */
-  delJsonData?: JsonObject[];
+  delJsonData?: WireJsonObject[];
 }
 
 /** 工作流测试运行请求。 */
@@ -897,9 +908,9 @@ export interface WorkflowTestRequest {
   /** 节点 ID（单节点测试）。 */
   nodeId?: string;
   /** 节点输入参数。 */
-  inputParams?: Record<string, JsonObject[]>;
+  inputParams?: Record<string, WireJsonObject[]>;
   /** 启动参数。 */
-  startParams?: JsonObject[];
+  startParams?: WireJsonObject[];
 }
 
 // ============================================================================
@@ -991,7 +1002,7 @@ export interface BaseImportConfig {
   /** 过滤条件。 */
   filters?: BaseCondition;
   /** 排序定义。 */
-  sorted?: JsonObject[];
+  sorted?: WireJsonObject[];
   /** 导出类型。 */
   exportType?: string;
   /** 数据库名称。 */
@@ -1003,9 +1014,9 @@ export interface BaseImportConfig {
   /** 字段类型映射。 */
   fieldTypeMap?: Record<string, string>;
   /** 数据行映射。 */
-  dataRowMap?: JsonObject;
+  dataRowMap?: WireJsonObject;
   /** 导出数据。 */
-  exportData?: JsonObject[];
+  exportData?: WireJsonObject[];
 }
 
 // ============================================================================

@@ -1,3 +1,4 @@
+import type { SparkNode } from '@spark-appworks/spark-data'
 /**
  * Tests for Batch 5-6 layout/container components:
  * - RendererContainer (r-container)
@@ -25,7 +26,8 @@ import {
   Spark,
   useSparkComponent,
 } from '@spark-appworks/spark-component'
-import type { SparkNode, SparkCapabilityContext, ComponentRegistry } from '@spark-appworks/spark-component'
+import type { ComponentRegistry } from '@spark-appworks/spark-component'
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
 
 // ── Stubs for Element Plus ──
 
@@ -123,7 +125,7 @@ const SparkComponentRendererStub = defineComponent(
 
 import { SPARK_REGISTRY_KEY } from '@spark-appworks/spark-component'
 
-type TestSystem = { registry: ComponentRegistry; rootContext: SparkCapabilityContext}
+type TestSystem = { registry: ComponentRegistry; rootContext: CapabilityContext}
 
 function createTestSystem(): TestSystem {
   return Spark.createSystem()

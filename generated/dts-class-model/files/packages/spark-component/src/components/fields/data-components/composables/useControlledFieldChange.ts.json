@@ -11,8 +11,7 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "FieldValueUpdateEmitter",
-      "FieldValueUpdateEmits",
-      "UseControlledFieldChangeOptions"
+      "FieldValueUpdateEmits"
     ],
     "componentLevel": "field-level",
     "componentLayer": "data-field",
@@ -106,7 +105,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.534Z",
+  "generatedAt": "2026-08-10T11:20:18.610Z",
   "models": {
     "FieldValueUpdateEmitter": {
       "name": "FieldValueUpdateEmitter",

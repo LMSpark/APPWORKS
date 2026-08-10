@@ -9,6 +9,7 @@
  *
  * 组合 design（设计内容 class 树）与 session（编辑状态）。
  */
+import type { NavigationRootPlacement, ProjectBlueprintNodeKind, RuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
 import type { DataSetCrudTool, SparkNodeTree as SparkNodeTreeModel } from '@spark-appworks/spark-data'
 import type { ProjectBlueprintNode } from '../blueprint/project-blueprint-node'
 import { ProjectBlueprintDesign } from './project-design'
@@ -27,10 +28,8 @@ import type {
   ProjectBlueprintTreeData,
   ProjectBlueprintTreeNodeData,
   ProjectBlueprintTreeNodeLocation,
-  ProjectBlueprintNodeKind,
   ProjectPageNodeSummary,
 } from '../blueprint/project-blueprint-node'
-import type { ProjectBlueprintDeliveryKind } from '../blueprint/project-blueprint-node'
 import type { ConfigPageNode } from '../page/config-page'
 import type { PageNodeFileName } from '../page/page-file'
 import { tryParsePageDataTextError, tryParseRuleTextError } from '../page/page-file'
@@ -278,7 +277,7 @@ closePageDesign(pageId: string): void { this.design.closePageDesign(pageId) }
    * 更新根模块 childPlacement（项目级 header / sidebar 布局）。
    *
    */
-  applyProjectLayoutEdit(childPlacement: 'header' | 'sidebar'): BlueprintNodeDraftApplyResult {
+  applyProjectLayoutEdit(childPlacement: NavigationRootPlacement): BlueprintNodeDraftApplyResult {
     const root = this.design.rootNode
     if (!root) throw new Error('项目蓝图根节点未加载')
     const beforeKey = blueprintDraftContentKey(createBlueprintNodeDraft(root.toNodeData()))
@@ -408,7 +407,7 @@ applyBlueprintNodeEdit(draft: BlueprintNodeDraft): BlueprintNodeDraftApplyResult
     return result
   }
 
-applyNodeKindPreset(kind: ProjectBlueprintDeliveryKind): void {
+applyNodeKindPreset(kind: RuntimeNavigationItemKind): void {
     const node = this.requireSelectedNode('未选中蓝图节点，无法修改运行交付投影')
     const draft = this.session.blueprintDraft ?? createBlueprintNodeDraft(node)
     const nextDraft: BlueprintNodeDraft = {

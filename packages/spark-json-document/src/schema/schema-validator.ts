@@ -170,14 +170,6 @@ export class JsonSchemaValidator {
     return `参数校验失败：${head.join('；')}${suffix}`
   }
 
-  /** @deprecated 使用 formatJsonValidationIssues */
-  static formatAiJsonValidationIssues(
-    issues: readonly JsonValidationIssue[],
-    maxCount = 5,
-  ): string {
-    return JsonSchemaValidator.formatJsonValidationIssues(issues, maxCount)
-  }
-
   // ── 私有：AJV error → JsonValidationIssue ──
 
   /** 将 AJV error 对象转换为 JsonValidationIssue */

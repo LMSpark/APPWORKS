@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/runtime/class-model-runtime 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonValue } from '../../json'
+import type { JsonValue } from '@spark-appworks/spark-json-document'
 import type { ClassModelDocument, ComponentClassModelLayer, ComponentClassModelLevel } from '../class-model/types'
 import {
   ClassModelKnowledgeService,
@@ -32,7 +32,7 @@ export type ClassModelRuntimeOptions = Readonly<{
 }>
 
 /** Class Model Tool Args 的语义模型。 */
-export type ClassModelToolArgs = Readonly<Record<string, AiJsonValue>>
+export type ClassModelToolArgs = Readonly<Record<string, JsonValue>>
 
 export type { ClassModelToolSpec } from '../tools/class-model-tool-specs'
 
@@ -63,7 +63,7 @@ export type ClassModelToolResult = Readonly<{
   /** 工具是否执行成功。 */
   ok: boolean
   /** 成功时的业务数据载荷。 */
-  data?: AiJsonValue
+  data?: JsonValue
   /** 结构化检查项（error/warn/info），失败时通常非空。 */
   checks?: readonly ClassModelToolCheck[]
   /** 可选运行状态快照，供后续 turn 或 UI 读取。 */
@@ -83,7 +83,7 @@ export type ClassModelToolCheck = Readonly<{
 }>
 
 /** Class Model Script Executor Result 的返回结果。 */
-export type ClassModelScriptExecutorResult = AiJsonValue | ClassModelToolResult
+export type ClassModelScriptExecutorResult = JsonValue | ClassModelToolResult
 
 /** Class Model Script Executor 的语义模型。 */
 export type ClassModelScriptExecutor =
@@ -232,7 +232,7 @@ function createDefaultKnowledgeProvider(options: ClassModelRuntimeOptions): Clas
 }
 
 function okResult(
-  data: AiJsonValue,
+  data: JsonValue,
   checks?: readonly ClassModelToolCheck[],
   state?: Readonly<Record<string, unknown>>,
 ): ClassModelToolResult {

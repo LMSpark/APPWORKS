@@ -7,10 +7,9 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/design/data-space-design-mutation",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/design/data-space-design-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceDesignMutationBase, DataSpaceDesignMutationInput, DataSpaceDesignMutationCommand（共 3 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "数据空间设计态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。\n调用方须持 preimage、journal 与 readback 后再由 provision 层执行；preimage 身份不一致会 fail-fast。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "DataSpaceDesignMutationBase",
       "DataSpaceDesignMutationInput",
       "DataSpaceDesignMutationCommand"
     ]
@@ -148,7 +147,7 @@
                 },
                 "change": {
                   "type": "object",
-                  "title": "DataSpaceRelationReference"
+                  "title": "LowcodeModelRelationRecord"
                 }
               },
               "required": [
@@ -238,7 +237,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T21:19:22.732Z",
+  "generatedAt": "2026-08-10T07:31:53.316Z",
   "models": {
     "DataSpaceDesignMutationBase": {
       "name": "DataSpaceDesignMutationBase",
@@ -276,10 +275,10 @@
     },
     "DataSpaceDesignMutationInput": {
       "name": "DataSpaceDesignMutationInput",
-      "jsdoc": "",
+      "jsdoc": "设计态 mutation 输入；capability 决定 change 形状与 modelId 是否必填。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-data-space';\n    change: Readonly<{\n        name?: string;\n        description?: string;\n        inputParameters?: readonly DataSpaceInputParameter[];\n    }>;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'upsert-frontend-model';\n    change: DataSpaceFrontendModelSnapshot;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-field-reference';\n    modelId: string;\n    change: DataSpaceFieldReference;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-relation-reference';\n    modelId: string;\n    change: DataSpaceRelationReference;\n}>)",
+        "declarationTypeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-data-space';\n    change: Readonly<{\n        name?: string;\n        description?: string;\n        inputParameters?: readonly DataSpaceInputParameter[];\n    }>;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'upsert-frontend-model';\n    change: DataSpaceFrontendModelSnapshot;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-field-reference';\n    modelId: string;\n    change: DataSpaceFieldReference;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-relation-reference';\n    modelId: string;\n    change: LowcodeModelRelationRecord;\n}>)",
         "declarationRelations": [
           {
             "kind": "union",
@@ -295,7 +294,7 @@
           },
           {
             "kind": "union",
-            "typeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-relation-reference';\n    modelId: string;\n    change: DataSpaceRelationReference;\n}>)"
+            "typeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-relation-reference';\n    modelId: string;\n    change: LowcodeModelRelationRecord;\n}>)"
           }
         ],
         "members": {}
@@ -303,7 +302,7 @@
     },
     "DataSpaceDesignMutationCommand": {
       "name": "DataSpaceDesignMutationCommand",
-      "jsdoc": "",
+      "jsdoc": "设计态 mutation 命令；risk 固定 medium，journal/readback/compensation 均为强制约束。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    kind: 'data-space-design-mutation';\n    dataSpaceId: string;\n    capability: DataSpaceDesignMutationInput['capability'];\n    idempotencyKey: string;\n    preimage: DataSpaceDesignSnapshot;\n    modelId: string | null;\n    change: DataSpaceDesignMutationInput['change'];\n    risk: 'medium';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        dataSpaceId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-data-space-design-snapshot';\n        preimage: DataSpaceDesignSnapshot;\n    }>;\n}>",

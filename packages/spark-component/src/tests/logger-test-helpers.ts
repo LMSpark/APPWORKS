@@ -1,5 +1,5 @@
 import { PAGE_RUNTIME_SERVICES, type PageRuntimeServicesCapability } from '../runtime'
-import type { CapabilityContext } from '@spark-appworks/spark-component'
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
 import type { LoggerApi } from '@spark-appworks/spark-utils'
 
 type LoggerRouter = NonNullable<PageRuntimeServicesCapability['router']>

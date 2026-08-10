@@ -90,7 +90,7 @@
         },
         "input": {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         }
       },
       "additionalProperties": false
@@ -212,7 +212,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-22T06:56:41.667Z",
+  "generatedAt": "2026-08-10T10:00:08.493Z",
   "models": {
     "AgentWorkflowModuleConstructor": {
       "name": "AgentWorkflowModuleConstructor",
@@ -320,11 +320,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    editorSource: string;\n    template: string;\n    hints: readonly AgentWorkflowNodeConditionalHint[];\n    input: AiJsonParams;\n}>",
+        "declarationTypeText": "Readonly<{\n    editorSource: string;\n    template: string;\n    hints: readonly AgentWorkflowNodeConditionalHint[];\n    input: JsonParams;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    editorSource: string;\n    template: string;\n    hints: readonly AgentWorkflowNodeConditionalHint[];\n    input: AiJsonParams;\n}>",
+            "typeText": "Readonly<{\n    editorSource: string;\n    template: string;\n    hints: readonly AgentWorkflowNodeConditionalHint[];\n    input: JsonParams;\n}>",
             "targetName": "Readonly"
           }
         ],

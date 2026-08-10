@@ -7,16 +7,13 @@
     "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "blueprint/project-blueprint-edit",
-    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-edit\n职责：提供项目蓝图节点编辑草稿、补丁和提交规则。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n项目蓝图编辑领域模型。\n持有蓝图节点表单草稿和 patch 生成规则。\n可编辑字段由 ProjectNode class 持有；草稿只在表单读写边界即时生成。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-edit\n职责：蓝图节点表单草稿、补丁生成与提交规则。\n边界：只描述配置与项目结构；不渲染 Vue，不直接操作 spark-data 运行态。\nAI用途：同步或生成页面配置时，用本模块确认草稿字段与 patch 边界。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "BlueprintNodeDraftNode",
       "BlueprintNodePatch",
-      "NavigationContextEditConfigDto",
-      "NavigationContextEditDto",
       "BlueprintNodeDraft",
-      "BlueprintNodeDraftApplyResult",
-      "BlueprintNodePatchTarget"
+      "BlueprintNodeDraftApplyResult"
     ]
   },
   "$defs": {
@@ -32,13 +29,15 @@
           "type": "string"
         },
         "blueprintKind": {
-          "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintNodeKind"
+          "type": "object",
+          "title": "ProjectBlueprintNodeKind"
         },
         "icon": {
           "type": "string"
         },
         "nodeKind": {
-          "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintDeliveryKind"
+          "type": "object",
+          "title": "RuntimeNavigationItemKind"
         },
         "dividerAfter": {
           "type": "boolean"
@@ -72,7 +71,8 @@
           "type": "string"
         },
         "permissionMode": {
-          "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintPermissionMode"
+          "type": "object",
+          "title": "PermissionMode"
         },
         "implGate": true,
         "upstreamContractsSatisfied": {
@@ -112,11 +112,11 @@
             {
               "type": "array",
               "items": {
-                "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintContextItem"
+                "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ContextItem"
               }
             },
             {
-              "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintContextConfig"
+              "$ref": "../../../spark-utils/src/navigation-surface.ts.json#/$defs/NavigationContextConfig"
             }
           ]
         }
@@ -254,25 +254,23 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:37:59.546Z",
+  "generatedAt": "2026-08-10T12:08:39.009Z",
   "models": {
     "BlueprintNodeDraftNode": {
       "name": "BlueprintNodeDraftNode",
-      "jsdoc": "Navigation Node Draft Node 的语义模型。",
+      "jsdoc": "蓝图节点表单草稿字段；可编辑字段由节点 class 持有，草稿仅在表单边界即时生成。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 唯一标识。 */\n    id: string;\n    /** 显示标题。 */\n    title: string;\n    /** 蓝图业务类型；与运行交付投影 nodeKind 相互独立。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    /** icon 字段。 */\n    icon: string;\n    /** node Kind 字段。 */\n    nodeKind: ProjectBlueprintDeliveryKind;\n    /** divider After 字段。 */\n    dividerAfter: boolean;\n    /** description 字段。 */\n    description: string;\n    /** planning Attachment Ref 字段。 */\n    planningAttachmentRef: string;\n    /** 资源路径。 */\n    path: string;\n    /** link Target 字段。 */\n    linkTarget: NonNullable<ProjectBlueprintTreeNodeData['linkTarget']>;\n    /** child Placement 字段。 */\n    childPlacement: string;\n    /** order 字段。 */\n    order: number;\n    /** hidden 字段。 */\n    hidden: boolean;\n    /** 是否禁用。 */\n    disabled: boolean;\n    /** ref Id 标识。 */\n    refId: string;\n    /** permission Mode 字段。 */\n    permissionMode: ProjectBlueprintPermissionMode;\n    /** impl Gate 字段。 */\n    implGate?: ProjectBlueprintTreeNodeData['implGate'];\n    /** upstream Contracts Satisfied 字段。 */\n    upstreamContractsSatisfied?: boolean;\n}",
+        "declarationTypeText": "{\n    id: string;\n    title: string;\n    /** 蓝图业务类型；与运行交付投影 nodeKind 相互独立。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    icon: string;\n    nodeKind: RuntimeNavigationItemKind;\n    dividerAfter: boolean;\n    description: string;\n    planningAttachmentRef: string;\n    path: string;\n    linkTarget: NonNullable<ProjectBlueprintTreeNodeData['linkTarget']>;\n    childPlacement: string;\n    order: number;\n    hidden: boolean;\n    disabled: boolean;\n    refId: string;\n    permissionMode: PermissionMode;\n    implGate?: ProjectBlueprintTreeNodeData['implGate'];\n    upstreamContractsSatisfied?: boolean;\n}",
         "members": {
           "attributes": [
             {
               "name": "id",
-              "jsdoc": "唯一标识。",
               "readable": true,
               "writable": true
             },
             {
               "name": "title",
-              "jsdoc": "显示标题。",
               "readable": true,
               "writable": true
             },
@@ -284,91 +282,76 @@
             },
             {
               "name": "icon",
-              "jsdoc": "icon 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "nodeKind",
-              "jsdoc": "node Kind 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "dividerAfter",
-              "jsdoc": "divider After 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "description",
-              "jsdoc": "description 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "planningAttachmentRef",
-              "jsdoc": "planning Attachment Ref 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "path",
-              "jsdoc": "资源路径。",
               "readable": true,
               "writable": true
             },
             {
               "name": "linkTarget",
-              "jsdoc": "link Target 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "childPlacement",
-              "jsdoc": "child Placement 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "order",
-              "jsdoc": "order 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "hidden",
-              "jsdoc": "hidden 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "disabled",
-              "jsdoc": "是否禁用。",
               "readable": true,
               "writable": true
             },
             {
               "name": "refId",
-              "jsdoc": "ref Id 标识。",
               "readable": true,
               "writable": true
             },
             {
               "name": "permissionMode",
-              "jsdoc": "permission Mode 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "implGate",
-              "jsdoc": "impl Gate 字段。",
               "readable": true,
               "writable": false
             },
             {
               "name": "upstreamContractsSatisfied",
-              "jsdoc": "upstream Contracts Satisfied 字段。",
               "readable": true,
               "writable": false
             }
@@ -378,10 +361,10 @@
     },
     "BlueprintNodePatch": {
       "name": "BlueprintNodePatch",
-      "jsdoc": "Navigation Node Patch 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Partial<Omit<BlueprintNodeDraftNode, 'id'>> & {\n    /** 运行上下文。 */\n    context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig;\n}",
+        "declarationTypeText": "Partial<Omit<BlueprintNodeDraftNode, 'id'>> & {\n    context?: string | ContextItem[] | NavigationContextConfig;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -390,14 +373,13 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 运行上下文。 */\n    context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig;\n}"
+            "typeText": "{\n    context?: string | ContextItem[] | NavigationContextConfig;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
               "name": "context",
-              "jsdoc": "运行上下文。",
               "readable": true,
               "writable": false
             }
@@ -407,27 +389,24 @@
     },
     "NavigationContextEditConfigDto": {
       "name": "NavigationContextEditConfigDto",
-      "jsdoc": "Navigation Context Edit Config Dto 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 占位提示文本。 */\n    placeholder: string;\n    /** default Value 字段。 */\n    defaultValue: string;\n    /** param Name 名称。 */\n    paramName: string;\n}",
+        "declarationTypeText": "{\n    placeholder: string;\n    defaultValue: string;\n    paramName: string;\n}",
         "members": {
           "attributes": [
             {
               "name": "placeholder",
-              "jsdoc": "占位提示文本。",
               "readable": true,
               "writable": true
             },
             {
               "name": "defaultValue",
-              "jsdoc": "default Value 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "paramName",
-              "jsdoc": "param Name 名称。",
               "readable": true,
               "writable": true
             }
@@ -437,27 +416,24 @@
     },
     "NavigationContextEditDto": {
       "name": "NavigationContextEditDto",
-      "jsdoc": "Navigation Context Edit Dto 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 是否 has Context。 */\n    hasContext: boolean;\n    /** items 字段。 */\n    items: Array<{\n        id: string;\n        title: string;\n    }>;\n    /** 配置对象。 */\n    config: NavigationContextEditConfigDto;\n}",
+        "declarationTypeText": "{\n    hasContext: boolean;\n    items: Array<{\n        id: string;\n        title: string;\n    }>;\n    config: NavigationContextEditConfigDto;\n}",
         "members": {
           "attributes": [
             {
               "name": "hasContext",
-              "jsdoc": "是否 has Context。",
               "readable": true,
               "writable": true
             },
             {
               "name": "items",
-              "jsdoc": "items 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "config",
-              "jsdoc": "配置对象。",
               "readable": true,
               "writable": true
             }
@@ -467,21 +443,19 @@
     },
     "BlueprintNodeDraft": {
       "name": "BlueprintNodeDraft",
-      "jsdoc": "Navigation Node Draft 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** node 字段。 */\n    node: BlueprintNodeDraftNode;\n    /** 运行上下文。 */\n    context: NavigationContextEditDto;\n}",
+        "declarationTypeText": "{\n    node: BlueprintNodeDraftNode;\n    context: NavigationContextEditDto;\n}",
         "members": {
           "attributes": [
             {
               "name": "node",
-              "jsdoc": "node 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "context",
-              "jsdoc": "运行上下文。",
               "readable": true,
               "writable": true
             }
@@ -491,21 +465,19 @@
     },
     "BlueprintNodeDraftApplyResult": {
       "name": "BlueprintNodeDraftApplyResult",
-      "jsdoc": "Navigation Node Draft Apply Result 的返回结果。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** patch 字段。 */\n    patch: BlueprintNodePatch & Pick<ProjectBlueprintTreeNodeData, 'title' | 'nodeKind'>;\n    /** warnings 字段。 */\n    warnings: string[];\n}",
+        "declarationTypeText": "{\n    patch: BlueprintNodePatch & Pick<ProjectBlueprintTreeNodeData, 'title' | 'nodeKind'>;\n    warnings: string[];\n}",
         "members": {
           "attributes": [
             {
               "name": "patch",
-              "jsdoc": "patch 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "warnings",
-              "jsdoc": "warnings 字段。",
               "readable": true,
               "writable": true
             }
@@ -515,15 +487,14 @@
     },
     "BlueprintNodePatchTarget": {
       "name": "BlueprintNodePatchTarget",
-      "jsdoc": "Navigation Node Patch Target 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 唯一标识。 */\n    readonly id: string;\n    /** 将蓝图补丁应用到目标节点；修改节点的可编辑字段，但不改变 id 和树结构。 */\n    applyBlueprintPatch(patch: ProjectBlueprintNodePatch): void;\n}",
+        "declarationTypeText": "{\n    readonly id: string;\n    /** 应用补丁到目标节点；不改 id 与树结构。 */\n    applyBlueprintPatch(patch: ProjectBlueprintNodePatch): void;\n}",
         "members": {
           "attributes": [
             {
               "name": "id",
-              "jsdoc": "唯一标识。",
               "readable": true,
               "writable": false
             }
@@ -531,7 +502,7 @@
           "methods": [
             {
               "name": "applyBlueprintPatch",
-              "jsdoc": "将蓝图补丁应用到目标节点；修改节点的可编辑字段，但不改变 id 和树结构。",
+              "jsdoc": "应用补丁到目标节点；不改 id 与树结构。",
               "parameters": [
                 {
                   "name": "patch",

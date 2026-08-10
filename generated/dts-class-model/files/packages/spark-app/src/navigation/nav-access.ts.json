@@ -9,10 +9,7 @@
     "modulePath": "navigation/nav-access",
     "jsdoc": "@module @spark-appworks/spark-app:navigation/nav-access\n职责：提供 spark-app 应用壳中的 nav access 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nDynamicRouter 导航访问模块（基础设施层）\n提供对 DynamicRouter 实例的模块级同步访问，用于非组件上下文（路由守卫、登录跳转等）。\nstart.ts 在启动时通过 setDynamicRouter() 注入实例，后续通过导出函数读取。\n与 useNavigation.ts 的关系：\n- nav-access：同步、无 Vue 依赖、用于基础设施层（main.ts 路由守卫、LoginView 跳转）\n- useNavigation：响应式 Vue composable、用于组件树内 UI 渲染和导航操作",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "DynamicRouterAccess",
-      "NavAccessOptions"
-    ]
+    "symbols": []
   },
   "$defs": {
     "DynamicRouterAccess": {

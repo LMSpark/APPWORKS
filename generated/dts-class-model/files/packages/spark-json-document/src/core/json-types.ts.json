@@ -10,7 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-json-document:core/json-types\n职责：提供 JSON Document/schema 处理中的 json types 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "JsonPrimitive",
       "JsonValue",
       "JsonObject",
       "JsonDocument",
@@ -82,7 +81,7 @@
       ]
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.031Z",
+  "generatedAt": "2026-08-10T11:40:02.399Z",
   "models": {
     "JsonPrimitive": {
       "name": "JsonPrimitive",

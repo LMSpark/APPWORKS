@@ -13,7 +13,7 @@
 import type { JsonDocument } from '../core/json-types'
 import { isJsonObject } from '../core/json-types'
 import type { JsonPath } from '../core/json-path'
-import type { TreeModel, TreeNode, TreeDisplayNode, JsonTreePolicy } from './tree-types'
+import type { TreeModel, JsonTreeNode, TreeDisplayNode, JsonTreePolicy } from './tree-types'
 import { resolvePolicy } from './tree-policy'
 import { addNodeToMap, toJsonValue, getChildIds, rootOf } from './tree-utils'
 
@@ -23,7 +23,7 @@ import { addNodeToMap, toJsonValue, getChildIds, rootOf } from './tree-utils'
 
 /** 从 JSON 文档构建内部树模型 */
 export function buildTreeModel(doc: JsonDocument, policy?: Partial<JsonTreePolicy>): TreeModel {
-  const nodes = new Map<string, TreeNode>()
+  const nodes = new Map<string, JsonTreeNode>()
   addNodeToMap({
     nodes,
     value: doc,
@@ -102,7 +102,7 @@ export function getNodePath(model: TreeModel, uid: string): JsonPath {
 // ═══════════════════════════════════════════════════════════════
 
 /** 过滤树行，保留命中行及其所有祖先 */
-export function filterTreeNodes<T extends Pick<TreeNode, 'id' | 'parentId'>>(
+export function filterJsonTreeNodes<T extends Pick<JsonTreeNode, 'id' | 'parentId'>>(
   rows: T[],
   predicate: (row: T) => boolean,
 ): T[] {

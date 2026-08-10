@@ -1,0 +1,403 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-frontend-model-adapter",
+    "sourcePath": "src/lowcode/data-space/lowcode-frontend-model-adapter.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-frontend-model-adapter.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-frontend-model-adapter",
+    "jsdoc": "app 的 lowcode/data-space/lowcode-frontend-model-adapter 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceAdapterDiagnostic, LowcodeAdaptedResource, LowcodeAdaptedFrontendModel, LowcodeFrontendModelAdapterResult, LowcodeFrontendModelAdapter（共 5 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceAdapterDiagnostic",
+      "LowcodeAdaptedResource",
+      "LowcodeAdaptedFrontendModel",
+      "LowcodeFrontendModelAdapterResult",
+      "LowcodeFrontendModelAdapter"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceAdapterDiagnostic": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAdapterDiagnostic",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "sourceRelationId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeAdaptedResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAdaptedResource",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "resourceType": {
+          "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/TableResourceType"
+        },
+        "databaseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "primaryKeyField": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeAdaptedFrontendModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeAdaptedFrontendModel",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "fieldProjection": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataViewFieldProjection"
+          }
+        },
+        "queryContext": {
+          "type": "object",
+          "title": "DataViewQueryContext"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeFrontendModelAdapterResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFrontendModelAdapterResult",
+      "properties": {
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeAdaptedResource"
+          }
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeAdaptedFrontendModel"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeDataSpaceAdapterDiagnostic"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeFrontendModelAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFrontendModelAdapter",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.adapt.params": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json#/$defs/DataSpaceFrontendModel"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adapt.return": {
+          "$ref": "#/$defs/LowcodeFrontendModelAdapterResult"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T05:37:01.350Z",
+  "models": {
+    "LowcodeDataSpaceAdapterDiagnostic": {
+      "name": "LowcodeDataSpaceAdapterDiagnostic",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    code: string;\n    message: string;\n    dataSpaceId: string;\n    modelId?: string;\n    resourceId?: string;\n    sourceRelationId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    code: string;\n    message: string;\n    dataSpaceId: string;\n    modelId?: string;\n    resourceId?: string;\n    sourceRelationId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRelationId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAdaptedResource": {
+      "name": "LowcodeAdaptedResource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    resourceName: string;\n    resourceType: TableResourceType;\n    databaseId: string | null;\n    databaseName: string;\n    primaryKeyField: string;\n    columns: readonly DataColumn[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    resourceName: string;\n    resourceType: TableResourceType;\n    databaseId: string | null;\n    databaseName: string;\n    primaryKeyField: string;\n    columns: readonly DataColumn[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeyField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeAdaptedFrontendModel": {
+      "name": "LowcodeAdaptedFrontendModel",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    modelName: string;\n    resourceId: string;\n    resourceName: string;\n    viewId: string;\n    fieldProjection: readonly DataViewFieldProjection[];\n    queryContext: DataViewQueryContext;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    modelName: string;\n    resourceId: string;\n    resourceName: string;\n    viewId: string;\n    fieldProjection: readonly DataViewFieldProjection[];\n    queryContext: DataViewQueryContext;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldProjection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryContext",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFrontendModelAdapterResult": {
+      "name": "LowcodeFrontendModelAdapterResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resources: readonly LowcodeAdaptedResource[];\n    models: readonly LowcodeAdaptedFrontendModel[];\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resources: readonly LowcodeAdaptedResource[];\n    models: readonly LowcodeAdaptedFrontendModel[];\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFrontendModelAdapter": {
+      "name": "LowcodeFrontendModelAdapter",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "adapt",
+              "parameters": [
+                {
+                  "name": "models",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceFrontendModel[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeFrontendModelAdapterResult",
+                "sourcePath": "src/lowcode/data-space/lowcode-frontend-model-adapter.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

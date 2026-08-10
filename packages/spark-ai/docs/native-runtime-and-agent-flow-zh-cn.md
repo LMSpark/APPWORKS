@@ -123,7 +123,7 @@ ClassModelRuntime.executeTool('model_script')
 
 ## 当前边界
 
-- 只暴露 `@spark-appworks/spark-ai/json`、`/class-model`、`/agent` 这些当前入口。
+- JSON 契约只暴露 `@spark-appworks/spark-json-document`；另有 `/class-model`、`/agent` 入口。
 - 工具名固定为 ClassModel 7 工具闭集。
 - `model_script` 参数只接受 `{ script }`。
 - script 通过 native object chain 执行，不开放路径字符串调用协议。

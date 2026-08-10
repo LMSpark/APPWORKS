@@ -102,15 +102,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.288Z",
+  "generatedAt": "2026-08-10T07:44:12.941Z",
   "models": {
     "PageTextFile": {
       "name": "PageTextFile",
-      "jsdoc": "Page Text File 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建 Page Text File 实例。",
           "signatureText": "constructor(pageId: string, fileName: 'script.js' | 'style.css', initialText?: string)",
           "parameters": [
             {
@@ -207,7 +206,6 @@
             },
             {
               "name": "markSaved",
-              "jsdoc": "执行 mark Saved 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -216,7 +214,6 @@
             },
             {
               "name": "undo",
-              "jsdoc": "执行 undo 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -225,7 +222,6 @@
             },
             {
               "name": "redo",
-              "jsdoc": "执行 redo 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

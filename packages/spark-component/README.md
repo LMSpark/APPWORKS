@@ -121,8 +121,8 @@ Spark.register('my-component', MyComponent)
 // 安装 Vue 插件（使用全局单例）
 app.use(Spark.createPlugin())
 
-// 类型定义
-import type { SparkCapabilityContext } from '@spark-appworks/spark-component'
+// 类型定义（能力上下文直连 utils）
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
 ```
 
 ## API 文档

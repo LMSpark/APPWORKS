@@ -40,8 +40,6 @@ export type JsonParamShape<TShape extends object> = Readonly<TShape>
 // 第 2 节 · 运行时守卫与收窄
 // ═══════════════════════════════════════════════════════════════
 
-export { isRecord }
-
 /** 判断值是否为 JsonObject */
 export function isJsonObject(value: unknown): value is JsonObject {
   return isRecord(value)

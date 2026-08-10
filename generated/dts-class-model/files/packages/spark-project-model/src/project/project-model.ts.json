@@ -258,10 +258,8 @@
           "type": "object",
           "properties": {
             "childPlacement": {
-              "enum": [
-                "header",
-                "sidebar"
-              ]
+              "type": "object",
+              "title": "NavigationRootPlacement"
             }
           },
           "additionalProperties": false
@@ -464,7 +462,8 @@
           "type": "object",
           "properties": {
             "kind": {
-              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintDeliveryKind"
+              "type": "object",
+              "title": "RuntimeNavigationItemKind"
             }
           },
           "additionalProperties": false
@@ -671,7 +670,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:36:48.882Z",
+  "generatedAt": "2026-08-10T12:08:09.429Z",
   "models": {
     "ProjectModel": {
       "name": "ProjectModel",
@@ -710,7 +709,6 @@
           "methods": [
             {
               "name": "subscribe",
-              "jsdoc": "执行 subscribe 操作。",
               "parameters": [
                 {
                   "name": "listener",
@@ -762,7 +760,6 @@
             },
             {
               "name": "forEachNode",
-              "jsdoc": "执行 for Each Node 操作。",
               "parameters": [
                 {
                   "name": "callback",
@@ -798,7 +795,6 @@
             },
             {
               "name": "replaceProjectInfo",
-              "jsdoc": "执行 replace Project Info 操作。",
               "parameters": [
                 {
                   "name": "project",
@@ -854,7 +850,6 @@
             },
             {
               "name": "findNodeById",
-              "jsdoc": "find Node By Id 标识。",
               "parameters": [
                 {
                   "name": "nodeId",
@@ -881,7 +876,6 @@
             },
             {
               "name": "findNodeLocation",
-              "jsdoc": "执行 find Node Location 操作。",
               "parameters": [
                 {
                   "name": "nodeId",
@@ -908,7 +902,6 @@
             },
             {
               "name": "findConfigPageByPageId",
-              "jsdoc": "find Config Page By Page Id 标识。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -953,7 +946,6 @@
             },
             {
               "name": "closePageDesign",
-              "jsdoc": "执行 close Page Design 操作。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -1047,17 +1039,8 @@
                 {
                   "name": "childPlacement",
                   "type": {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "literal",
-                        "value": "header"
-                      },
-                      {
-                        "type": "literal",
-                        "value": "sidebar"
-                      }
-                    ]
+                    "type": "reference",
+                    "name": "NavigationRootPlacement"
                   }
                 }
               ],
@@ -1069,7 +1052,6 @@
             },
             {
               "name": "addRootModule",
-              "jsdoc": "执行 add Root Module 操作。",
               "parameters": [
                 {
                   "name": "createId",
@@ -1097,7 +1079,6 @@
             },
             {
               "name": "addChildPage",
-              "jsdoc": "执行 add Child Page 操作。",
               "parameters": [
                 {
                   "name": "createId",
@@ -1172,7 +1153,6 @@
             },
             {
               "name": "refreshNavRefs",
-              "jsdoc": "执行 refresh Nav Refs 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -1181,7 +1161,6 @@
             },
             {
               "name": "toTree",
-              "jsdoc": "执行 to Tree 操作。",
               "parameters": [],
               "type": {
                 "type": "array",
@@ -1194,7 +1173,6 @@
             },
             {
               "name": "replaceBlueprintTree",
-              "jsdoc": "执行 replace Navigation Root 操作。",
               "parameters": [
                 {
                   "name": "root",
@@ -1223,7 +1201,6 @@
             },
             {
               "name": "selectNode",
-              "jsdoc": "执行 select Node 操作。",
               "parameters": [
                 {
                   "name": "nodeId",
@@ -1304,7 +1281,6 @@
             },
             {
               "name": "beginBlueprintDraft",
-              "jsdoc": "执行 begin Navigation Draft 操作。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1314,7 +1290,6 @@
             },
             {
               "name": "discardBlueprintDraft",
-              "jsdoc": "执行 discard Navigation Draft 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -1323,7 +1298,6 @@
             },
             {
               "name": "markBlueprintClean",
-              "jsdoc": "执行 mark Navigation Clean 操作。",
               "parameters": [
                 {
                   "name": "scope",
@@ -1352,7 +1326,6 @@
             },
             {
               "name": "applyBlueprintNodeEdit",
-              "jsdoc": "执行 apply Navigation Node Edit 操作。",
               "parameters": [
                 {
                   "name": "draft",
@@ -1371,14 +1344,12 @@
             },
             {
               "name": "applyNodeKindPreset",
-              "jsdoc": "执行 apply Node Kind Preset 操作。",
               "parameters": [
                 {
                   "name": "kind",
                   "type": {
                     "type": "reference",
-                    "name": "ProjectBlueprintDeliveryKind",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                    "name": "RuntimeNavigationItemKind"
                   }
                 }
               ],
@@ -1489,7 +1460,6 @@
             },
             {
               "name": "undoPageFile",
-              "jsdoc": "执行 undo Page File 操作。",
               "parameters": [
                 {
                   "name": "fileName",
@@ -1507,7 +1477,6 @@
             },
             {
               "name": "redoPageFile",
-              "jsdoc": "执行 redo Page File 操作。",
               "parameters": [
                 {
                   "name": "fileName",
@@ -1673,7 +1642,6 @@
             },
             {
               "name": "markPageFileChanged",
-              "jsdoc": "执行 mark Page File Changed 操作。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -1698,7 +1666,6 @@
             },
             {
               "name": "markPageLoadedChanged",
-              "jsdoc": "执行 mark Page Loaded Changed 操作。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -1732,7 +1699,6 @@
             },
             {
               "name": "readActivePageProjection",
-              "jsdoc": "执行 read Active Page Projection 操作。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1742,7 +1708,6 @@
             },
             {
               "name": "readDirtyProjection",
-              "jsdoc": "执行 read Dirty Projection 操作。",
               "parameters": [],
               "type": {
                 "type": "reference",

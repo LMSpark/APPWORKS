@@ -13,7 +13,6 @@
       "PageDesignAllowedOperations",
       "PageDesignRunContext",
       "PageDesignRunMode",
-      "PageDesignImplGate",
       "PageDesignGateState",
       "ReadPageDesignGateStateOptions",
       "PageDesignGateValidationResult",
@@ -72,14 +71,6 @@
         "fix"
       ]
     },
-    "PageDesignImplGate": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "PageDesignImplGate",
-      "enum": [
-        "closed",
-        "open"
-      ]
-    },
     "PageDesignGateState": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -92,7 +83,7 @@
           "type": "boolean"
         },
         "implGate": {
-          "$ref": "#/$defs/PageDesignImplGate"
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintImplGate"
         },
         "upstreamContractsSatisfied": {
           "type": "boolean"
@@ -153,7 +144,7 @@
         },
         "toolArgs": {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         }
       },
       "additionalProperties": false
@@ -168,7 +159,7 @@
         },
         "args": {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         },
         "allowedOperations": {
           "$ref": "#/$defs/PageDesignAllowedOperations"
@@ -177,7 +168,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:36:48.878Z",
+  "generatedAt": "2026-08-10T12:21:07.686Z",
   "models": {
     "PageDesignAllowedOperations": {
       "name": "PageDesignAllowedOperations",
@@ -282,35 +273,16 @@
         "members": {}
       }
     },
-    "PageDesignImplGate": {
-      "name": "PageDesignImplGate",
-      "jsdoc": "Page Design Impl Gate 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'closed' | 'open'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'closed'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'open'"
-          }
-        ],
-        "members": {}
-      }
-    },
     "PageDesignGateState": {
       "name": "PageDesignGateState",
       "jsdoc": "页面设计闸门状态：三重校验（策划就绪 + 实现闸门 + 上游契约），全部通过才允许运行",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */\n    implGate: PageDesignImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */\n    upstreamContractsSatisfied: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */\n    implGate: ProjectBlueprintImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */\n    upstreamContractsSatisfied: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */\n    implGate: PageDesignImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */\n    upstreamContractsSatisfied: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */\n    implGate: ProjectBlueprintImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */\n    upstreamContractsSatisfied: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -417,11 +389,11 @@
       "jsdoc": "变更类工具闸门评估参数",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 读取闸门状态时的配置项 */\n    gateOptions?: ReadPageDesignGateStateOptions;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: AiJsonParams;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 读取闸门状态时的配置项 */\n    gateOptions?: ReadPageDesignGateStateOptions;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: JsonParams;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 读取闸门状态时的配置项 */\n    gateOptions?: ReadPageDesignGateStateOptions;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: AiJsonParams;\n}>",
+            "typeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 读取闸门状态时的配置项 */\n    gateOptions?: ReadPageDesignGateStateOptions;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: JsonParams;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -472,11 +444,11 @@
       "jsdoc": "model_script 操作域闸门评估参数（仅针对 model_script 工具的 script 体 marker 扫描）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 工具名，仅 normalize 后为 model_script 时才执行 marker 扫描 */\n    toolName: string;\n    /** 工具调用参数，用于提取 script 字段做 marker 扫描 */\n    args?: AiJsonParams;\n    /** 操作域白名单，非空时对 script 中的 API 调用做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 工具名，仅 normalize 后为 model_script 时才执行 marker 扫描 */\n    toolName: string;\n    /** 工具调用参数，用于提取 script 字段做 marker 扫描 */\n    args?: JsonParams;\n    /** 操作域白名单，非空时对 script 中的 API 调用做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 工具名，仅 normalize 后为 model_script 时才执行 marker 扫描 */\n    toolName: string;\n    /** 工具调用参数，用于提取 script 字段做 marker 扫描 */\n    args?: AiJsonParams;\n    /** 操作域白名单，非空时对 script 中的 API 调用做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
+            "typeText": "Readonly<{\n    /** 工具名，仅 normalize 后为 model_script 时才执行 marker 扫描 */\n    toolName: string;\n    /** 工具调用参数，用于提取 script 字段做 marker 扫描 */\n    args?: JsonParams;\n    /** 操作域白名单，非空时对 script 中的 API 调用做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
             "targetName": "Readonly"
           }
         ],

@@ -31,9 +31,10 @@ AI用途：需要理解 display badge 的实际渲染结构、slot/toolbar/状�
  * @description 徽章展示组件。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import { useDisplayDataSource } from '../useDisplayDataSource'
 import type { RBadgeProps } from './DisplayBadge.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RBadgeProps>(), {
   type: 'r-badge',
@@ -57,5 +58,4 @@ const resolvedBadgeValue = computed(() => {
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

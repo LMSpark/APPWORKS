@@ -4,11 +4,11 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/json-schema-to-type 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonSchema } from '../../json'
+import type { JsonSchema } from '@spark-appworks/spark-json-document'
 
 type JsonRecord = Readonly<Record<string, unknown>>
 
-export function jsonSchemaToTypeText(schema: AiJsonSchema | undefined): string {
+export function jsonSchemaToTypeText(schema: JsonSchema | undefined): string {
   if (schema === undefined) return 'void'
   if (schema === true) return 'unknown'
   if (schema === false) return 'never'
@@ -95,7 +95,7 @@ function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function readJsonSchema(value: unknown): AiJsonSchema {
+function readJsonSchema(value: unknown): JsonSchema {
   if (value === true || value === false) return value
   if (isRecord(value)) return value
   return true

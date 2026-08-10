@@ -12,7 +12,6 @@ export type {
   LowcodeDatabaseField,
   LowcodeDatabaseResource,
   LowcodeDatabaseResourceSelector,
-  LowcodeDatabaseResourceType,
   LowcodeDatabaseServer,
   LowcodeDatabaseTable,
   LowcodeDatabaseView,
@@ -44,6 +43,7 @@ export type {
   DataSpaceResourceField,
   DataSpaceResourceReference,
   DataSpaceResourceType,
+  DataSpaceDatabaseResourceType,
 } from './platform/data-space/data-space.js'
 export { DataSpaceRuntimeApi } from './platform/data-space/runtime/data-space-runtime-api.js'
 export type {
@@ -82,53 +82,24 @@ export type {
 export { PermissionRuntimeApi } from './platform/permission/runtime/permission-runtime-api.js'
 export type { PermissionRuntimeSnapshot } from './platform/permission/runtime/permission-runtime-api.js'
 export { PERMISSION_DESIGN_FORM_KEY } from './platform/permission/permission-wire.js'
-export { ProjectBlueprintApi } from './platform/project-blueprint/project-blueprint-api.js'
+export { LowcodeProjectBlueprintApi } from './platform/project-blueprint/project-blueprint-api.js'
 export {
-  ProjectBlueprint,
-  ProjectBlueprintDeliveryOutputs,
-  ProjectBlueprintNode,
-  ProjectBlueprintOutputs,
-  ProjectBlueprintStructureOutputs,
+  createLowcodeProjectBlueprintRecord,
+  validateLowcodeProjectBlueprintRecords,
 } from './platform/project-blueprint/project-blueprint.js'
+export type { LowcodeProjectBlueprintRecord } from './platform/project-blueprint/project-blueprint.js'
 export type {
-  ProjectBlueprintDiagnostic,
-  ProjectBlueprintNodeSnapshot,
-  ProjectBlueprintNodeKind,
-  ProjectBlueprintMutationCapability,
-  ProjectBlueprintStructure,
-  ProjectBlueprintTreeNode,
-} from './platform/project-blueprint/project-blueprint.js'
+  LowcodeNavigationAuthorizationContext,
+  LowcodeNavigationAuthorizationEvidence,
+  LowcodeNavigationAuthorizationItem,
+  LowcodeNavigationTargetKind,
+} from './platform/lowcode-navigation.js'
 export type {
-  RuntimeNavigation,
-  RuntimeNavigationItem,
-  RuntimeNavigationItemKind,
-} from './platform/project-blueprint/outputs/runtime-navigation.js'
-export { ProjectBlueprintDocumentOutputs } from './platform/project-blueprint/outputs/document/project-blueprint-document.js'
-export type {
-  ProjectBlueprintDocumentCoverage,
-  ProjectBlueprintDocumentKind,
-  ProjectBlueprintDocumentSource,
-  ProjectBlueprintDocumentSubmitOptions,
-  ProjectBlueprintDocumentTask,
+  LowcodeProjectBlueprintDocumentCoverage,
+  LowcodeProjectBlueprintDocumentKind,
+  LowcodeProjectBlueprintDocumentSubmitOptions,
+  LowcodeProjectBlueprintDocumentTask,
 } from './platform/project-blueprint/outputs/document/project-blueprint-document.js'
-export {
-  ProjectBlueprintAiOutputs,
-  ProjectBlueprintGovernanceOutputs,
-  ProjectBlueprintPlanningOutputs,
-} from './platform/project-blueprint/outputs/project-blueprint-output-groups.js'
-export { ProjectBlueprintMutationPlanner } from './platform/project-blueprint/capability/project-blueprint-mutation.js'
-export type {
-  ProjectBlueprintMutationCommand,
-  ProjectBlueprintMutationInput,
-  ProjectBlueprintMutationRisk,
-} from './platform/project-blueprint/capability/project-blueprint-mutation.js'
-export type {
-  ProjectBlueprintAiPlanningInput,
-  ProjectBlueprintGovernanceReport,
-  ProjectBlueprintIdentityEvidence,
-  ProjectBlueprintPageRuntimeClosure,
-  ProjectBlueprintPlanningContext,
-} from './platform/project-blueprint/outputs/project-blueprint-output-groups.js'
 export { LowcodeRealtimeApi } from './realtime/lowcode-realtime-api.js'
 export { LowcodeApplicationStore } from './platform/lowcode-application-store.js'
 export { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from './platform/lowcode-application.js'
@@ -143,10 +114,11 @@ export type {
   LowcodeRegistrationResult,
   LowcodeSession,
   LowcodeUserRegistration,
-  LowcodeVerificationChannel,
   LowcodeVerificationRequest,
   LowcodeVerificationScene,
 } from './platform/lowcode-platform-api.js'
+export type { SendCodeType, SendCodeScene } from './contracts/lowcode-send-code.js'
+export type { OrderType, WireFilterOperator, GroupFunType } from './contracts/lowcode-wire-query.js'
 export type { LowcodeApplication } from './platform/lowcode-application.js'
 export type {
   LowcodeEnterpriseCatalogItem,

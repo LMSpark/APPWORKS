@@ -31,14 +31,14 @@ function row(id: string, parentId: string, showAtNavigation: number): Readonly<R
   }
 }
 
-describe('ProjectBlueprintApi', () => {
+describe('LowcodeProjectBlueprintApi', () => {
   it('reads the complete flat blueprint without filtering hidden nodes', async () => {
     const http = new FixtureHttpClient({
       Code: 200,
       Result: { data: { Items: [row('ROOT', '000000', 1), row('REQUIREMENT', 'ROOT', 0)] } },
     })
 
-    const blueprint = await new LowcodeApi({ http }).blueprint.read('P1')
+    const records = await new LowcodeApi({ http }).blueprint.readRecords('P1')
 
     expect(http.requestConfig).toMatchObject({
       url: '/api/DataOperation/GetData',
@@ -46,9 +46,8 @@ describe('ProjectBlueprintApi', () => {
       headers: { 'x-FormKey': '7AB874097A1E8711A42FD845939A6E05' },
     })
     expect(JSON.stringify(http.requestConfig?.data)).not.toContain('IsShowAtNav')
-    expect(blueprint.nodes.map(node => node.id)).toEqual(['ROOT', 'REQUIREMENT'])
-    expect(blueprint.findNode('REQUIREMENT')?.runtimeNavigationCandidate).toBe(false)
-    expect(blueprint.outputs.structure.snapshot().hierarchy[0]?.children[0]?.node.id).toBe('REQUIREMENT')
+    expect(records.map(node => node.id)).toEqual(['ROOT', 'REQUIREMENT'])
+    expect(records.find(node => node.id === 'REQUIREMENT')?.runtimeNavigationCandidate).toBe(false)
   })
 
   it('fails closed for duplicate identities', async () => {
@@ -57,7 +56,7 @@ describe('ProjectBlueprintApi', () => {
       Result: { Items: [row('ROOT', '000000', 1), row('ROOT', '000000', 0)] },
     })
 
-    await expect(new LowcodeApi({ http }).blueprint.read('P1'))
+    await expect(new LowcodeApi({ http }).blueprint.readRecords('P1'))
       .rejects.toEqual(new LowcodeApiError(0, '蓝图节点 id 重复：ROOT'))
   })
 
@@ -67,11 +66,9 @@ describe('ProjectBlueprintApi', () => {
       Result: { Items: [row('ROOT-A', '000000', 1), row('ROOT-B', '0', 0)] },
     })
 
-    const blueprint = await new LowcodeApi({ http }).blueprint.read('P1')
+    const records = await new LowcodeApi({ http }).blueprint.readRecords('P1')
 
-    expect(blueprint.nodes.map(node => node.id)).toEqual(['ROOT-A', 'ROOT-B'])
-    expect(blueprint.outputs.structure.snapshot().hierarchy.map(item => item.node.id))
-      .toEqual(['ROOT-A', 'ROOT-B'])
+    expect(records.map(node => node.id)).toEqual(['ROOT-A', 'ROOT-B'])
   })
 
   it('preserves orphan nodes as diagnosed top-level records', async () => {
@@ -80,15 +77,12 @@ describe('ProjectBlueprintApi', () => {
       Result: { Items: [row('ROOT', '000000', 1), row('PAGE', 'MISSING', 1)] },
     })
 
-    const blueprint = await new LowcodeApi({ http }).blueprint.read('P1')
+    const records = await new LowcodeApi({ http }).blueprint.readRecords('P1')
 
-    expect(blueprint.outputs.structure.snapshot().hierarchy.map(item => item.node.id))
-      .toEqual(['ROOT', 'PAGE'])
-    expect(blueprint.outputs.structure.snapshot().diagnostics).toContainEqual({
-      code: 'missing-parent',
-      nodeId: 'PAGE',
-      message: '蓝图节点 PAGE 的父节点不存在：MISSING',
-    })
+    expect(records.map(node => [node.id, node.parentId])).toEqual([
+      ['ROOT', '000000'],
+      ['PAGE', 'MISSING'],
+    ])
   })
 
   it('fails closed when a row belongs to another project', async () => {
@@ -98,7 +92,7 @@ describe('ProjectBlueprintApi', () => {
       Result: { Items: [row('ROOT', '000000', 1), foreign] },
     })
 
-    await expect(new LowcodeApi({ http }).blueprint.read('P1'))
+    await expect(new LowcodeApi({ http }).blueprint.readRecords('P1'))
       .rejects.toEqual(new LowcodeApiError(0, '蓝图节点 PAGE 属于其他项目 P2'))
   })
 })

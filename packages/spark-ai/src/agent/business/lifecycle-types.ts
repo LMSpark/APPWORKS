@@ -5,7 +5,7 @@
  * AI用途：实现或审查业务级工具调用拦截、完成判定和中止逻辑时，用本模块确认回调语义。
  */
 
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { AiAgentFunctionCallResult } from '../session/session-types'
 import type { AiAgentRuntimeContext } from './scope-types'
 
@@ -54,7 +54,7 @@ export type AiAgentBeforeFunctionCallOptions = AiAgentRuntimeContext & Readonly<
   /** 即将被调用的工具名称，来自 LLM tool_calls 中的 function.name。 */
   toolName: string
   /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */
-  args: AiJsonParams
+  args: JsonParams
 }>
 
 // ═══════════════════════════════════════════════════════════════
@@ -110,7 +110,7 @@ export type AiAgentAfterFunctionCallOptions = AiAgentRuntimeContext & Readonly<{
   /** 已执行完毕的工具名称，来自 LLM tool_calls 中的 function.name。 */
   toolName: string
   /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */
-  args: AiJsonParams
+  args: JsonParams
   /** 工具执行结果；ok 时带 data，失败时带 code/msg/fix 供业务方判断后续策略。 */
   result: AiAgentFunctionCallResult<unknown>
 }>

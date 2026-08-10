@@ -5,10 +5,10 @@
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
 /** 导航目标类型；由 NavigationUrl/url 解析得出。 */
-export type RuntimeNavigationTargetKind = 'empty' | 'external' | 'route' | 'vue'
+export type LowcodeNavigationTargetKind = 'empty' | 'external' | 'route' | 'vue'
 
 /** Relations 上下文；wire 字段 TextParamName、ValParamName、selectValParam 等 PascalCase。 */
-export type RuntimeNavigationAuthorizationContext = Readonly<{
+export type LowcodeNavigationAuthorizationContext = Readonly<{
   id: string
   navigationId: string
   title: string
@@ -23,18 +23,18 @@ export type RuntimeNavigationAuthorizationContext = Readonly<{
 }>
 
 /** 导航授权树节点；route/vue 目标携带 formKey（conId/conid）。 */
-export type RuntimeNavigationAuthorizationItem = Readonly<{
+export type LowcodeNavigationAuthorizationItem = Readonly<{
   id: string
   target: string
-  targetKind: RuntimeNavigationTargetKind
+  targetKind: LowcodeNavigationTargetKind
   formKey: string | null
-  children: readonly RuntimeNavigationAuthorizationItem[]
+  children: readonly LowcodeNavigationAuthorizationItem[]
 }>
 
 /** 导航授权完整证据：菜单树 + Relations 上下文列表。 */
-export type RuntimeNavigationAuthorizationEvidence = Readonly<{
-  items: readonly RuntimeNavigationAuthorizationItem[]
-  contexts: readonly RuntimeNavigationAuthorizationContext[]
+export type LowcodeNavigationAuthorizationEvidence = Readonly<{
+  items: readonly LowcodeNavigationAuthorizationItem[]
+  contexts: readonly LowcodeNavigationAuthorizationContext[]
 }>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -56,7 +56,7 @@ function text(value: unknown): string {
   return value === undefined || value === null ? '' : String(value).trim()
 }
 
-function targetKind(value: string): RuntimeNavigationTargetKind {
+function targetKind(value: string): LowcodeNavigationTargetKind {
   if (!value) return 'empty'
   if (value.startsWith('vue:')) return 'vue'
   if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(value)) return 'external'
@@ -78,7 +78,7 @@ function target(value: unknown): string {
   return normalized
 }
 
-function authorizationItem(value: unknown): RuntimeNavigationAuthorizationItem {
+function authorizationItem(value: unknown): LowcodeNavigationAuthorizationItem {
   const raw = record(value, '运行导航授权项')
   const id = text(raw['id'])
   if (!id) throw new LowcodeApiError(0, '运行导航授权项缺少 id')
@@ -95,7 +95,7 @@ function authorizationItem(value: unknown): RuntimeNavigationAuthorizationItem {
   }
 }
 
-function authorizationContext(value: unknown): RuntimeNavigationAuthorizationContext | null {
+function authorizationContext(value: unknown): LowcodeNavigationAuthorizationContext | null {
   const raw = record(value, '运行导航授权 Relations 项')
   const navigationId = text(raw['prowid'])
   const childRowId = text(raw['childrowid'])
@@ -117,7 +117,7 @@ function authorizationContext(value: unknown): RuntimeNavigationAuthorizationCon
   }
 }
 
-function collectIds(items: readonly RuntimeNavigationAuthorizationItem[], ids: Set<string>): void {
+function collectIds(items: readonly LowcodeNavigationAuthorizationItem[], ids: Set<string>): void {
   for (const item of items) {
     if (ids.has(item.id)) throw new LowcodeApiError(0, `运行导航授权项 id 重复：${item.id}`)
     ids.add(item.id)
@@ -129,7 +129,7 @@ function collectIds(items: readonly RuntimeNavigationAuthorizationItem[], ids: S
  * 归一化运行导航授权响应；合并 TopMenus 与 LeftMenus，校验 id 全局唯一。
  * Vue 资源须精确小写 vue: 前缀，否则抛错。
  */
-export function normalizeRuntimeNavigationAuthorization(value: unknown): RuntimeNavigationAuthorizationEvidence {
+export function normalizeLowcodeNavigationAuthorization(value: unknown): LowcodeNavigationAuthorizationEvidence {
   const payload = record(value, '运行导航授权 Result')
   const items = [
     ...rows(payload['TopMenus'], '运行导航授权 TopMenus').map(authorizationItem),
@@ -138,6 +138,6 @@ export function normalizeRuntimeNavigationAuthorization(value: unknown): Runtime
   collectIds(items, new Set<string>())
   const contexts = rows(payload['Relations'], '运行导航授权 Relations')
     .map(authorizationContext)
-    .filter((item): item is RuntimeNavigationAuthorizationContext => item !== null)
+    .filter((item): item is LowcodeNavigationAuthorizationContext => item !== null)
   return { items, contexts }
 }

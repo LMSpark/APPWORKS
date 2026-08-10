@@ -11,6 +11,8 @@
  * ```ts
  * import { backendApiEndpoints, type AjaxResult } from "./backend-api-contracts";
  *
+ * // AjaxResult 与 spark-lowcode-api 同形；运行解包只认必填 Code
+ *
  * const endpoint = backendApiEndpoints.find((item) => item.id === "table.syncData");
  * ```
  */

@@ -21,7 +21,6 @@ export type {
 export {
   asJsonValue,
   isJsonObject,
-  isRecord,
   toPrimitive,
 } from './json-types'
 

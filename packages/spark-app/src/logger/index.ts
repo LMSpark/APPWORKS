@@ -6,9 +6,8 @@
  */
 
 /**
- * 日志级别（与 spark-utils 共享）
+ * 日志级别（与 spark-utils 共享；本模块只 import 使用，不再 re-export）
  */
-export type { LogLevel } from '@spark-appworks/spark-utils'
 import type { LogLevel, LogTransport as BaseLogTransport } from '@spark-appworks/spark-utils'
 import { sendBeacon } from '@spark-appworks/spark-utils'
 
@@ -59,7 +58,7 @@ export type AppLoggerConfig = {
  *
  * 继承 spark-utils LogTransport（SSoT）并补充批量传输需要的 flush/destroy。
  */
-export type LogTransport = BaseLogTransport & {
+export type AppLogTransport = BaseLogTransport & {
   /** 立即刷新队列中的日志（批量传输器可选实现） */
     flush?(): void
     /** 销毁传输器，释放定时器等资源 */
@@ -223,12 +222,12 @@ function buildErrorConsoleMessage(message: string, meta: Record<string, unknown>
  * 通过 `addGlobalTransport()` / `configureRemoteLogger()` 注入，
  * 所有 AppLogger 实例（含已创建的模块级单例）自动生效。
  */
-const _globalTransports: LogTransport[] = []
+const _globalTransports: AppLogTransport[] = []
 
 /**
  * 添加全局传输器（对所有已创建和未来创建的 AppLogger 生效）
  */
-export function addGlobalTransport(transport: LogTransport): void {
+export function addGlobalTransport(transport: AppLogTransport): void {
   _globalTransports.push(transport)
 }
 
@@ -284,7 +283,7 @@ type LogEntry = {
  * - 达到 batchSize 或 flushInterval 到期时批量发送
  * - 页面隐藏 / 卸载时用 `navigator.sendBeacon` 兜底
  */
-export function createBatchHttpTransport(options: BatchTransportOptions): LogTransport {
+export function createBatchHttpTransport(options: BatchTransportOptions): AppLogTransport {
   const minLevelPriority = LOG_LEVELS[options.minLevel ?? 'debug']
   const batchSize = options.batchSize ?? 50
   const flushIntervalMs = options.flushInterval ?? 5000
@@ -361,7 +360,7 @@ export function createBatchHttpTransport(options: BatchTransportOptions): LogTra
  * })
  * ```
  */
-export function configureRemoteLogger(options: BatchTransportOptions): LogTransport {
+export function configureRemoteLogger(options: BatchTransportOptions): AppLogTransport {
   const transport = createBatchHttpTransport(options)
   addGlobalTransport(transport)
   return transport
@@ -374,7 +373,7 @@ export function configureRemoteLogger(options: BatchTransportOptions): LogTransp
  */
 class AppLogger {
   private config: Required<Pick<AppLoggerConfig, 'level' | 'enableColors' | 'showTimestamp' | 'prefix' | 'suppressErrorConsoleTrace'>>
-  private transports: LogTransport[] = []
+  private transports: AppLogTransport[] = []
 
     /** 创建 App Logger 实例。 */
 constructor(config: AppLoggerConfig = {}) {
@@ -390,7 +389,7 @@ constructor(config: AppLoggerConfig = {}) {
   /**
    * 添加实例级传输器
    */
-  addTransport(transport: LogTransport): void {
+  addTransport(transport: AppLogTransport): void {
     this.transports.push(transport)
   }
 

@@ -12,7 +12,7 @@ import {
   type AgentWorkflowRuntimeGateCommand,
   type AgentWorkflowRuntimeGateResult,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams, AiJsonValue } from '@spark-appworks/spark-ai/json'
+import type { JsonParams, JsonValue } from '@spark-appworks/spark-json-document'
 import {
   createWorkerDtsClassModelKnowledgeProvider,
   type ClassModelKnowledgeProvider,
@@ -136,7 +136,7 @@ export function createAppAgentWorkflowRuntimeBindings(
   }
 }
 
-function createPageDesignPromptInput(input: AiJsonParams): PageDesignRunInput {
+function createPageDesignPromptInput(input: JsonParams): PageDesignRunInput {
   const promptInput: PageDesignRunInput = {
     pageId: readRequiredStringInput(input, 'pageId'),
     description: readRequiredStringInput(input, 'description'),
@@ -161,7 +161,7 @@ function createPageDesignPromptInput(input: AiJsonParams): PageDesignRunInput {
   return promptInput
 }
 
-function createProjectPlanningPromptInput(input: AiJsonParams): ProjectPlanningAgentInput {
+function createProjectPlanningPromptInput(input: JsonParams): ProjectPlanningAgentInput {
   const blueprintNodesValue = input['blueprintNodes']
   if (!Array.isArray(blueprintNodesValue)) {
     throw new Error('projectPlanning prompt input requires blueprintNodes array.')
@@ -178,7 +178,7 @@ function createProjectPlanningPromptInput(input: AiJsonParams): ProjectPlanningA
   }
 }
 
-function readBlueprintPlanningAgentInput(value: AiJsonValue, index: number): ProjectPlanningAgentInput['blueprintNodes'][number] {
+function readBlueprintPlanningAgentInput(value: JsonValue, index: number): ProjectPlanningAgentInput['blueprintNodes'][number] {
   if (!isJsonRecord(value)) {
     throw new Error(`projectPlanning prompt input blueprintNodes[${index}] must be an object.`)
   }
@@ -193,7 +193,7 @@ function readBlueprintPlanningAgentInput(value: AiJsonValue, index: number): Pro
   }
 }
 
-function readPageDesignAllowedOperations(value: AiJsonValue | undefined): PageDesignAllowedOperations | undefined {
+function readPageDesignAllowedOperations(value: JsonValue | undefined): PageDesignAllowedOperations | undefined {
   if (!isJsonRecord(value)) return undefined
   const allowedOperations: {
     nodeTree?: boolean
@@ -210,7 +210,7 @@ function readPageDesignAllowedOperations(value: AiJsonValue | undefined): PageDe
 }
 
 function readOptionalPageDesignRunMode(
-  input: AiJsonParams,
+  input: JsonParams,
   field: string,
 ): PageDesignRunInput['mode'] | undefined {
   const value = readOptionalStringInput(input, field)
@@ -219,7 +219,7 @@ function readOptionalPageDesignRunMode(
   throw new Error(`pageDesign prompt input ${field} is not supported: ${value}`)
 }
 
-function readRequiredStringInput(input: AiJsonParams, field: string): string {
+function readRequiredStringInput(input: JsonParams, field: string): string {
   const value = readOptionalStringInput(input, field)
   if (value === undefined) {
     throw new Error(`Agent workflow prompt input requires string field "${field}".`)
@@ -227,19 +227,19 @@ function readRequiredStringInput(input: AiJsonParams, field: string): string {
   return value
 }
 
-function readOptionalStringInput(input: AiJsonParams, field: string): string | undefined {
+function readOptionalStringInput(input: JsonParams, field: string): string | undefined {
   const value = input[field]
   if (typeof value !== 'string') return undefined
   const normalized = value.trim()
   return normalized.length > 0 ? normalized : undefined
 }
 
-function readOptionalBooleanInput(input: AiJsonParams, field: string): boolean | undefined {
+function readOptionalBooleanInput(input: JsonParams, field: string): boolean | undefined {
   const value = input[field]
   return typeof value === 'boolean' ? value : undefined
 }
 
-function isJsonRecord(value: AiJsonValue | undefined): value is AiJsonParams {
+function isJsonRecord(value: JsonValue | undefined): value is JsonParams {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 

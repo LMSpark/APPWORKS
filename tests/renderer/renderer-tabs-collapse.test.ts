@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { RendererTabs, RendererCollapse, isSparkNode } from '@spark-appworks/spark-component'
-import type { SparkNodeChildren } from '@spark-appworks/spark-component'
+import { RendererTabs, RendererCollapse } from '@spark-appworks/spark-component'
 import RendererTabPane from '../../packages/spark-component/src/components/containers/layout/RendererTabPane.vue'
 import RendererCollapseItem from '../../packages/spark-component/src/components/containers/layout/RendererCollapseItem.vue'
 import RendererToolbar from '../../packages/spark-component/src/components/containers/layout/RendererToolbar.vue'
+import { isSparkNode, type SparkNode, type SparkNodeChildren } from '@spark-appworks/spark-data'
 
 
 function readSparkNodeChildren(value: unknown): SparkNodeChildren | undefined {

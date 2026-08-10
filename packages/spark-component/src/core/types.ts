@@ -9,26 +9,8 @@
  *
  * 设计原则：
  * - 最小化类型，只定义必要的接口
- * - 能力系统通过 capabilities Map 实现（继承自 CapabilityContext）
+ * - 能力系统通过 capabilities Map 实现（继承自 spark-utils CapabilityContext）
  */
-
-export type { SparkNode, SparkNodeChildren } from '@spark-appworks/spark-data'
-export {
-  SPARK_NODE_STRUCT_KEYS,
-  normalizeSparkNode,
-  isSparkNode,
-  getSparkNodeChildren,
-  nodeId,
-  nodeInputProp,
-  nodeInputProps,
-} from '@spark-appworks/spark-data'
-
-// 能力名称类型（从 spark-utils 重新导出）
-export type {
-  CapabilityName,
-  CapabilityContext,
-  CapabilityContext as SparkCapabilityContext,
-} from '@spark-appworks/spark-utils'
 
 // ============================================================================
 // 组件定义（注册表使用）
@@ -130,6 +112,5 @@ export type ComponentRegistrationArgs =
     options?: { silent?: boolean },
   ]
 
-// 日志类型 — 直接从 @spark-appworks/spark-utils 导入
-export type { LoggerApi } from '@spark-appworks/spark-utils'
+
 

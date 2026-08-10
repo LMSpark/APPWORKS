@@ -12,7 +12,7 @@
 
 import type { JsonValue, JsonObject } from '../core/json-types'
 import { isJsonObject, toPrimitive } from '../core/json-types'
-import type { TreeNode, TreeModel, JsonNodeType, MutationResult } from './tree-types'
+import type { JsonTreeNode, TreeModel, JsonNodeType, MutationResult } from './tree-types'
 
 // ── UID 生成 ──────────────────────────────────────────────────
 
@@ -24,7 +24,7 @@ export function generateUid(): string {
 // ── 子节点查询 ────────────────────────────────────────────────
 
 /** 按 order 排序返回某父节点的所有子节点 ID */
-export function getChildIds(model: ReadonlyMap<string, TreeNode>, parentId: string): string[] {
+export function getChildIds(model: ReadonlyMap<string, JsonTreeNode>, parentId: string): string[] {
   const children: Array<{ id: string; order: number }> = []
   for (const node of model.values()) {
     if (node.parentId === parentId) children.push({ id: node.id, order: node.order })
@@ -66,12 +66,12 @@ export function unchanged(model: TreeModel, uid: string): MutationResult {
   return { model, focusId: uid, expandId: null }
 }
 
-export function makeResult(nodes: Map<string, TreeNode>, focusId: string, expandId: string | null = null): MutationResult {
+export function makeResult(nodes: Map<string, JsonTreeNode>, focusId: string, expandId: string | null = null): MutationResult {
   return { model: nodes, focusId, expandId }
 }
 
 /** 递归移除子树 */
-export function removeSubtree(nodes: Map<string, TreeNode>, uid: string): void {
+export function removeSubtree(nodes: Map<string, JsonTreeNode>, uid: string): void {
   const n = nodes.get(uid)
   if (!n) return
   for (const c of getChildIds(nodes, uid)) removeSubtree(nodes, c)
@@ -79,7 +79,7 @@ export function removeSubtree(nodes: Map<string, TreeNode>, uid: string): void {
 }
 
 /** 修正数组子节点的 segment 和 order（插入/删除后） */
-export function reindexChildren(nodes: Map<string, TreeNode>, parentId: string): void {
+export function reindexChildren(nodes: Map<string, JsonTreeNode>, parentId: string): void {
   const children = getChildIds(nodes, parentId)
   for (let i = 0; i < children.length; i++) {
     const cid = children[i]
@@ -103,7 +103,7 @@ export function collectSiblingKeys(model: TreeModel, parentId: string): JsonObje
 
 /** 将 JsonValue 子树递归写入 mutable nodes Map，返回节点 id */
 export function addNodeToMap(input: {
-  nodes: Map<string, TreeNode>
+  nodes: Map<string, JsonTreeNode>
   value: JsonValue
   parentId: string | null
   segment: string | number
@@ -132,7 +132,7 @@ export function addNodeToMap(input: {
 }
 
 /** 将节点子树递归序列化回 JsonValue */
-export function toJsonValue(nodes: ReadonlyMap<string, TreeNode>, uid: string): JsonValue {
+export function toJsonValue(nodes: ReadonlyMap<string, JsonTreeNode>, uid: string): JsonValue {
   const n = nodes.get(uid)
   if (!n) throw new Error(`toJsonValue: node "${uid}" not found`)
   const children = getChildIds(nodes, uid)

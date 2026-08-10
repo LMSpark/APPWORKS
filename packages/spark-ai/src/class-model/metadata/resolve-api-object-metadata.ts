@@ -1,6 +1,6 @@
 /**
  * @module @spark-appworks/spark-ai:class-model/metadata/resolve-api-object-metadata
- * 职责：维护 @spark-appworks/spark-ai 中 class-model/metadata/resolve-api-object-metadata 的 JsonSchemaObject、ResolveRuntimeApiMetadataJsonOptions语义。
+ * 职责：维护 @spark-appworks/spark-ai 中 class-model/metadata/resolve-api-object-metadata 的 ResolveRuntimeApiMetadataJsonOptions 语义。
  * 边界：只服务 spark-ai 包内部的 Agent/DtsTypeDeclarationModel 能力，不直接耦合应用页面或 Vue 组件。
  * AI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。
  */
@@ -10,6 +10,7 @@
  * JSON Schema $ref 默认保留给运行时 AJV + schemaDefs；仅显式 inline 调用方可 inlineSchemaRefs。
  */
 
+import type { JsonSchemaDefs } from '@spark-appworks/spark-json-document'
 import type {
   AiApiActionMetadata,
   AiApiObjectMetadata,
@@ -18,13 +19,10 @@ import type {
 } from './ai-api-object-metadata-schema'
 import { dereferenceRuntimeApiMetadataSchemas } from './json-schema-dereference'
 
-/** Json Schema Object 的语义模型。 */
-type JsonSchemaObject = Readonly<Record<string, unknown>>
-
 /** Resolve Runtime API Metadata Json Options 的调用配置。 */
 export type ResolveRuntimeApiMetadataJsonOptions = Readonly<{
   /** 可供 $ref 内联的外部 JSON Schema 定义集；键为 $ref 路径（如 "#/$defs/Foo"），值为对应 Schema 对象。仅在 inlineSchemaRefs=true 时消费 */
-  schemaDefs?: Readonly<Record<string, JsonSchemaObject>>
+  schemaDefs?: JsonSchemaDefs
   /** @default false — true 时在注册前 inline #/$defs/*；false 时留给 AJV 2020 解析。 */
   inlineSchemaRefs?: boolean
 }>

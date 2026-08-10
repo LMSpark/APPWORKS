@@ -21,10 +21,15 @@
  * 10. ActionDescriptor 禁用判断 — isActionDescriptorDisabled
  */
 
-import { isDataRow, resolveDataViewKey, type DataView, type DataRow } from '@spark-appworks/spark-data'
+import {
+  isDataRow,
+  resolveDataViewKey,
+  nodeInputProps,
+  type DataView,
+  type DataRow,
+  type SparkNode,
+} from '@spark-appworks/spark-data'
 import type { PageMessageType } from '../../components/internal'
-import type { SparkNode } from '../../components/internal'
-import { nodeInputProps } from '../../components/internal'
 import type {
   ActionDescriptor,
   ActionExecutionContext,

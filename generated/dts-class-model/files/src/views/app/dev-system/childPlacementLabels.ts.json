@@ -7,35 +7,33 @@
     "sourceFile": "src/views/app/dev-system/childPlacementLabels.ts",
     "packageName": "app",
     "modulePath": "views/app/dev-system/childPlacementLabels",
-    "jsdoc": "@module app:views/app/dev-system/childPlacementLabels\n职责：提供 DevSystem 的 childPlacementLabels 能力，围绕 ChildPlacementValue 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/childPlacementLabels。",
+    "jsdoc": "@module app:views/app/dev-system/childPlacementLabels\n职责：提供 DevSystem 的 childPlacementLabels 能力，围绕 NavigationPlacementValue 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/childPlacementLabels。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "ChildPlacementValue"
-    ]
+    "symbols": []
   },
   "$defs": {
-    "ChildPlacementValue": {
+    "NavigationPlacementValue": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "ChildPlacementValue",
+      "title": "NavigationPlacementValue",
       "anyOf": [
         {
           "const": ""
         },
         {
           "type": "object",
-          "title": "ChildPlacement"
+          "title": "NavigationPlacement"
         }
       ]
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.666Z",
+  "generatedAt": "2026-08-10T12:01:38.732Z",
   "models": {
-    "ChildPlacementValue": {
-      "name": "ChildPlacementValue",
+    "NavigationPlacementValue": {
+      "name": "NavigationPlacementValue",
       "jsdoc": "Child Placement Value 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'' | ChildPlacement",
+        "declarationTypeText": "'' | NavigationPlacement",
         "declarationRelations": [
           {
             "kind": "union",
@@ -43,8 +41,8 @@
           },
           {
             "kind": "union",
-            "typeText": "ChildPlacement",
-            "targetName": "ChildPlacement"
+            "typeText": "NavigationPlacement",
+            "targetName": "NavigationPlacement"
           }
         ],
         "members": {}

@@ -32,8 +32,7 @@
               "type": "string"
             },
             "parameters": {
-              "type": "object",
-              "title": "AiJsonSchemaObject"
+              "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
             }
           },
           "required": [
@@ -47,18 +46,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-15T02:29:32.400Z",
+  "generatedAt": "2026-08-10T10:00:08.511Z",
   "models": {
     "ClassModelToolSpec": {
       "name": "ClassModelToolSpec",
       "jsdoc": "Class Model Tool Spec 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 工具类型，固定为 'function'，对齐 OpenAI function calling 协议。 */\n    type: 'function';\n    /** 工具定义：name 为 ClassModelToolName 枚举值，description 面向 LLM，parameters 为 Draft 2020-12 JSON Schema。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: AiJsonSchemaObject;\n    };\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 工具类型，固定为 'function'，对齐 OpenAI function calling 协议。 */\n    type: 'function';\n    /** 工具定义：name 为 ClassModelToolName 枚举值，description 面向 LLM，parameters 为 Draft 2020-12 JSON Schema。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n    };\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 工具类型，固定为 'function'，对齐 OpenAI function calling 协议。 */\n    type: 'function';\n    /** 工具定义：name 为 ClassModelToolName 枚举值，description 面向 LLM，parameters 为 Draft 2020-12 JSON Schema。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: AiJsonSchemaObject;\n    };\n}>",
+            "typeText": "Readonly<{\n    /** 工具类型，固定为 'function'，对齐 OpenAI function calling 协议。 */\n    type: 'function';\n    /** 工具定义：name 为 ClassModelToolName 枚举值，description 面向 LLM，parameters 为 Draft 2020-12 JSON Schema。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n    };\n}>",
             "targetName": "Readonly"
           }
         ],

@@ -10,13 +10,12 @@
  */
 
 /**
- * 日志级别（从 spark-utils 统一导入）
+ * 日志级别（从 spark-utils 统一导入；本模块不 re-export）
  */
 import type { LogLevel } from '@spark-appworks/spark-utils'
 import type { App } from 'vue'
 import type { Router } from 'vue-router'
-import type { ThemeCapability } from './theme'
-export type { LogLevel }
+import type { AppThemeCapability } from './theme'
 
 /**
  * 应用环境
@@ -141,7 +140,7 @@ export type BootstrapContext = AppContext & {
     /** Vue Router 实例 */
     router: Router
     /** 主题服务（仅在启用 theme 选项时存在） */
-    theme?: ThemeCapability}
+    theme?: AppThemeCapability}
 
 /**
  * 初始化选项
@@ -158,7 +157,7 @@ export type BootstrapOptions = {
   /** 挂载目标元素选择器（默认 '#app'） */
   mountTarget?: string
   /** 主题服务实例（由 start() 创建并传入，或手动传入） */
-  themeService?: ThemeCapability
+  themeService?: AppThemeCapability
   /** 挂载前钩子 */
   beforeMount?: (context: BootstrapContext) => void | Promise<void>
   /** 挂载后钩子 */

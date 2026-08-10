@@ -47,7 +47,6 @@
       // (e.g. setupAutoRegister) are picked up without rebuilding the package
       "@spark-appworks/spark-app": ["./packages/spark-app/src/index.ts"],
       "@spark-appworks/spark-ai": ["./packages/spark-ai/src/index.ts"],
-      "@spark-appworks/spark-ai/json": ["./packages/spark-ai/src/json/index.ts"],
       "@spark-appworks/spark-ai/agent": ["./packages/spark-ai/src/agent/index.ts"],
       "@spark-appworks/spark-ai/class-model": ["./packages/spark-ai/src/class-model/index.ts"]
     },

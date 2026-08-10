@@ -24,6 +24,7 @@ import {
   type LowcodeEnterpriseInfo,
 } from './lowcode-enterprise.js'
 import type { LowcodeSessionStore } from './lowcode-session-store.js'
+import type { SendCodeType, SendCodeScene } from '../contracts/lowcode-send-code.js'
 
 /** 当前用户资料；wire 响应字段为 camelCase（如 account、realName、userInfo）。 */
 export type LowcodeCurrentUser = Readonly<{
@@ -46,15 +47,13 @@ export type LowcodeLoginCredentials = Readonly<{
   password: string
 }>
 
-/** 验证码投递渠道；wire 值必须为 EMAIL 或 MOBILE。 */
-export type LowcodeVerificationChannel = 'EMAIL' | 'MOBILE'
-/** 验证码业务场景；wire 值必须为 REGISTER 或 REGISTER_ENT。 */
-export type LowcodeVerificationScene = 'REGISTER' | 'REGISTER_ENT'
+/** 验证码业务场景；本门面仅支持注册子集（全集见 contracts SendCodeScene）。 */
+export type LowcodeVerificationScene = Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>
 
 /** 发送验证码请求；wire 字段 ent、type、account、scene。 */
 export type LowcodeVerificationRequest = Readonly<{
   enterpriseName: string
-  channel: LowcodeVerificationChannel
+  channel: SendCodeType
   account: string
   scene: LowcodeVerificationScene
 }>
@@ -66,7 +65,7 @@ export type LowcodeUserRegistration = Readonly<{
   displayName: string
   password: string
   sex: 'F' | 'M'
-  channel: LowcodeVerificationChannel
+  channel: SendCodeType
   phone: string
   email: string
   verificationCode: string
@@ -83,7 +82,7 @@ export type LowcodeEnterpriseRegistration = Readonly<{
   chineseShortName: string
   administratorAccount: string
   administratorPassword: string
-  channel: LowcodeVerificationChannel
+  channel: SendCodeType
   verificationAccount: string
   verificationCode: string
   phone: string

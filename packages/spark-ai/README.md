@@ -1,15 +1,17 @@
 # @spark-appworks/spark-ai
 
-Spark AI agent runtime：JSON Schema 校验、ClassModel 工具闭集、Host 编排、ToolLoop、传输契约与 native-runtime 脚本执行。
+Spark AI agent runtime：ClassModel 工具闭集、Host 编排、ToolLoop、传输契约与 native-runtime 脚本执行。
+
+JSON Schema / 值类型 SSOT 在 `@spark-appworks/spark-json-document`，本包不转发。
 
 ## 公共入口
 
 | 子路径 | 用途 |
 |--------|------|
-| `@spark-appworks/spark-ai` | 薄门面（常用符号快捷导出） |
-| `@spark-appworks/spark-ai/json` | Schema 校验与 JSON 规整 |
+| `@spark-appworks/spark-ai` | 薄门面（Host / ClassModelRuntime 等） |
 | `@spark-appworks/spark-ai/agent` | Host、会话、ToolLoop、传输、native-runtime |
 | `@spark-appworks/spark-ai/class-model` | ClassModel 反射图、metadata 解析与 ClassModel 工具 |
+| `@spark-appworks/spark-json-document` | Schema 校验与 JSON 规整（独立包） |
 
 ## 文档
 

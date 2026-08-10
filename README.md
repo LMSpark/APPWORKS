@@ -131,8 +131,9 @@ pnpm run test
 
 1. **页面结构配置**
    用 `rule.json` 描述页面布局、容器、字段、事件和工具栏。
-2. **页面数据模型**
-   用 `pagedata.json` 描述 DataSet、表、视图、关系、计算列和聚合。
+2. **页面数据模型（分层）**
+   - **设计/AI 轴**：四文件里的 `pagedata.json` 描述本地 DataSet 草稿（表、视图、关系等），供设计器与生成器编辑。
+   - **运行轴**：页面有 `formKey + dataSpaceId + modelId`（`PageDataSpaceBinding`）时，运行态 DataSet 只由平台 **DataSpace + 权限** 装配，不再把 `pagedata.json` 当运行真源。
 3. **页面数据绑定**
    通过 DataViewKey 把容器和 DataView 连接起来，例如 `Users@default`；展示和动作需要读取 DataView 输出时使用 `dataViewKey + dataMember + dataField`，例如 `dataViewKey: "Orders@detail", dataMember: "currentRow", dataField: "total"`。
 4. **页面行为脚本**

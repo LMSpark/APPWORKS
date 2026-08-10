@@ -64,9 +64,9 @@ AI用途：需要理解 renderer form 的实际渲染结构、slot/toolbar/状�
  * RendererForm - 表单容器组件
  */
 import { computed, ref } from 'vue'
+import { nodeId } from '@spark-appworks/spark-data'
 import {
   SparkComponentRenderer,
-  nodeId,
 } from '../../../internal'
 import type { RFormProps } from './RendererForm.props'
 import {

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:permission-mode",
+    "sourcePath": "packages/spark-utils/src/permission-mode.ts",
+    "sourceFile": "packages/spark-utils/src/permission-mode.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "permission-mode",
+    "jsdoc": "@module @spark-appworks/spark-utils:permission-mode\n职责：页面/蓝图/运行导航共用的权限展示三态（PermissionMode）唯一字面量 SSOT。\n边界：只放跨包共享的三态契约；不含权限快照、字段策略或平台 wire。\nAI用途：新增/修改权限展示态时只改本文件，消费方直连 utils，禁止各包再定义同形别名。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PermissionMode"
+    ]
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-10T11:41:14.653Z",
+  "models": {
+    "PermissionMode": {
+      "name": "PermissionMode",
+      "jsdoc": "权限展示三态：完整展示 / 掩码 / 不可见。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(typeof PERMISSION_MODES)[number]",
+        "members": {}
+      }
+    }
+  }
+}

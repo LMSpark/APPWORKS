@@ -13,7 +13,6 @@
       "@spark-appworks/spark-json-document/schema": ["../spark-json-document/dist/schema/index.d.ts"],
       "@spark-appworks/spark-json-document/tree": ["../spark-json-document/dist/tree/index.d.ts"],
       "@spark-appworks/spark-ai": ["../spark-ai/dist/index.d.ts"],
-      "@spark-appworks/spark-ai/json": ["../spark-ai/dist/json/index.d.ts"],
       "@spark-appworks/spark-ai/agent": ["../spark-ai/dist/agent/index.d.ts"],
       "@spark-appworks/spark-ai/class-model": ["../spark-ai/dist/class-model/index.d.ts"]
     },

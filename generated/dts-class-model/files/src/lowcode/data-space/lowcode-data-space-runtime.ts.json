@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-data-space-runtime",
+    "sourcePath": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-data-space-runtime",
+    "jsdoc": "运行态页面 DataSet 唯一装载入口：DataSpace 设计 + 平台权限 → spark-data DataSet。\n有 PageDataSpaceBinding 时禁止再把 pagedata.json 当运行数据真源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LoadBoundDataSpaceDataSetResult"
+    ]
+  },
+  "$defs": {
+    "LoadBoundDataSpaceDataSetResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LoadBoundDataSpaceDataSetResult",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T10:14:51.460Z",
+  "models": {
+    "LoadBoundDataSpaceDataSetResult": {
+      "name": "LoadBoundDataSpaceDataSetResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

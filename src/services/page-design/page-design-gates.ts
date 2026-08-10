@@ -8,8 +8,12 @@
  * pageDesign 人工闸门：从 readPlanningProjection 读取 effectiveDescription / implGate，fail-fast 拒绝未放行页面。
  * allowedOperations 非空时，对 model_script 做操作域 marker 硬拦截。
  */
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
-import type { PageNodeFileName, ProjectPageNodeSummary } from '@spark-appworks/spark-project-model'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
+import type {
+  PageNodeFileName,
+  ProjectBlueprintImplGate,
+  ProjectPageNodeSummary,
+} from '@spark-appworks/spark-project-model'
 
 /** 页面设计允许的操作域：每项 true=放行 / false=硬拦截 / undefined=不限制 */
 export type PageDesignAllowedOperations = Readonly<{
@@ -130,9 +134,6 @@ function readDeliverySaveFileNamesFromAgentArgs(
 /** Page Design Run Mode 的语义模型。 */
 export type PageDesignRunMode = 'create' | 'update' | 'fix'
 
-/** Page Design Impl Gate 的语义模型。 */
-export type PageDesignImplGate = 'closed' | 'open'
-
 /** 页面设计闸门状态：三重校验（策划就绪 + 实现闸门 + 上游契约），全部通过才允许运行 */
 export type PageDesignGateState = Readonly<{
   /** 页面 ID，对应 ProjectPageNodeSummary.pageId */
@@ -140,7 +141,7 @@ export type PageDesignGateState = Readonly<{
   /** effectiveDescription 非空即视为策划就绪。 */
   planningReady: boolean
   /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */
-  implGate: PageDesignImplGate
+  implGate: ProjectBlueprintImplGate
   /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */
   upstreamContractsSatisfied: boolean
 }>
@@ -255,7 +256,7 @@ export type EvaluatePageDesignMutationToolGateOptions = Readonly<{
   /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */
   allowedOperations?: PageDesignAllowedOperations
   /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */
-  toolArgs?: AiJsonParams
+  toolArgs?: JsonParams
 }>
 
 export function evaluatePageDesignMutationToolGate(
@@ -279,7 +280,7 @@ export type EvaluatePageDesignScriptOperationGateOptions = Readonly<{
   /** 工具名，仅 normalize 后为 model_script 时才执行 marker 扫描 */
   toolName: string
   /** 工具调用参数，用于提取 script 字段做 marker 扫描 */
-  args?: AiJsonParams
+  args?: JsonParams
   /** 操作域白名单，非空时对 script 中的 API 调用做 marker 硬拦截 */
   allowedOperations?: PageDesignAllowedOperations
 }>
@@ -312,7 +313,7 @@ export function isPageDesignMutationTool(toolName: string): boolean {
   return MUTATION_TOOL_NAMES.has(normalizeToolName(toolName))
 }
 
-function readImplGate(summary: ProjectPageNodeSummary, strictImplGate: boolean): PageDesignImplGate {
+function readImplGate(summary: ProjectPageNodeSummary, strictImplGate: boolean): ProjectBlueprintImplGate {
   if (summary.implGate === 'closed' || summary.implGate === 'open') {
     return summary.implGate
   }
@@ -325,7 +326,7 @@ function readUpstreamContractsSatisfied(summary: ProjectPageNodeSummary): boolea
   return true
 }
 
-function readModelScriptBody(args: AiJsonParams | undefined): string | undefined {
+function readModelScriptBody(args: JsonParams | undefined): string | undefined {
   if (args === undefined) return undefined
   const script = args['script']
   if (typeof script !== 'string') return undefined

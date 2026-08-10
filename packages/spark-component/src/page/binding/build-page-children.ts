@@ -18,9 +18,9 @@
  * - 顶层 id 去重
  */
 
-import { normalizeSparkNode, isSparkNode, type SparkNode, type SparkNodeChildren } from '../../core/types'
 import type { ActionExecutionContext } from '../actions'
 import { normalizeOnProps } from './bind-normalize.js'
+import { type SparkNodeChildren, type SparkNode, normalizeSparkNode, isSparkNode } from '@spark-appworks/spark-data'
 
 // ── 导出类型 ───────────────────────────────────────────────────────────────
 

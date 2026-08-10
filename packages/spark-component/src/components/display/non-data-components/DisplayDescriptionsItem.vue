@@ -30,9 +30,10 @@ AI用途：需要理解 display descriptions item 的实际渲染结构、slot/t
  * @description 描述列表项，支持字段绑定。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import { useDisplayDataSource } from '../useDisplayDataSource'
 import type { RDescriptionsItemProps } from './DisplayDescriptionsItem.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RDescriptionsItemProps>(), {
   type: 'r-descriptions-item',
@@ -52,5 +53,4 @@ const resolvedContent = computed(() => {
   return ''
 })
 </script>
-
 

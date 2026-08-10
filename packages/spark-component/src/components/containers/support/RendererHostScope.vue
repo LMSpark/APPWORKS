@@ -20,13 +20,11 @@ AI用途：需要定位 components/containers/support/RendererHostScope 的声�
  * 2. 渲染 children 子节点（也可用 slot 替代）。
  */
 import { shallowReactive, watch } from 'vue'
-import type { DataRow } from '@spark-appworks/spark-data'
+import { type SparkNode, type DataRow, nodeId } from '@spark-appworks/spark-data'
 import {
   DATA_ROW,
   SparkComponentRenderer,
-  nodeId,
   useSparkComponent,
-  type SparkNode,
 } from '../../internal'
 import { syncReactiveRow } from './row-mirror-sync'
 

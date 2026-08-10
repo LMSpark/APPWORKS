@@ -51,6 +51,20 @@
 - **违反后果**：Node 20 下运行 pnpm 11 报 `No such built-in module: node:sqlite`；corepack 启用 pnpm 11 报 `ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`
 - **发现来源**：2026-06 升级全部基础依赖时
 
+### 源码删除后仍扫 tsconfig paths
+
+- **场景**：已删除某包入口（如 `spark-ai/src/json`），但 typecheck 或 IDE 仍解析到旧路径
+- **规则**：删除源码后必须同步删除各包 `tsconfig.json` / `tsconfig.build.json` / vite alias 中的对应 paths；再扫 `generated/` 残留 shard
+- **违反后果**：留下死别名 → 消费方误以为入口仍在，或 typecheck 指向不存在文件
+- **发现来源**：2026-08 SSOT G1
+
+### 四文件名只认 PAGE_NODE_FILE_NAMES
+
+- **场景**：清除页面缓存、枚举 rule/pagedata/script/style
+- **规则**：只使用 `@spark-appworks/spark-project-model` 的 `PAGE_NODE_FILE_NAMES`；禁止在 app 层再维护本地 `PAGE_FILES` 字面量数组
+- **违反后果**：四文件清单双真源，改名或增删文件时漏清缓存
+- **发现来源**：2026-08 SSOT G2
+
 ### pnpm 11 不再读取 package.json 的 pnpm.overrides
 
 - **场景**：从 pnpm 10 升级到 11，原有 `package.json` 的 `pnpm.overrides` 字段

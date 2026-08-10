@@ -10,38 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-data:dataset-crud-tool\n职责：提供数据层 dataset-crud-tool 能力，围绕 DataSetCrudToolCreateTableOptions、DataSetCrudToolColumnUpdate、DataSetCrudToolUpdateTableOptions 等 33 个公开契约 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 dataset-crud-tool 的数据语义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "DataSetCrudToolCreateTableOptions",
-      "DataSetCrudToolColumnUpdate",
-      "DataSetCrudToolUpdateTableOptions",
-      "RelationSelector",
-      "DataSetCrudToolTableNameParams",
-      "DataSetCrudToolReplaceFromJsonOptions",
-      "DataSetCrudToolColumnSelectorParams",
-      "DataSetCrudToolCreateColumnParams",
-      "DataSetCrudToolUpdateColumnParams",
-      "DataSetCrudToolRenameColumnParams",
-      "DataSetCrudToolUpdateTableParams",
-      "DataSetCrudToolRenameTableParams",
-      "DataSetCrudToolViewSelectorParams",
-      "DataSetCrudToolCreateViewParams",
-      "DataSetCrudToolUpdateViewParams",
-      "DataSetCrudToolDeleteViewParams",
-      "DataSetCrudToolAggregateSelectorParams",
-      "DataSetCrudToolAddAggregateParams",
-      "DataSetCrudToolUpdateAggregateParams",
-      "DataSetCrudToolSetComputeExpressionParams",
-      "DataSetCrudToolRowSelectorParams",
-      "DataSetCrudToolCreateRowParams",
-      "DataSetCrudToolCreateRowsParams",
-      "DataSetCrudToolUpdateRowParams",
-      "DataSetCrudToolUpdateRowsItem",
-      "DataSetCrudToolUpdateRowsParams",
-      "DataSetCrudToolDeleteRowsParams",
-      "DataSetCrudToolCreateRelationParams",
-      "DataSetCrudToolUpdateRelationParams",
-      "DataSetCrudToolDependencySelectorParams",
-      "DataSetCrudToolCreateDependencyParams",
-      "DataSetCrudToolUpdateDependencyParams",
       "DataSetCrudTool"
     ]
   },
@@ -186,10 +154,10 @@
       },
       "additionalProperties": false
     },
-    "RelationSelector": {
+    "ResourceRelationSelector": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "RelationSelector",
+      "title": "ResourceRelationSelector",
       "properties": {
         "parentTable": {
           "type": "string"
@@ -784,10 +752,10 @@
       ],
       "additionalProperties": false
     },
-    "DataSetCrudToolCreateRelationParams": {
+    "DataSetCrudToolCreateResourceRelationParams": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "DataSetCrudToolCreateRelationParams",
+      "title": "DataSetCrudToolCreateResourceRelationParams",
       "properties": {
         "parentTable": {
           "type": "string"
@@ -813,16 +781,16 @@
       ],
       "additionalProperties": false
     },
-    "DataSetCrudToolUpdateRelationParams": {
+    "DataSetCrudToolUpdateResourceRelationParams": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "DataSetCrudToolUpdateRelationParams",
+      "title": "DataSetCrudToolUpdateResourceRelationParams",
       "properties": {
         "selector": {
-          "$ref": "#/$defs/RelationSelector"
+          "$ref": "#/$defs/ResourceRelationSelector"
         },
         "updates": {
-          "$ref": "types.ts.json#/$defs/TableRelation"
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
         }
       },
       "required": [
@@ -831,56 +799,30 @@
       ],
       "additionalProperties": false
     },
-    "DataSetCrudToolDependencySelectorParams": {
+    "DataSetCrudToolCreateCascadeParams": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "DataSetCrudToolDependencySelectorParams",
+      "title": "DataSetCrudToolCreateCascadeParams",
       "properties": {
-        "parentTable": {
-          "type": "string"
-        },
-        "childTable": {
-          "type": "string"
+        "cascade": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
         }
       },
       "required": [
-        "parentTable",
-        "childTable"
+        "cascade"
       ],
       "additionalProperties": false
     },
-    "DataSetCrudToolCreateDependencyParams": {
+    "DataSetCrudToolUpdateCascadeParams": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "DataSetCrudToolCreateDependencyParams",
+      "title": "DataSetCrudToolUpdateCascadeParams",
       "properties": {
-        "dependency": {
-          "$ref": "types.ts.json#/$defs/ViewDependency"
-        }
-      },
-      "required": [
-        "dependency"
-      ],
-      "additionalProperties": false
-    },
-    "DataSetCrudToolUpdateDependencyParams": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DataSetCrudToolUpdateDependencyParams",
-      "properties": {
-        "parentTable": {
-          "type": "string"
-        },
-        "childTable": {
-          "type": "string"
-        },
         "updates": {
-          "$ref": "types.ts.json#/$defs/ViewDependency"
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
         }
       },
       "required": [
-        "parentTable",
-        "childTable",
         "updates"
       ],
       "additionalProperties": false
@@ -1485,134 +1427,134 @@
           "type": "object",
           "title": "Promise<CrudResult<BatchResult>>"
         },
-        "method.listRelations.params": {
+        "method.listResourceRelations.params": {
           "type": "object",
           "properties": {
             "filter": {
               "type": "object",
-              "title": "Pick<TableRelation, 'parentTable' | 'childTable'>"
+              "title": "Pick<DataResourceRelation, 'parentTable' | 'childTable'>"
             }
           },
           "additionalProperties": false
         },
-        "method.listRelations.return": {
+        "method.listResourceRelations.return": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/TableRelation"
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
           }
         },
-        "method.getRelation.params": {
+        "method.getResourceRelation.params": {
           "type": "object",
           "properties": {
             "selector": {
-              "$ref": "#/$defs/RelationSelector"
+              "$ref": "#/$defs/ResourceRelationSelector"
             }
           },
           "additionalProperties": false
         },
-        "method.getRelation.return": {
-          "$ref": "types.ts.json#/$defs/TableRelation"
+        "method.getResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
         },
-        "method.createRelation.params": {
+        "method.createResourceRelation.params": {
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "#/$defs/DataSetCrudToolCreateRelationParams"
+              "$ref": "#/$defs/DataSetCrudToolCreateResourceRelationParams"
             }
           },
           "additionalProperties": false
         },
-        "method.createRelation.return": {
-          "$ref": "types.ts.json#/$defs/TableRelation"
+        "method.createResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
         },
-        "method.updateRelation.params": {
+        "method.updateResourceRelation.params": {
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "#/$defs/DataSetCrudToolUpdateRelationParams"
+              "$ref": "#/$defs/DataSetCrudToolUpdateResourceRelationParams"
             }
           },
           "additionalProperties": false
         },
-        "method.updateRelation.return": {
-          "$ref": "types.ts.json#/$defs/TableRelation"
+        "method.updateResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
         },
-        "method.deleteRelation.params": {
+        "method.deleteResourceRelation.params": {
           "type": "object",
           "properties": {
             "selector": {
-              "$ref": "#/$defs/RelationSelector"
+              "$ref": "#/$defs/ResourceRelationSelector"
             }
           },
           "additionalProperties": false
         },
-        "method.deleteRelation.return": true,
-        "method.listDependencies.params": {
+        "method.deleteResourceRelation.return": true,
+        "method.listCascades.params": {
           "type": "object",
           "properties": {
             "filter": {
               "type": "object",
-              "title": "Pick<ViewDependency, 'parentTable' | 'childTable'>"
+              "title": "Pick<DataViewCascade, 'parentTable' | 'childTable'>"
             }
           },
           "additionalProperties": false
         },
-        "method.listDependencies.return": {
+        "method.listCascades.return": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/ViewDependency"
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
           }
         },
-        "method.getDependency.params": {
+        "method.getCascade.params": {
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "#/$defs/DataSetCrudToolDependencySelectorParams"
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
             }
           },
           "additionalProperties": false
         },
-        "method.getDependency.return": {
-          "$ref": "types.ts.json#/$defs/ViewDependency"
+        "method.getCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
         },
-        "method.createDependency.params": {
+        "method.createCascade.params": {
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "#/$defs/DataSetCrudToolCreateDependencyParams"
+              "$ref": "#/$defs/DataSetCrudToolCreateCascadeParams"
             }
           },
           "additionalProperties": false
         },
-        "method.createDependency.return": {
-          "$ref": "types.ts.json#/$defs/ViewDependency"
+        "method.createCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
         },
-        "method.updateDependency.params": {
+        "method.updateCascade.params": {
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "#/$defs/DataSetCrudToolUpdateDependencyParams"
+              "$ref": "#/$defs/DataSetCrudToolUpdateCascadeParams"
             }
           },
           "additionalProperties": false
         },
-        "method.updateDependency.return": {
-          "$ref": "types.ts.json#/$defs/ViewDependency"
+        "method.updateCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
         },
-        "method.deleteDependency.params": {
+        "method.deleteCascade.params": {
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "#/$defs/DataSetCrudToolDependencySelectorParams"
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
             }
           },
           "additionalProperties": false
         },
-        "method.deleteDependency.return": true
+        "method.deleteCascade.return": true
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.613Z",
+  "generatedAt": "2026-08-10T12:38:49.782Z",
   "models": {
     "DataSetCrudToolCreateTableOptions": {
       "name": "DataSetCrudToolCreateTableOptions",
@@ -1757,8 +1699,8 @@
         }
       }
     },
-    "RelationSelector": {
-      "name": "RelationSelector",
+    "ResourceRelationSelector": {
+      "name": "ResourceRelationSelector",
       "jsdoc": "关系选择器。\n默认可用 parentTable + childTable 定位；当同一父子表之间存在多条关系时，\n需要继续提供 parentField / childField 做字段级消歧。",
       "declarationKind": "typeAlias",
       "typeAlias": {
@@ -2431,8 +2373,8 @@
         }
       }
     },
-    "DataSetCrudToolCreateRelationParams": {
-      "name": "DataSetCrudToolCreateRelationParams",
+    "DataSetCrudToolCreateResourceRelationParams": {
+      "name": "DataSetCrudToolCreateResourceRelationParams",
       "jsdoc": "创建表关系参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
@@ -2473,12 +2415,12 @@
         }
       }
     },
-    "DataSetCrudToolUpdateRelationParams": {
-      "name": "DataSetCrudToolUpdateRelationParams",
+    "DataSetCrudToolUpdateResourceRelationParams": {
+      "name": "DataSetCrudToolUpdateResourceRelationParams",
       "jsdoc": "更新表关系参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 用于定位原关系的选择器。 */\n    selector: RelationSelector;\n    /** 要合并到关系定义上的更新内容。 */\n    updates: Partial<TableRelation>;\n}",
+        "declarationTypeText": "{\n    /** 用于定位原关系的选择器。 */\n    selector: ResourceRelationSelector;\n    /** 要合并到关系定义上的更新内容。 */\n    updates: Partial<DataResourceRelation>;\n}",
         "members": {
           "attributes": [
             {
@@ -2497,23 +2439,17 @@
         }
       }
     },
-    "DataSetCrudToolDependencySelectorParams": {
-      "name": "DataSetCrudToolDependencySelectorParams",
-      "jsdoc": "视图依赖定位参数。",
+    "DataSetCrudToolCreateCascadeParams": {
+      "name": "DataSetCrudToolCreateCascadeParams",
+      "jsdoc": "创建 DataView 输入级联参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 父表表名。 */\n    parentTable: string;\n    /** 子表表名。 */\n    childTable: string;\n}",
+        "declarationTypeText": "{\n    /** 新 DataView 输入级联定义。 */\n    cascade: DataViewCascade;\n}",
         "members": {
           "attributes": [
             {
-              "name": "parentTable",
-              "jsdoc": "父表表名。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "childTable",
-              "jsdoc": "子表表名。",
+              "name": "cascade",
+              "jsdoc": "新 DataView 输入级联定义。",
               "readable": true,
               "writable": true
             }
@@ -2521,46 +2457,28 @@
         }
       }
     },
-    "DataSetCrudToolCreateDependencyParams": {
-      "name": "DataSetCrudToolCreateDependencyParams",
-      "jsdoc": "创建视图依赖参数。",
+    "DataSetCrudToolUpdateCascadeParams": {
+      "name": "DataSetCrudToolUpdateCascadeParams",
+      "jsdoc": "更新 DataView 输入级联参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 新视图依赖定义。 */\n    dependency: ViewDependency;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "dependency",
-              "jsdoc": "新视图依赖定义。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "DataSetCrudToolUpdateDependencyParams": {
-      "name": "DataSetCrudToolUpdateDependencyParams",
-      "jsdoc": "更新视图依赖参数。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "DataSetCrudToolDependencySelectorParams & {\n    /** 要合并到依赖定义上的更新内容。 */\n    updates: Partial<ViewDependency>;\n}",
+        "declarationTypeText": "DataViewCascadeSelector & {\n    /** 要合并到级联定义上的更新内容。 */\n    updates: Partial<DataViewCascade>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "DataSetCrudToolDependencySelectorParams",
-            "targetName": "DataSetCrudToolDependencySelectorParams"
+            "typeText": "DataViewCascadeSelector",
+            "targetName": "DataViewCascadeSelector"
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 要合并到依赖定义上的更新内容。 */\n    updates: Partial<ViewDependency>;\n}"
+            "typeText": "{\n    /** 要合并到级联定义上的更新内容。 */\n    updates: Partial<DataViewCascade>;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
               "name": "updates",
-              "jsdoc": "要合并到依赖定义上的更新内容。",
+              "jsdoc": "要合并到级联定义上的更新内容。",
               "readable": true,
               "writable": true
             }
@@ -3082,7 +3000,7 @@
             },
             {
               "name": "deleteTable",
-              "jsdoc": "删除指定数据表。\n@param tableNameOrParams 表名字符串或表名参数对象。\n@param tableName 表名。\n@throws 当表不存在，或仍被 relation / dependency 引用时抛错。",
+              "jsdoc": "删除指定数据表。\n@param tableNameOrParams 表名字符串或表名参数对象。\n@param tableName 表名。\n@throws 当表不存在，或仍被 resource relation / view cascade 引用时抛错。",
               "parameters": [
                 {
                   "name": "tableNameOrParams",
@@ -3644,7 +3562,7 @@
               }
             },
             {
-              "name": "listRelations",
+              "name": "listResourceRelations",
               "jsdoc": "列出 DataSet 中的表关系。\n@param filter 可选过滤条件，仅支持按 parentTable / childTable 过滤。\n@returns 关系列表。",
               "parameters": [
                 {
@@ -3659,7 +3577,7 @@
                         "typeArguments": [
                           {
                             "type": "reference",
-                            "name": "TableRelation",
+                            "name": "DataResourceRelation",
                             "sourcePath": "packages/spark-data/src/types.ts"
                           },
                           {
@@ -3688,20 +3606,20 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "TableRelation",
+                  "name": "DataResourceRelation",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "getRelation",
+              "name": "getResourceRelation",
               "jsdoc": "获取单条表关系。\n@param selector 关系选择器。\n@returns 命中的表关系；不存在时返回 undefined。\n@throws 当 selector 命中多条关系且未完成字段级消歧时抛错。",
               "parameters": [
                 {
                   "name": "selector",
                   "type": {
                     "type": "reference",
-                    "name": "RelationSelector",
+                    "name": "ResourceRelationSelector",
                     "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
                   }
                 }
@@ -3710,58 +3628,58 @@
                 "type": "optional",
                 "elementType": {
                   "type": "reference",
-                  "name": "TableRelation",
+                  "name": "DataResourceRelation",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "createRelation",
+              "name": "createResourceRelation",
               "jsdoc": "创建一条表关系。\n@param params 关系参数。\n@returns 新创建的表关系。\n@throws 当父表、子表、字段不存在或关系重复时抛错。",
               "parameters": [
                 {
                   "name": "params",
                   "type": {
                     "type": "reference",
-                    "name": "DataSetCrudToolCreateRelationParams",
+                    "name": "DataSetCrudToolCreateResourceRelationParams",
                     "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
                   }
                 }
               ],
               "type": {
                 "type": "reference",
-                "name": "TableRelation",
+                "name": "DataResourceRelation",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "updateRelation",
+              "name": "updateResourceRelation",
               "jsdoc": "更新一条表关系。\n@param params 关系更新参数。\n@param selector 用于定位原关系的选择器。\n@param updates 关系更新内容。\n@returns 更新后的表关系。\n@throws 当关系不存在、选择器不唯一或更新后关系非法时抛错。",
               "parameters": [
                 {
                   "name": "params",
                   "type": {
                     "type": "reference",
-                    "name": "DataSetCrudToolUpdateRelationParams",
+                    "name": "DataSetCrudToolUpdateResourceRelationParams",
                     "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
                   }
                 }
               ],
               "type": {
                 "type": "reference",
-                "name": "TableRelation",
+                "name": "DataResourceRelation",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "deleteRelation",
+              "name": "deleteResourceRelation",
               "jsdoc": "删除一条表关系。\n@param selector 关系选择器。\n@throws 当关系不存在，或定位到多条关系时抛错。",
               "parameters": [
                 {
                   "name": "selector",
                   "type": {
                     "type": "reference",
-                    "name": "RelationSelector",
+                    "name": "ResourceRelationSelector",
                     "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
                   }
                 }
@@ -3772,8 +3690,8 @@
               }
             },
             {
-              "name": "listDependencies",
-              "jsdoc": "列出 DataSet 中的视图依赖。\n@param filter 可选过滤条件，支持按 parentTable / childTable 过滤。\n@returns 依赖列表。",
+              "name": "listCascades",
+              "jsdoc": "列出 DataSet 中的 DataView 输入级联。\n@param filter 可选过滤条件，支持按 parentTable / childTable 过滤。\n@returns 级联列表。",
               "parameters": [
                 {
                   "name": "filter",
@@ -3787,7 +3705,7 @@
                         "typeArguments": [
                           {
                             "type": "reference",
-                            "name": "ViewDependency",
+                            "name": "DataViewCascade",
                             "sourcePath": "packages/spark-data/src/types.ts"
                           },
                           {
@@ -3816,21 +3734,21 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "ViewDependency",
+                  "name": "DataViewCascade",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "getDependency",
-              "jsdoc": "获取一条视图依赖。\n@param params 依赖定位参数。\n@param parentTable 父表名。\n@param childTable 子表名。\n@returns 命中的依赖；不存在时返回 undefined。",
+              "name": "getCascade",
+              "jsdoc": "获取一条 DataView 输入级联。\n@param params 级联定位参数。\n@param parentTable 父表名。\n@param childTable 子表名。\n@returns 命中的级联；不存在时返回 undefined。",
               "parameters": [
                 {
                   "name": "params",
                   "type": {
                     "type": "reference",
-                    "name": "DataSetCrudToolDependencySelectorParams",
-                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
               ],
@@ -3838,59 +3756,59 @@
                 "type": "optional",
                 "elementType": {
                   "type": "reference",
-                  "name": "ViewDependency",
+                  "name": "DataViewCascade",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "createDependency",
-              "jsdoc": "创建一条视图依赖。\n@param params 依赖参数。\n@returns 新创建的依赖。\n@throws 当依赖引用非法时抛错。",
+              "name": "createCascade",
+              "jsdoc": "创建一条 DataView 输入级联。\n@param params 级联参数。\n@returns 新创建的级联。\n@throws 当级联引用非法时抛错。",
               "parameters": [
                 {
                   "name": "params",
                   "type": {
                     "type": "reference",
-                    "name": "DataSetCrudToolCreateDependencyParams",
+                    "name": "DataSetCrudToolCreateCascadeParams",
                     "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
                   }
                 }
               ],
               "type": {
                 "type": "reference",
-                "name": "ViewDependency",
+                "name": "DataViewCascade",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "updateDependency",
-              "jsdoc": "更新一条视图依赖。\n@param params 依赖更新参数。\n@param parentTable 原父表名。\n@param childTable 原子表名。\n@param updates 依赖更新内容。\n@returns 更新后的依赖。\n@throws 当依赖不存在或更新目标非法时抛错。",
+              "name": "updateCascade",
+              "jsdoc": "更新一条 DataView 输入级联。\n@param params 级联更新参数。\n@param parentTable 原父表名。\n@param childTable 原子表名。\n@param updates 级联更新内容。\n@returns 更新后的级联。\n@throws 当级联不存在或更新目标非法时抛错。",
               "parameters": [
                 {
                   "name": "params",
                   "type": {
                     "type": "reference",
-                    "name": "DataSetCrudToolUpdateDependencyParams",
+                    "name": "DataSetCrudToolUpdateCascadeParams",
                     "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
                   }
                 }
               ],
               "type": {
                 "type": "reference",
-                "name": "ViewDependency",
+                "name": "DataViewCascade",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "deleteDependency",
-              "jsdoc": "删除一条视图依赖。\n@param params 依赖定位参数。\n@param parentTable 父表名。\n@param childTable 子表名。\n@throws 当依赖不存在时抛错。",
+              "name": "deleteCascade",
+              "jsdoc": "删除一条 DataView 输入级联。\n@param params 级联定位参数。\n@param parentTable 父表名。\n@param childTable 子表名。\n@throws 当级联不存在时抛错。",
               "parameters": [
                 {
                   "name": "params",
                   "type": {
                     "type": "reference",
-                    "name": "DataSetCrudToolDependencySelectorParams",
-                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
               ],

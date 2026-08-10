@@ -4,8 +4,8 @@ import { resolve } from 'node:path'
 import { defineComponent, h, type App, type Component } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { describe, expect, it, vi } from 'vitest'
-import { Spark, SparkPageRenderer, type SparkNode } from '@spark-appworks/spark-component'
-import { SparkData, type DataSet } from '@spark-appworks/spark-data'
+import { Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
+import { SparkData, type DataSet, type SparkNode } from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import {
   compileRule,

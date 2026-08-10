@@ -244,7 +244,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:34:22.184Z",
+  "generatedAt": "2026-08-10T11:03:27.230Z",
   "models": {
     "ProjectPlanningRunInput": {
       "name": "ProjectPlanningRunInput",
@@ -297,7 +297,7 @@
     },
     "ProjectPlanningAgentInput": {
       "name": "ProjectPlanningAgentInput",
-      "jsdoc": "Host inputContract 用可变数组，满足 AiJsonParams。",
+      "jsdoc": "Host inputContract 用可变数组，满足 JsonParams。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",

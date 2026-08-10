@@ -6,14 +6,11 @@
  */
 import type { PageMode } from '@spark-appworks/spark-app'
 import type { RuntimeNavigation, RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import { isRecord } from '@spark-appworks/spark-utils'
+import { isRecord, type NavigationRootPlacement } from '@spark-appworks/spark-utils'
 import {
   lowcodeApi,
   readLowcodeRuntimeNavigation,
 } from '@/lowcode/lowcode-runtime'
-
-/** Project Layout Placement 的语义模型。 */
-export type ProjectLayoutPlacement = 'header' | 'sidebar'
 
 /** 项目详情：从后端 API 读取的项目元数据投影 */
 export type ProjectDetail = {
@@ -52,7 +49,7 @@ export type ProjectRuntimeSettings = {
   /** 项目详情元数据 */
   project: ProjectDetail
   /** 子页面放置位置：header=顶部标签栏 / sidebar=侧边栏 */
-  childPlacement: ProjectLayoutPlacement
+  childPlacement: NavigationRootPlacement
   /** 导航根模块 ID，null 表示导航未加载；用于保存布局时定位后端节点 */
   rootModuleId: string | null
   /** 可配置为首页的节点候选列表 */
@@ -62,7 +59,7 @@ export type ProjectRuntimeSettings = {
 /** 保存项目运行时设置的输入参数，只包含用户可修改的字段 */
 export type ProjectRuntimeSettingsInput = {
   /** 子页面放置位置 */
-  childPlacement: ProjectLayoutPlacement
+  childPlacement: NavigationRootPlacement
   /** 首页节点 ID，null 表示清除首页配置 */
   homeNodeId: string | null
 }

@@ -11,7 +11,6 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectSessionState",
-      "ProjectSessionOwner",
       "ProjectSession"
     ]
   },
@@ -209,7 +208,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T21:51:06.305Z",
+  "generatedAt": "2026-08-10T07:40:20.653Z",
   "models": {
     "ProjectSessionState": {
       "name": "ProjectSessionState",
@@ -249,7 +248,7 @@
     },
     "ProjectSessionOwner": {
       "name": "ProjectSessionOwner",
-      "jsdoc": "Project Session Owner 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** 按 nodeId 在导航树中查找项目节点；未找到返回 null */\n    findNodeById(nodeId: string): ProjectBlueprintNode | null;\n    /** 按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 ConfigPageNode，未找到返回 null */\n    findConfigPageByPageId(pageId: string): ConfigPageNode | null;\n}",
@@ -319,7 +318,6 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建 Project Session 实例。",
           "signatureText": "constructor(owner: ProjectSessionOwner)",
           "parameters": [
             {
@@ -363,7 +361,6 @@
             },
             {
               "name": "beginBlueprintDraft",
-              "jsdoc": "执行 begin Navigation Draft 操作。",
               "parameters": [
                 {
                   "name": "draft",
@@ -382,7 +379,6 @@
             },
             {
               "name": "discardBlueprintDraft",
-              "jsdoc": "执行 discard Navigation Draft 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -391,7 +387,6 @@
             },
             {
               "name": "markBlueprintDirty",
-              "jsdoc": "执行 mark Navigation Dirty 操作。",
               "parameters": [
                 {
                   "name": "scope",
@@ -409,7 +404,6 @@
             },
             {
               "name": "markBlueprintClean",
-              "jsdoc": "执行 mark Navigation Clean 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -488,7 +482,6 @@
             },
             {
               "name": "syncWithModel",
-              "jsdoc": "执行 sync With Model 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

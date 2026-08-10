@@ -14,13 +14,15 @@ import { refreshRoutes } from './nav-access'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../router/cross-project-ref-route'
 import { resolveNavNodeRuntimeTarget } from './runtime-target'
 import type { NavigationActionRegistry } from './action-registry'
+import type { ContextItem } from '@spark-appworks/spark-utils'
+import type {
+  NavigationContextConfig,
+  NavigationPlacement,
+} from '@spark-appworks/spark-utils'
 import type {
   RuntimeNavigation,
-  RuntimeNavigationContextConfig,
-  RuntimeNavigationContextItem,
   RuntimeNavigationContextState,
   RuntimeNavigationItem,
-  RuntimeNavigationPlacement,
   RuntimeNavigationRegionItems,
   RuntimeNavigationRegionVisibility,
 } from './runtime-navigation'
@@ -34,13 +36,13 @@ import type {
 
 const CONTEXT_STORAGE_PREFIX = 'spark-nav-ctx:'
 const PLATFORM_PATH_PREFIX = '/platform'
-const _contextCache = new Map<string, RuntimeNavigationContextItem[]>()
+const _contextCache = new Map<string, ContextItem[]>()
 
 function contextSourceKey(nodeId: string, source: string): string {
   return `${nodeId}::${source}`
 }
 
-function contextConfigSignature(config: RuntimeNavigationContextConfig): string {
+function contextConfigSignature(config: NavigationContextConfig): string {
   const sourcePart = Array.isArray(config.source)
     ? `static:${JSON.stringify(config.source)}`
     : `remote:${config.source}`
@@ -54,20 +56,20 @@ function contextConfigSignature(config: RuntimeNavigationContextConfig): string 
 }
 
 function isSameContextConfig(
-  a: RuntimeNavigationContextConfig,
-  b: RuntimeNavigationContextConfig,
+  a: NavigationContextConfig,
+  b: NavigationContextConfig,
 ): boolean {
   return contextConfigSignature(a) === contextConfigSignature(b)
 }
 
-function isNavContextItem(value: unknown): value is RuntimeNavigationContextItem {
+function isNavContextItem(value: unknown): value is ContextItem {
   if (value === null || typeof value !== 'object') return false
   const id = readPrototypeProperty(value, 'id')
   const title = readPrototypeProperty(value, 'title')
   return (typeof id === 'string' || typeof id === 'number') && typeof title === 'string'
 }
 
-function isNavContextItemArray(value: unknown): value is readonly RuntimeNavigationContextItem[] {
+function isNavContextItemArray(value: unknown): value is readonly ContextItem[] {
   return Array.isArray(value) && value.every(isNavContextItem)
 }
 
@@ -78,8 +80,8 @@ function parseStoredContextValue(stored: string): string | number | null {
 
 /** 约定优先：将简写形式归一化为完整运行导航上下文配置。 */
 function normalizeContextConfig(
-  input: string | readonly RuntimeNavigationContextItem[] | RuntimeNavigationContextConfig,
-): RuntimeNavigationContextConfig {
+  input: string | readonly ContextItem[] | NavigationContextConfig,
+): NavigationContextConfig {
   // 字符串 → URL 简写
   if (typeof input === 'string') {
     return { source: input }
@@ -232,7 +234,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
 
   const regionItems = computed<RuntimeNavigationRegionItems>(() => {
     const regions: RuntimeNavigationRegionItems = { header: [], sidebar: [], toolbar: [], userMenu: [] }
-    const claimedPlacements = new Set<RuntimeNavigationPlacement>()
+    const claimedPlacements = new Set<NavigationPlacement>()
 
     // 根级子项：toolbar/user-menu 组提取到对应区域，其余放入 root childPlacement 指定区域
     const rootVisible = filterVisible(navRoot.items)
@@ -251,7 +253,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     // 沿活动路径，每个有子节点的非叶节点根据 childPlacement 放入对应区域
     for (const node of _activePath.value) {
       if (!node.children?.length) continue
-      const placement = resolveChildPlacement(node)
+      const placement = resolveNavigationPlacement(node)
       // parent / flat / toolbar / user-menu 不创建新区域
       if (placement === 'parent' || placement === 'flat' || placement === 'toolbar' || placement === 'user-menu') continue
       // 同一区域只投影离根最近的一层；更深层节点交给区域内递归导航渲染，避免点击子项后把当前层整体替换掉。
@@ -271,7 +273,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
   }))
 
   /** 解析 childPlacement（'parent' 向上追溯到祖先的非 parent 值） */
-  function resolveChildPlacement(node: RuntimeNavigationItem): RuntimeNavigationPlacement {
+  function resolveNavigationPlacement(node: RuntimeNavigationItem): NavigationPlacement {
     const placement = node.childPlacement ?? 'sidebar'
     if (placement !== 'parent') return placement
 
@@ -373,7 +375,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
 
   function restoreContextValue(
     nodeId: string,
-    config: RuntimeNavigationContextConfig,
+    config: NavigationContextConfig,
   ): string | number | null {
     // 优先从 URL query
     if (config.paramName !== undefined && config.paramName !== '') {

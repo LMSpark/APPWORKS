@@ -64,9 +64,9 @@ AI用途：需要理解 renderer detail 的实际渲染结构、slot/toolbar/状
  * RendererDetail - 详情展示容器组件
  */
 import { computed, type StyleValue } from 'vue'
+import { nodeId } from '@spark-appworks/spark-data'
 import {
   SparkComponentRenderer,
-  nodeId,
 } from '../../../internal'
 import type { RDetailProps } from './RendererDetail.props'
 import {

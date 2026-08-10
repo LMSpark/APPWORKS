@@ -80,9 +80,12 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
  */
 import { computed, ref, toRef, watch } from 'vue'
 import { SUBTREE_FIELD_POLICY } from '../../../permission'
-import { DATA_SOURCE, SparkComponentRenderer, getSparkNodeChildren, nodeId, nodeInputProp, useSparkPageComponent,
-  type SparkNode,
+import {
+  DATA_SOURCE,
+  SparkComponentRenderer,
+  useSparkPageComponent,
 } from '../../internal'
+import { type SparkNode, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 import { useContainerDataSource } from '../data-views/view-data-source'
 import DataViewMetaBar from '../data-views/DataViewMetaBar.vue'
 import { useFilterPanel } from '../runtime/container-filter'

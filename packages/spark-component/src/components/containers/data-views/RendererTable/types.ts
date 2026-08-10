@@ -4,8 +4,15 @@
  * 边界：只提供 table-level/data-view-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。
  * AI用途：需要判断 renderer table 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。
  */
-import type { CrudResult, DataRow, NestedTreeNode, NestedTreeSearchResult } from '@spark-appworks/spark-data'
+import type { CrudResult, DataRow, NestedTreeNode, NestedTreeSearchResult, SortDirection } from '@spark-appworks/spark-data'
 import type { BaseContainerApi } from '../../support/base-container-api.js'
+
+/** Element Plus el-table 排序回调 order；投影为 spark-data SortDirection，勿与 wire OrderType 混用。 */
+export type ElementPlusTableSortOrder = 'ascending' | 'descending'
+
+export function toSortDirection(order: ElementPlusTableSortOrder): SortDirection {
+  return order === 'ascending' ? 'asc' : 'desc'
+}
 
 /** Renderer Tree Path 的语义模型。 */
 export type RendererTreePath = {

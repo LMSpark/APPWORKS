@@ -9,9 +9,7 @@
     "modulePath": "views/app/WorkflowDesigns",
     "jsdoc": "@module app:views/app/WorkflowDesigns\n职责：提供工作流设计稿的可视化编辑入口，连接 Dify-like JSON graph、文件保存 API 与 workflow definition 发布。\n边界：只处理设计态 JSON，不执行 Agent workflow 运行时。\nAI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel model context 或步骤线投影时，用本页面定位。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [
-      "WorkflowLineRuntimeStatus"
-    ]
+    "symbols": []
   },
   "$defs": {
     "WorkflowLineRuntimeStatus": {
@@ -26,7 +24,7 @@
       ]
     }
   },
-  "generatedAt": "2026-07-20T01:11:25.495Z",
+  "generatedAt": "2026-08-10T12:50:05.037Z",
   "models": {
     "WorkflowLineRuntimeStatus": {
       "name": "WorkflowLineRuntimeStatus",

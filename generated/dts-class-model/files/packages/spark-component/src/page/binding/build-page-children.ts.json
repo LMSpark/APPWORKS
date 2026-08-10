@@ -41,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.983Z",
+  "generatedAt": "2026-08-10T11:22:51.279Z",
   "models": {
     "PageScriptCaller": {
       "name": "PageScriptCaller",

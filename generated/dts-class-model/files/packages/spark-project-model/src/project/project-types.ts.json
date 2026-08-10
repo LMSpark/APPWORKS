@@ -337,10 +337,12 @@
           "type": "string"
         },
         "blueprintKind": {
-          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNodeKind"
+          "type": "object",
+          "title": "ProjectBlueprintNodeKind"
         },
         "nodeKind": {
-          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintDeliveryKind"
+          "type": "object",
+          "title": "RuntimeNavigationItemKind"
         },
         "requirement": {
           "type": "string"
@@ -516,11 +518,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:37:09.611Z",
+  "generatedAt": "2026-08-10T12:01:34.843Z",
   "models": {
     "ProjectBlueprintDirtyScope": {
       "name": "ProjectBlueprintDirtyScope",
-      "jsdoc": "Project Blueprint Dirty Scope 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'node' | 'root'",
@@ -566,7 +568,7 @@
     },
     "ProjectModelEventListener": {
       "name": "ProjectModelEventListener",
-      "jsdoc": "Project Model Event Listener 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "(event: ProjectModelEvent) => void",
@@ -605,7 +607,7 @@
     },
     "ProjectBlueprintProjection": {
       "name": "ProjectBlueprintProjection",
-      "jsdoc": "Project Blueprint Projection 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** 完整项目蓝图。 */\n    blueprint: ProjectBlueprintTreeData;\n    /** 蓝图树节点投影。 */\n    tree: ProjectBlueprintTreeNodeData[];\n    /** selected Node 字段。 */\n    selectedNode: ProjectBlueprintTreeNodeData | null;\n    /** selected Node Id 标识。 */\n    selectedNodeId: string | null;\n    /** 当前节点在项目蓝图中的位置。 */\n    blueprintLocation: ProjectBlueprintTreeNodeLocation | null;\n    /** 当前项目蓝图节点编辑草稿。 */\n    blueprintDraft: BlueprintNodeDraft | null;\n    /** 可交付页面投影。 */\n    pageDeliveries: ProjectPageNodeSummary[];\n}",
@@ -659,7 +661,7 @@
     },
     "ProjectActivePageProjection": {
       "name": "ProjectActivePageProjection",
-      "jsdoc": "Project Active Page Projection 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** rule Json 字段。 */\n    ruleJson: string;\n    /** page Data Json 字段。 */\n    pageDataJson: string;\n    /** script 字段。 */\n    script: string;\n    /** style 字段。 */\n    style: string;\n    /** parse Errors 字段。 */\n    parseErrors: Record<PageNodeFileName, string | null>;\n    /** 是否 is Loaded。 */\n    isLoaded: boolean;\n}",
@@ -713,7 +715,7 @@
     },
     "ProjectDirtyProjection": {
       "name": "ProjectDirtyProjection",
-      "jsdoc": "Project Dirty Projection 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** dirty Files 字段。 */\n    dirtyFiles: Set<PageNodeFileName>;\n    /** 是否 has Any File Dirty。 */\n    hasAnyFileDirty: boolean;\n    /** 项目蓝图是否存在未保存变更。 */\n    blueprintDirty: boolean;\n    /** 是否 has Any Dirty。 */\n    hasAnyDirty: boolean;\n}",
@@ -783,11 +785,11 @@
       "jsdoc": "单个项目蓝图节点策划输入：节点 description + 可选附件引用。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 目标项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */\n    title: string;\n    /** 蓝图业务类型；未知时必须为 unresolved，不能按路径或层级猜测。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    /** 可选运行交付投影类型，不代表蓝图业务类型。 */\n    nodeKind: ProjectBlueprintDeliveryKind;\n    /** 节点短需求，即项目蓝图节点 description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；省略时仅使用 requirement。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 目标项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */\n    title: string;\n    /** 蓝图业务类型；未知时必须为 unresolved，不能按路径或层级猜测。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    /** 可选运行交付投影类型，不代表蓝图业务类型。 */\n    nodeKind: RuntimeNavigationItemKind;\n    /** 节点短需求，即项目蓝图节点 description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；省略时仅使用 requirement。 */\n    planningAttachmentRef?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 目标项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */\n    title: string;\n    /** 蓝图业务类型；未知时必须为 unresolved，不能按路径或层级猜测。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    /** 可选运行交付投影类型，不代表蓝图业务类型。 */\n    nodeKind: ProjectBlueprintDeliveryKind;\n    /** 节点短需求，即项目蓝图节点 description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；省略时仅使用 requirement。 */\n    planningAttachmentRef?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 目标项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */\n    title: string;\n    /** 蓝图业务类型；未知时必须为 unresolved，不能按路径或层级猜测。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    /** 可选运行交付投影类型，不代表蓝图业务类型。 */\n    nodeKind: RuntimeNavigationItemKind;\n    /** 节点短需求，即项目蓝图节点 description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；省略时仅使用 requirement。 */\n    planningAttachmentRef?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -881,7 +883,7 @@
     },
     "ProjectInfo": {
       "name": "ProjectInfo",
-      "jsdoc": "Project Info 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** 租户 ID；多租户环境下用于隔离项目。 */\n    tenantId?: string | undefined;\n    /** 项目唯一 ID。 */\n    projectId: string;\n    /** 项目名称。 */\n    name: string;\n    /** 项目类型标识。 */\n    projectType: string;\n    /** 项目图标名。 */\n    icon?: string | undefined;\n    /** 项目描述，供项目蓝图、规划和 AI 设计理解项目目标。 */\n    description: string;\n    /** 策划详细说明附件引用（文件 ID / 工作区路径等，由 IO 层约定）。 */\n    planningAttachmentRef?: string | undefined;\n    /** 项目首页交付节点 ID。 */\n    homeNodeId?: string | undefined;\n    /** 项目排序值。 */\n    order: number;\n    /** 项目创建时间。 */\n    createdAt?: string | undefined;\n    /** 项目更新时间。 */\n    updatedAt?: string | undefined;\n}",

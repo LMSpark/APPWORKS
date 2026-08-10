@@ -25,7 +25,7 @@
         },
         "args": {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         },
         "callResult": {
           "$ref": "../session/session-types.ts.json#/$defs/AiAgentFunctionCallFailure"
@@ -59,18 +59,18 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:16:45.533Z",
+  "generatedAt": "2026-08-10T10:00:08.488Z",
   "models": {
     "EnrichFunctionCallFailureCommand": {
       "name": "EnrichFunctionCallFailureCommand",
       "jsdoc": "Enrich Function Call Failure Command 的命令参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。 */\n    protocolToolName: string;\n    /** 本次工具调用发送的参数对象，供旧字段名检测和模板插值。 */\n    args: AiJsonParams;\n    /** 工具调用执行后返回的失败结果，包含 code / fix / checks。 */\n    callResult: AiAgentFunctionCallFailure;\n    /** 当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。 */\n    moduleInstanceId?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。 */\n    protocolToolName: string;\n    /** 本次工具调用发送的参数对象，供旧字段名检测和模板插值。 */\n    args: JsonParams;\n    /** 工具调用执行后返回的失败结果，包含 code / fix / checks。 */\n    callResult: AiAgentFunctionCallFailure;\n    /** 当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。 */\n    moduleInstanceId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。 */\n    protocolToolName: string;\n    /** 本次工具调用发送的参数对象，供旧字段名检测和模板插值。 */\n    args: AiJsonParams;\n    /** 工具调用执行后返回的失败结果，包含 code / fix / checks。 */\n    callResult: AiAgentFunctionCallFailure;\n    /** 当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。 */\n    moduleInstanceId?: string;\n}>",
+            "typeText": "Readonly<{\n    /** ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。 */\n    protocolToolName: string;\n    /** 本次工具调用发送的参数对象，供旧字段名检测和模板插值。 */\n    args: JsonParams;\n    /** 工具调用执行后返回的失败结果，包含 code / fix / checks。 */\n    callResult: AiAgentFunctionCallFailure;\n    /** 当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。 */\n    moduleInstanceId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],

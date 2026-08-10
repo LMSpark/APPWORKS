@@ -14,13 +14,19 @@
  */
 import { computed, onMounted, onUnmounted, getCurrentInstance } from 'vue'
 import * as SparkUtils from '@spark-appworks/spark-utils'
+import type {
+  CapabilityContext,
+  CapabilityKey,
+  LoggerApi,
+  SparkCapabilityConsumer,
+} from '@spark-appworks/spark-utils'
 import { PAGE_RUNTIME_SERVICES } from '../runtime'
 import { PAGE_COMPONENT_REGISTRY } from './capability-keys.js'
 import type { PageComponentRegistry } from './capability-keys.js'
 import { DATA_ROW } from './capability-keys.js'
-import type { SparkNode } from './types.js'
-import { SPARK_NODE_STRUCT_KEYS, nodeId, nodeInputProp, normalizeSparkNode } from './types.js'
+
 import { sparkBindContextOwner, sparkResolveParentContext, sparkUnbindContextOwner, type SparkRuntimeOwner } from './capability-context.js'
+import { type SparkNode, normalizeSparkNode, nodeInputProp, SPARK_NODE_STRUCT_KEYS, nodeId } from '@spark-appworks/spark-data'
 
 // ===== 类型与返回值约定 =====
 
@@ -33,15 +39,6 @@ const {
   sparkProvide,
   sparkRemove,
 } = SparkUtils
-
-/** Capability Key 的语义模型。 */
-type CapabilityKey<T> = SparkUtils.CapabilityKey<T>
-/** Capability Context 的运行上下文。 */
-type CapabilityContext = SparkUtils.CapabilityContext
-/** Logger Api 的语义模型。 */
-type LoggerApi = SparkUtils.LoggerApi
-/** Spark Capability Consumer 的语义模型。 */
-type SparkCapabilityConsumer = SparkUtils.SparkCapabilityConsumer
 
 function toSparkRuntimeOwner(instance: ReturnType<typeof getCurrentInstance>): SparkRuntimeOwner | null {
   if (instance === null) return null

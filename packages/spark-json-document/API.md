@@ -408,9 +408,6 @@ class JsonSchemaValidator {
   static validateDeserializedParams(params: unknown, schema: unknown): JsonValidationResult
   static validateJsonValue(value: unknown, schema: JsonSchema): JsonValidationResult
   static formatJsonValidationIssues(issues: readonly JsonValidationIssue[], maxCount?: number): string
-
-  /** @deprecated 使用 formatJsonValidationIssues */
-  static formatAiJsonValidationIssues(issues: readonly JsonValidationIssue[], maxCount?: number): string
 }
 ```
 
@@ -813,23 +810,9 @@ function ensureUniqueObjectKey(target: JsonObject, preferred: string, currentKey
 
 ## 4. 迁移指南
 
-### 从 `@spark-appworks/spark-ai/json` 迁移
+### 旧 `@spark-appworks/spark-ai/json` 已删除
 
-| 旧名称（deprecated） | 新名称 | 包 |
-|---|---|---|
-| `AiJsonValue` | `JsonValue` | `@spark-appworks/spark-json-document` |
-| `AiJsonObject` | `JsonObject` | 同上 |
-| `AiJsonParams` | `JsonParams` | 同上 |
-| `AiJsonParamShape` | `JsonParamShape` | 同上 |
-| `AiJsonSchemaType` | `JsonSchemaType` | 同上 |
-| `AiJsonSchema` | `JsonSchema` | 同上 |
-| `AiJsonSchemaObject` | `JsonSchemaObject` | 同上 |
-| `AiJsonSchemaValidator` | `JsonSchemaValidator` | 同上 |
-| `AiJsonValidationIssue` | `JsonValidationIssue` | 同上 |
-| `AiJsonValidationResult` | `JsonValidationResult` | 同上 |
-| `AiJsonSchemaValidator.formatAiJsonValidationIssues()` | `JsonSchemaValidator.formatJsonValidationIssues()` | 同上 |
-
-**向后兼容**：`@spark-appworks/spark-ai/json` 保留旧名称作为 deprecated alias，现有代码无需立即修改。
+该入口与 `AiJson*` 别名**已彻底删除**，无兼容转发。JSON 类型与校验只从 `@spark-appworks/spark-json-document` 导入正式名（`JsonValue`、`JsonSchema`、`JsonSchemaValidator`、`formatJsonValidationIssues` 等）。
 
 ### 从 `spark-project-model/with-meta` 迁移
 

@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/permission/permission-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/permission-api 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionApi（共 1 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "权限根门面：按 design / runtime 分离入口，禁止跨态混用。\ndesign 读功能标签/数据对象策略/对象授权并 prepare 设计变更命令；runtime 读当前用户功能权限。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PermissionApi"
     ]
@@ -40,11 +40,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:51:50.766Z",
+  "generatedAt": "2026-08-10T07:32:07.299Z",
   "models": {
     "PermissionApi": {
       "name": "PermissionApi",
-      "jsdoc": "",
+      "jsdoc": "权限 API 聚合根；{@link design}与 {@link runtime}各自持有独立 HTTP 客户端实例。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {

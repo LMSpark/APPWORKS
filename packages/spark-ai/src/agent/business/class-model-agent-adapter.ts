@@ -5,7 +5,7 @@
  * AI用途：新增或排查 ClassModel 驱动的业务 Agent 时，用本模块确认 metadata、runtime 和 registration 的接线方式。
  */
 
-import { coerceJsonValue, type AiJsonParams, type AiJsonSchemaObject, type AiJsonValue } from '../../json'
+import { coerceJsonValue, type JsonParams, type JsonSchemaObject, type JsonValue } from '@spark-appworks/spark-json-document'
 import {
   auditClassModelReflectionConnectivity,
   collectClassModelFailureModeRecoveryHints,
@@ -63,7 +63,7 @@ export type ClassModelAgentCompleteActionOptions = AiAgentRuntimeContext & Reado
   /** LLM 传入的任务完成摘要，来自 agent_complete({ summary }) 并经 trim 校验。 */
   summary: string
   /** agent_complete 原始工具参数，含 summary 及后续 schema 扩展字段。 */
-  args: AiJsonParams
+  args: JsonParams
 }>
 
 /**
@@ -107,7 +107,7 @@ export type ClassModelAgentCompleteAccepted = Readonly<{
   /** 发送给用户的最终助手消息，替代 LLM 当前轮次的输出。 */
   finalAssistantMessage?: string
   /** 附加业务数据，合并进 agent_complete 成功 tool result。 */
-  data?: AiJsonValue
+  data?: JsonValue
   /** 附带 info/warn 级检查项，不回灌失败但供 LLM 阅读。 */
   checks?: readonly ClassModelAgentCompleteCheck[]
 }>
@@ -147,10 +147,10 @@ export type ClassModelAgentCompleteRejected = Readonly<{
 
 /** agent_complete 领域完成方法的返回结果。 */
 export type ClassModelAgentCompleteActionResult =
-  | AiAgentToolResult<AiJsonValue>
+  | AiAgentToolResult<JsonValue>
   | ClassModelAgentCompleteAccepted
   | ClassModelAgentCompleteRejected
-  | AiJsonValue
+  | JsonValue
 
 /** Class Model Agent Adapter Register Command 的命令参数。 */
 export type ClassModelAgentAdapterRegisterCommand<T> = Readonly<{
@@ -187,7 +187,7 @@ export type ClassModelAgentAdapterRegisterOptions<T> = Readonly<{
   /** 按运行时上下文动态解析业务实例；用于多 tenant / 多 session 实例隔离。 */
   resolveInstance?: (context: AiAgentRuntimeContext) => T
   /** metadata 文档级 $defs；运行时 paramsSchema $ref 由 AJV 2020 解析。 */
-  jsonSchemaDefs?: Readonly<Record<string, AiJsonSchemaObject>>
+  jsonSchemaDefs?: Readonly<Record<string, JsonSchemaObject>>
   /** DTS-native 模式的 manifest URL；无 metadata 时必填，供 executeDtsNativeScript 加载契约。 */
   dtsClassModelManifestUrl?: string
   /** 自定义 manifest JSON 拉取函数；省略时使用默认 fetch。 */
@@ -392,9 +392,9 @@ class ClassModelAgentToolRuntime<T> implements AiAgentToolRuntime {
 
   public async executeTool(
     toolName: string,
-    args: Readonly<Record<string, AiJsonValue>>,
+    args: Readonly<Record<string, JsonValue>>,
     host: AiAgentRuntimeHostContext,
-  ): Promise<AiAgentToolResult<AiJsonValue>> {
+  ): Promise<AiAgentToolResult<JsonValue>> {
     if (toolName === CLASS_MODEL_TOOL_NAMES.agentComplete) {
       return await this.executeAgentComplete(args, host)
     }
@@ -446,9 +446,9 @@ class ClassModelAgentToolRuntime<T> implements AiAgentToolRuntime {
   }
 
   private async executeAgentComplete(
-    args: Readonly<Record<string, AiJsonValue>>,
+    args: Readonly<Record<string, JsonValue>>,
     host: AiAgentRuntimeHostContext,
-  ): Promise<AiAgentToolResult<AiJsonValue>> {
+  ): Promise<AiAgentToolResult<JsonValue>> {
     const parsed = parseAgentCompleteArgs(args)
     if (!parsed.ok) return parsed.result
 
@@ -504,7 +504,7 @@ type ParsedAgentCompleteArgs = Readonly<{
   summary: string
 }> | Readonly<{
   ok: false
-  result: AiAgentToolResult<AiJsonValue>
+  result: AiAgentToolResult<JsonValue>
 }>
 
 type AgentCompleteMethod = (...args: readonly unknown[]) => unknown
@@ -513,7 +513,7 @@ type CallAgentCompleteMethodCommand<T> = Readonly<{
   instance: T
   method: AgentCompleteMethod
   context: AiAgentRuntimeContext
-  args: Readonly<Record<string, AiJsonValue>>
+  args: Readonly<Record<string, JsonValue>>
   summary: string
 }>
 
@@ -523,7 +523,7 @@ type AgentCompleteKnowledgeRecoveryContext = Readonly<{
 }>
 
 function parseAgentCompleteArgs(
-  args: Readonly<Record<string, AiJsonValue>>,
+  args: Readonly<Record<string, JsonValue>>,
 ): ParsedAgentCompleteArgs {
   const extra = Object.keys(args).filter(key => key !== 'summary').sort()
   if (extra.length > 0) {
@@ -581,7 +581,7 @@ function normalizeAgentCompleteActionResult(
   raw: unknown,
   fallbackSummary: string,
   knowledgeContext: AgentCompleteKnowledgeRecoveryContext,
-): AiAgentToolResult<AiJsonValue> {
+): AiAgentToolResult<JsonValue> {
   if (raw instanceof AiAgentToolResult) {
     if (!raw.ok) return AiAgentToolResult.passthroughFailure(raw)
     return AiAgentToolResult.ok(
@@ -638,7 +638,7 @@ function normalizeAgentCompleteActionResult(
   return AiAgentToolResult.ok(normalizeAgentCompleteSuccessData(raw, fallbackSummary))
 }
 
-function normalizeAgentCompleteSuccessData(raw: unknown, summary: string): AiJsonValue {
+function normalizeAgentCompleteSuccessData(raw: unknown, summary: string): JsonValue {
   if (isUnknownRecord(raw)) {
     return {
       completed: true,
@@ -675,7 +675,7 @@ function rejectAgentComplete(input: Readonly<{
   missingFacts?: readonly string[]
   nextStep?: string
   knowledgeLookups?: readonly string[]
-}>): AiAgentToolResult<AiJsonValue> {
+}>): AiAgentToolResult<JsonValue> {
   const checks = [
     AiAgentToolCheck.error(input.code, input.message, input.fix),
     ...agentCompleteInfoChecks(input),
@@ -865,7 +865,7 @@ function requireDtsClassModelManifestUrl<T>(
   return manifestUrl
 }
 
-function toClassModelToolResult(result: AiAgentToolResult<AiJsonValue>): ClassModelToolResult {
+function toClassModelToolResult(result: AiAgentToolResult<JsonValue>): ClassModelToolResult {
   return {
     ok: result.ok,
     ...(result.data === undefined ? {} : { data: result.data }),
@@ -883,7 +883,7 @@ function toClassModelToolCheck(check: AiAgentToolCheck): ClassModelToolCheck {
   }
 }
 
-function toAgentToolResult(result: ClassModelToolResult): AiAgentToolResult<AiJsonValue> {
+function toAgentToolResult(result: ClassModelToolResult): AiAgentToolResult<JsonValue> {
   return new AiAgentToolResult({
     ok: result.ok,
     ...(result.data === undefined ? {} : { data: result.data }),

@@ -7,10 +7,9 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/permission/design/permission-design-mutation",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/design/permission-design-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionDesignMutationBase, PermissionDesignMutationInput, PermissionDesignMutationCommand（共 3 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "权限设计态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。\n调用方须持 preimage、journal 与 readback 后再由 provision 层执行；remove 能力须 preimage 存在目标。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "PermissionDesignMutationBase",
       "PermissionDesignMutationInput",
       "PermissionDesignMutationCommand"
     ]
@@ -228,7 +227,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T21:19:22.734Z",
+  "generatedAt": "2026-08-10T07:32:17.613Z",
   "models": {
     "PermissionDesignMutationBase": {
       "name": "PermissionDesignMutationBase",
@@ -266,7 +265,7 @@
     },
     "PermissionDesignMutationInput": {
       "name": "PermissionDesignMutationInput",
-      "jsdoc": "",
+      "jsdoc": "权限设计态 mutation 输入；capability 决定 change 形状与 targetId 解析规则。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "(PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-feature-tag';\n    change: PermissionFeatureTag;\n}>) | (PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-data-object-policy';\n    change: PermissionDataObjectPolicy;\n}>) | (PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-object-grant';\n    change: PermissionObjectGrant;\n}>) | (PermissionDesignMutationBase & Readonly<{\n    capability: 'remove-feature-tag' | 'remove-data-object-policy' | 'remove-object-grant';\n    targetId: string;\n    change: Readonly<{\n        reason: string;\n    }>;\n}>)",
@@ -293,7 +292,7 @@
     },
     "PermissionDesignMutationCommand": {
       "name": "PermissionDesignMutationCommand",
-      "jsdoc": "",
+      "jsdoc": "权限设计态 mutation 命令；risk 固定 high，journal/readback/compensation 均为强制约束。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    kind: 'permission-design-mutation';\n    formKey: string;\n    capability: PermissionDesignMutationInput['capability'];\n    targetId: string;\n    idempotencyKey: string;\n    preimage: PermissionDesignSnapshot;\n    change: PermissionDesignMutationInput['change'];\n    risk: 'high';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        formKey: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-permission-design-snapshot';\n        preimage: PermissionDesignSnapshot;\n    }>;\n}>",

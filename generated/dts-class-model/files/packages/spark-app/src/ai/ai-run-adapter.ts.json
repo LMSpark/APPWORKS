@@ -321,7 +321,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.240Z",
+  "generatedAt": "2026-08-10T10:00:08.518Z",
   "models": {
     "AiRunTraceSink": {
       "name": "AiRunTraceSink",
@@ -533,11 +533,11 @@
       "jsdoc": "AI 运行宿主接口：封装 AiAgentHost.run() 调用，便于 adapter 在不依赖具体 Host 实现的情况下发起 run",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 按 alias 运行已注册业务，委托给 AiAgentHost.run() */\n    run<TInput extends AiJsonParams>(alias: string, input: TInput, chat?: SparkAgent.AiAgentTaskChatOptions): Promise<SparkAgent.AiAgentHostRunResult>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 按 alias 运行已注册业务，委托给 AiAgentHost.run() */\n    run<TInput extends JsonParams>(alias: string, input: TInput, chat?: SparkAgent.AiAgentTaskChatOptions): Promise<SparkAgent.AiAgentHostRunResult>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 按 alias 运行已注册业务，委托给 AiAgentHost.run() */\n    run<TInput extends AiJsonParams>(alias: string, input: TInput, chat?: SparkAgent.AiAgentTaskChatOptions): Promise<SparkAgent.AiAgentHostRunResult>;\n}>",
+            "typeText": "Readonly<{\n    /** 按 alias 运行已注册业务，委托给 AiAgentHost.run() */\n    run<TInput extends JsonParams>(alias: string, input: TInput, chat?: SparkAgent.AiAgentTaskChatOptions): Promise<SparkAgent.AiAgentHostRunResult>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -805,11 +805,11 @@
       "jsdoc": "headless AI run adapter 状态接口：UI 通过此接口发起/中断 run、读取快照、订阅变化",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 是否有活跃的 run 正在执行 */\n    isRunning(): boolean;\n    /** 中断当前 run（仅在有活跃 run 时生效） */\n    abort(reason?: string): void;\n    /** 获取当前只读快照 */\n    snapshot(): AiRunSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiRunListener): () => void;\n    /** 发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错 */\n    run<TInput extends AiJsonParams>(command: AiRunAdapterCommand<TInput>): Promise<AiRunAdapterRunStatus>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 是否有活跃的 run 正在执行 */\n    isRunning(): boolean;\n    /** 中断当前 run（仅在有活跃 run 时生效） */\n    abort(reason?: string): void;\n    /** 获取当前只读快照 */\n    snapshot(): AiRunSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiRunListener): () => void;\n    /** 发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错 */\n    run<TInput extends JsonParams>(command: AiRunAdapterCommand<TInput>): Promise<AiRunAdapterRunStatus>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 是否有活跃的 run 正在执行 */\n    isRunning(): boolean;\n    /** 中断当前 run（仅在有活跃 run 时生效） */\n    abort(reason?: string): void;\n    /** 获取当前只读快照 */\n    snapshot(): AiRunSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiRunListener): () => void;\n    /** 发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错 */\n    run<TInput extends AiJsonParams>(command: AiRunAdapterCommand<TInput>): Promise<AiRunAdapterRunStatus>;\n}>",
+            "typeText": "Readonly<{\n    /** 是否有活跃的 run 正在执行 */\n    isRunning(): boolean;\n    /** 中断当前 run（仅在有活跃 run 时生效） */\n    abort(reason?: string): void;\n    /** 获取当前只读快照 */\n    snapshot(): AiRunSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiRunListener): () => void;\n    /** 发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错 */\n    run<TInput extends JsonParams>(command: AiRunAdapterCommand<TInput>): Promise<AiRunAdapterRunStatus>;\n}>",
             "targetName": "Readonly"
           }
         ],

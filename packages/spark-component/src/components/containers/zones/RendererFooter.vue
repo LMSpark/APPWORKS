@@ -19,8 +19,9 @@ AI用途：需要理解 renderer footer 的实际渲染结构、slot/toolbar/状
  * @description 底部组件，在 r-dialog/r-drawer 中作为底部操作区域提取渲染。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId } from '../../internal'
+import { SparkComponentRenderer } from '../../internal'
 import type { RFooterProps as Props } from './RendererFooter.types'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-footer',

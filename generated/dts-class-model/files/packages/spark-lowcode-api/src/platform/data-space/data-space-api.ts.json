@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/data-space-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/data-space-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceApi（共 1 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "数据空间根门面：按 design / runtime 分离入口，禁止跨态混用。\ndesign 读设计态元数据并 prepare 设计变更命令；runtime 读业务数据并 prepare 运行变更命令。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceApi"
     ]
@@ -40,11 +40,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:28:31.459Z",
+  "generatedAt": "2026-08-10T07:31:41.805Z",
   "models": {
     "DataSpaceApi": {
       "name": "DataSpaceApi",
-      "jsdoc": "",
+      "jsdoc": "数据空间 API 聚合根；{@link design}与 {@link runtime}各自持有独立 HTTP 客户端实例。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {

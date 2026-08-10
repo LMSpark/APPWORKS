@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/types 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonSchema, AiJsonSchemaObject } from '../../json'
+import type { JsonSchema, JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import type { AiRuntimeApiMetadataJson } from '../metadata'
 
 /** DtsTypeDeclarationModel 投影版本；它独立于 runtime API metadata 的 schemaVersion。 */
@@ -24,7 +24,7 @@ export type ClassModelDocument = Readonly<{
   /** 知识链路真源：所有 DtsTypeDeclarationModel 按 attribute 链从此 module 按需派生，不预存 models 索引。 */
   module: AiRuntimeApiMetadataJson
   /** Draft 2020-12 共享定义；当 jsonSchema 使用 $ref 引用内部子 schema 时，被引用的片段存在此字典中以保证 bundle 自包含。 */
-  $defs?: Readonly<Record<string, AiJsonSchemaObject>>
+  $defs?: Readonly<Record<string, JsonSchemaObject>>
 }>
 
 /** Source Provenance Meta 的语义模型。 */
@@ -123,7 +123,7 @@ export type DtsTypeDeclarationBase<TDeclarationKind extends DtsTypeDeclarationKi
   /** type-space 声明种类；判别 DtsTypeDeclarationModel 联合分支和 payload 结构。 */
   declarationKind: TDeclarationKind
   /** bundle shard 持久化的 Draft 2020-12 独立校验文档。 */
-  jsonSchema?: AiJsonSchemaObject
+  jsonSchema?: JsonSchemaObject
   /** guide/query 实际消费的组件画像；替代持久化 provenance 中的 component* 冗余字段。 */
   component?: ComponentProfileMeta
   /** 声明在 emit `.d.ts` 和源文件中的溯源信息；gap 报告和 fixHint 定位依赖此字段。 */
@@ -239,7 +239,7 @@ export type ConstructorMeta = Readonly<{
   /** 构造函数形参列表；按 TypeDoc ParameterReflection 投影，含 name 和 DtsTypeMeta。 */
   parameters?: readonly MethodParameterMeta[]
   /** 参数 JSON Schema；positional 风格为 tuple schema，named 风格为 object schema，用于 LLM 工具调用时的参数校验。 */
-  paramsSchema?: AiJsonSchemaObject
+  paramsSchema?: JsonSchemaObject
   /** 构造函数 JSDoc 正文；semantic gap audit 在 kind='constructor' 时检查此字段。 */
   jsdoc: JsDocMeta
   /** 构造函数在 emit `.d.ts` 和源文件中的溯源信息。 */
@@ -251,7 +251,7 @@ export type AttributeMeta = Readonly<{
   /** 属性/字段/枚举成员名；与 emit `.d.ts` 中的标识符一致。 */
   name: string
   /** 属性类型的 JSON Schema；由 DtsTypeMeta 映射而来，复杂类型可能缺失。 */
-  schema?: AiJsonSchema
+  schema?: JsonSchema
   /** 可读性标记；getter 或 public 属性为 true，write-only setter 为 false。 */
   readable: boolean
   /** 可写性标记；setter 或 public mutable 属性为 true，readonly/getter-only 为 false。 */
@@ -331,9 +331,9 @@ export type MethodMeta = Readonly<{
   /** TypeDoc SignatureReflection.type（返回类型 SSOT）。 */
   type?: DtsTypeMeta
   /** 参数 JSON Schema；由 parameters 映射，用于 LLM 工具调用的入参校验。 */
-  paramsSchema?: AiJsonSchemaObject
+  paramsSchema?: JsonSchemaObject
   /** 返回值 JSON Schema；仅在返回类型可完整映射为 JSON Schema 时存在，复杂类型（泛型/回调）可能缺失。 */
-  returnSchema?: AiJsonSchema
+  returnSchema?: JsonSchema
   /** 方法首参是否为上下文对象（如 SparkScriptContext）；标记为 true 时 LLM 在工具调用中应跳过该参数。 */
   takesContext?: boolean
   /** 方法 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */

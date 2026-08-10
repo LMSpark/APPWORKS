@@ -39,12 +39,13 @@ AI用途：需要理解 renderer steps 的实际渲染结构、slot/toolbar/状�
  */
 import { computed } from 'vue'
 import { useSparkPageComponent, SparkComponentRenderer } from '../../../internal'
-import { getSparkNodeChildren, nodeId, nodeInputProp, nodeInputProps, type SparkNode } from '../../../internal'
+
 import { useContainerToolbar } from '../../runtime/container-ui'
 import type { RendererStepsApi } from './types'
 import { createRendererStepsZeroCode } from './zero-code'
 import { useDefaultedSelection } from '../state'
 import type { RStepsProps } from './RendererSteps.props'
+import { type SparkNode, getSparkNodeChildren, nodeInputProps, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RStepsProps>(), {
   type: 'r-steps',

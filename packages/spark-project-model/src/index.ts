@@ -73,14 +73,9 @@ export {
 
 export type {
   ProjectBlueprintTreeData,
-  ProjectBlueprintNodeKind,
-  ChildPlacement,
-  ProjectBlueprintContextItem,
-  ProjectBlueprintContextConfig,
-  ProjectBlueprintDeliveryKind,
-  ProjectBlueprintPermissionMode,
   ProjectBlueprintTreeNodeData,
   ProjectBlueprintTreeNodeLocation,
+  ProjectBlueprintImplGate,
   ProjectPageSurface,
   ProjectPageNodeSummary,
 } from './blueprint/project-blueprint-node'

@@ -5,7 +5,7 @@
  * AI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。
  */
 
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { CLASS_MODEL_TOOL_NAMES } from '../../class-model'
 import { toAiAgentRuntimeScope } from '../business/business-scope'
 import type {
@@ -41,7 +41,7 @@ import { enrichFunctionCallResult } from './function-call-recovery-enricher'
 type AiAgentToolNameResolver = (toolName: string) => string | null
 
 /** 工具调用执行的输入参数 */
-type AiAgentToolCallExecutionInput<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+type AiAgentToolCallExecutionInput<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 当前工具的业务注册信息，含 runtime 执行器、生命周期钩子和恢复提示配置 */
   registration: AiAgentRegistration<TInput>
   /** Agent 运行时作用域，提供 moduleId / moduleInstanceId / instanceId 等定位信息 */
@@ -70,18 +70,18 @@ type AiAgentToolCallExecutionOutput = Readonly<{
 
 type ParsedToolArgs = Readonly<{
   ok: true
-  args: AiJsonParams
+  args: JsonParams
 }> | Readonly<{
   ok: false
-  args: AiJsonParams
+  args: JsonParams
   result: AiAgentFunctionCallResult<unknown>
 }>
 
-type CompleteToolCallExecutionInput<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+type CompleteToolCallExecutionInput<TInput extends JsonParams = JsonParams> = Readonly<{
   source: AiAgentToolCallExecutionInput<TInput>
   runtimeContext: ReturnType<typeof toAiAgentRuntimeScope>
   protocolToolName: string
-  args: AiJsonParams
+  args: JsonParams
   callResult: AiAgentFunctionCallResult<unknown>
   started: number
   lifecycleDirective?: AiAgentLifecycleDirective
@@ -95,7 +95,7 @@ type CompleteToolCallExecutionInput<TInput extends AiJsonParams = AiJsonParams> 
 const CONTINUE_DIRECTIVE: AiAgentLifecycleDirective = { status: 'continue' }
 const ALLOW_FUNCTION_CALL_DIRECTIVE: AiAgentBeforeFunctionCallDirective = { status: 'allow' }
 
-type ResolveBeforeFunctionCallDirectiveInput<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+type ResolveBeforeFunctionCallDirectiveInput<TInput extends JsonParams = JsonParams> = Readonly<{
   request: AiAgentChatRequest
   registration: AiAgentRegistration<TInput>
   options: AiAgentBeforeFunctionCallOptions
@@ -111,7 +111,7 @@ export class AiAgentToolCallExecutor {
    * 返回 null 表示工具无法识别（resolveToolName 返回 null），
    * 此时错误信息已通过 onDelta 推送给前端，调用方应跳过该调用。
    */
-  public async execute<TInput extends AiJsonParams>(
+  public async execute<TInput extends JsonParams>(
     input: AiAgentToolCallExecutionInput<TInput>,
   ): Promise<AiAgentToolCallExecutionOutput | null> {
     // 步骤 1-2：提取 toolName 并校验是否在当前 tools 集合中
@@ -211,7 +211,7 @@ export class AiAgentToolCallExecutor {
     })
   }
 
-  private async completeExecution<TInput extends AiJsonParams>(
+  private async completeExecution<TInput extends JsonParams>(
     input: CompleteToolCallExecutionInput<TInput>,
   ): Promise<AiAgentToolCallExecutionOutput> {
     const {
@@ -285,7 +285,7 @@ export class AiAgentToolCallExecutor {
   }
 }
 
-async function resolveBeforeFunctionCallDirective<TInput extends AiJsonParams>(
+async function resolveBeforeFunctionCallDirective<TInput extends JsonParams>(
   input: ResolveBeforeFunctionCallDirectiveInput<TInput>,
 ): Promise<AiAgentBeforeFunctionCallDirective> {
   const requestDirective = await input.request.beforeFunctionCall?.(input.options)
@@ -379,15 +379,15 @@ function toolArgsFailureResult(error: ToolArgsParseError): AiAgentFunctionCallRe
   }
 }
 
-type ApplyFailureRecoveryEnrichmentCommand<TInput extends AiJsonParams> = Readonly<{
+type ApplyFailureRecoveryEnrichmentCommand<TInput extends JsonParams> = Readonly<{
   registration: AiAgentRegistration<TInput>
   moduleInstanceId: string
   protocolToolName: string
-  args: AiJsonParams
+  args: JsonParams
   callResult: AiAgentFunctionCallResult<unknown>
 }>
 
-function applyFailureRecoveryEnrichment<TInput extends AiJsonParams>(
+function applyFailureRecoveryEnrichment<TInput extends JsonParams>(
   command: ApplyFailureRecoveryEnrichmentCommand<TInput>,
 ): AiAgentFunctionCallResult<unknown> {
   if (command.callResult.ok) return command.callResult

@@ -9,10 +9,7 @@
     "modulePath": "components/containers/layout/RendererSteps/zero-code",
     "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/RendererSteps/zero-code\n职责：封装 RendererSteps（r-steps）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 container/layout-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer steps 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "StepsEmit",
-      "RendererStepsZeroCodeOptions"
-    ],
+    "symbols": [],
     "componentName": "RendererSteps",
     "componentType": "r-steps",
     "componentLevel": "container",
@@ -61,8 +58,7 @@
           "type": "object",
           "properties": {
             "step": {
-              "type": "object",
-              "title": "SparkNode"
+              "$ref": "../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
             },
             "index": {
               "type": "number"
@@ -83,7 +79,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.449Z",
+  "generatedAt": "2026-08-10T11:13:17.755Z",
   "models": {
     "StepsEmit": {
       "name": "StepsEmit",
@@ -156,8 +152,7 @@
                   "name": "step",
                   "type": {
                     "type": "reference",
-                    "name": "SparkNode",
-                    "sourcePath": "packages/spark-component/src/components/internal.ts"
+                    "name": "SparkNode"
                   }
                 },
                 {

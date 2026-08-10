@@ -20,6 +20,8 @@ import {
   type DataSpaceResourceField,
   type DataSpaceResourceType,
 } from '../data-space.js'
+import { parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
+import type { OrderType } from '../../../contracts/lowcode-wire-query.js'
 import {
   prepareDataSpaceDesignMutation,
   type DataSpaceDesignMutationCommand,
@@ -61,6 +63,28 @@ type DesignRows = Readonly<{
   relations: ReadonlyArray<Record<string, unknown>>
 }>
 
+type DataSpacePrimaryKeyCommand = Readonly<{
+  modelId: string
+  model: Record<string, unknown>
+  resource: LowcodeDatabaseResource
+  rows: DesignRows
+}>
+
+type DataSpaceResourceReferenceCommand = Readonly<{
+  modelId: string
+  row: Record<string, unknown>
+  rows: DesignRows
+  catalog: LowcodeDatabaseCatalog
+  catalogApi: LowcodeCatalogApi
+}>
+
+type DataSpaceFrontendModelsCommand = Readonly<{
+  dataSpaceId: string
+  rows: DesignRows
+  catalog: LowcodeDatabaseCatalog
+  catalogApi: LowcodeCatalogApi
+}>
+
 const DESIGN_DATABASE = 'QYVirtualPlat'
 const DATA_SPACE_TABLE = 'Base_DataSet'
 const MODEL_TABLE = 'Base_DataModel'
@@ -96,25 +120,20 @@ function integer(value: unknown, fallback = 0): number {
   return parsed
 }
 
+function parseFieldOrderType(value: unknown): OrderType | '' {
+  const raw = text(value)
+  if (!raw) return ''
+  if (raw === 'ascending' || raw === 'descending') return raw
+  throw new LowcodeApiError(0, `未知 OrderType: ${raw}`)
+}
+
 function serializedText(value: unknown): string {
   if (value === undefined || value === null) return ''
   return typeof value === 'string' ? value : JSON.stringify(value)
 }
 
 function resourceType(value: unknown): DataSpaceResourceType {
-  const types: Readonly<Record<string, DataSpaceResourceType>> = {
-    数据库表: 'table',
-    数据库视图: 'view',
-    视图: 'view',
-    字典: 'dictionary',
-    接口: 'interface',
-    JSON: 'json',
-    文件: 'file',
-  }
-  const raw = requiredText(value, '前端模型 Type')
-  const normalized = types[raw]
-  if (normalized === undefined) throw new LowcodeApiError(0, `未知数据资源类型: ${raw}`)
-  return normalized
+  return parseDataSpaceResourceType(value)
 }
 
 function queryFilter(field: string, value: string): Readonly<Record<string, unknown>> {
@@ -221,7 +240,7 @@ function modelFields(
         fieldType,
         output: binaryDefault(row['IsOutput'] ?? row['isOutput'], true),
         order: integer(row['Order'] ?? row['order']),
-        orderType: text(row['OrderType'] ?? row['orderType']),
+        orderType: parseFieldOrderType(row['OrderType'] ?? row['orderType']),
         group: integer(row['Group'] ?? row['group']),
         distinct: binary(row['DISTINCT'] ?? row['distinct']),
         primaryKey: binary(row['IsPKey'] ?? row['primaryKey']),
@@ -272,12 +291,8 @@ function dataSpaceRelations(
   })
 }
 
-function primaryKey(
-  modelId: string,
-  model: Record<string, unknown>,
-  resource: LowcodeDatabaseResource,
-  rows: DesignRows,
-): string {
+function primaryKey(command: DataSpacePrimaryKeyCommand): string {
+  const { modelId, model, resource, rows } = command
   const configured = text(model['PrimaryKeyFields'] ?? model['primaryKeyFields'])
   if (configured) return configured
   const keyField = rows.fields.find((row) => (
@@ -290,13 +305,8 @@ function primaryKey(
   throw new LowcodeApiError(0, `数据资源缺少主键证据: ${resource.id}`)
 }
 
-function resourceReference(
-  modelId: string,
-  row: Record<string, unknown>,
-  rows: DesignRows,
-  catalog: LowcodeDatabaseCatalog,
-  catalogApi: LowcodeCatalogApi,
-): DataSpaceResourceReference {
+function resourceReference(command: DataSpaceResourceReferenceCommand): DataSpaceResourceReference {
+  const { modelId, row, rows, catalog, catalogApi } = command
   const type = resourceType(row['Type'] ?? row['type'])
   const databaseBound = type === 'table' || type === 'view'
   if (!databaseBound) {
@@ -316,7 +326,7 @@ function resourceReference(
     databaseId: resolved.databaseId,
     resourceName: resolved.name,
     resourceType: type,
-    primaryKeyField: primaryKey(modelId, row, resolved, rows),
+    primaryKeyField: primaryKey({ modelId, model: row, resource: resolved, rows }),
     databaseName: configuredDatabaseName
       ? configuredDatabaseName
       : database?.name ?? '',
@@ -324,23 +334,19 @@ function resourceReference(
   }
 }
 
-function frontendModels(
-  dataSpaceId: string,
-  rows: DesignRows,
-  catalog: LowcodeDatabaseCatalog,
-  catalogApi: LowcodeCatalogApi,
-): Readonly<{
+function frontendModels(command: DataSpaceFrontendModelsCommand): Readonly<{
   models: readonly DataSpaceFrontendModel[]
   resources: readonly DataSpaceResourceReference[]
   relations: readonly LowcodeModelRelationRecord[]
 }> {
+  const { dataSpaceId, rows, catalog, catalogApi } = command
   const resourcesByModelId = new Map<string, DataSpaceResourceReference>()
   for (const row of rows.models) {
     const modelId = requiredText(row['rowid'], 'model rowid')
     if (requiredText(row['dataSetId'], 'model dataSetId') !== dataSpaceId) {
       throw new LowcodeApiError(0, `前端模型 ${modelId} 不属于数据空间 ${dataSpaceId}`)
     }
-    resourcesByModelId.set(modelId, resourceReference(modelId, row, rows, catalog, catalogApi))
+    resourcesByModelId.set(modelId, resourceReference({ modelId, row, rows, catalog, catalogApi }))
   }
   const relations = dataSpaceRelations(rows)
   const models = rows.models.map((row) => {
@@ -386,7 +392,7 @@ export class DataSpaceDesignApi {
     const dataSpace = dataSpaces.find((row) => text(row['rowid']) === id)
     if (dataSpace === undefined) throw new LowcodeApiError(0, `数据空间不存在: ${id}`)
     const rows = { dataSpaces, models, fields, relations }
-    const closure = frontendModels(id, rows, catalog, this.catalog)
+    const closure = frontendModels({ dataSpaceId: id, rows, catalog, catalogApi: this.catalog })
     return {
       dataSpaceId: id,
       name: requiredText(dataSpace['Name'] ?? dataSpace['name'], 'data space Name'),

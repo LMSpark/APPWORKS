@@ -14,7 +14,7 @@ import FieldContextRenderer from '../../packages/spark-component/src/components/
 import { useFieldContext } from '../../packages/spark-component/src/components/fields/context/useFieldContext'
 import { useResolvedFieldContext } from '../../packages/spark-component/src/components/fields/context/useResolvedFieldContext'
 import { useSparkComponent } from '../../packages/spark-component/src/core/useSparkComponent'
-import type { SparkNode } from '../../packages/spark-component/src/core/types'
+import type { SparkNode } from '@spark-appworks/spark-data'
 import { DATA_ROW } from '../../packages/spark-component/src/components/internal'
 import { createPageComponentRegistry } from '../../packages/spark-component/src/page/context/page-component-registry'
 import type { DataRow } from '@spark-appworks/spark-data'

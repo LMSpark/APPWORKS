@@ -16,7 +16,8 @@
  */
 import { h, computed, defineComponent, resolveComponent, type Component } from 'vue'
 import SparkComponentRenderer from './SparkComponentRenderer.vue'
-import { getSparkNodeChildren, isSparkNode, nodeId, useSparkPageComponent, type SparkNodeChildren, type SparkNodeInput } from './internal.js'
+import { useSparkPageComponent, type SparkNodeInput } from './internal.js'
+import { type SparkNodeChildren, getSparkNodeChildren, isSparkNode, nodeId } from '@spark-appworks/spark-data'
 
 /** 透传组件配置 */
 type PassthroughOptions = {

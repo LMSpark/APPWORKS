@@ -1,47 +1,47 @@
 import type { DataPermissionSnapshot, DataPermissionSets, DataRow } from '@spark-appworks/spark-data'
 import { FieldVisibility } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
-import type { PagePermissionMode } from '../core/capability-keys.js'
+import type { PermissionMode } from '@spark-appworks/spark-utils'
 
 function rowPermission(row: DataRow): DataPermissionSets | null {
   const permission = row.lingma_sys_params
   return permission ?? null
 }
 
-export function canCreate(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PagePermissionMode): boolean {
+export function canCreate(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PermissionMode): boolean {
   return snapshot?.allowAdd === true
 }
 
-export function canImport(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PagePermissionMode): boolean {
+export function canImport(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PermissionMode): boolean {
   return snapshot?.authorizedFeatureTags.includes('import') === true
 }
 
-export function canExport(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PagePermissionMode): boolean {
+export function canExport(snapshot?: DataPermissionSnapshot | null, _permissionMode?: PermissionMode): boolean {
   return snapshot?.authorizedFeatureTags.includes('export') === true
 }
 
-export function canDelete(row: DataRow, _permissionMode?: PagePermissionMode): boolean {
+export function canDelete(row: DataRow, _permissionMode?: PermissionMode): boolean {
   return rowPermission(row)?.d === true
 }
 
 export function canCreateChild(
   row: DataRow,
   snapshot?: DataPermissionSnapshot | null,
-  _permissionMode?: PagePermissionMode,
+  _permissionMode?: PermissionMode,
 ): boolean {
   return rowPermission(row) !== null && snapshot?.authorizedFeatureTags.includes('create-child') === true
 }
 
-export function canEdit(row: DataRow, _permissionMode?: PagePermissionMode): boolean {
+export function canEdit(row: DataRow, _permissionMode?: PermissionMode): boolean {
   const permission = rowPermission(row)
   return permission !== null && permission.r.length + permission.e.length > 0
 }
 
-export function isFieldVisible(field: string, row: DataRow, permissionMode?: PagePermissionMode): boolean {
+export function isFieldVisible(field: string, row: DataRow, permissionMode?: PermissionMode): boolean {
   return getFieldVisibility(field, row, permissionMode) !== FieldVisibility.Hidden
 }
 
-export function isFieldEditable(field: string, row: DataRow, _permissionMode?: PagePermissionMode): boolean {
+export function isFieldEditable(field: string, row: DataRow, _permissionMode?: PermissionMode): boolean {
   const permission = rowPermission(row)
   return permission !== null && (permission.r.includes(field) || permission.e.includes(field))
 }
@@ -53,7 +53,7 @@ export function isFieldRequired(field: string, row: DataRow): boolean {
 export function getFieldVisibility(
   field: string,
   row: DataRow,
-  _permissionMode?: PagePermissionMode,
+  _permissionMode?: PermissionMode,
 ): FieldVisibility {
   const permission = rowPermission(row)
   if (permission === null) return FieldVisibility.Hidden
@@ -66,7 +66,7 @@ export type FieldMaskInput = Readonly<{
   field: string
   value: unknown
   row: DataRow
-  permissionMode?: PagePermissionMode
+  permissionMode?: PermissionMode
 }>
 
 export function maskFieldValue(input: FieldMaskInput): string {

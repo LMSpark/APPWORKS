@@ -5,8 +5,8 @@
  * AI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。
  */
 
-import type { AiJsonObject, AiJsonParams, AiJsonValue } from '../../json'
-import { coerceStrictJsonValue } from '../../json'
+import type { JsonObject, JsonParams, JsonValue } from '@spark-appworks/spark-json-document'
+import { coerceStrictJsonValue } from '@spark-appworks/spark-json-document'
 import { latestUserInput } from '../business/business-scope'
 import type { AiAgentChatRequest } from '../chat/chat-types'
 import type { AiAgentTransportMessage } from '../transport/transport-types'
@@ -15,7 +15,7 @@ import type { AiAgentTransportMessage } from '../transport/transport-types'
  * 一、工具参数解析
  * -------------------------------------------------------------------------------
  * LLM 返回的工具调用参数是 JSON 字符串（function.arguments），
- * 本函数将其解析为 Record<string, AiJsonValue> 以便后续校验和执行。
+ * 本函数将其解析为 Record<string, JsonValue> 以便后续校验和执行。
  *
  * 参数约束：
  *   · 空字符串 / undefined → 返回 {}（非异常，部分工具无参数）
@@ -36,7 +36,7 @@ public constructor(
   }
 }
 
-export function parseToolArgs(raw: string | undefined): AiJsonParams {
+export function parseToolArgs(raw: string | undefined): JsonParams {
   if (raw === undefined || raw.trim() === '') return {}
   let parsed: unknown
   try {
@@ -105,10 +105,10 @@ export function stringifyAiAgentPayload(data: unknown): string {
 /* -------------------------------------------------------------------------------
  * 四、内部辅助：值规整
  * -------------------------------------------------------------------------------
- * 将 JSON.parse 产出的 unknown 值确认为 AiJsonValue 记录。
+ * 将 JSON.parse 产出的 unknown 值确认为 JsonValue 记录。
  * ----------------------------------------------------------------------------- */
 
-function isJsonObject(value: AiJsonValue | undefined): value is AiJsonObject {
+function isJsonObject(value: JsonValue | undefined): value is JsonObject {
   return value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value)
 }
 

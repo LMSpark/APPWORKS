@@ -61,7 +61,7 @@
         },
         "args": {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         }
       },
       "additionalProperties": false
@@ -105,7 +105,7 @@
         },
         "args": {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         },
         "result": {
           "$ref": "../session/session-types.ts.json#/$defs/AiAgentFunctionCallResult"
@@ -114,7 +114,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T19:32:33.501Z",
+  "generatedAt": "2026-08-10T10:00:08.478Z",
   "models": {
     "AiAgentBeforeFunctionCallStatus": {
       "name": "AiAgentBeforeFunctionCallStatus",
@@ -193,7 +193,7 @@
       "jsdoc": "beforeFunctionCall 回调的入参。\n继承 AiAgentRuntimeContext（moduleId / moduleInstanceId / instanceId），\n追加本次工具调用的工具名与已解析参数。该钩子只负责策略裁决，不执行工具。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "AiAgentRuntimeContext & Readonly<{\n    /** 即将被调用的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: AiJsonParams;\n}>",
+        "declarationTypeText": "AiAgentRuntimeContext & Readonly<{\n    /** 即将被调用的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: JsonParams;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -202,7 +202,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    /** 即将被调用的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: AiJsonParams;\n}>",
+            "typeText": "Readonly<{\n    /** 即将被调用的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: JsonParams;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -295,7 +295,7 @@
       "jsdoc": "afterFunctionCall 回调的入参。\n继承 AiAgentRuntimeContext（moduleId / moduleInstanceId / instanceId），\n追加本次工具调用的具体信息：\ntoolName — 被调用的工具名称\nargs     — 调用参数（已通过 JSON Schema 校验）\nresult   — 调用结果（ok: true 带 data，ok: false 带 code/msg/fix）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "AiAgentRuntimeContext & Readonly<{\n    /** 已执行完毕的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: AiJsonParams;\n    /** 工具执行结果；ok 时带 data，失败时带 code/msg/fix 供业务方判断后续策略。 */\n    result: AiAgentFunctionCallResult<unknown>;\n}>",
+        "declarationTypeText": "AiAgentRuntimeContext & Readonly<{\n    /** 已执行完毕的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: JsonParams;\n    /** 工具执行结果；ok 时带 data，失败时带 code/msg/fix 供业务方判断后续策略。 */\n    result: AiAgentFunctionCallResult<unknown>;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -304,7 +304,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    /** 已执行完毕的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: AiJsonParams;\n    /** 工具执行结果；ok 时带 data，失败时带 code/msg/fix 供业务方判断后续策略。 */\n    result: AiAgentFunctionCallResult<unknown>;\n}>",
+            "typeText": "Readonly<{\n    /** 已执行完毕的工具名称，来自 LLM tool_calls 中的 function.name。 */\n    toolName: string;\n    /** 工具调用参数，已通过 JSON Schema 校验的键值对。 */\n    args: JsonParams;\n    /** 工具执行结果；ok 时带 data，失败时带 code/msg/fix 供业务方判断后续策略。 */\n    result: AiAgentFunctionCallResult<unknown>;\n}>",
             "targetName": "Readonly"
           }
         ],

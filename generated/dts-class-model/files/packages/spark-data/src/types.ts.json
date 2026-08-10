@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-data/src/types.ts",
     "packageName": "@spark-appworks/spark-data",
     "modulePath": "types",
-    "jsdoc": "@module @spark-appworks/spark-data:types\n职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                DataPermissionSnapshot                  │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             FilterExpression, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 表关系 & 视图联动      TableRelation, ViewDependency, DataRelation │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
+    "jsdoc": "@module @spark-appworks/spark-data:types\n职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                DataPermissionSnapshot                  │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             FilterExpression, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 资源关系 & 视图级联    DataResourceRelation, DataViewCascade       │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "SparkEventEmitter",
@@ -41,16 +41,20 @@
       "AggregateType",
       "AggregateResultRow",
       "AggregateColumnConfig",
+      "DataViewFieldProjection",
+      "DataViewQueryContext",
       "ViewMetadata",
       "TreeConfig",
       "FlatTreeNode",
       "NestedTreeNode",
       "TreePath",
       "NestedTreeSearchResult",
-      "TableRelation",
+      "DataResourceRelationFieldMapping",
+      "DataResourceRelation",
       "DependencyType",
-      "ViewDependency",
-      "DataRelation",
+      "DataViewCascadeFilterBinding",
+      "DataViewCascade",
+      "DataViewCascadeSelector",
       "RequestState",
       "CommitMode",
       "DataSetLayoutMetadata",
@@ -510,13 +514,7 @@
           "type": "string"
         },
         "method": {
-          "enum": [
-            "GET",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE"
-          ]
+          "$ref": "../../spark-utils/src/http/types.ts.json#/$defs/Method"
         },
         "headers": {
           "type": "object",
@@ -1159,6 +1157,75 @@
       ],
       "additionalProperties": false
     },
+    "DataViewFieldProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFieldProjection",
+      "properties": {
+        "fieldId": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "resource",
+            "derived"
+          ]
+        },
+        "resourceFieldId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "resourceField": {
+          "type": "string"
+        },
+        "viewField": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/ColumnType"
+        },
+        "label": {
+          "type": "string"
+        },
+        "output": {
+          "type": "boolean"
+        },
+        "sortOrder": {
+          "type": "number"
+        },
+        "sortDirection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SortDirection"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "group": {
+          "type": "number"
+        },
+        "distinct": {
+          "type": "boolean"
+        },
+        "primaryKey": {
+          "type": "boolean"
+        },
+        "value": {
+          "type": "string"
+        },
+        "valueFunction": {
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "ViewMetadata": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -1169,6 +1236,16 @@
         },
         "viewId": {
           "type": "string"
+        },
+        "fieldProjection": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFieldProjection"
+          }
+        },
+        "queryContext": {
+          "type": "object",
+          "title": "DataViewQueryContext"
         },
         "rows": {
           "type": "array",
@@ -1422,11 +1499,31 @@
       ],
       "additionalProperties": false
     },
-    "TableRelation": {
+    "DataResourceRelationFieldMapping": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "TableRelation",
+      "title": "DataResourceRelationFieldMapping",
       "properties": {
+        "parentResourceField": {
+          "type": "string"
+        },
+        "childResourceField": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataResourceRelation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataResourceRelation",
+      "properties": {
+        "relationId": {
+          "type": "string"
+        },
+        "sourceRelationId": {
+          "type": "string"
+        },
         "relationName": {
           "type": "string"
         },
@@ -1441,6 +1538,12 @@
         },
         "parentField": {
           "type": "string"
+        },
+        "fieldMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataResourceRelationFieldMapping"
+          }
         },
         "condition": {
           "type": "object",
@@ -1488,16 +1591,48 @@
         }
       ]
     },
-    "ViewDependency": {
+    "DataViewCascadeFilterBinding": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "ViewDependency",
+      "title": "DataViewCascadeFilterBinding",
       "properties": {
+        "sourceField": {
+          "type": "string"
+        },
+        "targetField": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewCascade": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewCascade",
+      "properties": {
+        "cascadeId": {
+          "type": "string"
+        },
+        "sourceRelationId": {
+          "type": "string"
+        },
         "parentTable": {
+          "type": "string"
+        },
+        "parentViewId": {
           "type": "string"
         },
         "childTable": {
           "type": "string"
+        },
+        "childViewId": {
+          "type": "string"
+        },
+        "filterBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewCascadeFilterBinding"
+          }
         },
         "dependencyType": {
           "$ref": "#/$defs/DependencyType"
@@ -1508,14 +1643,17 @@
       },
       "required": [
         "parentTable",
-        "childTable"
+        "parentViewId",
+        "childTable",
+        "childViewId",
+        "filterBindings"
       ],
       "additionalProperties": false
     },
-    "DataRelation": {
+    "DataViewCascadeSelector": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "DataRelation",
+      "title": "DataViewCascadeSelector",
       "properties": {
         "parentTable": {
           "type": "string"
@@ -1529,32 +1667,10 @@
         "childViewId": {
           "type": "string"
         },
-        "parentField": {
-          "type": "string"
-        },
-        "childField": {
-          "type": "string"
-        },
-        "dependencyType": {
-          "$ref": "#/$defs/DependencyType"
-        },
-        "cascadeUpdate": {
-          "type": "boolean"
-        },
-        "cascadeDelete": {
-          "type": "boolean"
-        },
-        "autoLoad": {
-          "type": "boolean"
-        },
-        "relationName": {
+        "cascadeId": {
           "type": "string"
         }
       },
-      "required": [
-        "parentTable",
-        "childTable"
-      ],
       "additionalProperties": false
     },
     "RequestState": {
@@ -1603,16 +1719,16 @@
           "type": "object",
           "title": "Record<string, TableMetadata>"
         },
-        "tableRelations": {
+        "resourceRelations": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/TableRelation"
+            "$ref": "#/$defs/DataResourceRelation"
           }
         },
-        "viewDependencies": {
+        "viewCascades": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/ViewDependency"
+            "$ref": "#/$defs/DataViewCascade"
           }
         },
         "version": {
@@ -1665,8 +1781,7 @@
           "additionalProperties": false
         },
         "logger": {
-          "type": "object",
-          "title": "LoggerApi"
+          "$ref": "../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
         }
       },
       "additionalProperties": false
@@ -2028,16 +2143,16 @@
           "type": "object",
           "title": "Record<string, DataTable>"
         },
-        "tableRelations": {
+        "resourceRelations": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/TableRelation"
+            "$ref": "#/$defs/DataResourceRelation"
           }
         },
-        "viewDependencies": {
+        "viewCascades": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/ViewDependency"
+            "$ref": "#/$defs/DataViewCascade"
           }
         },
         "schemaVersion": {
@@ -2055,7 +2170,7 @@
       },
       "additionalProperties": false,
       "$defs": {
-        "method.getChildRelations.params": {
+        "method.getChildCascades.params": {
           "type": "object",
           "properties": {
             "parentTable": {
@@ -2067,13 +2182,13 @@
           },
           "additionalProperties": false
         },
-        "method.getChildRelations.return": {
+        "method.getChildCascades.return": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/DataRelation"
+            "$ref": "#/$defs/DataViewCascade"
           }
         },
-        "method.getParentRelations.params": {
+        "method.getParentCascades.params": {
           "type": "object",
           "properties": {
             "childTable": {
@@ -2085,13 +2200,13 @@
           },
           "additionalProperties": false
         },
-        "method.getParentRelations.return": {
+        "method.getParentCascades.return": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/DataRelation"
+            "$ref": "#/$defs/DataViewCascade"
           }
         },
-        "method.getTableChildRelations.params": {
+        "method.getResourceChildRelations.params": {
           "type": "object",
           "properties": {
             "parentTable": {
@@ -2100,13 +2215,13 @@
           },
           "additionalProperties": false
         },
-        "method.getTableChildRelations.return": {
+        "method.getResourceChildRelations.return": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/TableRelation"
+            "$ref": "#/$defs/DataResourceRelation"
           }
         },
-        "method.getTableParentRelations.params": {
+        "method.getResourceParentRelations.params": {
           "type": "object",
           "properties": {
             "childTable": {
@@ -2115,10 +2230,10 @@
           },
           "additionalProperties": false
         },
-        "method.getTableParentRelations.return": {
+        "method.getResourceParentRelations.return": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/TableRelation"
+            "$ref": "#/$defs/DataResourceRelation"
           }
         },
         "method.addTable.params": {
@@ -2149,7 +2264,7 @@
           "additionalProperties": false
         },
         "method.removeTable.return": true,
-        "method.addRelation.params": {
+        "method.addResourceRelation.params": {
           "type": "object",
           "properties": {
             "params": {
@@ -2182,8 +2297,8 @@
           },
           "additionalProperties": false
         },
-        "method.addRelation.return": true,
-        "method.updateRelation.params": {
+        "method.addResourceRelation.return": true,
+        "method.updateResourceRelation.params": {
           "type": "object",
           "properties": {
             "selector": {
@@ -2209,15 +2324,15 @@
               "additionalProperties": false
             },
             "updates": {
-              "$ref": "#/$defs/TableRelation"
+              "$ref": "#/$defs/DataResourceRelation"
             }
           },
           "additionalProperties": false
         },
-        "method.updateRelation.return": {
-          "$ref": "#/$defs/TableRelation"
+        "method.updateResourceRelation.return": {
+          "$ref": "#/$defs/DataResourceRelation"
         },
-        "method.removeRelation.params": {
+        "method.removeResourceRelation.params": {
           "type": "object",
           "properties": {
             "selector": {
@@ -2245,58 +2360,52 @@
           },
           "additionalProperties": false
         },
-        "method.removeRelation.return": true,
-        "method.addDependency.params": {
+        "method.removeResourceRelation.return": true,
+        "method.addCascade.params": {
           "type": "object",
           "properties": {
-            "dependency": {
-              "$ref": "#/$defs/ViewDependency"
+            "cascade": {
+              "$ref": "#/$defs/DataViewCascade"
             }
           },
           "additionalProperties": false
         },
-        "method.addDependency.return": true,
-        "method.updateDependency.params": {
+        "method.addCascade.return": true,
+        "method.updateCascade.params": {
           "type": "object",
           "properties": {
-            "parentTable": {
-              "type": "string"
-            },
-            "childTable": {
-              "type": "string"
+            "selector": {
+              "$ref": "#/$defs/DataViewCascadeSelector"
             },
             "updates": {
-              "$ref": "#/$defs/ViewDependency"
+              "$ref": "#/$defs/DataViewCascade"
             }
           },
           "additionalProperties": false
         },
-        "method.updateDependency.return": {
-          "$ref": "#/$defs/ViewDependency"
+        "method.updateCascade.return": {
+          "$ref": "#/$defs/DataViewCascade"
         },
-        "method.removeDependency.params": {
+        "method.removeCascade.params": {
           "type": "object",
           "properties": {
-            "parentTable": {
-              "type": "string"
-            },
-            "childTable": {
-              "type": "string"
+            "selector": {
+              "$ref": "#/$defs/DataViewCascadeSelector"
             }
           },
           "additionalProperties": false
         },
-        "method.removeDependency.return": true,
-        "method.resolveDependencyFilter.params": {
+        "method.removeCascade.return": true,
+        "method.resolveCascadeFilter.params": {
           "type": "object",
           "properties": {
             "rel": {
-              "$ref": "#/$defs/DataRelation"
+              "$ref": "#/$defs/DataViewCascade"
             }
           },
           "additionalProperties": false
         },
-        "method.resolveDependencyFilter.return": {
+        "method.resolveCascadeFilter.return": {
           "anyOf": [
             {
               "$ref": "#/$defs/FilterExpression"
@@ -2840,6 +2949,16 @@
         "viewConfig": {
           "$ref": "#/$defs/ViewMetadata"
         },
+        "projection": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFieldProjection"
+          }
+        },
+        "context": {
+          "type": "object",
+          "title": "DataViewQueryContext"
+        },
         "treeMode": {
           "enum": [
             "flat",
@@ -2945,7 +3064,8 @@
         "method.transformResponse.params": {
           "type": "object",
           "properties": {
-            "data": true
+            "data": true,
+            "request": true
           },
           "additionalProperties": false
         },
@@ -3067,7 +3187,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:50:15.256Z",
+  "generatedAt": "2026-08-10T12:20:45.438Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -3498,7 +3618,7 @@
       "jsdoc": "数据列定义\n分为两个部分：\n- **数据属性**（name, type, isPrimaryKey, ...）：描述数据结构，供校验 / 计算列 / CRUD 使用\n- **渲染属性**（label, visible, editable, ...）：描述 UI 呈现方式，供表格 / 表单组件消费\n渲染属性均为可选，不影响纯数据层使用。\nUI 组件通过 `DataSource.columns` 或 `DataView.columns` 读取列元数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 TableRelation 的 `childTable` 匹配子表 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n}",
+        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n}",
         "members": {
           "attributes": [
             {
@@ -3593,7 +3713,7 @@
             },
             {
               "name": "computeExpression",
-              "jsdoc": "计算列表达式（JS 表达式字符串）。\n行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n当前源码按 TableRelation 的 `childTable` 匹配子表 default 视图。\n计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n@example `\"price * qty\"`\n`\"firstName + ' ' + lastName\"`\n`\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n`\"$sum('OrderItems', 'amount')\"`\n`\"$count('OrderItems')\"`\n`\"$join('Tags', 'name', ' | ')\"`",
+              "jsdoc": "计算列表达式（JS 表达式字符串）。\n行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n@example `\"price * qty\"`\n`\"firstName + ' ' + lastName\"`\n`\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n`\"$sum('OrderItems', 'amount')\"`\n`\"$count('OrderItems')\"`\n`\"$join('Tags', 'name', ' | ')\"`",
               "readable": true,
               "writable": false
             }
@@ -3756,7 +3876,7 @@
       "jsdoc": "HTTP 端点定义，描述一个 API 请求的完整元数据",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 请求 URL */\n    url: string;\n    /** HTTP 方法 */\n    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';\n    /** 请求头 */\n    headers?: Record<string, string>;\n    /** URL 查询参数 */\n    params?: Record<string, unknown>;\n    /** URL 路径参数模板字段列表 */\n    pathParams?: string[];\n    /** API 基础地址 */\n    baseURL?: string;\n}",
+        "declarationTypeText": "{\n    /** 请求 URL */\n    url: string;\n    /** HTTP 方法（复用 spark-utils Method，禁止再内联联合） */\n    method?: Method;\n    /** 请求头 */\n    headers?: Record<string, string>;\n    /** URL 查询参数 */\n    params?: Record<string, unknown>;\n    /** URL 路径参数模板字段列表 */\n    pathParams?: string[];\n    /** API 基础地址 */\n    baseURL?: string;\n}",
         "members": {
           "attributes": [
             {
@@ -3767,7 +3887,7 @@
             },
             {
               "name": "method",
-              "jsdoc": "HTTP 方法",
+              "jsdoc": "HTTP 方法（复用 spark-utils Method，禁止再内联联合）",
               "readable": true,
               "writable": false
             },
@@ -4423,12 +4543,127 @@
         }
       }
     },
+    "DataViewFieldProjection": {
+      "name": "DataViewFieldProjection",
+      "jsdoc": "DataView 对一个 DataTable 资源字段或派生字段的稳定投影。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fieldId: string;\n    source: 'resource' | 'derived';\n    resourceFieldId: string | null;\n    resourceField: string;\n    viewField: string;\n    type: ColumnType;\n    label: string;\n    output: boolean;\n    sortOrder: number;\n    sortDirection: SortDirection | null;\n    group: number;\n    distinct: boolean;\n    primaryKey: boolean;\n    value: string;\n    valueFunction: string;\n    expression: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fieldId: string;\n    source: 'resource' | 'derived';\n    resourceFieldId: string | null;\n    resourceField: string;\n    viewField: string;\n    type: ColumnType;\n    label: string;\n    output: boolean;\n    sortOrder: number;\n    sortDirection: SortDirection | null;\n    group: number;\n    distinct: boolean;\n    primaryKey: boolean;\n    value: string;\n    valueFunction: string;\n    expression: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceFieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "output",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortOrder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortDirection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "group",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFunction",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expression",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQueryContext": {
+      "name": "DataViewQueryContext",
+      "jsdoc": "后端无关的视图查询上下文；具体适配器解释其中的身份和输入参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
     "ViewMetadata": {
       "name": "ViewMetadata",
       "jsdoc": "数据视图元数据\n视图层关注点：行数据、过滤、排序、分页、树配置、聚合、序列化字段。\n当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: FilterExpression;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，渲染层（如 usePageDataSet）在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * 仅对有配置 `api` 且为 default 视图的主表有意义。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
+        "declarationTypeText": "{\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */\n    fieldProjection?: readonly DataViewFieldProjection[];\n    /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */\n    queryContext?: DataViewQueryContext;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: FilterExpression;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，渲染层（如 usePageDataSet）在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * 仅对有配置 `api` 且为 default 视图的主表有意义。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
         "members": {
           "attributes": [
             {
@@ -4440,6 +4675,18 @@
             {
               "name": "viewId",
               "jsdoc": "视图 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldProjection",
+              "jsdoc": "视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryContext",
+              "jsdoc": "由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。",
               "readable": true,
               "writable": false
             },
@@ -4716,14 +4963,55 @@
         }
       }
     },
-    "TableRelation": {
-      "name": "TableRelation",
-      "jsdoc": "表关系 — 声明两张表之间的外键/逻辑关联。\n纯数据结构描述，不涉及 UI 联动。\n消费者：计算列聚合函数（$sum/$count）、内存级联过滤、API 请求参数构建。\nSQL 等价：\n```sql\nSELECT child.* FROM {childTable} child\nJOIN {parentTable} parent ON child.{childField} = parent.{parentField}\n```\n@example ```json\n{ \"parentTable\": \"Users\", \"childTable\": \"Orders\", \"childField\": \"userId\" }\n```",
+    "DataResourceRelationFieldMapping": {
+      "name": "DataResourceRelationFieldMapping",
+      "jsdoc": "数据资源关系 — 声明两个 DataTable 所对应资源之间的字段关系。\n纯数据结构描述，不涉及 UI 联动。\n消费者：计算列聚合函数（$sum/$count）、提交排序与资源结构设计。\nSQL 等价：\n```sql\nSELECT child.* FROM {childTable} child\nJOIN {parentTable} parent ON child.{childField} = parent.{parentField}\n```\n@example ```json\n{ \"parentTable\": \"Users\", \"childTable\": \"Orders\", \"childField\": \"userId\" }\n```",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 关系名称（可选，用于日志和调试） */\n    relationName?: string;\n    /** 父表名 */\n    parentTable: string;\n    /** 子表名 */\n    childTable: string;\n    /** 子表外键字段（简写模式必填） */\n    childField?: string;\n    /** 父表匹配字段（默认取父表 primaryKey，通常 'id'） */\n    parentField?: string;\n    /**\n     * 复合匹配条件（预留）。\n     *\n     * 用于复合键、带静态过滤等高级场景。\n     * SQL 等价：JOIN ON + WHERE 合并。\n     * 当前版本不消费此字段，具体结构后续迭代定义。\n     */\n    condition?: Record<string, unknown>;\n    /** 父表记录更新时是否级联更新子表 */\n    cascadeUpdate?: boolean;\n    /** 父表记录删除时是否级联删除子表 */\n    cascadeDelete?: boolean;\n}",
+        "declarationTypeText": "Readonly<{\n    parentResourceField: string;\n    childResourceField: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    parentResourceField: string;\n    childResourceField: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
         "members": {
           "attributes": [
+            {
+              "name": "parentResourceField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childResourceField",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataResourceRelation": {
+      "name": "DataResourceRelation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** AppWorks 关系身份；外部适配关系应提供稳定值。 */\n    relationId?: string;\n    /** 原始平台关系 ID，仅用于来源追踪。 */\n    sourceRelationId?: string;\n    /** 关系名称（可选，用于日志和调试） */\n    relationName?: string;\n    /** 父表名 */\n    parentTable: string;\n    /** 子表名 */\n    childTable: string;\n    /** 子表外键字段（简写模式必填） */\n    childField?: string;\n    /** 父表匹配字段（默认取父表 primaryKey，通常 'id'） */\n    parentField?: string;\n    /** 资源字段映射；复合关系必须使用此集合。 */\n    fieldMappings?: readonly DataResourceRelationFieldMapping[];\n    /**\n     * 复合匹配条件（预留）。\n     *\n     * 用于复合键、带静态过滤等高级场景。\n     * SQL 等价：JOIN ON + WHERE 合并。\n     * 当前版本不消费此字段，具体结构后续迭代定义。\n     */\n    condition?: Record<string, unknown>;\n    /** 父表记录更新时是否级联更新子表 */\n    cascadeUpdate?: boolean;\n    /** 父表记录删除时是否级联删除子表 */\n    cascadeDelete?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "relationId",
+              "jsdoc": "AppWorks 关系身份；外部适配关系应提供稳定值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRelationId",
+              "jsdoc": "原始平台关系 ID，仅用于来源追踪。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "relationName",
               "jsdoc": "关系名称（可选，用于日志和调试）",
@@ -4755,6 +5043,12 @@
               "writable": false
             },
             {
+              "name": "fieldMappings",
+              "jsdoc": "资源字段映射；复合关系必须使用此集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "condition",
               "jsdoc": "复合匹配条件（预留）。\n用于复合键、带静态过滤等高级场景。\nSQL 等价：JOIN ON + WHERE 合并。\n当前版本不消费此字段，具体结构后续迭代定义。",
               "readable": true,
@@ -4778,7 +5072,7 @@
     },
     "DependencyType": {
       "name": "DependencyType",
-      "jsdoc": "子表 default 视图响应父表 default 视图的数据变化触发源。\n配置在 `ViewDependency.dependencyType`，决定父表 default 视图\"哪种数据变化\"会触发子表 default 视图重新级联加载。\n- `'currentRow'`   — 父表 default 视图当前聚焦行变化时触发（默认值）；子表 default 视图用当前行主键过滤\n- `'selectedRows'` — 父表 default 视图选中行集合变化时触发；子表 default 视图用所有选中行的主键 in-list 过滤\n- `'allRows'`      — 父表 default 视图全量行集合变化时触发（不区分分页）\n- `'pagedRows'`    — 父表 default 视图当前分页行集合变化时触发",
+      "jsdoc": "目标 DataView 响应源 DataView 数据变化的触发源。\n配置在 `DataViewCascade.dependencyType`，决定源 DataView 的哪种数据变化会触发目标 DataView 重新查询。\n- `'currentRow'`   — 父表 default 视图当前聚焦行变化时触发（默认值）；子表 default 视图用当前行主键过滤\n- `'selectedRows'` — 父表 default 视图选中行集合变化时触发；子表 default 视图用所有选中行的主键 in-list 过滤\n- `'allRows'`      — 父表 default 视图全量行集合变化时触发（不区分分页）\n- `'pagedRows'`    — 父表 default 视图当前分页行集合变化时触发",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'currentRow' | 'selectedRows' | 'allRows' | 'pagedRows' | (string & {})",
@@ -4807,35 +5101,30 @@
         "members": {}
       }
     },
-    "ViewDependency": {
-      "name": "ViewDependency",
-      "jsdoc": "视图依赖 — 声明子表 default 视图如何响应父表 default 视图数据变化。\n基于 TableRelation 的字段信息工作，独立描述视图层面的联动策略。\n省略 `viewDependencies` 时框架为每条 TableRelation 自动生成默认依赖。\n@example ```json\n{\n\"parentTable\": \"Users\", \"childTable\": \"Orders\",\n\"dependencyType\": \"selectedRows\"\n}\n```",
+    "DataViewCascadeFilterBinding": {
+      "name": "DataViewCascadeFilterBinding",
+      "jsdoc": "DataView 输入级联 — 显式声明源/目标 DataView 和字段过滤绑定。\n它与 DataResourceRelation 独立，不从资源关系自动推导。\n@example ```json\n{\n\"parentTable\": \"Users\", \"childTable\": \"Orders\",\n\"parentViewId\": \"userGrid\",\n\"childViewId\": \"orderGrid\",\n\"filterBindings\": [{ \"sourceField\": \"id\", \"targetField\": \"userId\" }],\n\"dependencyType\": \"selectedRows\"\n}\n```",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 与 TableRelation 对齐的父表名 */\n    parentTable: string;\n    /** 与 TableRelation 对齐的子表名 */\n    childTable: string;\n    /** 响应父表 default 视图的哪种数据变化（默认 'currentRow'） */\n    dependencyType?: DependencyType;\n    /** 父表 default 视图变化时是否自动级联加载子表 default 视图（默认 true） */\n    autoLoad?: boolean;\n}",
+        "declarationTypeText": "Readonly<{\n    /** 从源 DataView 行读取的字段。 */\n    sourceField: string;\n    /** 作为目标 DataView 查询过滤条件的字段。 */\n    targetField: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 从源 DataView 行读取的字段。 */\n    sourceField: string;\n    /** 作为目标 DataView 查询过滤条件的字段。 */\n    targetField: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
         "members": {
           "attributes": [
             {
-              "name": "parentTable",
-              "jsdoc": "与 TableRelation 对齐的父表名",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "childTable",
-              "jsdoc": "与 TableRelation 对齐的子表名",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "dependencyType",
-              "jsdoc": "响应父表 default 视图的哪种数据变化（默认 'currentRow'）",
+              "name": "sourceField",
+              "jsdoc": "从源 DataView 行读取的字段。",
               "readable": true,
               "writable": false
             },
             {
-              "name": "autoLoad",
-              "jsdoc": "父表 default 视图变化时是否自动级联加载子表 default 视图（默认 true）",
+              "name": "targetField",
+              "jsdoc": "作为目标 DataView 查询过滤条件的字段。",
               "readable": true,
               "writable": false
             }
@@ -4843,77 +5132,109 @@
         }
       }
     },
-    "DataRelation": {
-      "name": "DataRelation",
-      "jsdoc": "展开后的内部关系格式 — TableRelation + ViewDependency 合并后的字段绑定结果。\n@internal 仅供 spark-data 内部消费（CascadeDelegate / DataView）。\n外部配置使用 `TableRelation` + `ViewDependency`。",
+    "DataViewCascade": {
+      "name": "DataViewCascade",
+      "jsdoc": "DataView 输入级联；不引用 DataResourceRelation。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 父表名 */\n    parentTable: string;\n    /** 父视图 ID */\n    parentViewId?: string;\n    /** 子表名 */\n    childTable: string;\n    /** 子视图 ID */\n    childViewId?: string;\n    /** 父表中用于匹配的字段（默认取父视图 primaryKey，通常为 'id'） */\n    parentField?: string;\n    /** 子表中用于匹配的字段（简写模式必填） */\n    childField?: string;\n    /** 依赖类型（默认 'currentRow'） */\n    dependencyType?: DependencyType;\n    /** 父表记录更新时是否级联更新子表 */\n    cascadeUpdate?: boolean;\n    /** 父表记录删除时是否级联删除子表 */\n    cascadeDelete?: boolean;\n    /** 父变化时是否自动级联加载子视图（默认 true——仅 `false` 时跳过） */\n    autoLoad?: boolean;\n    /** 关系名称（可选，用于日志和调试） */\n    relationName?: string;\n}",
+        "declarationTypeText": "{\n    /** AppWorks 级联身份。 */\n    cascadeId?: string;\n    /** 原始平台关系 ID，仅用于来源追踪。 */\n    sourceRelationId?: string;\n    /** 源 DataTable 名。 */\n    parentTable: string;\n    /** 源 DataView ID。 */\n    parentViewId: string;\n    /** 目标 DataTable 名。 */\n    childTable: string;\n    /** 目标 DataView ID。 */\n    childViewId: string;\n    /** 源字段到目标过滤字段的绑定。 */\n    filterBindings: readonly DataViewCascadeFilterBinding[];\n    /** 响应源视图的哪种数据变化（默认 'currentRow'）。 */\n    dependencyType?: DependencyType;\n    /** 源变化时是否自动重新查询目标视图（默认 true）。 */\n    autoLoad?: boolean;\n}",
         "members": {
           "attributes": [
             {
+              "name": "cascadeId",
+              "jsdoc": "AppWorks 级联身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRelationId",
+              "jsdoc": "原始平台关系 ID，仅用于来源追踪。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "parentTable",
-              "jsdoc": "父表名",
+              "jsdoc": "源 DataTable 名。",
               "readable": true,
               "writable": true
             },
             {
               "name": "parentViewId",
-              "jsdoc": "父视图 ID",
+              "jsdoc": "源 DataView ID。",
               "readable": true,
-              "writable": false
+              "writable": true
             },
             {
               "name": "childTable",
-              "jsdoc": "子表名",
+              "jsdoc": "目标 DataTable 名。",
               "readable": true,
               "writable": true
             },
             {
               "name": "childViewId",
-              "jsdoc": "子视图 ID",
+              "jsdoc": "目标 DataView ID。",
               "readable": true,
-              "writable": false
+              "writable": true
             },
             {
-              "name": "parentField",
-              "jsdoc": "父表中用于匹配的字段（默认取父视图 primaryKey，通常为 'id'）",
+              "name": "filterBindings",
+              "jsdoc": "源字段到目标过滤字段的绑定。",
               "readable": true,
-              "writable": false
-            },
-            {
-              "name": "childField",
-              "jsdoc": "子表中用于匹配的字段（简写模式必填）",
-              "readable": true,
-              "writable": false
+              "writable": true
             },
             {
               "name": "dependencyType",
-              "jsdoc": "依赖类型（默认 'currentRow'）",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "cascadeUpdate",
-              "jsdoc": "父表记录更新时是否级联更新子表",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "cascadeDelete",
-              "jsdoc": "父表记录删除时是否级联删除子表",
+              "jsdoc": "响应源视图的哪种数据变化（默认 'currentRow'）。",
               "readable": true,
               "writable": false
             },
             {
               "name": "autoLoad",
-              "jsdoc": "父变化时是否自动级联加载子视图（默认 true——仅 `false` 时跳过）",
+              "jsdoc": "源变化时是否自动重新查询目标视图（默认 true）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewCascadeSelector": {
+      "name": "DataViewCascadeSelector",
+      "jsdoc": "唯一定位一个 DataView 输入级联。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    parentTable: string;\n    parentViewId: string;\n    childTable: string;\n    childViewId: string;\n    cascadeId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    parentTable: string;\n    parentViewId: string;\n    childTable: string;\n    childViewId: string;\n    cascadeId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parentTable",
               "readable": true,
               "writable": false
             },
             {
-              "name": "relationName",
-              "jsdoc": "关系名称（可选，用于日志和调试）",
+              "name": "parentViewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childViewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cascadeId",
               "readable": true,
               "writable": false
             }
@@ -5002,7 +5323,7 @@
       "jsdoc": "数据集元数据（对应 DataSet.toJson() 输出）\n顶层只承载数据集自身字段；表的默认视图数据必须继续下沉到 `tables.*.views.default`。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * Schema 格式版本（用于未来迁移兼容）。\n     * 当前 canonical 结构为 2：`tables -> views -> default`。\n     */\n    schemaVersion?: number;\n    /** 数据集名称 */\n    dataSetName: string;\n    /** 表集合（表名 -> 表元数据） */\n    tables: Record<string, TableMetadata>;\n    /** L1: 表关系 — 声明表间外键/逻辑关联 */\n    tableRelations?: TableRelation[];\n    /** L2: 显式视图联动 — 声明运行时依赖图；不再从 tableRelations 自动推导 */\n    viewDependencies?: ViewDependency[];\n    /** 业务数据版本号（乐观锁），与 schemaVersion 含义不同 */\n    version?: number;\n    /** 页面 ID */\n    pageId?: string;\n    /** DataSet.saveChanges 的默认提交策略 */\n    saveChanges?: DataSetSaveChangesConfig;\n    /** 可选的设计器布局信息（如画布坐标） */\n    layout?: DataSetLayoutMetadata;\n}",
+        "declarationTypeText": "{\n    /**\n     * Schema 格式版本（用于未来迁移兼容）。\n     * 当前 canonical 结构为 2：`tables -> views -> default`。\n     */\n    schemaVersion?: number;\n    /** 数据集名称 */\n    dataSetName: string;\n    /** 表集合（表名 -> 表元数据） */\n    tables: Record<string, TableMetadata>;\n    /** 数据资源关系 — 声明 DataTable 所对应资源间的字段关系 */\n    resourceRelations?: DataResourceRelation[];\n    /** DataView 输入级联 — 显式声明运行时输入图；不从 resourceRelations 自动推导 */\n    viewCascades?: DataViewCascade[];\n    /** 业务数据版本号（乐观锁），与 schemaVersion 含义不同 */\n    version?: number;\n    /** 页面 ID */\n    pageId?: string;\n    /** DataSet.saveChanges 的默认提交策略 */\n    saveChanges?: DataSetSaveChangesConfig;\n    /** 可选的设计器布局信息（如画布坐标） */\n    layout?: DataSetLayoutMetadata;\n}",
         "members": {
           "attributes": [
             {
@@ -5024,14 +5345,14 @@
               "writable": true
             },
             {
-              "name": "tableRelations",
-              "jsdoc": "L1: 表关系 — 声明表间外键/逻辑关联",
+              "name": "resourceRelations",
+              "jsdoc": "数据资源关系 — 声明 DataTable 所对应资源间的字段关系",
               "readable": true,
               "writable": false
             },
             {
-              "name": "viewDependencies",
-              "jsdoc": "L2: 显式视图联动 — 声明运行时依赖图；不再从 tableRelations 自动推导",
+              "name": "viewCascades",
+              "jsdoc": "DataView 输入级联 — 显式声明运行时输入图；不从 resourceRelations 自动推导",
               "readable": true,
               "writable": false
             },
@@ -5095,7 +5416,7 @@
     },
     "DataSource": {
       "name": "DataSource",
-      "jsdoc": "完整数据源全量接口，包含分页、聚合结果、权限、值序列化。\nDataView 实现此接口。可将其理解为\"UI 读取 DataView（API 视图）时看到的运行时数据结构\"。\n边界：\n- DataView 对应 table + viewId 的 API 视图（含 requestData/refresh/requestState）。\n- DataSource 只暴露 UI 消费所需的输出字段，不承载 API 配置定义本身（例如 viewId 应由 dataViewKey 解析得到）。\n1. 行级计算列：`columns[].computeExpression` 对每一行求值，结果写回该行字段。\n表达式可直接读取行字段，可通过 `ctx` 读取外部上下文，也可通过\n`$sum/$count/$avg/$min/$max/$list/$join` 读取 DataRelation 匹配到的子表行。\n2. 视图级聚合配置：定义在 `ViewMetadata.aggregates`，不是 `DataSource` 字段。\n每个输出项包含 `type / field / separator` 等后端 API 认得的规则信息。\n3. 运行时聚合结果：`aggregateResult` 基于当前 `rows` 计算，`selectionAggregateResult`\n基于当前 `selectedRows` 计算；二者都是由 aggregates 配置生成的\"聚合结果输出行\"，\n字段名来自 aggregates 的输出 key，字段值是对应聚合计算结果。\n4. UI / DataView 成员消费：组件可直接读取 `dataSource.aggregateResult`，也可通过\ndataViewKey=`Table@default` + dataMember=`aggregateResult` + dataField=`totalAmount` 引用。\n5. 序列化边界：`DataView.toJson()` 只持久化 `aggregates` 配置；`aggregateResult`、\n`selectionAggregateResult` 和计算列写回 rows 的派生值都是运行时结果，不写入配置 JSON。",
+      "jsdoc": "完整数据源全量接口，包含分页、聚合结果、权限、值序列化。\nDataView 实现此接口。可将其理解为\"UI 读取 DataView（API 视图）时看到的运行时数据结构\"。\n边界：\n- DataView 对应 table + viewId 的 API 视图（含 requestData/refresh/requestState）。\n- DataSource 只暴露 UI 消费所需的输出字段，不承载 API 配置定义本身（例如 viewId 应由 dataViewKey 解析得到）。\n1. 行级计算列：`columns[].computeExpression` 对每一行求值，结果写回该行字段。\n表达式可直接读取行字段，可通过 `ctx` 读取外部上下文，也可通过\n`$sum/$count/$avg/$min/$max/$list/$join` 读取 DataResourceRelation 匹配到的子资源行。\n2. 视图级聚合配置：定义在 `ViewMetadata.aggregates`，不是 `DataSource` 字段。\n每个输出项包含 `type / field / separator` 等后端 API 认得的规则信息。\n3. 运行时聚合结果：`aggregateResult` 基于当前 `rows` 计算，`selectionAggregateResult`\n基于当前 `selectedRows` 计算；二者都是由 aggregates 配置生成的\"聚合结果输出行\"，\n字段名来自 aggregates 的输出 key，字段值是对应聚合计算结果。\n4. UI / DataView 成员消费：组件可直接读取 `dataSource.aggregateResult`，也可通过\ndataViewKey=`Table@default` + dataMember=`aggregateResult` + dataField=`totalAmount` 引用。\n5. 序列化边界：`DataView.toJson()` 只持久化 `aggregates` 配置；`aggregateResult`、\n`selectionAggregateResult` 和计算列写回 rows 的派生值都是运行时结果，不写入配置 JSON。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** 当前视图行集合，表格/列表/树等数据容器的主要渲染输入 */\n    rows?: readonly DataRow[];\n    /** 列定义数组（只读，来自 DataTable.columns）。UI 组件据此渲染表头 / 表单标签 */\n    columns?: readonly DataColumn[];\n    /** 表名（来自 DataView.tableName） */\n    tableName?: string;\n    /** 数据加载状态（Idle / Loading / Loaded / Failed） */\n    requestState?: RequestState;\n    /** 当前聚焦行（UI 高亮行 / 级联父行） */\n    currentRow?: DataRow | null;\n    /** 当前选中行集合（勾选行 / 级联选中行） */\n    selectedRows?: readonly DataRow[];\n    /** 后端最终权限快照；缺失时权限组件必须 fail-closed。 */\n    permissionSnapshot?: DataPermissionSnapshot | null;\n    /** 当前查询结果总行数，用于分页器展示总量 */\n    total?: number;\n    /** 当前页码，通常从 1 开始 */\n    page?: number;\n    /** 每页行数，用于分页查询和分页器状态同步 */\n    pageSize?: number;\n    /**\n     * 当前 `rows` 的全量聚合输出行；按视图 aggregates 配置自动计算，行变更后自动重算。\n     *\n     * 注意它不是单个标量，而是 `AggregateResultRow` 形状的结果容器：\n     * 每个字段名来自 aggregates 的输出 key，每个字段值是对应聚合计算结果。\n     * 例如 aggregates 配置了 `totalAmount`、`avgScore` 两个输出名，则结果形如：\n     * `{ totalAmount: 1234, avgScore: 87.5 }`。\n     * 当视图已配置 aggregates 且 rows 为空时，源码按类型填默认输出：\n     * `sum/count/avg` 为 `0`，`min/max` 为 `undefined`，`join` 为空字符串。\n     */\n    aggregateResult?: Readonly<AggregateResultRow>;\n    /**\n     * 当前 `selectedRows` 的选中聚合输出行；按视图 aggregates 配置自动计算，选中/数据变更后自动重算。\n     *\n     * 无选中行时源码直接返回空对象 `{}`，而不是按聚合类型填默认输出。\n     * 选中行存在时字段结构与 aggregateResult 相同。\n     */\n    selectionAggregateResult?: Readonly<AggregateResultRow>;\n    /** 选中行序列化值（按 valueField + selectionDelimiter 拼接，可 v-model 绑定） */\n    value?: string;\n    /** 当前行显示标签（按 labelField 或主键回退） */\n    label?: string | null;\n    /** 选中行标签数组 */\n    labels?: readonly string[];\n}",
@@ -5643,7 +5964,7 @@
       "jsdoc": "数据集公共契约\n消费者（渲染层、能力系统）应依赖此接口而非具体 DataSet 类，\n便于测试 mock 与未来扩展。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 数据集名称 */\n    readonly dataSetName: string;\n    /** 数据表集合 */\n    readonly tables: Record<string, DataTable>;\n    /** L1: 表关系定义 */\n    readonly tableRelations: TableRelation[] | undefined;\n    /** L2: 视图联动定义 */\n    readonly viewDependencies: ViewDependency[] | undefined;\n    /** Schema 格式版本（默认 1） */\n    readonly schemaVersion: number;\n    /** 业务数据版本号（乐观锁） */\n    readonly version: number | undefined;\n    /** 页面 ID */\n    readonly pageId: string | undefined;\n    /** 查询以指定视图为父的子关系（视图级索引） */\n    getChildRelations(parentTable: string, parentViewId: string): DataRelation[];\n    /** 查询以指定视图为子的父关系（视图级索引） */\n    getParentRelations(childTable: string, childViewId: string): DataRelation[];\n    /** 查询以指定表为父的所有表关系（表级索引，聚合函数消费） */\n    getTableChildRelations(parentTable: string): TableRelation[];\n    /** 查询以指定表为子的所有表关系（表级索引） */\n    getTableParentRelations(childTable: string): TableRelation[];\n    /** 动态添加数据表 */\n    addTable(tableName: string, columns: DataColumn[]): DataTable;\n    /** 删除未被关系或依赖引用的数据表 */\n    removeTable(tableName: string): void;\n    /** 添加表关系 */\n    addRelation(params: {\n        parentTable: string;\n        childTable: string;\n        parentField: string;\n        childField: string;\n        relationName?: string;\n    }): void;\n    /** 更新表关系 */\n    updateRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }, updates: Partial<TableRelation>): TableRelation;\n    /** 删除表关系 */\n    removeRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }): void;\n    /** 添加视图依赖 */\n    addDependency(dependency: ViewDependency): void;\n    /** 更新视图依赖 */\n    updateDependency(parentTable: string, childTable: string, updates: Partial<ViewDependency>): ViewDependency;\n    /** 删除视图依赖 */\n    removeDependency(parentTable: string, childTable: string): void;\n    /** 将运行时关系解析为目标视图过滤表达式；返回 null 表示父视图依赖不满足 */\n    resolveDependencyFilter(rel: DataRelation): FilterExpression | undefined | null;\n    /** 获取数据表 */\n    getTable(name: string): DataTable | undefined;\n    /** 获取数据视图（委托到 DataTable） */\n    getView(tableName: string, viewId?: string): DataView | undefined;\n    /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按表关系父表先于子表提交所有有变更视图 */\n    saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>;\n    /** 注入页面运行时服务（用于 URL 模板 tenant/project 作用域解析） */\n    setAppServices(appServices: DataSetAppServices): void;\n    /** 注入页面路由快照（页面运行时服务缺失时用于 URL 模板 tenant/project 作用域解析） */\n    setPageRoute(route: unknown): void;\n    /** 生成端点 URL 模板上下文参数 */\n    getRequestTemplateParams(): Record<string, unknown>;\n    /** 序列化为 JSON 友好的元数据对象 */\n    toJson(): DataSetMetadata;\n    /**\n     * 订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n     * @returns 取消订阅函数\n     */\n    on(event: 'loadSuccess' | 'loadError', handler: (payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void): () => void;\n    /**\n     * 订阅此 DataSet 内任意视图的状态变化。\n     *\n     * 严格作用于本 DataSet 实例，多实例并存时互不干扰（替代全局 event-bus）。\n     * 订阅时遍历当前已存在的所有视图；如需监听后续动态创建的视图，可在创建后重新订阅。\n     *\n     * @returns 取消订阅函数（组件卸载时调用）\n     */\n    onAnyViewChange(handlers: ViewChangeHandlers): () => void;\n    /**\n     * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。\n     * 渲染层构建 DataSet 后调用；业务脚本无需手动编写加载代码。\n     */\n    triggerAutoLoad(): void;\n    /**\n     * 销毁 DataSet 及其所有 DataTable/DataView 的资源。\n     * 清理所有事件订阅、委托、共享 HTTP 客户端引用。\n     */\n    destroy(): void;\n    /** 数据集是否已被销毁 */\n    readonly destroyed: boolean;\n}",
+        "declarationTypeText": "{\n    /** 数据集名称 */\n    readonly dataSetName: string;\n    /** 数据表集合 */\n    readonly tables: Record<string, DataTable>;\n    /** 数据资源关系定义 */\n    readonly resourceRelations: DataResourceRelation[] | undefined;\n    /** DataView 输入级联定义 */\n    readonly viewCascades: DataViewCascade[] | undefined;\n    /** Schema 格式版本（默认 1） */\n    readonly schemaVersion: number;\n    /** 业务数据版本号（乐观锁） */\n    readonly version: number | undefined;\n    /** 页面 ID */\n    readonly pageId: string | undefined;\n    /** 查询以指定 DataView 为源的目标级联（视图级索引） */\n    getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[];\n    /** 查询以指定 DataView 为目标的源级联（视图级索引） */\n    getParentCascades(childTable: string, childViewId: string): DataViewCascade[];\n    /** 查询以指定资源为父的所有资源关系（聚合函数消费） */\n    getResourceChildRelations(parentTable: string): DataResourceRelation[];\n    /** 查询以指定资源为子的所有资源关系 */\n    getResourceParentRelations(childTable: string): DataResourceRelation[];\n    /** 动态添加数据表 */\n    addTable(tableName: string, columns: DataColumn[]): DataTable;\n    /** 删除未被关系或依赖引用的数据表 */\n    removeTable(tableName: string): void;\n    /** 添加数据资源关系 */\n    addResourceRelation(params: {\n        parentTable: string;\n        childTable: string;\n        parentField: string;\n        childField: string;\n        relationName?: string;\n    }): void;\n    /** 更新数据资源关系 */\n    updateResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }, updates: Partial<DataResourceRelation>): DataResourceRelation;\n    /** 删除数据资源关系 */\n    removeResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }): void;\n    /** 添加 DataView 输入级联 */\n    addCascade(cascade: DataViewCascade): void;\n    /** 更新 DataView 输入级联 */\n    updateCascade(selector: DataViewCascadeSelector, updates: Partial<DataViewCascade>): DataViewCascade;\n    /** 删除 DataView 输入级联 */\n    removeCascade(selector: DataViewCascadeSelector): void;\n    /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */\n    resolveCascadeFilter(rel: DataViewCascade): FilterExpression | undefined | null;\n    /** 获取数据表 */\n    getTable(name: string): DataTable | undefined;\n    /** 获取数据视图（委托到 DataTable） */\n    getView(tableName: string, viewId?: string): DataView | undefined;\n    /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按数据资源关系父资源先于子资源提交所有有变更视图 */\n    saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>;\n    /** 注入页面运行时服务（用于 URL 模板 tenant/project 作用域解析） */\n    setAppServices(appServices: DataSetAppServices): void;\n    /** 注入页面路由快照（页面运行时服务缺失时用于 URL 模板 tenant/project 作用域解析） */\n    setPageRoute(route: unknown): void;\n    /** 生成端点 URL 模板上下文参数 */\n    getRequestTemplateParams(): Record<string, unknown>;\n    /** 序列化为 JSON 友好的元数据对象 */\n    toJson(): DataSetMetadata;\n    /**\n     * 订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n     * @returns 取消订阅函数\n     */\n    on(event: 'loadSuccess' | 'loadError', handler: (payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void): () => void;\n    /**\n     * 订阅此 DataSet 内任意视图的状态变化。\n     *\n     * 严格作用于本 DataSet 实例，多实例并存时互不干扰（替代全局 event-bus）。\n     * 订阅时遍历当前已存在的所有视图；如需监听后续动态创建的视图，可在创建后重新订阅。\n     *\n     * @returns 取消订阅函数（组件卸载时调用）\n     */\n    onAnyViewChange(handlers: ViewChangeHandlers): () => void;\n    /**\n     * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。\n     * 渲染层构建 DataSet 后调用；业务脚本无需手动编写加载代码。\n     */\n    triggerAutoLoad(): void;\n    /**\n     * 销毁 DataSet 及其所有 DataTable/DataView 的资源。\n     * 清理所有事件订阅、委托、共享 HTTP 客户端引用。\n     */\n    destroy(): void;\n    /** 数据集是否已被销毁 */\n    readonly destroyed: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -5659,14 +5980,14 @@
               "writable": false
             },
             {
-              "name": "tableRelations",
-              "jsdoc": "L1: 表关系定义",
+              "name": "resourceRelations",
+              "jsdoc": "数据资源关系定义",
               "readable": true,
               "writable": false
             },
             {
-              "name": "viewDependencies",
-              "jsdoc": "L2: 视图联动定义",
+              "name": "viewCascades",
+              "jsdoc": "DataView 输入级联定义",
               "readable": true,
               "writable": false
             },
@@ -5697,8 +6018,8 @@
           ],
           "methods": [
             {
-              "name": "getChildRelations",
-              "jsdoc": "查询以指定视图为父的子关系（视图级索引）",
+              "name": "getChildCascades",
+              "jsdoc": "查询以指定 DataView 为源的目标级联（视图级索引）",
               "parameters": [
                 {
                   "name": "parentTable",
@@ -5719,14 +6040,14 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "DataRelation",
+                  "name": "DataViewCascade",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "getParentRelations",
-              "jsdoc": "查询以指定视图为子的父关系（视图级索引）",
+              "name": "getParentCascades",
+              "jsdoc": "查询以指定 DataView 为目标的源级联（视图级索引）",
               "parameters": [
                 {
                   "name": "childTable",
@@ -5747,14 +6068,14 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "DataRelation",
+                  "name": "DataViewCascade",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "getTableChildRelations",
-              "jsdoc": "查询以指定表为父的所有表关系（表级索引，聚合函数消费）",
+              "name": "getResourceChildRelations",
+              "jsdoc": "查询以指定资源为父的所有资源关系（聚合函数消费）",
               "parameters": [
                 {
                   "name": "parentTable",
@@ -5768,14 +6089,14 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "TableRelation",
+                  "name": "DataResourceRelation",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "getTableParentRelations",
-              "jsdoc": "查询以指定表为子的所有表关系（表级索引）",
+              "name": "getResourceParentRelations",
+              "jsdoc": "查询以指定资源为子的所有资源关系",
               "parameters": [
                 {
                   "name": "childTable",
@@ -5789,7 +6110,7 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "TableRelation",
+                  "name": "DataResourceRelation",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
@@ -5841,8 +6162,8 @@
               }
             },
             {
-              "name": "addRelation",
-              "jsdoc": "添加表关系",
+              "name": "addResourceRelation",
+              "jsdoc": "添加数据资源关系",
               "parameters": [
                 {
                   "name": "params",
@@ -5858,8 +6179,8 @@
               }
             },
             {
-              "name": "updateRelation",
-              "jsdoc": "更新表关系",
+              "name": "updateResourceRelation",
+              "jsdoc": "更新数据资源关系",
               "parameters": [
                 {
                   "name": "selector",
@@ -5876,7 +6197,7 @@
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "name": "TableRelation",
+                        "name": "DataResourceRelation",
                         "sourcePath": "packages/spark-data/src/types.ts"
                       }
                     ]
@@ -5885,13 +6206,13 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "TableRelation",
+                "name": "DataResourceRelation",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "removeRelation",
-              "jsdoc": "删除表关系",
+              "name": "removeResourceRelation",
+              "jsdoc": "删除数据资源关系",
               "parameters": [
                 {
                   "name": "selector",
@@ -5907,14 +6228,14 @@
               }
             },
             {
-              "name": "addDependency",
-              "jsdoc": "添加视图依赖",
+              "name": "addCascade",
+              "jsdoc": "添加 DataView 输入级联",
               "parameters": [
                 {
-                  "name": "dependency",
+                  "name": "cascade",
                   "type": {
                     "type": "reference",
-                    "name": "ViewDependency",
+                    "name": "DataViewCascade",
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
@@ -5925,21 +6246,15 @@
               }
             },
             {
-              "name": "updateDependency",
-              "jsdoc": "更新视图依赖",
+              "name": "updateCascade",
+              "jsdoc": "更新 DataView 输入级联",
               "parameters": [
                 {
-                  "name": "parentTable",
+                  "name": "selector",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "childTable",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 },
                 {
@@ -5950,7 +6265,7 @@
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "name": "ViewDependency",
+                        "name": "DataViewCascade",
                         "sourcePath": "packages/spark-data/src/types.ts"
                       }
                     ]
@@ -5959,26 +6274,20 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "ViewDependency",
+                "name": "DataViewCascade",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "removeDependency",
-              "jsdoc": "删除视图依赖",
+              "name": "removeCascade",
+              "jsdoc": "删除 DataView 输入级联",
               "parameters": [
                 {
-                  "name": "parentTable",
+                  "name": "selector",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "childTable",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
               ],
@@ -5988,14 +6297,14 @@
               }
             },
             {
-              "name": "resolveDependencyFilter",
-              "jsdoc": "将运行时关系解析为目标视图过滤表达式；返回 null 表示父视图依赖不满足",
+              "name": "resolveCascadeFilter",
+              "jsdoc": "将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足",
               "parameters": [
                 {
                   "name": "rel",
                   "type": {
                     "type": "reference",
-                    "name": "DataRelation",
+                    "name": "DataViewCascade",
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
@@ -6073,7 +6382,7 @@
             },
             {
               "name": "saveChanges",
-              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更；默认按表关系父表先于子表提交所有有变更视图",
+              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更；默认按数据资源关系父资源先于子资源提交所有有变更视图",
               "parameters": [
                 {
                   "name": "options",
@@ -6785,7 +7094,7 @@
       "jsdoc": "分页查询参数 - 支持权限快照传递",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: Record<string, unknown> | FilterExpression;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的字段列表 */\n    fields?: string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: Record<string, unknown> | FilterExpression;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的字段列表 */\n    fields?: string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 当前 DataView 的字段投影。 */\n    projection?: readonly DataViewFieldProjection[];\n    /** 当前 DataView 的运行查询上下文。 */\n    context?: DataViewQueryContext;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -6839,6 +7148,18 @@
             {
               "name": "viewConfig",
               "jsdoc": "视图配置",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projection",
+              "jsdoc": "当前 DataView 的字段投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "jsdoc": "当前 DataView 的运行查询上下文。",
               "readable": true,
               "writable": false
             },
@@ -6923,7 +7244,7 @@
       "jsdoc": "CRUD 通用运行策略配置。\n语义：描述\"调用端点时应用什么策略\"。\n这里定义超时、重试、数据校验，以及请求/响应转换等运行期策略，不负责声明端点映射。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 请求超时（毫秒） */\n    timeout?: number;\n    /** 重试次数 */\n    retryCount?: number;\n    /** 是否校验数据 */\n    validateData?: boolean;\n    /** 请求数据转换函数 */\n    transformRequest?: (data: unknown) => unknown;\n    /** 响应数据转换函数 */\n    transformResponse?: (data: unknown) => unknown;\n}",
+        "declarationTypeText": "{\n    /** 请求超时（毫秒） */\n    timeout?: number;\n    /** 重试次数 */\n    retryCount?: number;\n    /** 是否校验数据 */\n    validateData?: boolean;\n    /** 请求数据转换函数 */\n    transformRequest?: (data: unknown) => unknown;\n    /** 响应数据转换函数 */\n    transformResponse?: (data: unknown, request: unknown) => unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -6969,6 +7290,13 @@
               "parameters": [
                 {
                   "name": "data",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "request",
                   "type": {
                     "type": "intrinsic",
                     "name": "unknown"

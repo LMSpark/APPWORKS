@@ -68,18 +68,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-19T09:58:23.266Z",
+  "generatedAt": "2026-08-10T10:00:08.482Z",
   "models": {
     "AiNativeRuntimeSchemaDefs": {
       "name": "AiNativeRuntimeSchemaDefs",
       "jsdoc": "Ai Native Runtime Schema Defs 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<Record<string, AiJsonSchema>>",
+        "declarationTypeText": "Readonly<Record<string, JsonSchema>>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<Record<string, AiJsonSchema>>",
+            "typeText": "Readonly<Record<string, JsonSchema>>",
             "targetName": "Readonly"
           }
         ],

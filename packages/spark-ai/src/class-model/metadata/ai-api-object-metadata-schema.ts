@@ -5,7 +5,7 @@
  * AI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。
  */
 
-import type { AiJsonSchema, AiJsonSchemaObject, AiJsonValue } from '../../json'
+import type { JsonSchema, JsonSchemaObject, JsonValue } from '@spark-appworks/spark-json-document'
 
 /** Ai Api Action Failure Mode 的语义模型。 */
 export type AiApiActionFailureMode = Readonly<{
@@ -24,9 +24,9 @@ export type AiApiActionExample = Readonly<{
   /** 示例意图说明。 */
   intent?: string
   /** 业务 action 参数示例。 */
-  args?: AiJsonValue
+  args?: JsonValue
   /** 完整调用示例，通常展示 model_script 对象链或 tool arguments。 */
-  call?: AiJsonValue
+  call?: JsonValue
 }>
 
 /** Ai Api Action Anti Example 的语义模型。 */
@@ -36,7 +36,7 @@ export type AiApiActionAntiExample = Readonly<{
   /** 不应调用该 action 的原因。 */
   reason: string
   /** 容易误传的参数示例。 */
-  args?: AiJsonValue
+  args?: JsonValue
 }>
 
 /** 从源码 JSDoc 原样拷贝的语义块；源码 JSDoc 是 SSOT，generated JSON 只是缓存快照。 */
@@ -85,7 +85,7 @@ export type AiApiConstructorMetadata = Readonly<{
   /** 反射溯源，指向源码声明位置。 */
   provenance?: AiApiSourceProvenanceMetadata
   /** 构造参数 JSON Schema（object 形态）。 */
-  paramsSchema: AiJsonSchemaObject
+  paramsSchema: JsonSchemaObject
 }>
 
 /** API 属性元数据。 */
@@ -99,7 +99,7 @@ export type AiApiAttributeMetadata = Readonly<{
   /** 反射溯源，指向源码声明位置。 */
   provenance?: AiApiSourceProvenanceMetadata
   /** 属性值 JSON Schema。 */
-  schema: AiJsonSchema
+  schema: JsonSchema
   /** LLM/脚本是否可读该属性。 */
   readable: boolean
   /** LLM/脚本是否可写该属性。 */
@@ -123,11 +123,11 @@ export type AiApiActionMetadata = Readonly<{
   /** 反射溯源，指向源码声明位置。 */
   provenance?: AiApiSourceProvenanceMetadata
   /** 调用参数 JSON Schema（object 形态）。 */
-  paramsSchema: AiJsonSchemaObject
+  paramsSchema: JsonSchemaObject
   /** 是否将 AiNativePathContext 作为首参注入 method。 */
   takesContext?: boolean
   /** 返回值 JSON Schema。 */
-  resultSchema?: AiJsonSchema
+  resultSchema?: JsonSchema
   /** action 返回值中嵌套 API 对象的引用列表。 */
   resultApis?: readonly AiApiResultApiRef[]
   /** 调用前须遵守的使用规则（自然语言）。 */
@@ -137,7 +137,7 @@ export type AiApiActionMetadata = Readonly<{
   /** 已知失败模式与修复建议。 */
   failureModes?: readonly AiApiActionFailureMode[]
   /** 单参数示例；多示例场景优先 examples。 */
-  example?: AiJsonValue
+  example?: JsonValue
   /** 多组调用示例。 */
   examples?: readonly AiApiActionExample[]
   /** 不应调用的反例与原因。 */

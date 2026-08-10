@@ -119,12 +119,12 @@
           "additionalProperties": false
         },
         "method.setDataSet.return": true,
-        "method.onDataSetRelationsReady.params": {
+        "method.onDataSetStructureReady.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.onDataSetRelationsReady.return": true,
+        "method.onDataSetStructureReady.return": true,
         "method.getView.params": {
           "type": "object",
           "properties": {
@@ -323,7 +323,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:36:54.979Z",
+  "generatedAt": "2026-08-10T05:52:40.504Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
@@ -415,7 +415,7 @@
             },
             {
               "name": "businessCategory",
-              "jsdoc": "业务分类：描述该表在当前业务模型中的角色。\n例如主表、从表、引用表、静态数据表。\n注意：该字段仅用于语义建模，不代替 tableRelations / viewDependencies。",
+              "jsdoc": "业务分类：描述该表在当前业务模型中的角色。\n例如主表、从表、引用表、静态数据表。\n注意：该字段仅用于语义建模，不代替 resourceRelations / viewCascades。",
               "readable": true,
               "writable": false
             },
@@ -470,8 +470,8 @@
               }
             },
             {
-              "name": "onDataSetRelationsReady",
-              "jsdoc": "DataSet 关系规范化完成后调用——通知所有视图重编译含聚合的计算列并重算聚合行。\n封装后置重算职责：DataSet 只需调用此方法，不直接触碰 view 内部。\n遍历各视图委托给 view.onDataSetRelationsReady()，DataSet 不需要了解视图内部细节。",
+              "name": "onDataSetStructureReady",
+              "jsdoc": "DataSet 资源关系与视图级联索引完成后调用——通知所有视图重编译含聚合的计算列并重算聚合行。\n封装后置重算职责：DataSet 只需调用此方法，不直接触碰 view 内部。\n遍历各视图委托给 view.onDataSetStructureReady()，DataSet 不需要了解视图内部细节。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

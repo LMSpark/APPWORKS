@@ -28,8 +28,9 @@ AI用途：需要理解 display skeleton 的实际渲染结构、slot/toolbar/�
  * @description 骨架屏加载占位组件。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RSkeletonProps } from './DisplaySkeleton.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RSkeletonProps>(), {
   type: 'r-skeleton',
@@ -44,5 +45,4 @@ const { isVisible } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

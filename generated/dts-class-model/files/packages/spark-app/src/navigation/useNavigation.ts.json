@@ -9,9 +9,7 @@
     "modulePath": "navigation/useNavigation",
     "jsdoc": "@module @spark-appworks/spark-app:navigation/useNavigation\n职责：提供应用壳层 useNavigation 能力，围绕 UseNavigationOptions 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/useNavigation。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [
-      "UseNavigationOptions"
-    ]
+    "symbols": []
   },
   "$defs": {
     "UseNavigationOptions": {
@@ -53,7 +51,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T23:25:35.639Z",
+  "generatedAt": "2026-08-10T12:01:38.069Z",
   "models": {
     "UseNavigationOptions": {
       "name": "UseNavigationOptions",

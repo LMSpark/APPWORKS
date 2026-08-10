@@ -15,7 +15,6 @@
       "DesignerTableProjection",
       "DesignerRelationProjection",
       "DesignerTableUiState",
-      "LayoutForNewTable",
       "DesignerTableUiStateReconcileInput"
     ]
   },
@@ -147,7 +146,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:23:06.803Z",
+  "generatedAt": "2026-08-10T05:48:56.936Z",
   "models": {
     "PageDataEditorMode": {
       "name": "PageDataEditorMode",
@@ -253,12 +252,12 @@
       "jsdoc": "Designer Relation Projection 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "TableRelation & {\n    /** 关系类型：one-to-many（默认）/ one-to-one / many-to-many。 */\n    relationType?: 'one-to-many' | 'one-to-one' | 'many-to-many';\n}",
+        "declarationTypeText": "DataResourceRelation & {\n    /** 关系类型：one-to-many（默认）/ one-to-one / many-to-many。 */\n    relationType?: 'one-to-many' | 'one-to-one' | 'many-to-many';\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "TableRelation",
-            "targetName": "TableRelation"
+            "typeText": "DataResourceRelation",
+            "targetName": "DataResourceRelation"
           },
           {
             "kind": "intersection",
@@ -327,11 +326,11 @@
       "jsdoc": "Designer Table Ui State Reconcile Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 目标 DataSet 元数据，包含 tables / tableRelations / layout 等完整定义。 */\n    metadata: DataSetMetadata;\n    /** 当前画布中已有的表投影快照，用于保留已有 ID 和坐标。 */\n    currentTables: ReadonlyArray<Pick<DesignerTableProjection, 'tableName' | 'id' | 'x' | 'y' | 'columns'>>;\n    /** 生成唯一 ID 的工厂函数（通常为 nanoid 或 uuid）。 */\n    createId: () => string;\n    /** 新增表的布局策略回调；缺省使用 3 列网格自动定位。 */\n    layoutForNewTable?: LayoutForNewTable | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 目标 DataSet 元数据，包含 tables / resourceRelations / layout 等完整定义。 */\n    metadata: DataSetMetadata;\n    /** 当前画布中已有的表投影快照，用于保留已有 ID 和坐标。 */\n    currentTables: ReadonlyArray<Pick<DesignerTableProjection, 'tableName' | 'id' | 'x' | 'y' | 'columns'>>;\n    /** 生成唯一 ID 的工厂函数（通常为 nanoid 或 uuid）。 */\n    createId: () => string;\n    /** 新增表的布局策略回调；缺省使用 3 列网格自动定位。 */\n    layoutForNewTable?: LayoutForNewTable | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 目标 DataSet 元数据，包含 tables / tableRelations / layout 等完整定义。 */\n    metadata: DataSetMetadata;\n    /** 当前画布中已有的表投影快照，用于保留已有 ID 和坐标。 */\n    currentTables: ReadonlyArray<Pick<DesignerTableProjection, 'tableName' | 'id' | 'x' | 'y' | 'columns'>>;\n    /** 生成唯一 ID 的工厂函数（通常为 nanoid 或 uuid）。 */\n    createId: () => string;\n    /** 新增表的布局策略回调；缺省使用 3 列网格自动定位。 */\n    layoutForNewTable?: LayoutForNewTable | undefined;\n}>",
+            "typeText": "Readonly<{\n    /** 目标 DataSet 元数据，包含 tables / resourceRelations / layout 等完整定义。 */\n    metadata: DataSetMetadata;\n    /** 当前画布中已有的表投影快照，用于保留已有 ID 和坐标。 */\n    currentTables: ReadonlyArray<Pick<DesignerTableProjection, 'tableName' | 'id' | 'x' | 'y' | 'columns'>>;\n    /** 生成唯一 ID 的工厂函数（通常为 nanoid 或 uuid）。 */\n    createId: () => string;\n    /** 新增表的布局策略回调；缺省使用 3 列网格自动定位。 */\n    layoutForNewTable?: LayoutForNewTable | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -339,7 +338,7 @@
           "attributes": [
             {
               "name": "metadata",
-              "jsdoc": "目标 DataSet 元数据，包含 tables / tableRelations / layout 等完整定义。",
+              "jsdoc": "目标 DataSet 元数据，包含 tables / resourceRelations / layout 等完整定义。",
               "readable": true,
               "writable": false
             },

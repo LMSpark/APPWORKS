@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/lowcode-application-store",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-application-store 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeApplicationContext, LowcodeApplicationStoreOptions, LowcodeApplicationStore（共 3 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "当前选中应用上下文持久化：应用元数据 + 导航根 rowid。\n默认使用浏览器 localStorage；损坏数据会被清除而非返回半成品上下文。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "LowcodeApplicationContext",
       "LowcodeApplicationStoreOptions",
@@ -92,11 +92,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T10:26:55.676Z",
+  "generatedAt": "2026-08-10T07:31:52.478Z",
   "models": {
     "LowcodeApplicationContext": {
       "name": "LowcodeApplicationContext",
-      "jsdoc": "",
+      "jsdoc": "已选应用及其导航根身份；navigationRootId 来自 Base_NavigationInfo 唯一根节点。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    application: LowcodeApplication;\n    navigationRootId: string;\n}>",
@@ -125,7 +125,7 @@
     },
     "LowcodeApplicationStoreOptions": {
       "name": "LowcodeApplicationStoreOptions",
-      "jsdoc": "",
+      "jsdoc": "应用 store 配置；storage 缺省为 localStorage（非浏览器环境则无持久化）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    applicationKey?: string;\n}>",
@@ -154,7 +154,7 @@
     },
     "LowcodeApplicationStore": {
       "name": "LowcodeApplicationStore",
-      "jsdoc": "",
+      "jsdoc": "当前选中应用的读写；save 会先校验再写入，避免脏数据落盘。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -177,6 +177,7 @@
           "methods": [
             {
               "name": "get",
+              "jsdoc": "读取应用上下文；解析失败时清除 storage 并返回 null。",
               "parameters": [],
               "type": {
                 "type": "union",
@@ -195,6 +196,7 @@
             },
             {
               "name": "save",
+              "jsdoc": "持久化应用上下文；字段格式非法时抛 LowcodeApiError。",
               "parameters": [
                 {
                   "name": "context",
@@ -212,6 +214,7 @@
             },
             {
               "name": "clear",
+              "jsdoc": "清除已选应用上下文。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

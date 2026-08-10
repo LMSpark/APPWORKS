@@ -5,7 +5,7 @@ import type {
   AiAgentHostDryRunResult,
   AiAgentHostRunResult,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { preparePageDesignAgentRun } from '@/services/page-design/page-design-agent-run-provider'
 import { readAiDeliveryErrorExtras } from '@/services/ai/ai-delivery-port'
 
@@ -102,7 +102,7 @@ describe('preparePageDesignAgentRun', () => {
       args: { pageId: 'orders', description: '生成订单页' },
     }, {} as AiAgentHost)
 
-    const result = await host.run('pageDesign', {} as AiJsonParams)
+    const result = await host.run('pageDesign', {} as JsonParams)
 
     expect(editor.selectPage).toHaveBeenCalledWith('orders', { forceReload: true })
     expect(editor.savePageFile).toHaveBeenCalledTimes(2)
@@ -131,7 +131,7 @@ describe('preparePageDesignAgentRun', () => {
 
     let thrown: unknown
     try {
-      await host.run('pageDesign', {} as AiJsonParams)
+      await host.run('pageDesign', {} as JsonParams)
     } catch (error: unknown) {
       thrown = error
     }
@@ -146,7 +146,7 @@ describe('preparePageDesignAgentRun', () => {
     })
 
     mocks.delegateHost.run.mockResolvedValueOnce(createRunResult())
-    const secondResult = await host.run('pageDesign', {} as AiJsonParams)
+    const secondResult = await host.run('pageDesign', {} as JsonParams)
     expect(secondResult.resultExtras?.['delivery']).toBeUndefined()
   })
 })

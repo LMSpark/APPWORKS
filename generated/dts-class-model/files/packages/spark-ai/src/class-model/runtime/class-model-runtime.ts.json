@@ -61,8 +61,7 @@
           "type": "boolean"
         },
         "data": {
-          "type": "object",
-          "title": "AiJsonValue"
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
         },
         "checks": {
           "type": "array",
@@ -107,7 +106,7 @@
       "anyOf": [
         {
           "type": "object",
-          "title": "AiJsonValue"
+          "title": "JsonValue"
         },
         {
           "type": "object",
@@ -161,7 +160,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.207Z",
+  "generatedAt": "2026-08-10T10:00:08.508Z",
   "models": {
     "ClassModelScriptCommand": {
       "name": "ClassModelScriptCommand",
@@ -236,11 +235,11 @@
       "jsdoc": "Class Model Tool Args 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<Record<string, AiJsonValue>>",
+        "declarationTypeText": "Readonly<Record<string, JsonValue>>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<Record<string, AiJsonValue>>",
+            "typeText": "Readonly<Record<string, JsonValue>>",
             "targetName": "Readonly"
           }
         ],
@@ -252,11 +251,11 @@
       "jsdoc": "Class Model Tool Result 的返回结果。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 工具是否执行成功。 */\n    ok: boolean;\n    /** 成功时的业务数据载荷。 */\n    data?: AiJsonValue;\n    /** 结构化检查项（error/warn/info），失败时通常非空。 */\n    checks?: readonly ClassModelToolCheck[];\n    /** 可选运行状态快照，供后续 turn 或 UI 读取。 */\n    state?: Readonly<Record<string, unknown>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 工具是否执行成功。 */\n    ok: boolean;\n    /** 成功时的业务数据载荷。 */\n    data?: JsonValue;\n    /** 结构化检查项（error/warn/info），失败时通常非空。 */\n    checks?: readonly ClassModelToolCheck[];\n    /** 可选运行状态快照，供后续 turn 或 UI 读取。 */\n    state?: Readonly<Record<string, unknown>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 工具是否执行成功。 */\n    ok: boolean;\n    /** 成功时的业务数据载荷。 */\n    data?: AiJsonValue;\n    /** 结构化检查项（error/warn/info），失败时通常非空。 */\n    checks?: readonly ClassModelToolCheck[];\n    /** 可选运行状态快照，供后续 turn 或 UI 读取。 */\n    state?: Readonly<Record<string, unknown>>;\n}>",
+            "typeText": "Readonly<{\n    /** 工具是否执行成功。 */\n    ok: boolean;\n    /** 成功时的业务数据载荷。 */\n    data?: JsonValue;\n    /** 结构化检查项（error/warn/info），失败时通常非空。 */\n    checks?: readonly ClassModelToolCheck[];\n    /** 可选运行状态快照，供后续 turn 或 UI 读取。 */\n    state?: Readonly<Record<string, unknown>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -338,12 +337,12 @@
       "jsdoc": "Class Model Script Executor Result 的返回结果。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "AiJsonValue | ClassModelToolResult",
+        "declarationTypeText": "JsonValue | ClassModelToolResult",
         "declarationRelations": [
           {
             "kind": "union",
-            "typeText": "AiJsonValue",
-            "targetName": "AiJsonValue"
+            "typeText": "JsonValue",
+            "targetName": "JsonValue"
           },
           {
             "kind": "union",

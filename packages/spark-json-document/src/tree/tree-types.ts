@@ -20,7 +20,7 @@ export type JsonNodeType = 'object' | 'array' | 'string' | 'number' | 'boolean' 
 // ── 树节点（纯模型，6 字段）─────────────────────────────────
 
 /** Tree Node 的语义模型。 */
-export type TreeNode = {
+export type JsonTreeNode = {
   /** 节点 UUID */
   readonly id: string
   /** 父节点 ID；根节点为 null */
@@ -38,7 +38,7 @@ export type TreeNode = {
 // ── 显示行（toDisplayRows 输出）──────────────────────────────
 
 /** Tree Display Node 的语义模型。 */
-export type TreeDisplayNode = TreeNode & {
+export type TreeDisplayNode = JsonTreeNode & {
   /** 嵌套深度（根 = 0） */
   readonly depth: number
   /** 从根到此节点的路径 */
@@ -56,7 +56,7 @@ export type TreeDisplayNode = TreeNode & {
 // ── 树模型 ────────────────────────────────────────────────────
 
 /** Tree Model 的语义模型。 */
-export type TreeModel = ReadonlyMap<string, TreeNode>
+export type TreeModel = ReadonlyMap<string, JsonTreeNode>
 
 // ── Mutation 结果 ─────────────────────────────────────────────
 
@@ -142,5 +142,5 @@ export type FlatJsonTreeDocument = {
     /** root Type 字段。 */
 readonly rootType: 'object' | 'array'
     /** 行数据集合。 */
-readonly rows: TreeNode[]
+readonly rows: JsonTreeNode[]
 }

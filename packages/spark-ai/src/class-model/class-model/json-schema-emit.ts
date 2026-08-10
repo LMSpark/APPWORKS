@@ -4,7 +4,7 @@
  * 边界：只做 schema 结构 emit 与 finalize，不读取 TypeScript AST、不访问文件系统、不投影 DtsTypeDeclarationModel。
  * AI用途：排查 class-model schema 文档格式或 $defs 合并规则时，用本模块确认最终 schema 形态。
  */
-import type { AiJsonSchema } from '../../json'
+import type { JsonSchema } from '@spark-appworks/spark-json-document'
 import {
   JSON_SCHEMA_DRAFT_2020_12,
   assertDraft2020Schema,
@@ -40,7 +40,7 @@ function titleDescription(input: Readonly<{
 
 /** 从 inline schema 提取 const 或单值 enum（enum 成员投影用）。 */
 export function extractConstOrSingleEnumValue(
-  schema: AiJsonSchema | StandardJsonSchema,
+  schema: JsonSchema | StandardJsonSchema,
 ): string | number | boolean | null | undefined {
   if (typeof schema === 'boolean') return undefined
 

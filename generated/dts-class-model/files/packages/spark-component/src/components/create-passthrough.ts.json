@@ -9,9 +9,7 @@
     "modulePath": "components/create-passthrough",
     "jsdoc": "@module @spark-appworks/spark-component:components/create-passthrough\n职责：提供 create passthrough 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n透传组件工厂 — 用 1 个函数替代 14+ 个零逻辑 .vue 包装文件。\n每个 passthrough 组件的行为完全相同：\n1. `useSparkPageComponent(props)` 接入 SPARK 能力上下文\n2. `isVisible` 控制渲染\n3. 所有 attrs 透传到目标渲染节点\n4. `children` 递归渲染",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "PassthroughOptions"
-    ]
+    "symbols": []
   },
   "$defs": {
     "PassthroughOptions": {
@@ -27,7 +25,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.967Z",
+  "generatedAt": "2026-08-10T11:22:51.226Z",
   "models": {
     "PassthroughOptions": {
       "name": "PassthroughOptions",

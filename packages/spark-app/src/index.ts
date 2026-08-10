@@ -9,18 +9,15 @@
  * SPARK Application Layer - 应用层基础设施
  */
 
-// 符号常量表
+// 符号常量表（SPARK_REGISTRY_KEY 不在此转发；消费方直连 @spark-appworks/spark-component）
 export {
-  SPARK_REGISTRY_KEY,
   ErrorCodes,
-  Environments,
   DefaultConfig,
   getErrorMessage,
 } from './constants'
 
 export type {
   ErrorCode,
-  Environment,
 } from './constants'
 
 // 核心命名空间
@@ -65,13 +62,13 @@ export {
 
 export type {
   AppLoggerConfig,
-  LogTransport,
+  AppLogTransport,
   BatchTransportOptions
 } from './logger'
 
 // 主题服务
-export { createThemeService, isThemeMode, useTheme, THEME_INJECTION_KEY } from './theme'
-export type { ThemeMode, ThemeServiceOptions, ThemeServiceReactive } from './theme'
+export { createThemeService, useTheme, THEME_INJECTION_KEY } from './theme'
+export type { ThemeServiceOptions, ThemeServiceReactive } from './theme'
 
 // 类型导出
 export type {
@@ -83,7 +80,6 @@ export type {
   // BootstrapOptions,  // 已在上面导出
   RouterGuardOptions,
   ErrorHandlerOptions,
-  LogLevel,
   AppEnvironment
 } from './types'
 
@@ -142,6 +138,7 @@ export {
 export type {
   NavNodeActionTarget,
   NavNodeContainerTarget,
+  NavNodeExternalLinkMode,
   NavNodeExternalTarget,
   NavNodeRouteTarget,
   NavNodeRouteTargetKind,
@@ -162,13 +159,8 @@ export { NAV_KEY } from './navigation/nav-types'
 export type { NavigationContext } from './navigation/nav-types'
 export type {
   RuntimeNavigation,
-  RuntimeNavigationContextConfig,
-  RuntimeNavigationContextItem,
   RuntimeNavigationContextState,
   RuntimeNavigationItem,
-  RuntimeNavigationItemKind,
-  RuntimeNavigationPermissionMode,
-  RuntimeNavigationPlacement,
   RuntimeNavigationRegionItems,
   RuntimeNavigationRegionVisibility,
 } from './navigation/runtime-navigation'

@@ -31,32 +31,19 @@ export type {
 
 // ── 3.5 权限渲染 API ──
 export * as permission from './permission/index.js'
-export type { FieldRenderConfig, FieldRenderState, PermissionActionContext } from './permission/index.js'
+export type { ComponentPermissionActionContext } from './permission/index.js'
 
 // ── 4. 核心类型 ──
 export type {
-  CapabilityName,
-  CapabilityContext,
-  SparkCapabilityContext,
-  SparkNode,
-  SparkNodeChildren,
   FilterItemConfig,
   ComponentDefinition,
   ComponentRegistry,
-  LoggerApi
 } from './core/index.js'
 export type { CancellableControl } from './components/containers/support/interactionControl.js'
 
 // ── 5. DI Keys + SparkNode 结构常量 ──
 export {
   SPARK_REGISTRY_KEY,
-  SPARK_NODE_STRUCT_KEYS,
-  normalizeSparkNode,
-  nodeId,
-  nodeInputProp,
-  nodeInputProps,
-  isSparkNode,
-  getSparkNodeChildren,
 } from './core/index.js'
 
 // ── 5.5 页面运行时服务（能力键） ──
@@ -77,16 +64,12 @@ export {
   PAGE_COMPONENT_REGISTRY,
   MODULE_CONTEXT,
   CSS_SCOPE,
-  sparkFindNearestProvider,
-  sparkFindNearestProviderByKeys,
-  sparkConsumeFromProvider,
+  isThemeMode,
 } from './core/index.js'
 export type {
   PageServiceCapability,
   ThemeCapability,
   ThemeMode,
-  ModuleContextItem,
-  ModuleContext,
   ModuleContextCapability,
   PageMessageType,
   PageDialogResult,
@@ -95,11 +78,9 @@ export type {
   PageUploadFilesOptions,
   PageSelectEntitiesOptions,
   PageSelectorOption,
-  PageSelectedEntity,
   PageSelectedFile,
   PageUploadedFile,
   PageComponentRegistry,
-  PageComponentInstanceEntry,
   PageComponentApiEntry,
   PageCssScopeCapability,
 } from './core/index.js'
@@ -111,12 +92,11 @@ export type {
   RendererTreeApi,
   RendererListApi,
   RendererVirtualCardApi,
-  RendererDialogApi,
-  RendererDrawerApi,
   RendererTabsApi,
   RendererCollapseApi,
   RendererStepsApi,
   RendererSectionApi,
+  VisibilityContainerApi,
   RTableProps,
   RFormProps,
   RDetailProps,
@@ -320,7 +300,6 @@ export type {
   RTimePickerProps,
   RTimeSelectProps,
   RTimelineItemProps,
-  RTimelineProps,
   RTooltipProps,
   RTourProps,
   RTransferProps,
@@ -343,7 +322,6 @@ export type {
 
 export type {
   PageContext,
-  PageNodeRenderConfig,
 } from './page/index.js'
 
 // ── AI 会话监视组件 ──

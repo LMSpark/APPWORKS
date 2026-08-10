@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-component/src/core/types.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "core/types",
-    "jsdoc": "@module @spark-appworks/spark-component:core/types\n职责：定义 types 相关的内部类型契约，支撑渲染器、props、zero-code 和运行时状态协作。\n边界：只描述 component-runtime 的类型结构，不直接渲染界面，也不发起数据请求。\nAI用途：跨文件修改 types 行为或补齐配置类型时，用本模块确认共享类型边界。\n\nSPARK 组件系统 - 核心类型定义\n设计原则：\n- 最小化类型，只定义必要的接口\n- 能力系统通过 capabilities Map 实现（继承自 CapabilityContext）",
+    "jsdoc": "@module @spark-appworks/spark-component:core/types\n职责：定义 types 相关的内部类型契约，支撑渲染器、props、zero-code 和运行时状态协作。\n边界：只描述 component-runtime 的类型结构，不直接渲染界面，也不发起数据请求。\nAI用途：跨文件修改 types 行为或补齐配置类型时，用本模块确认共享类型边界。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ComponentDefinition",
@@ -249,7 +249,7 @@
       ]
     }
   },
-  "generatedAt": "2026-06-14T22:53:58.147Z",
+  "generatedAt": "2026-08-10T11:27:03.460Z",
   "models": {
     "ComponentDefinition": {
       "name": "ComponentDefinition",

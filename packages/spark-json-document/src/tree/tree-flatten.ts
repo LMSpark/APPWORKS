@@ -12,7 +12,7 @@
 
 import type { JsonValue, JsonObject, JsonDocument } from '../core/json-types'
 import { isJsonObject, toPrimitive } from '../core/json-types'
-import type { TreeNode, FlatJsonTreeDocument } from './tree-types'
+import type { JsonTreeNode, FlatJsonTreeDocument } from './tree-types'
 import { generateUid, inferNodeType } from './tree-utils'
 
 /**
@@ -22,7 +22,7 @@ import { generateUid, inferNodeType } from './tree-utils'
  */
 export function flattenJsonDocumentForEdit(doc: JsonDocument): FlatJsonTreeDocument {
   const rootType: FlatJsonTreeDocument['rootType'] = Array.isArray(doc) ? 'array' : 'object'
-  const rows: TreeNode[] = []
+  const rows: JsonTreeNode[] = []
 
   type JsonDocumentWalkInput = Readonly<{
     value: JsonValue
@@ -68,8 +68,8 @@ export function flattenJsonDocumentForEdit(doc: JsonDocument): FlatJsonTreeDocum
  */
 export function restoreJsonDocumentFromFlat(flat: FlatJsonTreeDocument): JsonDocument {
   const { rows, rootType } = flat
-  const idMap = new Map<string, TreeNode>()
-  const childrenMap = new Map<string | null, TreeNode[]>()
+  const idMap = new Map<string, JsonTreeNode>()
+  const childrenMap = new Map<string | null, JsonTreeNode[]>()
 
   for (const row of rows) {
     idMap.set(row.id, row)
@@ -88,7 +88,7 @@ export function restoreJsonDocumentFromFlat(flat: FlatJsonTreeDocument): JsonDoc
     siblings.sort((a, b) => a.order - b.order)
   }
 
-  function buildValue(row: TreeNode): JsonValue {
+  function buildValue(row: JsonTreeNode): JsonValue {
     const children = childrenMap.get(row.id)
     if (row.type === 'array') return (children ?? []).map(c => buildValue(c))
     if (row.type === 'object') {
@@ -119,7 +119,7 @@ export function restoreJsonDocumentFromFlat(flat: FlatJsonTreeDocument): JsonDoc
  * 便捷入口：按 originalData 的类型还原（对象 → 对象，数组 → 数组）。
  */
 export function restoreJsonDocumentByOriginalType(
-  rows: TreeNode[],
+  rows: JsonTreeNode[],
   originalData: JsonDocument,
 ): JsonDocument {
   const rootType: FlatJsonTreeDocument['rootType'] = Array.isArray(originalData) ? 'array' : 'object'

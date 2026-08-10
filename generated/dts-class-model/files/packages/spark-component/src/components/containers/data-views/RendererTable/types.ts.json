@@ -10,6 +10,7 @@
     "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTable/types\n职责：集中定义 RendererTable（r-table）内部共享的类型契约，描述渲染器状态、事件载荷和运行时数据形态。\n边界：只提供 table-level/data-view-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。\nAI用途：需要判断 renderer table 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "ElementPlusTableSortOrder",
       "RendererTreePath",
       "RendererTableApi"
     ],
@@ -20,6 +21,14 @@
     "componentDirectory": "containers/data-views"
   },
   "$defs": {
+    "ElementPlusTableSortOrder": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ElementPlusTableSortOrder",
+      "enum": [
+        "ascending",
+        "descending"
+      ]
+    },
     "RendererTreePath": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -308,8 +317,34 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T22:53:24.973Z",
+  "generatedAt": "2026-08-10T12:24:34.964Z",
   "models": {
+    "ElementPlusTableSortOrder": {
+      "name": "ElementPlusTableSortOrder",
+      "jsdoc": "Element Plus el-table 排序回调 order；投影为 spark-data SortDirection，勿与 wire OrderType 混用。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTable",
+        "type": "r-table",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "'ascending' | 'descending'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'ascending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'descending'"
+          }
+        ],
+        "members": {}
+      }
+    },
     "RendererTreePath": {
       "name": "RendererTreePath",
       "jsdoc": "Renderer Tree Path 的语义模型。",

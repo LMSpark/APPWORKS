@@ -26,15 +26,6 @@ export type {
 // ── 递归渲染器 ──
 export { default as SparkComponentRenderer } from './SparkComponentRenderer.vue'
 
-// ── 核心类型 ──
-export type {
-  SparkNode,
-  SparkNodeChildren,
-  CapabilityContext,
-  LoggerApi,
-} from '../core/index.js'
-export { nodeId, nodeInputProp, nodeInputProps, SPARK_NODE_STRUCT_KEYS, normalizeSparkNode, isSparkNode, getSparkNodeChildren } from '../core/index.js'
-
 // ── 能力键 ──
 export {
   PAGE_SERVICE,
@@ -43,13 +34,9 @@ export {
   DATA_ROW,
   PAGE_COMPONENT_REGISTRY,
   MODULE_CONTEXT,
-  sparkFindNearestProvider,
-  sparkFindNearestProviderByKeys,
-  sparkConsumeFromProvider,
 } from '../core/index.js'
 export type {
   PageServiceCapability,
-  ModuleContext,
   PageMessageType,
   PageDialogResult,
   PageDialogOptions,
@@ -60,7 +47,6 @@ export type {
   PageSelectedFile,
   PageUploadedFile,
   PageComponentRegistry,
-  PageComponentInstanceEntry,
   PageComponentApiEntry,
   ModuleContextCapability,
 } from '../core/index.js'

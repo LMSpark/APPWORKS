@@ -245,7 +245,6 @@ describe('verification rules', () => {
       '  "compilerOptions": {',
       '    "paths": {',
       '      "@spark-appworks/spark-ai": ["./packages/spark-ai/src/index.ts"],',
-      '      "@spark-appworks/spark-ai/json": ["./packages/spark-ai/src/json/index.ts"],',
       '      "@spark-appworks/spark-ai/agent": ["./packages/spark-ai/src/agent/index.ts"],',
       `      "${removedAgentAlias}": ["${removedAgentAliasTarget}"],`,
       '      "@spark-appworks/spark-ai/class-model": ["./packages/spark-ai/src/class-model/index.ts"],',
@@ -269,7 +268,6 @@ describe('verification rules', () => {
       name: '@spark-appworks/spark-ai',
       exports: {
         '.': './dist/index.js',
-        './json': './dist/json/index.js',
         './agent': './dist/agent/index.js',
         './class-model': './dist/class-model/index.js',
       },
@@ -279,7 +277,6 @@ describe('verification rules', () => {
       '  "compilerOptions": {',
       '    "paths": {',
       '      "@spark-appworks/spark-ai": ["./packages/spark-ai/src/index.ts"],',
-      '      "@spark-appworks/spark-ai/json": ["./packages/spark-ai/src/json/index.ts"],',
       '      "@spark-appworks/spark-ai/agent": ["./packages/spark-ai/src/agent/index.ts"],',
       '      "@spark-appworks/spark-ai/class-model": ["./packages/spark-ai/src/class-model/index.ts"]',
       '    }',

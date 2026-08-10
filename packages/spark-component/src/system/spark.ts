@@ -18,8 +18,10 @@
 import { createSparkCapabilityContext } from '@spark-appworks/spark-utils'
 import { createComponentRegistry, getGlobalRegistry } from './registry.js'
 import { createSparkPlugin } from './plugin.js'
-import type { CapabilityContext, ComponentRegistry, SparkNode } from '../core/types.js'
-import { nodeId, SPARK_NODE_STRUCT_KEYS, normalizeSparkNode } from '../core/types.js'
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
+import type { ComponentRegistry } from '../core/types.js'
+
+import { type SparkNode, normalizeSparkNode, SPARK_NODE_STRUCT_KEYS, nodeId } from '@spark-appworks/spark-data'
 
 /* -------------------------------------------------------------------------- */
 

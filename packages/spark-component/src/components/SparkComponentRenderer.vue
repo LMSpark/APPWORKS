@@ -87,15 +87,12 @@ import {
   onUnmounted,
   watchEffect,
 } from 'vue'
-import { DataView, isDataRow, type DataRow } from '@spark-appworks/spark-data'
+import { DataView, isDataRow, type DataRow, type SparkNode, type SparkNodeChildren, normalizeSparkNode, isSparkNode, nodeId } from '@spark-appworks/spark-data'
 import UnregisteredNodeFallback from './support/UnregisteredNodeFallback.vue'
 import { resolveHostTypeFromContext } from '../core/useSparkComponent.js'
-import {
-  nodeId,
-  isSparkNode,
-  normalizeSparkNode,
-} from '../core/types.js'
-import type { SparkNode, SparkNodeChildren, CapabilityContext, ComponentRegistry, ComponentChildrenMode } from '../core/types.js'
+
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
+import type { ComponentRegistry, ComponentChildrenMode } from '../core/types.js'
 import { consumeSparkCapability, createSparkCapabilityContext, isRecord, sparkProvide, sparkRemove } from '@spark-appworks/spark-utils'
 import { SPARK_REGISTRY_KEY } from '../system/keys.js'
 import { DATA_ROW, DATA_SOURCE } from '../core/capability-keys.js'
@@ -768,7 +765,6 @@ const registryConsumesChildrenProp = computed(() => {
 const shouldRenderRegistryChildrenViaSlot = computed(() =>
   hasRenderableChildren.value && !registryConsumesChildrenProp.value
 )
-
 
 // ── props 透传：SparkNode.props → 目标组件运行时 props ───────────────────────
 

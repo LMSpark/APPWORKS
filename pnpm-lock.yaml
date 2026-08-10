@@ -146,6 +146,9 @@ importers:
       '@spark-appworks/spark-data':
         specifier: workspace:*
         version: link:packages/spark-data
+      '@spark-appworks/spark-json-document':
+        specifier: workspace:*
+        version: link:packages/spark-json-document
       '@spark-appworks/spark-lowcode-api':
         specifier: workspace:*
         version: link:packages/spark-lowcode-api
@@ -283,6 +286,12 @@ importers:
       '@spark-appworks/spark-component':
         specifier: workspace:*
         version: link:../spark-component
+      '@spark-appworks/spark-data':
+        specifier: workspace:*
+        version: link:../spark-data
+      '@spark-appworks/spark-json-document':
+        specifier: workspace:*
+        version: link:../spark-json-document
       '@spark-appworks/spark-project-model':
         specifier: workspace:*
         version: link:../spark-project-model

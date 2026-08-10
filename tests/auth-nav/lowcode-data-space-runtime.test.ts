@@ -177,7 +177,11 @@ describe('lowcode data-space DataView runtime', () => {
     const assembly = assembler.assemble({
       design: design(),
       formKey: 'FORM-1',
-      authorizedFeatureTags: ['employee.read'],
+      permission: {
+        formKey: 'FORM-1',
+        authorizedFeatureTags: ['employee.read'],
+        allowAddByResource: { 'RESOURCE-CHILD': true },
+      },
     })
 
     expect(assembly.diagnostics).toEqual([])

@@ -5,7 +5,7 @@
  * AI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。
  */
 
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { CLASS_MODEL_TOOL_NAMES } from '../../class-model'
 import { createAiAgentSessionId, toAiAgentRuntimeScope } from '../business/business-scope'
 import type { AiAgentLifecycleDirective } from '../business/lifecycle-types'
@@ -83,7 +83,7 @@ const MAX_CLASS_MODEL_SCRIPT_RETRY_NUDGES = 3
 /* ── 输入/输出类型 ──────────────────────────────────────────── */
 
 /** 工具循环的输入参数 */
-type AiAgentToolLoopInput<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+type AiAgentToolLoopInput<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 业务注册信息：包含系统提示词、工具列表、生命周期回调等 Agent 运行时所需的全部业务契约。 */
   registration: AiAgentRegistration<TInput>
   /** 业务作用域：标识当前 businessRegistrationId + businessInstanceId，用于会话寻址和诊断。 */
@@ -123,7 +123,7 @@ public constructor(
    */
   // AI_AGENT_TRACE[host-tool-loop]: LLM round、tool call 和工具结果回填在这里完成通用 Agent 闭环。
   // AI_AGENT_REFACTOR_SOURCE[tool-result-feedback]: ok:false 参数校验回灌属于内核闭环；业务工具只返回结构化结果。
-  public async runToolLoop<TInput extends AiJsonParams>(input: AiAgentToolLoopInput<TInput>): Promise<void> {
+  public async runToolLoop<TInput extends JsonParams>(input: AiAgentToolLoopInput<TInput>): Promise<void> {
     const { registration, scope, request, turn, clearSelected } = input
     const runtimeContext = toAiAgentRuntimeScope(scope)
     const sessionId = createAiAgentSessionId(scope.businessRegistrationId, scope.businessInstanceId)
@@ -352,7 +352,7 @@ public constructor(
    *   6. 若 releaseInstance=true → 调用 releaseModuleInstance 释放外部资源
    *   7. clearSelected 清除 session 缓存
    */
-  private async completeLifecycleDirective<TInput extends AiJsonParams>(
+  private async completeLifecycleDirective<TInput extends JsonParams>(
     input: CompleteLifecycleDirectiveInput<TInput>,
   ): Promise<void> {
     const {
@@ -448,7 +448,7 @@ function selectControlledRoundToolCalls(input: Readonly<{
 /* ── 内部辅助类型 ──────────────────────────────────────────── */
 
 /** completeLifecycleDirective 方法的输入参数 */
-type CompleteLifecycleDirectiveInput<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+type CompleteLifecycleDirectiveInput<TInput extends JsonParams = JsonParams> = Readonly<{
   registration: AiAgentRegistration<TInput>
   lifecycleDirective: AiAgentLifecycleDirective
   runtimeContext: ReturnType<typeof toAiAgentRuntimeScope>
@@ -470,7 +470,7 @@ type AppendMessagesToTransportInput = Readonly<{
 }>
 
 /** 获取 sessionStore，若未配置则抛异常 */
-function requireSessionStore<TInput extends AiJsonParams>(
+function requireSessionStore<TInput extends JsonParams>(
   registration: AiAgentRegistration<TInput>,
 ): AiAgentSessionStore {
   return registration.sessionStore
@@ -485,7 +485,7 @@ function toLlmRoundTurn(turn: AiAgentTurnMeta, round: number): AiAgentTurnMeta {
   }
 }
 
-export function resolvePlanWithoutToolNudge<TInput extends AiJsonParams>(
+export function resolvePlanWithoutToolNudge<TInput extends JsonParams>(
   registration: AiAgentRegistration<TInput>,
   runtimeContext: AiAgentRuntimeContext,
 ): string | undefined {
@@ -500,7 +500,7 @@ export function resolvePlanWithoutToolNudge<TInput extends AiJsonParams>(
   return [GENERIC_PLAN_WITHOUT_TOOL_NUDGE, businessNudge.trim()].join('\n')
 }
 
-export function resolveToolLoopNudge<TInput extends AiJsonParams>(
+export function resolveToolLoopNudge<TInput extends JsonParams>(
   registration: AiAgentRegistration<TInput>,
   runtimeContext: AiAgentRuntimeContext,
   reason: Extract<AiAgentToolLoopNudgeReason, 'execution_phase' | 'model_script_retry'>,

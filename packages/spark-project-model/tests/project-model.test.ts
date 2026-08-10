@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData, ProjectBlueprintDeliveryKind } from '../src/blueprint/project-blueprint-node'
+import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '../src/blueprint/project-blueprint-node'
+import type { NavigationRootPlacement, RuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
 import { ProjectBlueprintNode } from '../src/blueprint/project-blueprint-node'
 import { ConfigPageNode } from '../src/page/config-page'
 import { resolveProjectPageSurface } from '../src/blueprint/project-blueprint-tree'
@@ -7,7 +8,7 @@ import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { createBlueprintNodePatch } from '../src/blueprint/project-blueprint-edit'
 
 describe('ProjectModel', () => {
-  function createRoot(children: ProjectBlueprintTreeNodeData[], childPlacement: 'header' | 'sidebar' = 'header'): ProjectBlueprintTreeData {
+  function createRoot(children: ProjectBlueprintTreeNodeData[], childPlacement: NavigationRootPlacement = 'header'): ProjectBlueprintTreeData {
     return {
       id: 'homepage_root',
       title: 'CRM',
@@ -106,7 +107,7 @@ describe('ProjectModel', () => {
     const p = createWorkspace().project
     p.replaceBlueprintTree(createRoot([{
       id: 'orders-node', title: '订单页面', nodeKind: 'page', path: '/orders',
-      children: [{ id: 'order-detail', title: '订单详情', nodeKind: 'sub-page' as unknown as ProjectBlueprintDeliveryKind, description: '订单详情功能' }],
+      children: [{ id: 'order-detail', title: '订单详情', nodeKind: 'sub-page' as unknown as RuntimeNavigationItemKind, description: '订单详情功能' }],
     }]))
     const sub = p.findConfigPageByPageId('order-detail')
     expect(sub?.nodeKind).toBe('page')

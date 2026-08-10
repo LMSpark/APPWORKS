@@ -47,8 +47,9 @@ AI用途：需要理解 renderer dropdown 的实际渲染结构、slot/toolbar/�
  * @description 下拉菜单容器，支持分裂按钮模式和命令事件。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RDropdownProps } from './RendererDropdown.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RDropdownProps>(), {
   type: 'r-dropdown',
@@ -64,5 +65,4 @@ const { isVisible, isDisabled } = useSparkPageComponent(props)
 const triggerChildren = computed(() => getSparkNodeChildren(props.children))
 const items = computed(() => props.items ?? [])
 </script>
-
 

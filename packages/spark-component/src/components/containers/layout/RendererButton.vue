@@ -47,15 +47,12 @@ import {
   PAGE_DATASET,
   PAGE_SERVICE,
   SparkComponentRenderer,
-  getSparkNodeChildren,
-  nodeId,
   useSparkPageComponent,
-  type SparkNode,
 } from '../../internal'
 import { resolveButtonStyle } from '../../../page/actions/index'
 import type { RButtonProps } from './RendererButton.props'
 import { extractPermissionSnapshot, usePermission } from '../../../permission'
-import type { DataView, DataRow } from '@spark-appworks/spark-data'
+import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { useActionButtonRuntime } from './useActionButtonRuntime'
 

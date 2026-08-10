@@ -1,39 +1,39 @@
-import type { RuntimeNavigationItem } from '@spark-appworks/spark-lowcode-api'
+import type { LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 import NavIcon from '@/components/NavIcon.vue'
 
 import {
+  assembleLowcodeRuntimeNavigation,
   lowcodeApplicationCatalogNavigation,
   lowcodeEnterpriseDisplayName,
-  projectRuntimeNavigation,
 } from '@/lowcode/lowcode-runtime'
 
-function navigationItem(
+function record(
   input: Readonly<{
     id: string
+    parentId?: string
     title: string
-    target?: string
-    itemKind?: RuntimeNavigationItem['itemKind']
-    children?: readonly RuntimeNavigationItem[]
+    kind?: LowcodeProjectBlueprintRecord['kind']
+    runtimeTarget?: string
+    formKey?: string
+    order?: number
   }>,
-): RuntimeNavigationItem {
-  const target = input.target ?? ''
+): LowcodeProjectBlueprintRecord {
   return {
     id: input.id,
-    parentId: '',
+    parentId: input.parentId ?? '',
+    projectId: 'PROJECT-1',
     title: input.title,
-    target,
-    targetKind: target.startsWith('vue:') ? 'vue' : target ? 'route' : 'empty',
-    itemKind: input.itemKind ?? 'page',
-    componentKey: target.startsWith('vue:') ? target : '',
-    formKey: input.itemKind === 'module' ? null : 'FORM-1',
-    icon: '',
+    kind: input.kind ?? 'page',
     description: '',
-    order: 0,
-    disabled: false,
-    children: input.children ?? [],
+    legacyContentId: input.formKey ?? '',
+    legacyContentType: '',
+    runtimeTarget: input.runtimeTarget ?? '',
+    runtimeNavigationCandidate: true,
+    order: input.order ?? 0,
+    source: {},
   }
 }
 
@@ -85,22 +85,38 @@ describe('lowcode project navigation projection', () => {
   })
 
   it('uses the first real nested page as the application home path', () => {
-    const page = navigationItem({
-      id: 'page-1',
-      title: '工资核算',
-      target: 'vue:payroll/salary-calculation',
-    })
-    const module = navigationItem({
-      id: 'module-1',
-      title: '工资管理',
-      itemKind: 'module',
-      children: [page],
-    })
-
-    const projection = projectRuntimeNavigation({
+    const projection = assembleLowcodeRuntimeNavigation({
       applicationName: 'SPARK薪酬管理',
+      projectId: 'PROJECT-1',
       navigationRootId: 'ROOT-1',
-      items: [module],
+      records: [
+        record({ id: 'module-1', title: '工资管理', kind: 'module', order: 0 }),
+        record({
+          id: 'page-1',
+          parentId: 'module-1',
+          title: '工资核算',
+          kind: 'page',
+          runtimeTarget: 'vue:payroll/salary-calculation',
+          formKey: 'FORM-1',
+          order: 1,
+        }),
+      ],
+      authorization: {
+        items: [{
+          id: 'module-1',
+          target: '',
+          targetKind: 'empty',
+          formKey: null,
+          children: [{
+            id: 'page-1',
+            target: 'vue:payroll/salary-calculation',
+            targetKind: 'vue',
+            formKey: 'FORM-1',
+            children: [],
+          }],
+        }],
+        contexts: [],
+      },
     })
 
     expect(projection.homePath).toBe('/payroll/salary-calculation')
@@ -127,5 +143,4 @@ describe('lowcode project navigation projection', () => {
     ])
     expect(projection.items.at(-1)?.children?.every((child) => child.dataSpaceId === undefined)).toBe(true)
   })
-
 })

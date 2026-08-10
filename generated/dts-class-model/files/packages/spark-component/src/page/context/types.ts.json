@@ -32,7 +32,7 @@
         "method.get.return": {
           "anyOf": [
             {
-              "$ref": "../../core/capability-keys.ts.json#/$defs/PageComponentInstanceEntry"
+              "$ref": "../../../../spark-utils/src/script-types.ts.json#/$defs/ComponentInstanceSnapshot"
             },
             {
               "type": "null"
@@ -51,7 +51,7 @@
         "method.list.return": {
           "type": "array",
           "items": {
-            "$ref": "../../core/capability-keys.ts.json#/$defs/PageComponentInstanceEntry"
+            "$ref": "../../../../spark-utils/src/script-types.ts.json#/$defs/ComponentInstanceSnapshot"
           }
         },
         "method.getApi.params": {
@@ -172,14 +172,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:50.984Z",
+  "generatedAt": "2026-08-10T11:47:55.104Z",
   "models": {
     "PageComponentAccessApi": {
       "name": "PageComponentAccessApi",
       "jsdoc": "页面脚本组件访问 API（由渲染器根节点注入）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 按组件 id 获取实例快照（只读元数据，不返回组件 API 对象） */\n    get(id: string): PageComponentInstanceEntry | null;\n    /** 列出页面组件实例（可按 type 过滤，只读元数据） */\n    list(type?: string): PageComponentInstanceEntry[];\n    /** 按组件 id 获取组件暴露 API（用于脚本调用组件能力） */\n    getApi<T = unknown>(id: string): T | null;\n    /** 按 type 获取同类组件 API 列表 */\n    getApisByType<T = unknown>(type: string): T[];\n}",
+        "declarationTypeText": "{\n    /** 按组件 id 获取实例快照（只读元数据，不返回组件 API 对象） */\n    get(id: string): ComponentInstanceSnapshot | null;\n    /** 列出页面组件实例（可按 type 过滤，只读元数据） */\n    list(type?: string): ComponentInstanceSnapshot[];\n    /** 按组件 id 获取组件暴露 API（用于脚本调用组件能力） */\n    getApi<T = unknown>(id: string): T | null;\n    /** 按 type 获取同类组件 API 列表 */\n    getApisByType<T = unknown>(type: string): T[];\n}",
         "members": {
           "methods": [
             {
@@ -199,8 +199,7 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "PageComponentInstanceEntry",
-                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                    "name": "ComponentInstanceSnapshot"
                   },
                   {
                     "type": "literal",
@@ -228,8 +227,7 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "PageComponentInstanceEntry",
-                  "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                  "name": "ComponentInstanceSnapshot"
                 }
               }
             },

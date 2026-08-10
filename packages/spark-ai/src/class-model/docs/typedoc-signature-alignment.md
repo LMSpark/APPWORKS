@@ -119,7 +119,7 @@ type MethodParameterMeta = Readonly<{
 // DtsTypeMeta 路径改用 optional 包装。
 ```
 
-同步修改 [`dts-type-schema.ts`](../class-model/dts-type-schema.ts)：`typeNodeToAiJsonSchema` 与 `DtsTypeMeta` **语义一致**（optional 映射 `type: [T, 'null']` 或 omit 策略文档化）。
+同步修改 [`dts-type-schema.ts`](../class-model/dts-type-schema.ts)：`typeNodeToJsonSchema` 与 `DtsTypeMeta` **语义一致**（optional 映射 `type: [T, 'null']` 或 omit 策略文档化）。
 
 ### 2.4 `signatureText` 生成策略
 

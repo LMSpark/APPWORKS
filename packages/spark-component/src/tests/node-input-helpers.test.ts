@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  getSparkNodeChildren,
-  isSparkNode,
-  normalizeSparkNode,
-  nodeInputProp,
-  nodeInputProps,
-  type SparkNode,
-} from '../core/types'
+import { type SparkNode, getSparkNodeChildren, normalizeSparkNode, isSparkNode, nodeInputProps, nodeInputProp } from '@spark-appworks/spark-data'
 
 describe('SparkNode input helpers', () => {
   it('nodeInputProp should only read props', () => {

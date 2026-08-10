@@ -650,8 +650,9 @@ import { useRoute } from 'vue-router'
 import { Plus, Loading, Delete, Connection, Coin, FolderOpened, Grid, Refresh } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { isRecord } from '@spark-appworks/spark-utils'
-import type { LowcodeDatabaseCatalog, RuntimeNavigationItem } from '@spark-appworks/spark-lowcode-api'
-import { lowcodeApi, lowcodeHttp as http, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
+import type { LowcodeDatabaseCatalog } from '@spark-appworks/spark-lowcode-api'
+import type { RuntimeNavigationItem } from '@spark-appworks/spark-app'
+import { lowcodeApi, lowcodeHttp as http, readLowcodePrincipal, readLowcodeRuntimeNavigation } from '@/lowcode/lowcode-runtime'
 import { parseTenantScope } from '@/services/tenant-scope'
 
 type DbmsServer = {
@@ -855,14 +856,15 @@ function collectDatabaseCatalogFormKeys(
   result = new Set<string>(),
 ): Set<string> {
   for (const node of nodes) {
+    const path = node.path?.toLowerCase() ?? ''
     if (
-      node.formKey !== null
+      node.formKey
       && (
         databaseCatalogNavigationTitles.has(node.title)
-        || node.target.toLowerCase().includes('databasecodelist')
+        || path.includes('databasecodelist')
       )
     ) result.add(node.formKey)
-    collectDatabaseCatalogFormKeys(node.children, result)
+    collectDatabaseCatalogFormKeys(node.children ?? [], result)
   }
   return result
 }
@@ -870,10 +872,7 @@ function collectDatabaseCatalogFormKeys(
 async function resolveDatabaseCatalogFormKeys(): Promise<readonly string[]> {
   const application = lowcodeApi.application.get()
   if (application === null) throw new Error('缺少 lowcode 应用上下文，无法定位数据库管理数据空间')
-  const navigation = await lowcodeApi.blueprint.readRuntimeNavigation(
-    application.application.id,
-    application.navigationRootId,
-  )
+  const navigation = await readLowcodeRuntimeNavigation(application.application.id)
   const formKeys = [...collectDatabaseCatalogFormKeys(navigation.items)]
   if (formKeys.length === 0) throw new Error('当前应用导航没有绑定数据库目录 FormKey，不能读取系统元数据')
   return formKeys

@@ -20,5 +20,4 @@ export type {
 
 export type {
   PageContext,
-  PageNodeRenderConfig,
 } from './context/types.js'

@@ -7,32 +7,19 @@
     "sourceFile": "packages/spark-component/src/core/capability-keys.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "core/capability-keys",
-    "jsdoc": "@module @spark-appworks/spark-component:core/capability-keys\n职责：提供 capability keys 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nspark-component 能力键定义。\n## 三类键：\n1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_DATASET / DATA_SOURCE / DATA_ROW\n2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：\nMODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE\n3. 页面 UI 服务与权限键（从 spark-utils 迁入）：\nPAGE_SERVICE / PAGE_PERMISSION_MODE / PagePermissionMode\n4. 字段渲染局部策略：\nSUBTREE_FIELD_POLICY\n注：PageServiceCapability 等运行时服务契约以\n@spark-appworks/spark-component/runtime 为 SSOT。",
+    "jsdoc": "@module @spark-appworks/spark-component:core/capability-keys\n职责：提供 capability keys 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nspark-component 能力键定义。\n## 三类键：\n1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_DATASET / DATA_SOURCE / DATA_ROW\n2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：\nMODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE\n3. 页面 UI 服务与权限键（从 spark-utils 迁入）：\nPAGE_SERVICE / PAGE_PERMISSION_MODE\n4. 字段渲染局部策略：\nSUBTREE_FIELD_POLICY\n注：PageServiceCapability 等运行时服务契约以\n@spark-appworks/spark-component/runtime 为 SSOT。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "PagePermissionMode",
       "SubtreeFieldPolicy",
       "ThemeMode",
       "ThemeCapability",
-      "ModuleContextItem",
-      "ModuleContext",
       "ModuleContextCapability",
-      "PageComponentInstanceEntry",
       "PageComponentApiEntry",
       "PageComponentRegistry",
       "PageCssScopeCapability"
     ]
   },
   "$defs": {
-    "PagePermissionMode": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "PagePermissionMode",
-      "enum": [
-        "none",
-        "masked",
-        "invisible"
-      ]
-    },
     "SubtreeFieldPolicy": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "SubtreeFieldPolicy",
@@ -85,66 +72,6 @@
         "method.toggle.return": true
       }
     },
-    "ModuleContextItem": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ModuleContextItem",
-      "properties": {
-        "id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            }
-          ]
-        },
-        "title": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "title"
-      ],
-      "additionalProperties": false
-    },
-    "ModuleContext": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ModuleContext",
-      "properties": {
-        "selected": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/ModuleContextItem"
-          }
-        },
-        "nodeId": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "selected",
-        "items",
-        "nodeId"
-      ],
-      "additionalProperties": false
-    },
     "ModuleContextCapability": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -158,7 +85,7 @@
         "method.getCurrent.return": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ModuleContext"
+              "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ContextSnapshot"
             },
             {
               "type": "null"
@@ -170,7 +97,7 @@
           "properties": {
             "handler": {
               "type": "object",
-              "title": "(next: ModuleContext | null, prev: ModuleContext | null) => void"
+              "title": "(next: ContextSnapshot | null, prev: ContextSnapshot | null) => void"
             }
           },
           "additionalProperties": false
@@ -180,28 +107,6 @@
           "title": "() => void"
         }
       }
-    },
-    "PageComponentInstanceEntry": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PageComponentInstanceEntry",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
-        "props": {
-          "type": "object",
-          "title": "Record<string, unknown>"
-        }
-      },
-      "required": [
-        "id",
-        "type"
-      ],
-      "additionalProperties": false
     },
     "PageComponentApiEntry": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -232,7 +137,7 @@
           "type": "object",
           "properties": {
             "entry": {
-              "$ref": "#/$defs/PageComponentInstanceEntry"
+              "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ComponentInstanceSnapshot"
             }
           },
           "additionalProperties": false
@@ -260,7 +165,7 @@
         "method.listInstances.return": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/PageComponentInstanceEntry"
+            "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ComponentInstanceSnapshot"
           }
         },
         "method.getInstance.params": {
@@ -275,7 +180,7 @@
         "method.getInstance.return": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PageComponentInstanceEntry"
+              "$ref": "../../../spark-utils/src/script-types.ts.json#/$defs/ComponentInstanceSnapshot"
             },
             {
               "type": "null"
@@ -369,31 +274,8 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:03:57.890Z",
+  "generatedAt": "2026-08-10T11:57:36.277Z",
   "models": {
-    "PagePermissionMode": {
-      "name": "PagePermissionMode",
-      "jsdoc": "页面组件在完整后端权限快照改造完成前使用的三态过渡模式。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'none' | 'masked' | 'invisible'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'none'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'masked'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'invisible'"
-          }
-        ],
-        "members": {}
-      }
-    },
     "SubtreeFieldPolicy": {
       "name": "SubtreeFieldPolicy",
       "jsdoc": "子树级字段输入策略 — 仅描述子树内字段输入行为，不改变全局 permissionMode。",
@@ -485,66 +367,12 @@
         }
       }
     },
-    "ModuleContextItem": {
-      "name": "ModuleContextItem",
-      "jsdoc": "模块列表项",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 唯一标识。 */\n    id: string | number;\n    /** 显示标题。 */\n    title: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "id",
-              "jsdoc": "唯一标识。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "title",
-              "jsdoc": "显示标题。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "ModuleContext": {
-      "name": "ModuleContext",
-      "jsdoc": "当前模块上下文快照",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** selected 字段。 */\n    selected: string | number | null;\n    /** items 字段。 */\n    items: readonly ModuleContextItem[];\n    /** node Id 标识。 */\n    nodeId: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "selected",
-              "jsdoc": "selected 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "items",
-              "jsdoc": "items 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "nodeId",
-              "jsdoc": "node Id 标识。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
     "ModuleContextCapability": {
       "name": "ModuleContextCapability",
       "jsdoc": "MODULE_CONTEXT 能力接口",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 获取当前模块上下文快照。 */\n    getCurrent(): ModuleContext | null;\n    /** 订阅模块上下文变更，返回取消订阅函数。 */\n    subscribe(handler: (next: ModuleContext | null, prev: ModuleContext | null) => void): () => void;\n}",
+        "declarationTypeText": "{\n    /** 获取当前模块上下文快照。 */\n    getCurrent(): ContextSnapshot | null;\n    /** 订阅模块上下文变更，返回取消订阅函数。 */\n    subscribe(handler: (next: ContextSnapshot | null, prev: ContextSnapshot | null) => void): () => void;\n}",
         "members": {
           "methods": [
             {
@@ -556,8 +384,7 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "ModuleContext",
-                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                    "name": "ContextSnapshot"
                   },
                   {
                     "type": "literal",
@@ -585,8 +412,7 @@
                                 "types": [
                                   {
                                     "type": "reference",
-                                    "name": "ModuleContext",
-                                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                                    "name": "ContextSnapshot"
                                   },
                                   {
                                     "type": "literal",
@@ -602,8 +428,7 @@
                                 "types": [
                                   {
                                     "type": "reference",
-                                    "name": "ModuleContext",
-                                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                                    "name": "ContextSnapshot"
                                   },
                                   {
                                     "type": "literal",
@@ -637,36 +462,6 @@
                   ]
                 }
               }
-            }
-          ]
-        }
-      }
-    },
-    "PageComponentInstanceEntry": {
-      "name": "PageComponentInstanceEntry",
-      "jsdoc": "Page Component Instance Entry 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 唯一标识。 */\n    id: string;\n    /** 类型标识。 */\n    type: string;\n    /** 组件属性集合。 */\n    props?: Record<string, unknown>;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "id",
-              "jsdoc": "唯一标识。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "type",
-              "jsdoc": "类型标识。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "props",
-              "jsdoc": "组件属性集合。",
-              "readable": true,
-              "writable": false
             }
           ]
         }
@@ -707,7 +502,7 @@
       "jsdoc": "页面内组件实例/API 注册表能力接口",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 注册组件实例元数据。 */\n    registerInstance(entry: PageComponentInstanceEntry): void;\n    /** 注销指定 id 的组件实例。 */\n    unregisterInstance(id: string): void;\n    /** 列出已注册实例，可按 type 过滤。 */\n    listInstances(type?: string): PageComponentInstanceEntry[];\n    /** 按 id 获取组件实例元数据。 */\n    getInstance(id: string): PageComponentInstanceEntry | null;\n    /** 注册组件暴露的运行时 API。 */\n    registerApi(entry: PageComponentApiEntry): void;\n    /** 注销指定 id 的组件 API。 */\n    unregisterApi(id: string): void;\n    /** 列出已注册 API，可按 type 过滤。 */\n    listApis(type?: string): PageComponentApiEntry[];\n    /** 按 id 获取组件 API 对象。 */\n    getApi<T = unknown>(id: string): T | null;\n    /** 按 type 获取同类组件 API 列表。 */\n    getApisByType<T = unknown>(type: string): T[];\n}",
+        "declarationTypeText": "{\n    /** 注册组件实例元数据。 */\n    registerInstance(entry: ComponentInstanceSnapshot): void;\n    /** 注销指定 id 的组件实例。 */\n    unregisterInstance(id: string): void;\n    /** 列出已注册实例，可按 type 过滤。 */\n    listInstances(type?: string): ComponentInstanceSnapshot[];\n    /** 按 id 获取组件实例元数据。 */\n    getInstance(id: string): ComponentInstanceSnapshot | null;\n    /** 注册组件暴露的运行时 API。 */\n    registerApi(entry: PageComponentApiEntry): void;\n    /** 注销指定 id 的组件 API。 */\n    unregisterApi(id: string): void;\n    /** 列出已注册 API，可按 type 过滤。 */\n    listApis(type?: string): PageComponentApiEntry[];\n    /** 按 id 获取组件 API 对象。 */\n    getApi<T = unknown>(id: string): T | null;\n    /** 按 type 获取同类组件 API 列表。 */\n    getApisByType<T = unknown>(type: string): T[];\n}",
         "members": {
           "methods": [
             {
@@ -718,8 +513,7 @@
                   "name": "entry",
                   "type": {
                     "type": "reference",
-                    "name": "PageComponentInstanceEntry",
-                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                    "name": "ComponentInstanceSnapshot"
                   }
                 }
               ],
@@ -764,8 +558,7 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "PageComponentInstanceEntry",
-                  "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                  "name": "ComponentInstanceSnapshot"
                 }
               }
             },
@@ -786,8 +579,7 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "PageComponentInstanceEntry",
-                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                    "name": "ComponentInstanceSnapshot"
                   },
                   {
                     "type": "literal",

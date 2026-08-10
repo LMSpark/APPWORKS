@@ -17,7 +17,7 @@ import {
   createLogger,
   createBatchHttpTransport,
 } from '../index'
-import type { LogTransport } from '../index'
+import type { AppLogTransport } from '../index'
 import { isRecord } from '@spark-appworks/spark-utils'
 
 /** 安全取 mock.calls 第 N 次调用 */
@@ -162,7 +162,7 @@ describe('AppLogger', () => {
     })
 
     it('error 缺少 Error 对象时，补充调用点栈', () => {
-      const transport: LogTransport = { send: vi.fn() }
+      const transport: AppLogTransport = { send: vi.fn() }
       const logger = createAppLogger({ level: 'error' })
       logger.addTransport(transport)
 
@@ -181,7 +181,7 @@ describe('AppLogger', () => {
     })
 
     it('suppressErrorConsoleTrace=true → 控制台不用 console.error，但 transport 保持 error 级别', () => {
-      const transport: LogTransport = { send: vi.fn() }
+      const transport: AppLogTransport = { send: vi.fn() }
       const logger = createAppLogger({ level: 'error', suppressErrorConsoleTrace: true })
       const meta = { code: 500 }
       logger.addTransport(transport)
@@ -212,7 +212,7 @@ describe('AppLogger', () => {
 
   describe('Transport', () => {
     it('每条日志触发所有 transport', () => {
-      const transport: LogTransport = { send: vi.fn() }
+      const transport: AppLogTransport = { send: vi.fn() }
       const logger = createAppLogger({ level: 'debug' })
       logger.addTransport(transport)
 
@@ -225,7 +225,7 @@ describe('AppLogger', () => {
     })
 
     it('transport 抛错不影响日志输出', () => {
-      const badTransport: LogTransport = {
+      const badTransport: AppLogTransport = {
         send: () => { throw new Error('transport failure') },
       }
       const logger = createAppLogger({ level: 'info' })

@@ -47,13 +47,9 @@ import {
   DATA_ROW,
   DATA_SOURCE,
   SparkComponentRenderer,
-  getSparkNodeChildren,
-  nodeId,
-  nodeInputProp,
   useSparkPageComponent,
-  type SparkNode,
 } from '../../internal'
-import type { DataView, DataRow } from '@spark-appworks/spark-data'
+import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from '../../support/beforeRender'
 import type { RToolbarProps } from './RendererToolbar.types'
 import { useContainerDataSource } from '../data-views/view-data-source'

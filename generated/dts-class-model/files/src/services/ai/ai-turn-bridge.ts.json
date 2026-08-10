@@ -10,7 +10,6 @@
     "jsdoc": "@module app:services/ai-turn-bridge\n职责：把 spark-ai 的本地工具循环语义映射到 lowcode-jdk17 Agent turn 与 SSE 合同。\n边界：Agent、会话和模型配置由 lowcode 后端持有；前端只执行已注册的前端工具并回传结果。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "AiTurnBridgeDiagnostic",
       "AiAgentTurnBridgeOptions"
     ]
   },

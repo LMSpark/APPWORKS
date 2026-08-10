@@ -1,8 +1,8 @@
 import { effectScope, nextTick, shallowRef } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import type { CrudApi, FilterExpression, DataRow, TableResourceType } from '@spark-appworks/spark-data'
-import type { SparkNode } from '@spark-appworks/spark-component'
 import { useFilterPanel, type FilterPanelState } from '../../packages/spark-component/src/components/containers/runtime/container-filter'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 type FilterViewLike = {
   rows: DataRow[]

@@ -112,11 +112,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.053Z",
+  "generatedAt": "2026-08-10T07:40:20.657Z",
   "models": {
     "PageNodeFileName": {
       "name": "PageNodeFileName",
-      "jsdoc": "Page Node File Name 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "typeof PAGE_NODE_FILE_NAMES[number]",
@@ -209,7 +209,7 @@
     },
     "PageNodeFileVersionSummary": {
       "name": "PageNodeFileVersionSummary",
-      "jsdoc": "Page Node File Version Summary 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** version 字段。 */\n    version: number;\n    /** 创建时间。 */\n    createdAt: string;\n    /** 是否 is Current。 */\n    isCurrent: boolean;\n    /** modified By 字段。 */\n    modifiedBy: string | null;\n}",

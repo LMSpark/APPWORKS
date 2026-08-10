@@ -3,9 +3,13 @@
  * {@link DataSpaceFrontendModel} 在实例化时 fail-fast 校验身份、字段唯一性与关系归属，不可绕过。
  */
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
+import type { OrderType } from '../../contracts/lowcode-wire-query.js'
 
 /** 数据资源 wire 类型；仅 table/view 可在设计态解析稳定目录身份。 */
 export type DataSpaceResourceType = 'table' | 'view' | 'dictionary' | 'interface' | 'json' | 'file'
+
+/** 目录可解析的物理资源子集。 */
+export type DataSpaceDatabaseResourceType = Extract<DataSpaceResourceType, 'table' | 'view'>
 
 /** 物理资源字段快照；resourceFieldId 与 name 在同一资源内须唯一。 */
 export type DataSpaceResourceField = Readonly<{
@@ -44,7 +48,7 @@ export type DataSpaceFieldReference = Readonly<{
   fieldType: string
   output: boolean
   order: number
-  orderType: string
+  orderType: OrderType | ''
   group: number
   distinct: boolean
   primaryKey: boolean

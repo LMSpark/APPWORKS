@@ -4,9 +4,14 @@
  * 边界：只表达项目/页面配置领域模型；不渲染组件，不绕过 pageDesign 四文件链路。
  * AI用途：树操作、页面摘要或 legacy `sub-page` 迁移判定时使用本模块。
  */
-import { deepClone } from '@spark-appworks/spark-utils'
+import {
+  deepClone,
+  isNavigationLinkTarget,
+  isNavigationRootPlacement,
+  type NavigationRootPlacement,
+  type RuntimeNavigationItemKind,
+} from '@spark-appworks/spark-utils'
 import type {
-  ProjectBlueprintDeliveryKind,
   ProjectPageSurface,
   ProjectDescriptionContext,
   ProjectBlueprintTreeData,
@@ -52,11 +57,11 @@ export function isConfigFilesPageSurface(surface: ProjectPageSurface): boolean {
 }
 const SYSTEM_CHILD_PLACEMENTS = new Set(['toolbar', 'user-menu'])
 
-function inferBlueprintNodeDeliveryKind(node: ProjectBlueprintTreeNodeData, parentPlacement?: string): ProjectBlueprintDeliveryKind {
+function inferBlueprintNodeDeliveryKind(node: ProjectBlueprintTreeNodeData, parentPlacement?: string): RuntimeNavigationItemKind {
   if (node.nodeKind !== undefined) return node.nodeKind
   if (parentPlacement !== undefined && SYSTEM_CHILD_PLACEMENTS.has(parentPlacement)) return 'system-action'
   if (node.childPlacement === 'toolbar' || node.childPlacement === 'user-menu') return 'system-directory'
-  if (node.linkTarget === 'iframe' || node.linkTarget === 'new-tab' || node.linkTarget === 'self') return 'link'
+  if (isNavigationLinkTarget(node.linkTarget)) return 'link'
   return 'page'
 }
 
@@ -69,7 +74,7 @@ export function normalizeProjectBlueprintTreeNodeData(node: ProjectBlueprintTree
     delete cloned.path
     delete cloned.linkTarget
   } else if (cloned.nodeKind === 'link') {
-    if (cloned.linkTarget !== 'iframe' && cloned.linkTarget !== 'new-tab' && cloned.linkTarget !== 'self') {
+    if (!isNavigationLinkTarget(cloned.linkTarget)) {
       cloned.linkTarget = 'iframe'
     }
   } else {
@@ -86,9 +91,8 @@ function isLegacySubPageKind(kind: unknown): boolean {
   return kind === 'sub-page'
 }
 
-function normalizeRootChildPlacement(value: unknown): 'header' | 'sidebar' {
-  const normalized = String(value ?? '').trim()
-  return normalized === 'header' || normalized === 'sidebar' ? normalized : 'header'
+function normalizeRootNavigationPlacement(value: unknown): NavigationRootPlacement {
+  return isNavigationRootPlacement(value) ? value : 'header'
 }
 
 /** Normalize Nav Root Input 的输入数据。 */
@@ -131,7 +135,7 @@ export function normalizeBlueprintTree(config: NormalizeNavRootInput): ProjectBl
     ...(promoted.homePath === undefined || promoted.homePath.trim() === '' ? {} : { homePath: promoted.homePath.trim() }),
     nodeKind: promoted.nodeKind ?? 'module',
     ...(promoted.blueprintKind === undefined ? {} : { blueprintKind: promoted.blueprintKind }),
-    childPlacement: normalizeRootChildPlacement(promoted.childPlacement),
+    childPlacement: normalizeRootNavigationPlacement(promoted.childPlacement),
     children: (promoted.children ?? []).map(node => normalizeProjectBlueprintTreeNodeData(node)),
   }
   return root
@@ -191,7 +195,7 @@ export function buildBlueprintTree(children: ProjectBlueprintTreeNodeData[], opt
   })
 }
 
-function isPageLikeKind(kind: ProjectBlueprintDeliveryKind | 'sub-page'): boolean {
+function isPageLikeKind(kind: RuntimeNavigationItemKind | 'sub-page'): boolean {
   return kind === 'page'
     || kind === 'system-page'
     || kind === 'system-action'

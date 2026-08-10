@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/permission/runtime/permission-runtime-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/permission/runtime/permission-runtime-api 模块。\n导出 DtsTypeDeclarationModel symbol: PermissionRuntimeSnapshot, PermissionRuntimeApi（共 2 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "权限运行态只读 API：按 formKey 读取当前用户功能权限与资源级 allowAdd。\n与 design 入口分离；本模块不提供 mutation，运行态写回走数据空间 runtime。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PermissionRuntimeSnapshot",
       "PermissionRuntimeApi"
@@ -66,11 +66,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:51:50.765Z",
+  "generatedAt": "2026-08-10T07:32:17.613Z",
   "models": {
     "PermissionRuntimeSnapshot": {
       "name": "PermissionRuntimeSnapshot",
-      "jsdoc": "",
+      "jsdoc": "运行态功能权限快照；childFun 与 allowAdd 来自 GetFormUserFunction。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    formKey: string;\n    authorizedFeatureTags: readonly string[];\n    allowAddByResource: Readonly<Record<string, boolean>>;\n}>",
@@ -104,7 +104,7 @@
     },
     "PermissionRuntimeApi": {
       "name": "PermissionRuntimeApi",
-      "jsdoc": "",
+      "jsdoc": "权限运行态门面；只读查询，不涉及设计表写入。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {

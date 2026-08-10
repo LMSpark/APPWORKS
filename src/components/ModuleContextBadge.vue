@@ -16,9 +16,7 @@ import {
   useSparkComponent,
   MODULE_CONTEXT,
 } from '@spark-appworks/spark-component'
-import type {
-  SparkNode,
-} from '@spark-appworks/spark-component'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 /** 模块上下文徽标属性，描述当前配置摘要和空态文本。 */
 type Props = {

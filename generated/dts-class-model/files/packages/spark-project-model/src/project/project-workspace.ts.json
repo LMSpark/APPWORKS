@@ -12,11 +12,8 @@
     "symbols": [
       "ProjectPageLoadOptions",
       "CreatePageForSelectedNodeParams",
-      "CreateMountedPageParams",
-      "CreatePageFilesParams",
       "PageNodeCreateMountedResult",
       "PageNodeRemoveMountedResult",
-      "RemoveMountedPageParams",
       "ProjectWorkspaceOptions",
       "ProjectWorkspace"
     ]
@@ -630,7 +627,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:41:25.608Z",
+  "generatedAt": "2026-08-10T07:40:20.653Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -652,7 +649,7 @@
     },
     "CreatePageForSelectedNodeParams": {
       "name": "CreatePageForSelectedNodeParams",
-      "jsdoc": "Create Page For Selected Node Params 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 显示标题。 */\n    title?: string;\n    /** icon 字段。 */\n    icon?: string;\n}",
@@ -682,7 +679,7 @@
     },
     "CreateMountedPageParams": {
       "name": "CreateMountedPageParams",
-      "jsdoc": "Create Mounted Page Params 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 显示标题。 */\n    title?: string;\n    /** icon 字段。 */\n    icon?: string;\n    /** node 字段。 */\n    node?: ProjectBlueprintTreeNodeData;\n    /** parent Id 标识。 */\n    parentId?: string | null;\n    /** index 字段。 */\n    index?: number;\n    /** 蓝图节点挂载失败时是否补偿删除已创建的页面文件。 */\n    rollbackPageOnBlueprintFailure?: boolean;\n}",
@@ -736,7 +733,7 @@
     },
     "CreatePageFilesParams": {
       "name": "CreatePageFilesParams",
-      "jsdoc": "Create Page Files Params 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "PageFileCreateOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n}",
@@ -813,7 +810,7 @@
     },
     "RemoveMountedPageParams": {
       "name": "RemoveMountedPageParams",
-      "jsdoc": "Remove Mounted Page Params 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** node Id 标识。 */\n    nodeId?: string;\n    /** delete Files 字段。 */\n    deleteFiles?: boolean;\n}",
@@ -883,7 +880,6 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建 Project Workspace 实例。",
           "signatureText": "constructor(options: ProjectWorkspaceOptions)",
           "parameters": [
             {
@@ -943,7 +939,6 @@
             },
             {
               "name": "ingestBlueprintTree",
-              "jsdoc": "执行 ingest Navigation Root 操作。",
               "parameters": [
                 {
                   "name": "root",
@@ -1059,7 +1054,6 @@
             },
             {
               "name": "saveSelectedBlueprintNode",
-              "jsdoc": "保存 Selected Navigation Node。",
               "parameters": [
                 {
                   "name": "options",
@@ -1085,7 +1079,6 @@
             },
             {
               "name": "ensureActivePageFilesLoaded",
-              "jsdoc": "执行 ensure Active Page Files Loaded 操作。",
               "parameters": [
                 {
                   "name": "options",
@@ -1201,7 +1194,6 @@
             },
             {
               "name": "addBlueprintNode",
-              "jsdoc": "执行 add Navigation Node 操作。",
               "parameters": [
                 {
                   "name": "params",
@@ -1390,7 +1382,6 @@
             },
             {
               "name": "moveMountedPage",
-              "jsdoc": "执行 move Mounted Page 操作。",
               "parameters": [
                 {
                   "name": "nodeId",
@@ -1437,7 +1428,6 @@
             },
             {
               "name": "listRemotePageVersions",
-              "jsdoc": "执行 list Remote Page Versions 操作。",
               "parameters": [
                 {
                   "name": "filename",
@@ -1465,7 +1455,6 @@
             },
             {
               "name": "restoreRemotePageVersion",
-              "jsdoc": "执行 restore Remote Page Version 操作。",
               "parameters": [
                 {
                   "name": "version",
@@ -1551,7 +1540,6 @@
             },
             {
               "name": "notifyPageFileChanged",
-              "jsdoc": "执行 notify Page File Changed 操作。",
               "parameters": [
                 {
                   "name": "pageId",
@@ -1593,7 +1581,6 @@
             },
             {
               "name": "probeLink",
-              "jsdoc": "执行 probe Link 操作。",
               "parameters": [
                 {
                   "name": "url",
@@ -1616,7 +1603,6 @@
             },
             {
               "name": "listReferenceProjects",
-              "jsdoc": "执行 list Reference Projects 操作。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1635,7 +1621,6 @@
             },
             {
               "name": "listReferenceProjectPages",
-              "jsdoc": "执行 list Reference Project Pages 操作。",
               "parameters": [
                 {
                   "name": "projectId",

@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-data-space-assembler",
+    "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-data-space-assembler",
+    "jsdoc": "app 的 lowcode/data-space/lowcode-data-space-assembler 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceAssemblerInput, LowcodeDataSpaceAssembly, LowcodeDataSpaceAssembler（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceAssemblerInput",
+      "LowcodeDataSpaceAssembly",
+      "LowcodeDataSpaceAssembler"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceAssemblerInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssemblerInput",
+      "properties": {
+        "design": {
+          "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceDesignSnapshot"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "permission": {
+          "$ref": "../../../packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts.json#/$defs/PermissionRuntimeSnapshot"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssembly": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssembly",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "lowcode-frontend-model-adapter.ts.json#/$defs/LowcodeDataSpaceAdapterDiagnostic"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssembler": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssembler",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+            },
+            "http": {
+              "$ref": "../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assemble.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeDataSpaceAssemblerInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assemble.return": {
+          "$ref": "#/$defs/LowcodeDataSpaceAssembly"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T12:46:09.988Z",
+  "models": {
+    "LowcodeDataSpaceAssemblerInput": {
+      "name": "LowcodeDataSpaceAssemblerInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    design: DataSpaceDesignSnapshot;\n    formKey: string;\n    permission: PermissionRuntimeSnapshot;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    design: DataSpaceDesignSnapshot;\n    formKey: string;\n    permission: PermissionRuntimeSnapshot;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "design",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permission",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssembly": {
+      "name": "LowcodeDataSpaceAssembly",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssembler": {
+      "name": "LowcodeDataSpaceAssembler",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(runtime: DataSpaceRuntimeApi, http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "runtime",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRuntimeApi"
+              }
+            },
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "assemble",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceAssemblerInput",
+                    "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceAssembly",
+                "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

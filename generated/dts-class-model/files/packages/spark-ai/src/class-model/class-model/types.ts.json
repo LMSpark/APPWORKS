@@ -58,7 +58,7 @@
         },
         "$defs": {
           "type": "object",
-          "title": "Record<string, AiJsonSchemaObject>"
+          "title": "Record<string, JsonSchemaObject>"
         }
       },
       "additionalProperties": false
@@ -217,8 +217,7 @@
           "title": "TDeclarationKind"
         },
         "jsonSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "component": {
           "$ref": "#/$defs/ComponentProfileMeta"
@@ -376,8 +375,7 @@
           "title": "TDeclarationKind"
         },
         "jsonSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "component": {
           "$ref": "#/$defs/ComponentProfileMeta"
@@ -407,8 +405,7 @@
           "title": "TDeclarationKind"
         },
         "jsonSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "component": {
           "$ref": "#/$defs/ComponentProfileMeta"
@@ -438,8 +435,7 @@
           "title": "TDeclarationKind"
         },
         "jsonSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "component": {
           "$ref": "#/$defs/ComponentProfileMeta"
@@ -469,8 +465,7 @@
           "title": "TDeclarationKind"
         },
         "jsonSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "component": {
           "$ref": "#/$defs/ComponentProfileMeta"
@@ -529,8 +524,7 @@
           }
         },
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "jsdoc": {
           "$ref": "#/$defs/JsDocMeta"
@@ -550,8 +544,7 @@
           "type": "string"
         },
         "schema": {
-          "type": "object",
-          "title": "AiJsonSchema"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
         },
         "readable": {
           "type": "boolean"
@@ -893,12 +886,10 @@
           "$ref": "#/$defs/DtsTypeMeta"
         },
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "returnSchema": {
-          "type": "object",
-          "title": "AiJsonSchema"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
         },
         "takesContext": {
           "type": "boolean"
@@ -913,18 +904,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-15T02:26:58.907Z",
+  "generatedAt": "2026-08-10T10:00:08.504Z",
   "models": {
     "ClassModelDocument": {
       "name": "ClassModelDocument",
       "jsdoc": "DtsTypeDeclarationModel 文档：只保留 module 真源，不预存 models 索引。\nLLM 可见的 DtsTypeDeclarationModel 在 guide 投影时按 attribute 链从 module 按需派生；\n连通性由 auditClassModelReflectionConnectivity 验证。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 投影格式版本，与 runtime API metadata 的 schemaVersion 独立演进；bundle loader 据此判断是否需要迁移。 */\n    schemaVersion: typeof CLASS_MODEL_DOCUMENT_VERSION;\n    /** 根节点语义标识；当前固定为 'module'，预留未来扩展为 'package' 等粒度。 */\n    rootKind: string;\n    /** 知识链路真源：所有 DtsTypeDeclarationModel 按 attribute 链从此 module 按需派生，不预存 models 索引。 */\n    module: AiRuntimeApiMetadataJson;\n    /** Draft 2020-12 共享定义；当 jsonSchema 使用 $ref 引用内部子 schema 时，被引用的片段存在此字典中以保证 bundle 自包含。 */\n    $defs?: Readonly<Record<string, AiJsonSchemaObject>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 投影格式版本，与 runtime API metadata 的 schemaVersion 独立演进；bundle loader 据此判断是否需要迁移。 */\n    schemaVersion: typeof CLASS_MODEL_DOCUMENT_VERSION;\n    /** 根节点语义标识；当前固定为 'module'，预留未来扩展为 'package' 等粒度。 */\n    rootKind: string;\n    /** 知识链路真源：所有 DtsTypeDeclarationModel 按 attribute 链从此 module 按需派生，不预存 models 索引。 */\n    module: AiRuntimeApiMetadataJson;\n    /** Draft 2020-12 共享定义；当 jsonSchema 使用 $ref 引用内部子 schema 时，被引用的片段存在此字典中以保证 bundle 自包含。 */\n    $defs?: Readonly<Record<string, JsonSchemaObject>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 投影格式版本，与 runtime API metadata 的 schemaVersion 独立演进；bundle loader 据此判断是否需要迁移。 */\n    schemaVersion: typeof CLASS_MODEL_DOCUMENT_VERSION;\n    /** 根节点语义标识；当前固定为 'module'，预留未来扩展为 'package' 等粒度。 */\n    rootKind: string;\n    /** 知识链路真源：所有 DtsTypeDeclarationModel 按 attribute 链从此 module 按需派生，不预存 models 索引。 */\n    module: AiRuntimeApiMetadataJson;\n    /** Draft 2020-12 共享定义；当 jsonSchema 使用 $ref 引用内部子 schema 时，被引用的片段存在此字典中以保证 bundle 自包含。 */\n    $defs?: Readonly<Record<string, AiJsonSchemaObject>>;\n}>",
+            "typeText": "Readonly<{\n    /** 投影格式版本，与 runtime API metadata 的 schemaVersion 独立演进；bundle loader 据此判断是否需要迁移。 */\n    schemaVersion: typeof CLASS_MODEL_DOCUMENT_VERSION;\n    /** 根节点语义标识；当前固定为 'module'，预留未来扩展为 'package' 等粒度。 */\n    rootKind: string;\n    /** 知识链路真源：所有 DtsTypeDeclarationModel 按 attribute 链从此 module 按需派生，不预存 models 索引。 */\n    module: AiRuntimeApiMetadataJson;\n    /** Draft 2020-12 共享定义；当 jsonSchema 使用 $ref 引用内部子 schema 时，被引用的片段存在此字典中以保证 bundle 自包含。 */\n    $defs?: Readonly<Record<string, JsonSchemaObject>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1278,11 +1269,11 @@
       "jsdoc": "DTS Type Declaration Base：所有 type-space 声明共享的最小身份和文档字段。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 声明模型的唯一名称：class/interface/type/enum 的导出符号名。 */\n    name: string;\n    /** 类型级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链起点。 */\n    jsdoc: JsDocMeta;\n    /** type-space 声明种类；判别 DtsTypeDeclarationModel 联合分支和 payload 结构。 */\n    declarationKind: TDeclarationKind;\n    /** bundle shard 持久化的 Draft 2020-12 独立校验文档。 */\n    jsonSchema?: AiJsonSchemaObject;\n    /** guide/query 实际消费的组件画像；替代持久化 provenance 中的 component* 冗余字段。 */\n    component?: ComponentProfileMeta;\n    /** 声明在 emit `.d.ts` 和源文件中的溯源信息；gap 报告和 fixHint 定位依赖此字段。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 声明模型的唯一名称：class/interface/type/enum 的导出符号名。 */\n    name: string;\n    /** 类型级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链起点。 */\n    jsdoc: JsDocMeta;\n    /** type-space 声明种类；判别 DtsTypeDeclarationModel 联合分支和 payload 结构。 */\n    declarationKind: TDeclarationKind;\n    /** bundle shard 持久化的 Draft 2020-12 独立校验文档。 */\n    jsonSchema?: JsonSchemaObject;\n    /** guide/query 实际消费的组件画像；替代持久化 provenance 中的 component* 冗余字段。 */\n    component?: ComponentProfileMeta;\n    /** 声明在 emit `.d.ts` 和源文件中的溯源信息；gap 报告和 fixHint 定位依赖此字段。 */\n    provenance?: SourceProvenanceMeta;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 声明模型的唯一名称：class/interface/type/enum 的导出符号名。 */\n    name: string;\n    /** 类型级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链起点。 */\n    jsdoc: JsDocMeta;\n    /** type-space 声明种类；判别 DtsTypeDeclarationModel 联合分支和 payload 结构。 */\n    declarationKind: TDeclarationKind;\n    /** bundle shard 持久化的 Draft 2020-12 独立校验文档。 */\n    jsonSchema?: AiJsonSchemaObject;\n    /** guide/query 实际消费的组件画像；替代持久化 provenance 中的 component* 冗余字段。 */\n    component?: ComponentProfileMeta;\n    /** 声明在 emit `.d.ts` 和源文件中的溯源信息；gap 报告和 fixHint 定位依赖此字段。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+            "typeText": "Readonly<{\n    /** 声明模型的唯一名称：class/interface/type/enum 的导出符号名。 */\n    name: string;\n    /** 类型级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链起点。 */\n    jsdoc: JsDocMeta;\n    /** type-space 声明种类；判别 DtsTypeDeclarationModel 联合分支和 payload 结构。 */\n    declarationKind: TDeclarationKind;\n    /** bundle shard 持久化的 Draft 2020-12 独立校验文档。 */\n    jsonSchema?: JsonSchemaObject;\n    /** guide/query 实际消费的组件画像；替代持久化 provenance 中的 component* 冗余字段。 */\n    component?: ComponentProfileMeta;\n    /** 声明在 emit `.d.ts` 和源文件中的溯源信息；gap 报告和 fixHint 定位依赖此字段。 */\n    provenance?: SourceProvenanceMeta;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1716,11 +1707,11 @@
       "jsdoc": "Constructor Meta 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 构造函数完整签名字符串；与 emit `.d.ts` 中 constructor 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional = 按位置传参，named = 对象解构传参（影响 paramsSchema 的结构：positional 是 tuple，named 是 object）。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 构造函数形参列表；按 TypeDoc ParameterReflection 投影，含 name 和 DtsTypeMeta。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** 参数 JSON Schema；positional 风格为 tuple schema，named 风格为 object schema，用于 LLM 工具调用时的参数校验。 */\n    paramsSchema?: AiJsonSchemaObject;\n    /** 构造函数 JSDoc 正文；semantic gap audit 在 kind='constructor' 时检查此字段。 */\n    jsdoc: JsDocMeta;\n    /** 构造函数在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 构造函数完整签名字符串；与 emit `.d.ts` 中 constructor 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional = 按位置传参，named = 对象解构传参（影响 paramsSchema 的结构：positional 是 tuple，named 是 object）。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 构造函数形参列表；按 TypeDoc ParameterReflection 投影，含 name 和 DtsTypeMeta。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** 参数 JSON Schema；positional 风格为 tuple schema，named 风格为 object schema，用于 LLM 工具调用时的参数校验。 */\n    paramsSchema?: JsonSchemaObject;\n    /** 构造函数 JSDoc 正文；semantic gap audit 在 kind='constructor' 时检查此字段。 */\n    jsdoc: JsDocMeta;\n    /** 构造函数在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 构造函数完整签名字符串；与 emit `.d.ts` 中 constructor 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional = 按位置传参，named = 对象解构传参（影响 paramsSchema 的结构：positional 是 tuple，named 是 object）。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 构造函数形参列表；按 TypeDoc ParameterReflection 投影，含 name 和 DtsTypeMeta。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** 参数 JSON Schema；positional 风格为 tuple schema，named 风格为 object schema，用于 LLM 工具调用时的参数校验。 */\n    paramsSchema?: AiJsonSchemaObject;\n    /** 构造函数 JSDoc 正文；semantic gap audit 在 kind='constructor' 时检查此字段。 */\n    jsdoc: JsDocMeta;\n    /** 构造函数在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+            "typeText": "Readonly<{\n    /** 构造函数完整签名字符串；与 emit `.d.ts` 中 constructor 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional = 按位置传参，named = 对象解构传参（影响 paramsSchema 的结构：positional 是 tuple，named 是 object）。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 构造函数形参列表；按 TypeDoc ParameterReflection 投影，含 name 和 DtsTypeMeta。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** 参数 JSON Schema；positional 风格为 tuple schema，named 风格为 object schema，用于 LLM 工具调用时的参数校验。 */\n    paramsSchema?: JsonSchemaObject;\n    /** 构造函数 JSDoc 正文；semantic gap audit 在 kind='constructor' 时检查此字段。 */\n    jsdoc: JsDocMeta;\n    /** 构造函数在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1771,11 +1762,11 @@
       "jsdoc": "Attribute Meta 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 属性/字段/枚举成员名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 属性类型的 JSON Schema；由 DtsTypeMeta 映射而来，复杂类型可能缺失。 */\n    schema?: AiJsonSchema;\n    /** 可读性标记；getter 或 public 属性为 true，write-only setter 为 false。 */\n    readable: boolean;\n    /** 可写性标记；setter 或 public mutable 属性为 true，readonly/getter-only 为 false。 */\n    writable: boolean;\n    /** 成员级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 成员在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 属性/字段/枚举成员名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 属性类型的 JSON Schema；由 DtsTypeMeta 映射而来，复杂类型可能缺失。 */\n    schema?: JsonSchema;\n    /** 可读性标记；getter 或 public 属性为 true，write-only setter 为 false。 */\n    readable: boolean;\n    /** 可写性标记；setter 或 public mutable 属性为 true，readonly/getter-only 为 false。 */\n    writable: boolean;\n    /** 成员级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 成员在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 属性/字段/枚举成员名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 属性类型的 JSON Schema；由 DtsTypeMeta 映射而来，复杂类型可能缺失。 */\n    schema?: AiJsonSchema;\n    /** 可读性标记；getter 或 public 属性为 true，write-only setter 为 false。 */\n    readable: boolean;\n    /** 可写性标记；setter 或 public mutable 属性为 true，readonly/getter-only 为 false。 */\n    writable: boolean;\n    /** 成员级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 成员在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+            "typeText": "Readonly<{\n    /** 属性/字段/枚举成员名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 属性类型的 JSON Schema；由 DtsTypeMeta 映射而来，复杂类型可能缺失。 */\n    schema?: JsonSchema;\n    /** 可读性标记；getter 或 public 属性为 true，write-only setter 为 false。 */\n    readable: boolean;\n    /** 可写性标记；setter 或 public mutable 属性为 true，readonly/getter-only 为 false。 */\n    writable: boolean;\n    /** 成员级 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 成员在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -2016,11 +2007,11 @@
       "jsdoc": "Method Meta 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 方法名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 方法完整签名字符串；含参数列表和返回类型，与 emit 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional 按位置传参，named 使用对象解构；影响 paramsSchema 结构。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 方法形参列表；takesContext 为 true 时首参为上下文对象，LLM 工具调用应跳过。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** TypeDoc SignatureReflection.type（返回类型 SSOT）。 */\n    type?: DtsTypeMeta;\n    /** 参数 JSON Schema；由 parameters 映射，用于 LLM 工具调用的入参校验。 */\n    paramsSchema?: AiJsonSchemaObject;\n    /** 返回值 JSON Schema；仅在返回类型可完整映射为 JSON Schema 时存在，复杂类型（泛型/回调）可能缺失。 */\n    returnSchema?: AiJsonSchema;\n    /** 方法首参是否为上下文对象（如 SparkScriptContext）；标记为 true 时 LLM 在工具调用中应跳过该参数。 */\n    takesContext?: boolean;\n    /** 方法 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 方法在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 方法名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 方法完整签名字符串；含参数列表和返回类型，与 emit 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional 按位置传参，named 使用对象解构；影响 paramsSchema 结构。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 方法形参列表；takesContext 为 true 时首参为上下文对象，LLM 工具调用应跳过。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** TypeDoc SignatureReflection.type（返回类型 SSOT）。 */\n    type?: DtsTypeMeta;\n    /** 参数 JSON Schema；由 parameters 映射，用于 LLM 工具调用的入参校验。 */\n    paramsSchema?: JsonSchemaObject;\n    /** 返回值 JSON Schema；仅在返回类型可完整映射为 JSON Schema 时存在，复杂类型（泛型/回调）可能缺失。 */\n    returnSchema?: JsonSchema;\n    /** 方法首参是否为上下文对象（如 SparkScriptContext）；标记为 true 时 LLM 在工具调用中应跳过该参数。 */\n    takesContext?: boolean;\n    /** 方法 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 方法在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 方法名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 方法完整签名字符串；含参数列表和返回类型，与 emit 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional 按位置传参，named 使用对象解构；影响 paramsSchema 结构。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 方法形参列表；takesContext 为 true 时首参为上下文对象，LLM 工具调用应跳过。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** TypeDoc SignatureReflection.type（返回类型 SSOT）。 */\n    type?: DtsTypeMeta;\n    /** 参数 JSON Schema；由 parameters 映射，用于 LLM 工具调用的入参校验。 */\n    paramsSchema?: AiJsonSchemaObject;\n    /** 返回值 JSON Schema；仅在返回类型可完整映射为 JSON Schema 时存在，复杂类型（泛型/回调）可能缺失。 */\n    returnSchema?: AiJsonSchema;\n    /** 方法首参是否为上下文对象（如 SparkScriptContext）；标记为 true 时 LLM 在工具调用中应跳过该参数。 */\n    takesContext?: boolean;\n    /** 方法 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 方法在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
+            "typeText": "Readonly<{\n    /** 方法名；与 emit `.d.ts` 中的标识符一致。 */\n    name: string;\n    /** 方法完整签名字符串；含参数列表和返回类型，与 emit 声明文本一致。 */\n    signatureText?: string;\n    /** 调用约定：positional 按位置传参，named 使用对象解构；影响 paramsSchema 结构。 */\n    parameterStyle?: MethodParameterStyle;\n    /** 方法形参列表；takesContext 为 true 时首参为上下文对象，LLM 工具调用应跳过。 */\n    parameters?: readonly MethodParameterMeta[];\n    /** TypeDoc SignatureReflection.type（返回类型 SSOT）。 */\n    type?: DtsTypeMeta;\n    /** 参数 JSON Schema；由 parameters 映射，用于 LLM 工具调用的入参校验。 */\n    paramsSchema?: JsonSchemaObject;\n    /** 返回值 JSON Schema；仅在返回类型可完整映射为 JSON Schema 时存在，复杂类型（泛型/回调）可能缺失。 */\n    returnSchema?: JsonSchema;\n    /** 方法首参是否为上下文对象（如 SparkScriptContext）；标记为 true 时 LLM 在工具调用中应跳过该参数。 */\n    takesContext?: boolean;\n    /** 方法 JSDoc 正文；guide 投影和 semantic gap audit 的语义链节点。 */\n    jsdoc: JsDocMeta;\n    /** 方法在 emit `.d.ts` 和源文件中的溯源信息。 */\n    provenance?: SourceProvenanceMeta;\n}>",
             "targetName": "Readonly"
           }
         ],

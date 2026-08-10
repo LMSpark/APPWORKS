@@ -15,8 +15,6 @@ import {
 
 import type { AiRuntimeApiMetadataJson } from './ai-api-object-metadata-schema'
 
-export { dereferenceJsonSchema } from '@spark-appworks/spark-json-document'
-
 const RUNTIME_API_METADATA_SCHEMA_SLOT_KEYS = ['paramsSchema', 'resultSchema', 'schema'] as const
 
 export function dereferenceRuntimeApiMetadataSchemas(

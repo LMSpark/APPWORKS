@@ -9,9 +9,7 @@
     "modulePath": "page/binding/bind-normalize",
     "jsdoc": "@module @spark-appworks/spark-component:page/binding/bind-normalize\n职责：提供 bind normalize 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n事件归一化工具\n从 SparkNode 输入中提取/转换事件处理器与 Props 回调。\n当前仅被 SparkPageRenderer 生产渲染路径复用。\n## 统一零代码事件机制\n支持四种 handler 形式：\n- string → callFunc 闭包（脚本函数名）\n- { action: \"...\", cancelDefault?: boolean } → 声明式动作（异步执行，awaitable）\n- Array<string | ActionDescriptor | Function> → 折叠为单函数，顺序执行\n- Function → 透传\n### cancelDefault 机制\naction descriptor 上设置 `cancelDefault: true` 时，包装闭包会提取事件参数中\n最后一个控制对象（`{ cancel: boolean }`）并交给 action 执行器；\n由执行器显式设置 `control.cancel = true`，从而阻止容器/字段默认行为。\n### 数组折叠\n数组 handler 折叠为**单个 async 函数**，依次执行每个子项。\n数组内任一 action descriptor 设了 `cancelDefault`，则整体取消默认行为。\n折叠后的单函数可被容器/字段统一控制包装层正确 await 并读取 cancel 标志。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "CallFunc"
-    ]
+    "symbols": []
   },
   "$defs": {
     "CallFunc": {

@@ -16,9 +16,9 @@
  * - 前端权限仅为渲染层表现，真正安全由后端控制
  * - 所有权限判断收口到本模块，方便统一维护
  */
-import type { DataPermissionSnapshot, DataRow } from '@spark-appworks/spark-data'
-import type { SubtreeFieldPolicy, PagePermissionMode } from '../core/capability-keys.js'
-import type { SparkNode } from '../core/types'
+import type { DataPermissionSnapshot, DataRow, SparkNode } from '@spark-appworks/spark-data'
+import type { SubtreeFieldPolicy } from '../core/capability-keys.js'
+import type { PermissionMode } from '@spark-appworks/spark-utils'
 import { useSparkConsume } from '../core/useSparkComponent'
 import { SUBTREE_FIELD_POLICY, PAGE_PERMISSION_MODE } from '../core/capability-keys.js'
 import {
@@ -27,19 +27,20 @@ import {
   isModelActionAllowed,
   isRowActionAllowed,
 } from './PermissionResolver'
-import type { PermissionAction, PermissionActionContext } from './PermissionResolver'
-import type { FieldRenderConfig, FieldRenderState } from './FieldRenderHelper'
+import type { PermissionAction, ComponentPermissionActionContext } from './PermissionResolver'
+import type { FieldRenderConfig } from '@spark-appworks/spark-utils'
+import type { FieldRenderState } from '@spark-appworks/spark-data'
 
 /** Use Permission Return 的语义模型。 */
 export type UsePermissionReturn = {
   /** 当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。 */
-  readonly permissionMode: PagePermissionMode | undefined
+  readonly permissionMode: PermissionMode | undefined
 
   /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */
   readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined
 
   /** 判断动作是否被权限允许 */
-  isPermitted(action: PermissionAction | undefined, context?: Omit<PermissionActionContext, 'permissionMode'>): boolean
+  isPermitted(action: PermissionAction | undefined, context?: Omit<ComponentPermissionActionContext, 'permissionMode'>): boolean
 
   /** 判断模型级动作（create/import/export）是否允许 */
   isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined): boolean

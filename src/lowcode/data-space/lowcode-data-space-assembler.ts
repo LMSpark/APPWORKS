@@ -4,12 +4,16 @@ import type {
   DataSpaceRuntimeApi,
   DataSpaceRuntimeFilter,
   DataSpaceRuntimeQuery,
+  OrderType,
+  PermissionRuntimeSnapshot,
+  WireFilterOperator,
 } from '@spark-appworks/spark-lowcode-api'
 import {
   DataSet,
   type DataSetMetadata,
-  type DataViewQueryResult,
+  type DataPermissionSnapshotInput,
   type FilterExpression,
+  type FilterOperator,
   type QueryParams,
   type TableMetadata,
 } from '@spark-appworks/spark-data'
@@ -21,11 +25,12 @@ import {
   type LowcodeDataSpaceAdapterDiagnostic,
 } from './lowcode-frontend-model-adapter'
 import { LowcodeModelRelationAdapter } from './lowcode-model-relation-adapter'
+import { toDataPermissionSnapshotInput } from '../permission/lowcode-permission-to-data-permission'
 
 export type LowcodeDataSpaceAssemblerInput = Readonly<{
   design: DataSpaceDesignSnapshot
   formKey: string
-  authorizedFeatureTags: readonly string[]
+  permission: PermissionRuntimeSnapshot
 }>
 
 export type LowcodeDataSpaceAssembly = Readonly<{
@@ -36,6 +41,17 @@ export type LowcodeDataSpaceAssembly = Readonly<{
 type ModelRuntimeBinding = Readonly<{
   adapted: LowcodeAdaptedFrontendModel
   model: DataSpaceFrontendModel
+}>
+
+type AdaptedDataResource = ReturnType<LowcodeFrontendModelAdapter['adapt']>['resources'][number]
+
+type ModelTableCommand = Readonly<{
+  resourceId: string
+  resource: AdaptedDataResource
+  bindings: readonly ModelRuntimeBinding[]
+  runtime: DataSpaceRuntimeApi
+  formKey: string
+  permission: PermissionRuntimeSnapshot
 }>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -68,22 +84,31 @@ function queryContext(params: QueryParams): Readonly<{ dataSpaceId: string; mode
   return { dataSpaceId, modelId }
 }
 
-function backendOperator(operator: string): string {
-  const operators: Readonly<Record<string, string>> = {
-    '==': 'equal',
-    '!=': 'notEqual',
-    '>': 'great',
-    '>=': 'greatEqual',
-    '<': 'less',
-    '<=': 'lessEqual',
-    in: 'in',
-    notIn: 'notIn',
-    contains: 'contains',
-    startsWith: 'startsWith',
-    endsWith: 'endsWith',
+const DATAVIEW_TO_WIRE_FILTER_OPERATOR_ENTRIES = [
+  ['==', 'equal'],
+  ['!=', 'notequal'],
+  ['>', 'greaterthan'],
+  ['>=', 'greaterthanorequal'],
+  ['<', 'lessthan'],
+  ['<=', 'lessthanorequal'],
+  ['in', 'in'],
+  ['not in', 'notin'],
+  ['contains', 'contains'],
+  ['startsWith', 'startswith'],
+  ['endsWith', 'endswith'],
+  ['is null', 'isnull'],
+  ['is not null', 'isnotnull'],
+  ['not like', 'nolike'],
+] as const satisfies ReadonlyArray<readonly [FilterOperator, WireFilterOperator]>
+
+const DATAVIEW_TO_WIRE_FILTER_OPERATOR: ReadonlyMap<string, WireFilterOperator> =
+  new Map(DATAVIEW_TO_WIRE_FILTER_OPERATOR_ENTRIES)
+
+function backendOperator(operator: string): WireFilterOperator {
+  const resolved = DATAVIEW_TO_WIRE_FILTER_OPERATOR.get(operator)
+  if (resolved === undefined) {
+    throw new Error(`不支持的 DataView 过滤操作符: ${operator}`)
   }
-  const resolved = operators[operator]
-  if (resolved === undefined) throw new Error(`不支持的 DataView 过滤操作符: ${operator}`)
   return resolved
 }
 
@@ -136,9 +161,10 @@ function runtimeSort(params: QueryParams, binding: ModelRuntimeBinding): DataSpa
     const [fieldName, directionName] = item.split(':')
     const field = binding.adapted.fieldProjection.find(candidate => candidate.viewField === fieldName)
     if (field === undefined) throw new Error(`DataView 排序字段不存在: ${binding.adapted.modelId}/${fieldName ?? ''}`)
+    const direction: OrderType = directionName === 'desc' ? 'descending' : 'ascending'
     return {
       fieldId: field.fieldId,
-      direction: directionName === 'desc' ? 'descending' : 'ascending',
+      direction,
     }
   })
 }
@@ -161,29 +187,24 @@ function runtimeQuery(
 
 function toQueryResult(
   snapshot: ReturnType<DataSpaceRuntimeApi['parseQueryResult']>,
-  authorizedFeatureTags: readonly string[],
-): DataViewQueryResult {
-  return {
+  permission: PermissionRuntimeSnapshot,
+  resourceId: string,
+): DataPermissionSnapshotInput {
+  return toDataPermissionSnapshotInput(permission, {
     formKey: snapshot.formKey,
     dataSpaceId: snapshot.dataSpaceId,
     modelId: snapshot.modelId,
+    resourceId,
     rows: snapshot.rows.map(row => ({ ...row })),
     originalRows: snapshot.originalRows.map(row => ({ ...row })),
     total: snapshot.total,
-    allowAdd: snapshot.allowAdd,
     systemKey: snapshot.systemKey,
-    authorizedFeatureTags: [...authorizedFeatureTags],
-  }
+    queryAllowAdd: snapshot.allowAdd,
+  })
 }
 
-function modelTable(
-  resourceId: string,
-  resource: ReturnType<LowcodeFrontendModelAdapter['adapt']>['resources'][number],
-  bindings: readonly ModelRuntimeBinding[],
-  runtime: DataSpaceRuntimeApi,
-  formKey: string,
-  authorizedFeatureTags: readonly string[],
-): TableMetadata {
+function modelTable(command: ModelTableCommand): TableMetadata {
+  const { resourceId, resource, bindings, runtime, formKey, permission } = command
   const byModelId = new Map(bindings.map(binding => [binding.adapted.modelId, binding]))
   const resolveBinding = (request: unknown): ModelRuntimeBinding => {
     const params = requireQueryParams(request)
@@ -227,7 +248,7 @@ function modelTable(
         const params = requireQueryParams(request)
         const query = runtimeQuery(params, resolveBinding(params), formKey)
         const snapshot = runtime.parseQueryResult(query, unwrapLowcodeResult(response))
-        return toQueryResult(snapshot, authorizedFeatureTags)
+        return toQueryResult(snapshot, permission, resourceId)
       },
     },
     views,
@@ -246,6 +267,9 @@ export class LowcodeDataSpaceAssembler {
   public assemble(input: LowcodeDataSpaceAssemblerInput): LowcodeDataSpaceAssembly {
     const formKey = input.formKey.trim()
     if (!formKey) throw new Error('formKey 不能为空')
+    if (input.permission.formKey !== formKey) {
+      throw new Error(`Assembler formKey 与权限 formKey 不一致: ${formKey} / ${input.permission.formKey}`)
+    }
     const adaptedModels = this.modelAdapter.adapt(input.design.models)
     const adaptedRelations = this.relationAdapter.adapt(input.design.relations, adaptedModels)
     const rawModels = new Map(input.design.models.map(model => [model.modelId, model]))
@@ -258,14 +282,14 @@ export class LowcodeDataSpaceAssembler {
           return model === undefined ? null : { adapted, model }
         })
         .filter((binding): binding is ModelRuntimeBinding => binding !== null)
-      tables[resource.resourceId] = modelTable(
-        resource.resourceId,
+      tables[resource.resourceId] = modelTable({
+        resourceId: resource.resourceId,
         resource,
         bindings,
-        this.runtime,
+        runtime: this.runtime,
         formKey,
-        input.authorizedFeatureTags,
-      )
+        permission: input.permission,
+      })
     }
     const metadata: DataSetMetadata = {
       schemaVersion: 2,

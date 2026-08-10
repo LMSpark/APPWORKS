@@ -5,7 +5,7 @@
  * AI用途：需要验证运行时是否能承载 workflow definition 时，用本模块确认链路。
  */
 
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type {
   AiAgentHost,
   AiAgentHostDryRunResult,
@@ -21,28 +21,28 @@ export type AgentWorkflowActivation = Readonly<{
   rootClassName?: string
 }>
 
-export type AgentWorkflowRuntimeBinding<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AgentWorkflowRuntimeBinding<TInput extends JsonParams = JsonParams> = Readonly<{
   alias: string
   moduleId: string
   rootClassName?: string
   create: () => AiAgentRegistration<TInput>
 }>
 
-export type AgentWorkflowBindings<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AgentWorkflowBindings<TInput extends JsonParams = JsonParams> = Readonly<{
   workflows: Readonly<Record<string, AgentWorkflowRuntimeBinding<TInput>>>
 }>
 
-export type ResolveAgentWorkflowActivationCommand<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type ResolveAgentWorkflowActivationCommand<TInput extends JsonParams = JsonParams> = Readonly<{
   definition: AgentWorkflowDefinition
   bindings: AgentWorkflowBindings<TInput>
 }>
 
-export type ActivateAgentWorkflowDefinitionCommand<TInput extends AiJsonParams = AiJsonParams> =
+export type ActivateAgentWorkflowDefinitionCommand<TInput extends JsonParams = JsonParams> =
   ResolveAgentWorkflowActivationCommand<TInput> & Readonly<{
     host: AiAgentHost
   }>
 
-export type AgentWorkflowDryRunCommand<TInput extends AiJsonParams = AiJsonParams> =
+export type AgentWorkflowDryRunCommand<TInput extends JsonParams = JsonParams> =
   ActivateAgentWorkflowDefinitionCommand<TInput> & Readonly<{
     input: TInput
   }>
@@ -53,7 +53,7 @@ export type AgentWorkflowDryRunResult = Readonly<{
   dryRun: AiAgentHostDryRunResult
 }>
 
-export function resolveAgentWorkflowActivation<TInput extends AiJsonParams>(
+export function resolveAgentWorkflowActivation<TInput extends JsonParams>(
   command: ResolveAgentWorkflowActivationCommand<TInput>,
 ): AgentWorkflowActivation {
   assertAgentWorkflowDefinition(command.definition)
@@ -70,7 +70,7 @@ export function resolveAgentWorkflowActivation<TInput extends AiJsonParams>(
   }
 }
 
-export function activateAgentWorkflowDefinition<TInput extends AiJsonParams>(
+export function activateAgentWorkflowDefinition<TInput extends JsonParams>(
   command: ActivateAgentWorkflowDefinitionCommand<TInput>,
 ): AiAgentHost {
   const activation = resolveAgentWorkflowActivation(command)
@@ -90,7 +90,7 @@ export function activateAgentWorkflowDefinition<TInput extends AiJsonParams>(
   })
 }
 
-export function dryRunAgentWorkflowDefinition<TInput extends AiJsonParams>(
+export function dryRunAgentWorkflowDefinition<TInput extends JsonParams>(
   command: AgentWorkflowDryRunCommand<TInput>,
 ): AgentWorkflowDryRunResult {
   const activation = resolveAgentWorkflowActivation(command)

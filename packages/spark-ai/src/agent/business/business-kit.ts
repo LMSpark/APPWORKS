@@ -5,9 +5,9 @@
  * AI用途：注册新的业务模块入口时，用本模块确认输入字段如何转成会话 scope、用户消息和系统提示。
  */
 import type {
-  AiJsonParams,
-  AiJsonSchemaObject,
-} from '../../json'
+  JsonParams,
+  JsonSchemaObject,
+} from '@spark-appworks/spark-json-document'
 import { createAiAgentScope } from './business-scope'
 import type {
   AiAgentInputContract,
@@ -21,15 +21,15 @@ export type AiBusinessIdOptions = Readonly<{
 }>
 
 /** Ai Business Input Options 的调用配置。 */
-export type AiBusinessInputOptions<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiBusinessInputOptions<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 输入参数的 JSON Schema，用于 normalize 前后双次校验。 */
-  paramsSchema: AiJsonSchemaObject
+  paramsSchema: JsonSchemaObject
   /** 实体标识字段名，其值用于生成 scope.businessInstanceId。 */
   identityField: keyof TInput & string
   /** 用户消息字段名，其值作为 LLM 首轮 user message 内容。 */
   messageField: keyof TInput & string
   /** 自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。 */
-  normalize?: (input: AiJsonParams) => TInput
+  normalize?: (input: JsonParams) => TInput
   /** 系统提示，支持静态文本或从输入动态生成；空串会 throw。 */
   systemPrompt: string | ((input: TInput) => string)
   /** 可选 turn 标题，支持静态文本或从输入动态生成。 */
@@ -39,10 +39,10 @@ export type AiBusinessInputOptions<TInput extends AiJsonParams = AiJsonParams> =
 }>
 
 /** Create Simple Input Contract Options 的调用配置。 */
-export type CreateSimpleInputContractOptions<TInput extends AiJsonParams = AiJsonParams> =
+export type CreateSimpleInputContractOptions<TInput extends JsonParams = JsonParams> =
   AiBusinessIdOptions & AiBusinessInputOptions<TInput>
 
-export function createSimpleInputContract<TInput extends AiJsonParams = AiJsonParams>(
+export function createSimpleInputContract<TInput extends JsonParams = JsonParams>(
   options: CreateSimpleInputContractOptions<TInput>,
 ): AiAgentInputContract<TInput> {
   const businessId = normalizeBusinessId(options)
@@ -76,17 +76,17 @@ function normalizeBusinessId(options: AiBusinessIdOptions): string {
   return normalizeRequiredText(options.businessId, 'businessId')
 }
 
-function defaultNormalize<TInput extends AiJsonParams>(input: AiJsonParams): TInput {
+function defaultNormalize<TInput extends JsonParams>(input: JsonParams): TInput {
   if (isSchemaValidatedInput<TInput>(input)) return input
   throw new Error('[AiAgentInputContract] input must match paramsSchema before normalization.')
 }
 
-function isSchemaValidatedInput<TInput extends AiJsonParams>(input: AiJsonParams): input is TInput {
+function isSchemaValidatedInput<TInput extends JsonParams>(input: JsonParams): input is TInput {
   void input
   return true
 }
 
-function normalizeInputField<TInput extends AiJsonParams>(
+function normalizeInputField<TInput extends JsonParams>(
   field: keyof TInput & string,
   label: string,
 ): keyof TInput & string {
@@ -105,7 +105,7 @@ function normalizeRequiredText(value: unknown, field: string): string {
   return trimmed
 }
 
-function readRequiredString<TInput extends AiJsonParams>(
+function readRequiredString<TInput extends JsonParams>(
   input: TInput,
   field: keyof TInput & string,
   label: string,
@@ -117,7 +117,7 @@ function readRequiredString<TInput extends AiJsonParams>(
   return value.trim()
 }
 
-function resolveTextOption<TInput extends AiJsonParams>(
+function resolveTextOption<TInput extends JsonParams>(
   value: string | ((input: TInput) => string),
   input: TInput,
   label: string,
@@ -126,7 +126,7 @@ function resolveTextOption<TInput extends AiJsonParams>(
   return normalizeRequiredText(resolved, label)
 }
 
-function resolveOptionalTextOption<TInput extends AiJsonParams>(
+function resolveOptionalTextOption<TInput extends JsonParams>(
   value: string | ((input: TInput) => string | undefined) | undefined,
   input: TInput,
 ): string | undefined {
@@ -136,7 +136,7 @@ function resolveOptionalTextOption<TInput extends AiJsonParams>(
   return normalizeRequiredText(resolved, 'title')
 }
 
-function resolveOptionalTextListOption<TInput extends AiJsonParams>(
+function resolveOptionalTextListOption<TInput extends JsonParams>(
   value: readonly string[] | ((input: TInput) => readonly string[] | undefined) | undefined,
   input: TInput,
 ): readonly string[] | undefined {

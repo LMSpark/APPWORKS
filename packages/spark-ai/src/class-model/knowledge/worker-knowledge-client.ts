@@ -5,7 +5,7 @@
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/knowledge/worker-knowledge-client 这一段如何生成、加载或投影时，用本模块定位职责。
  */
 import { wrap, type Remote } from 'comlink'
-import type { AiJsonValue } from '../../json'
+import type { JsonValue } from '@spark-appworks/spark-json-document'
 import type {
   ClassModelAttributeGuideInput,
   ClassModelKnowledgeProvider,
@@ -62,7 +62,7 @@ public constructor(worker: Worker, init: ClassModelKnowledgeWorkerInitInput) {
   }
 
     /** 查询参数。 */
-public async query(input: ClassModelKnowledgeQueryInput): Promise<AiJsonValue> {
+public async query(input: ClassModelKnowledgeQueryInput): Promise<JsonValue> {
     await this.initialized
     return this.api.query(input)
   }

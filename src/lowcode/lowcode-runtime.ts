@@ -2,9 +2,10 @@ import {
   LowcodeApi,
   type LowcodeApplication,
   type LowcodeEnterprise,
-  type ProjectBlueprint,
-  type ProjectBlueprintTreeNode,
-  type RuntimeNavigationItem as LowcodeRuntimeNavigationItem,
+  type LowcodeProjectBlueprintRecord,
+  type LowcodeNavigationAuthorizationEvidence,
+  type LowcodeNavigationAuthorizationItem,
+  type LowcodeNavigationTargetKind,
 } from '@spark-appworks/spark-lowcode-api'
 import type {
   RuntimeNavigation,
@@ -108,27 +109,127 @@ export function lowcodeApplicationCatalogNavigation(): RuntimeNavigation {
   }
 }
 
-export type LowcodeRuntimeNavigationProjectionInput = Readonly<{
+export type LowcodeRuntimeNavigationAssemblyInput = Readonly<{
   applicationName: string
+  projectId: string
   navigationRootId: string
-  items: readonly LowcodeRuntimeNavigationItem[]
+  records: readonly LowcodeProjectBlueprintRecord[]
+  authorization: LowcodeNavigationAuthorizationEvidence
 }>
 
-function firstRuntimePagePath(items: readonly LowcodeRuntimeNavigationItem[]): string | undefined {
+type RuntimeTargetProjection = Readonly<{
+  targetKind: LowcodeNavigationTargetKind
+  path?: string
+  formKey?: string
+  linkTarget?: 'new-tab'
+}>
+
+function isRootBlueprintParent(parentId: string): boolean {
+  return parentId === '' || parentId === '0' || parentId === '000000'
+}
+
+function sortBlueprintRecords(records: readonly LowcodeProjectBlueprintRecord[]): LowcodeProjectBlueprintRecord[] {
+  return [...records].sort((left, right) => left.order - right.order || left.id.localeCompare(right.id))
+}
+
+function flattenAuthorizationItems(
+  items: readonly LowcodeNavigationAuthorizationItem[],
+  target: Map<string, LowcodeNavigationAuthorizationItem>,
+): void {
   for (const item of items) {
-    if (item.itemKind === 'page') {
-      const path = runtimeNavigationPath(item)
-      if (path !== undefined) return path
+    target.set(item.id, item)
+    flattenAuthorizationItems(item.children, target)
+  }
+}
+
+function recordText(source: Readonly<Record<string, unknown>>, keys: readonly string[]): string {
+  for (const key of keys) {
+    const value = source[key]
+    if (value !== undefined && value !== null && String(value).trim()) return String(value).trim()
+  }
+  return ''
+}
+
+function runtimeTargetProjection(
+  record: LowcodeProjectBlueprintRecord,
+  authorizedFormKey: string | null,
+): RuntimeTargetProjection {
+  const target = record.runtimeTarget
+  const targetKind: LowcodeNavigationTargetKind = !target
+    ? 'empty'
+    : target.startsWith('vue:')
+      ? 'vue'
+      : /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(target)
+        ? 'external'
+        : 'route'
+  const formKey = (authorizedFormKey ?? record.legacyContentId).trim()
+  if (targetKind === 'vue') {
+    const resource = target.slice(4).replace(/[?#].*$/, '').replace(/^\/+/, '')
+    if (!resource || resource.endsWith('.vue') || resource.includes('\\') || resource.includes('//')) {
+      throw new Error(`蓝图节点 ${record.id} 的 Vue 目标无效：${target}`)
     }
-    const childPath = firstRuntimePagePath(item.children)
+    return {
+      targetKind,
+      path: `/${resource}`,
+      ...(formKey ? { formKey } : {}),
+    }
+  }
+  if (targetKind === 'route') {
+    const path = target.replace(/[?#].*$/, '')
+    return {
+      targetKind,
+      path: path.startsWith('/') ? path : `/${path}`,
+      ...(formKey ? { formKey } : {}),
+    }
+  }
+  if (targetKind === 'external') return { targetKind, path: target, linkTarget: 'new-tab' }
+  return { targetKind }
+}
+
+function buildRuntimeNavigationItem(
+  record: LowcodeProjectBlueprintRecord,
+  childrenByParent: ReadonlyMap<string, readonly LowcodeProjectBlueprintRecord[]>,
+  authorizationById: ReadonlyMap<string, LowcodeNavigationAuthorizationItem>,
+): RuntimeNavigationItem {
+  const children = sortBlueprintRecords(childrenByParent.get(record.id) ?? [])
+    .map(child => buildRuntimeNavigationItem(child, childrenByParent, authorizationById))
+  const target = runtimeTargetProjection(record, authorizationById.get(record.id)?.formKey ?? null)
+  const itemKind: RuntimeNavigationItem['itemKind'] = children.length > 0
+    ? 'module'
+    : target.targetKind === 'vue'
+      ? 'system-page'
+      : target.targetKind === 'external'
+        ? 'link'
+        : target.targetKind === 'empty'
+          ? 'system-action'
+          : 'page'
+  return {
+    id: record.id,
+    title: record.title,
+    description: record.description,
+    itemKind,
+    ...(target.path === undefined ? {} : { path: target.path }),
+    ...(target.formKey === undefined ? {} : { formKey: target.formKey }),
+    ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),
+    icon: recordText(record.source, ['iconCss', 'IconCss', 'icon']),
+    order: record.order,
+    disabled: recordText(record.source, ['status', 'Status']).toLowerCase() === 'maintenance',
+    children,
+  }
+}
+
+function firstRuntimePagePath(items: readonly RuntimeNavigationItem[]): string | undefined {
+  for (const item of items) {
+    if ((item.itemKind === 'page' || item.itemKind === 'system-page') && item.path !== undefined) {
+      return item.path
+    }
+    const childPath = firstRuntimePagePath(item.children ?? [])
     if (childPath !== undefined) return childPath
   }
   return undefined
 }
 
-export function projectRuntimeNavigation(input: LowcodeRuntimeNavigationProjectionInput): RuntimeNavigation {
-  const homePath = firstRuntimePagePath(input.items)
-  const businessChildren = input.items.map(projectRuntimeNavigationItem)
+function withShellSystemTools(businessChildren: readonly RuntimeNavigationItem[]): RuntimeNavigationItem[] {
   const businessPaths = new Set<string>()
   const collectPaths = (nodes: readonly RuntimeNavigationItem[]): void => {
     for (const node of nodes) {
@@ -155,12 +256,36 @@ export function projectRuntimeNavigation(input: LowcodeRuntimeNavigationProjecti
       children: toolChildren,
     })
   }
+  return items
+}
+
+/** 将 lowcode 记录和后端授权证据直接装配为应用壳唯一运行导航合同。 */
+export function assembleLowcodeRuntimeNavigation(
+  input: LowcodeRuntimeNavigationAssemblyInput,
+): RuntimeNavigation {
+  const authorizationById = new Map<string, LowcodeNavigationAuthorizationItem>()
+  flattenAuthorizationItems(input.authorization.items, authorizationById)
+  const candidates = input.records.filter(record => (
+    record.runtimeNavigationCandidate && authorizationById.has(record.id)
+  ))
+  const candidateIds = new Set(candidates.map(record => record.id))
+  const childrenByParent = new Map<string, LowcodeProjectBlueprintRecord[]>()
+  for (const record of candidates) {
+    const siblings = childrenByParent.get(record.parentId) ?? []
+    siblings.push(record)
+    childrenByParent.set(record.parentId, siblings)
+  }
+  const businessChildren = sortBlueprintRecords(
+    candidates.filter(record => !candidateIds.has(record.parentId)),
+  ).map(record => buildRuntimeNavigationItem(record, childrenByParent, authorizationById))
+  const homePath = firstRuntimePagePath(businessChildren)
   return {
     id: input.navigationRootId,
+    projectId: input.projectId,
     title: input.applicationName,
     childPlacement: 'header',
     ...(homePath === undefined ? {} : { homePath }),
-    items,
+    items: withShellSystemTools(businessChildren),
   }
 }
 
@@ -182,21 +307,59 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
   } else {
     throw new Error('缺少 lowcode 应用上下文')
   }
-  const navigation = await lowcodeApi.blueprint.readRuntimeNavigation(application.id, navigationRootId)
-  return projectRuntimeNavigation({
+  const [records, authorization] = await Promise.all([
+    lowcodeApi.blueprint.readRecords(application.id),
+    lowcodeApi.blueprint.readNavigationAuthorization(application.id, navigationRootId),
+  ])
+  return assembleLowcodeRuntimeNavigation({
     applicationName: application.name,
+    projectId: application.id,
     navigationRootId,
-    items: navigation.items,
+    records,
+    authorization,
   })
 }
 
-export async function readLowcodeProjectBlueprint(projectId: string): Promise<ProjectBlueprint> {
-  return lowcodeApi.blueprint.read(projectId)
+function projectBlueprintRecordNode(
+  record: LowcodeProjectBlueprintRecord,
+  childrenByParent: ReadonlyMap<string, readonly LowcodeProjectBlueprintRecord[]>,
+): ProjectBlueprintTreeNodeData {
+  const children = sortBlueprintRecords(childrenByParent.get(record.id) ?? [])
+    .map(child => projectBlueprintRecordNode(child, childrenByParent))
+  const target = runtimeTargetProjection(record, null)
+  const nodeKind: ProjectBlueprintTreeNodeData['nodeKind'] = record.kind === 'page' || record.kind === 'sub-page'
+    ? target.targetKind === 'vue' ? 'system-page' : 'page'
+    : record.kind === 'external'
+      ? 'link'
+      : record.kind === 'action'
+        ? 'system-action'
+        : 'module'
+  return {
+    id: record.id,
+    title: record.title,
+    description: record.description,
+    blueprintKind: record.kind,
+    nodeKind,
+    ...(target.path === undefined ? {} : { path: target.path }),
+    ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),
+    icon: recordText(record.source, ['iconCss', 'IconCss', 'icon']),
+    order: record.order,
+    children,
+  }
 }
 
 async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise<ProjectBlueprintTreeData> {
-  const blueprint = await readLowcodeProjectBlueprint(projectId)
-  const roots = blueprint.outputs.structure.snapshot().hierarchy
+  const records = await lowcodeApi.blueprint.readRecords(projectId)
+  const recordIds = new Set(records.map(record => record.id))
+  const childrenByParent = new Map<string, LowcodeProjectBlueprintRecord[]>()
+  for (const record of records) {
+    const siblings = childrenByParent.get(record.parentId) ?? []
+    siblings.push(record)
+    childrenByParent.set(record.parentId, siblings)
+  }
+  const roots = sortBlueprintRecords(records.filter(record => (
+    isRootBlueprintParent(record.parentId) || !recordIds.has(record.parentId)
+  ))).map(record => projectBlueprintRecordNode(record, childrenByParent))
   const root = roots[0]
   if (root === undefined) throw new Error(`项目蓝图缺少顶层节点：${projectId}`)
   if (roots.length > 1) {
@@ -206,16 +369,15 @@ async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise
       title: activeApplication?.id === projectId ? activeApplication.name : projectId,
       blueprintKind: 'project',
       childPlacement: 'header',
-      children: roots.map(projectBlueprintTreeNode),
+      children: roots,
     }
   }
-  const children = root.children.map(projectBlueprintTreeNode)
   return {
-    id: root.node.id,
-    title: root.node.title,
-    description: root.node.description,
+    id: root.id,
+    title: root.title,
+    description: root.description,
     childPlacement: 'header',
-    children,
+    children: root.children ?? [],
   }
 }
 
@@ -240,71 +402,6 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
       })),
       loadProjectBlueprint: readLowcodeProjectBlueprintEditorTree,
     },
-  }
-}
-
-function runtimeNavigationPath(item: LowcodeRuntimeNavigationItem): string | undefined {
-  if (item.targetKind === 'vue') {
-    const resource = item.target.slice(4).replace(/[?#].*$/, '').replace(/^\/+/, '')
-    return resource ? `/${resource}` : undefined
-  }
-  if (item.targetKind === 'route') {
-    const path = item.target.replace(/[?#].*$/, '')
-    return path.startsWith('/') ? path : `/${path}`
-  }
-  return item.targetKind === 'external' ? item.target : undefined
-}
-
-function projectRuntimeNavigationItem(item: LowcodeRuntimeNavigationItem): RuntimeNavigationItem {
-  const path = runtimeNavigationPath(item)
-  return {
-    id: item.id,
-    title: item.title,
-    description: item.description,
-    itemKind: item.targetKind === 'vue'
-      ? 'system-page'
-      : item.itemKind === 'module'
-      ? 'module'
-      : item.itemKind === 'external' ? 'link' : item.itemKind === 'action' ? 'system-action' : 'page',
-    ...(path === undefined ? {} : { path }),
-    ...(item.formKey === null ? {} : { formKey: item.formKey }),
-    ...(item.itemKind === 'external' ? { linkTarget: 'new-tab' as const } : {}),
-    icon: item.icon,
-    order: item.order,
-    disabled: item.disabled,
-    children: item.children.map(projectRuntimeNavigationItem),
-  }
-}
-
-function projectBlueprintTreeNode(tree: ProjectBlueprintTreeNode): ProjectBlueprintTreeNodeData {
-  const node = tree.node
-  const runtimeTarget = node.runtimeTarget
-  const isVue = runtimeTarget.startsWith('vue:')
-  const isExternal = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(runtimeTarget) && !isVue
-  const path = isVue
-    ? `/${runtimeTarget.slice(4).replace(/[?#].*$/, '').replace(/^\/+/, '')}`
-    : runtimeTarget
-      ? runtimeTarget.startsWith('/') || isExternal ? runtimeTarget : `/${runtimeTarget}`
-      : undefined
-  const children = tree.children.map(projectBlueprintTreeNode)
-  const nodeKind: ProjectBlueprintTreeNodeData['nodeKind'] = node.kind === 'page' || node.kind === 'sub-page'
-    ? isVue ? 'system-page' : 'page'
-    : node.kind === 'external'
-      ? 'link'
-      : node.kind === 'action'
-        ? 'system-action'
-        : 'module'
-  return {
-    id: node.id,
-    title: node.title,
-    description: node.description,
-    blueprintKind: node.kind,
-    nodeKind,
-    ...(path === undefined ? {} : { path }),
-    ...(isExternal ? { linkTarget: 'new-tab' as const } : {}),
-    icon: typeof node.source['iconCss'] === 'string' ? node.source['iconCss'] : '',
-    order: node.order,
-    children,
   }
 }
 

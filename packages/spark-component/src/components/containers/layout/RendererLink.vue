@@ -27,20 +27,15 @@ AI用途：需要理解 renderer link 的实际渲染结构、slot/toolbar/状�
  * @description 链接组件，可渲染子内容。
  */
 import { computed } from 'vue'
-import type { DataRow } from '@spark-appworks/spark-data'
+import { type SparkNode, type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import {
   DATA_ROW,
   DATA_SOURCE,
   SparkComponentRenderer,
-  getSparkNodeChildren,
-  nodeId,
   useSparkPageComponent,
-  type SparkNode,
 } from '../../internal'
 import type { RLinkProps } from './RendererLink.props'
 import { usePermission, extractPermissionSnapshot } from '../../../permission'
-
-
 
 const props = withDefaults(defineProps<RLinkProps>(), {
   type: 'r-link',
@@ -108,5 +103,4 @@ const effectiveDisabled = computed(() => {
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

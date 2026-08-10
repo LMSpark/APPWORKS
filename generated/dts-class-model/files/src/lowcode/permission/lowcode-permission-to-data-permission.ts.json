@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/permission/lowcode-permission-to-data-permission",
+    "sourcePath": "src/lowcode/permission/lowcode-permission-to-data-permission.ts",
+    "sourceFile": "src/lowcode/permission/lowcode-permission-to-data-permission.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/permission/lowcode-permission-to-data-permission",
+    "jsdoc": "平台权限运行快照 → spark-data 渲染权限事实的唯一桥。\n禁止在 UI / assembler 内散落第二套标签或 allowAdd 推导。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeQueryPermissionFacts"
+    ]
+  },
+  "$defs": {
+    "LowcodeQueryPermissionFacts": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeQueryPermissionFacts",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "originalRows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "systemKey": {
+          "type": "string"
+        },
+        "queryAllowAdd": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T10:14:22.675Z",
+  "models": {
+    "LowcodeQueryPermissionFacts": {
+      "name": "LowcodeQueryPermissionFacts",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    resourceId: string;\n    rows: readonly DataRow[];\n    originalRows: ReadonlyArray<Readonly<DataRow>>;\n    total: number;\n    systemKey: string;\n    queryAllowAdd: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    resourceId: string;\n    rows: readonly DataRow[];\n    originalRows: ReadonlyArray<Readonly<DataRow>>;\n    total: number;\n    systemKey: string;\n    queryAllowAdd: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryAllowAdd",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

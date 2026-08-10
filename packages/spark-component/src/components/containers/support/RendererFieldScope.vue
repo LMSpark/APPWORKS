@@ -42,8 +42,8 @@ AI用途：需要定位 components/containers/support/RendererFieldScope 的声�
  */
 import { computed, shallowReactive, watch } from 'vue'
 import { DATA_ROW, SparkComponentRenderer, useSparkComponent } from '../../internal'
-import { nodeId, type SparkNode } from '../../internal'
-import { isDataRow, type DataRow } from '@spark-appworks/spark-data'
+
+import { isDataRow, nodeId, type DataRow, type SparkNode } from '@spark-appworks/spark-data'
 import { useContainerGrid } from '../runtime/container-layout'
 import { syncReactiveRow } from './row-mirror-sync'
 

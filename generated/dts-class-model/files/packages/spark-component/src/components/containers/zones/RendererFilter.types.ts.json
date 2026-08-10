@@ -33,8 +33,7 @@
         "children": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "SparkNode"
+            "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
           }
         },
         "class": {
@@ -87,7 +86,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.476Z",
+  "generatedAt": "2026-08-10T11:13:17.746Z",
   "models": {
     "RFilterProps": {
       "name": "RFilterProps",

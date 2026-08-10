@@ -121,7 +121,16 @@ AI 写入先进入内存 PageNode 并标 dirty。DevSystem 保存、版本、路
 
 ## DataSet / DataView
 
-`pagedata.json` 进入 `ConfigPageNode.design.dataSet`，再由 Renderer 初始化 `DataSet`。组件读取必须走：
+页面数据分两轴，禁止混成单一真源：
+
+| 轴 | 真源 | 用途 |
+|----|------|------|
+| 设计 / AI | 四文件 `pagedata.json` → `ConfigPageNode.dataSet` | 设计器、生成器、无绑定预览 |
+| 运行 | 平台 DataSpace 设计 + `PermissionRuntimeSnapshot` → `LowcodeDataSpaceAssembler` → `DataSet` | 有 `PageDataSpaceBinding`（formKey+dataSpaceId+modelId）的配置页 |
+
+有绑定的运行态：`SparkPageRenderer` 经宿主 `loadRuntimeDataSet`（`loadBoundDataSpaceDataSet`）装载；**禁止**再把 `pagedata.json` 当运行数据真源。无绑定时仍可用四文件 hydrate（设计轴）。
+
+组件读取必须走：
 
 ```text
 dataViewKey + dataMember + dataField
@@ -139,8 +148,8 @@ Users@grid
 ## 不变约束
 
 1. `spark-project-model` 保持纯模型。
-2. 存储真源是 DB + 四文件；领域模型可用树与索引，树是投影。
+2. 存储真源分层：平台导航/权限/DataSpace 在 QYAPI；页面布局/脚本/样式/设计草稿在四文件；领域模型可用树与索引，树是投影。
 3. 嵌套子页与顶层配置页同属 `ConfigPageNode`（`page` + `hidden` + 无 path）。
 4. 系统页面是 `system-page` nodeKind，不反向决定数据结构。
-5. 四文件是页面内容投影，落盘锚点明确即可。
-6. DataSet 管线单向：`pagedata.json -> DataSet -> DataViewKey -> DataView -> UI`。
+5. 四文件是页面内容投影，落盘锚点明确即可；运行业务数据不由 pagedata 独占。
+6. DataSet 管线：设计轴 `pagedata.json -> DataSet`；运行轴（有绑定）`DataSpace+Permission -> DataSet -> DataViewKey -> DataView -> UI`。

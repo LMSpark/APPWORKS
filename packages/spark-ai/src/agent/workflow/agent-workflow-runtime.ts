@@ -6,7 +6,7 @@
  */
 
 import type { ClassModelKnowledgeProvider } from '../../class-model'
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { ClassModelAgentAdapter } from '../business/class-model-agent-adapter'
 import type { AiAgentHost } from '../business/ai-host'
 import { createSimpleInputContract } from '../business/business-kit'
@@ -48,7 +48,7 @@ export type AgentWorkflowRuntimeSystemPromptCommand = Readonly<{
   editorSource: string
   template: string
   hints: readonly AgentWorkflowNodeConditionalHint[]
-  input: AiJsonParams
+  input: JsonParams
 }>
 
 export type AgentWorkflowRuntimeBindings<TInstance> = Readonly<{

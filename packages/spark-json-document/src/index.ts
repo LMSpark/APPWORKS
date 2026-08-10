@@ -32,7 +32,6 @@ export type {
 export {
   asJsonValue,
   isJsonObject,
-  isRecord,
   toPrimitive,
 } from './core/json-types'
 
@@ -146,7 +145,7 @@ export type {
   RenameNodeKeyInput,
   TreeDisplayNode,
   TreeModel,
-  TreeNode,
+  JsonTreeNode,
   UpdateNodeTypeInput,
 } from './tree/tree-types'
 
@@ -154,7 +153,7 @@ export {
   buildJsonTreeRows,
   buildTreeModel,
   exportJsonDocument,
-  filterTreeNodes,
+  filterJsonTreeNodes,
   getNodePath,
   toDisplayRows,
 } from './tree/tree-build'

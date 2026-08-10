@@ -31,7 +31,7 @@
 
 import type { DataTable } from './data-table'
 import type { DataView } from './data-view'
-import type { LoggerApi } from '@spark-appworks/spark-utils'
+import type { LoggerApi, Method } from '@spark-appworks/spark-utils'
 
 // ═══════════════════════════════════════════════════════
 // 1. 基础数据行 & 事件发射器
@@ -341,8 +341,8 @@ Field = 'field'
 export type HttpEndpoint = {
   /** 请求 URL */
   url: string
-  /** HTTP 方法 */
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  /** HTTP 方法（复用 spark-utils Method，禁止再内联联合） */
+  method?: Method
   /** 请求头 */
   headers?: Record<string, string>
   /** URL 查询参数 */
@@ -350,7 +350,8 @@ export type HttpEndpoint = {
   /** URL 路径参数模板字段列表 */
   pathParams?: string[]
   /** API 基础地址 */
-  baseURL?: string}
+  baseURL?: string
+}
 
 /**
  * 树操作端点配置——flat/nested 双模式成套接口族。
@@ -1604,6 +1605,3 @@ export type DataPermissionSnapshotInput = DataPermissionSnapshot & Readonly<{
   rows: readonly DataRow[]
   total: number
 }>
-
-/** DataView 查询的原子结果：数据、原始行、总数、身份与权限必须来自同一次响应。 */
-export type DataViewQueryResult = DataPermissionSnapshotInput

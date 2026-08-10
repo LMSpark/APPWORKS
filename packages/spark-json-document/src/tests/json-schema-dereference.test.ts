@@ -8,11 +8,11 @@ describe('dereferenceJsonSchema', () => {
       {
         type: 'object',
         properties: {
-          node: { $ref: '#/$defs/TreeNode' },
+          node: { $ref: '#/$defs/JsonTreeNode' },
         },
       },
       {
-        TreeNode: {
+        JsonTreeNode: {
           type: 'object',
           properties: {
             id: { type: 'string' },

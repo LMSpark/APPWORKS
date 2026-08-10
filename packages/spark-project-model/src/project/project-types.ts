@@ -4,12 +4,11 @@
  * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。
  * AI用途：规划项目蓝图、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-types。
  */
+import type { ProjectBlueprintNodeKind, RuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
 import type {
   ProjectBlueprintTreeData,
   ProjectBlueprintTreeNodeData,
   ProjectBlueprintTreeNodeLocation,
-  ProjectBlueprintNodeKind,
-  ProjectBlueprintDeliveryKind,
   ProjectPageNodeSummary,
 } from '../blueprint/project-blueprint-node'
 import type { BlueprintNodeDraft } from '../blueprint/project-blueprint-edit'
@@ -121,7 +120,7 @@ export type BlueprintPlanningInput = Readonly<{
   /** 蓝图业务类型；未知时必须为 unresolved，不能按路径或层级猜测。 */
   blueprintKind: ProjectBlueprintNodeKind
   /** 可选运行交付投影类型，不代表蓝图业务类型。 */
-  nodeKind: ProjectBlueprintDeliveryKind
+  nodeKind: RuntimeNavigationItemKind
   /** 节点短需求，即项目蓝图节点 description。 */
   requirement: string
   /** 策划详细说明附件引用；省略时仅使用 requirement。 */

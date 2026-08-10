@@ -7,10 +7,9 @@
     "sourceFile": "packages/spark-ai/src/class-model/metadata/resolve-api-object-metadata.ts",
     "packageName": "@spark-appworks/spark-ai",
     "modulePath": "class-model/metadata/resolve-api-object-metadata",
-    "jsdoc": "@module @spark-appworks/spark-ai:class-model/metadata/resolve-api-object-metadata\n职责：维护 @spark-appworks/spark-ai 中 class-model/metadata/resolve-api-object-metadata 的 JsonSchemaObject、ResolveRuntimeApiMetadataJsonOptions语义。\n边界：只服务 spark-ai 包内部的 Agent/DtsTypeDeclarationModel 能力，不直接耦合应用页面或 Vue 组件。\nAI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。\n\nResolve compact runtime API metadata (apiRegistry + action result $ref) into inline API trees.\nJSON Schema $ref 默认保留给运行时 AJV + schemaDefs；仅显式 inline 调用方可 inlineSchemaRefs。",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/metadata/resolve-api-object-metadata\n职责：维护 @spark-appworks/spark-ai 中 class-model/metadata/resolve-api-object-metadata 的 ResolveRuntimeApiMetadataJsonOptions 语义。\n边界：只服务 spark-ai 包内部的 Agent/DtsTypeDeclarationModel 能力，不直接耦合应用页面或 Vue 组件。\nAI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。\n\nResolve compact runtime API metadata (apiRegistry + action result $ref) into inline API trees.\nJSON Schema $ref 默认保留给运行时 AJV + schemaDefs；仅显式 inline 调用方可 inlineSchemaRefs。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "JsonSchemaObject",
       "ResolveRuntimeApiMetadataJsonOptions"
     ]
   },
@@ -22,7 +21,7 @@
       "properties": {
         "schemaDefs": {
           "type": "object",
-          "title": "Record<string, JsonSchemaObject>"
+          "title": "JsonSchemaDefs"
         },
         "inlineSchemaRefs": {
           "type": "boolean"
@@ -31,34 +30,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T19:55:51.957Z",
+  "generatedAt": "2026-08-10T12:17:50.878Z",
   "models": {
-    "JsonSchemaObject": {
-      "name": "JsonSchemaObject",
-      "jsdoc": "Json Schema Object 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<Record<string, unknown>>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<Record<string, unknown>>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {}
-      }
-    },
     "ResolveRuntimeApiMetadataJsonOptions": {
       "name": "ResolveRuntimeApiMetadataJsonOptions",
       "jsdoc": "Resolve Runtime API Metadata Json Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 可供 $ref 内联的外部 JSON Schema 定义集；键为 $ref 路径（如 \"#/$defs/Foo\"），值为对应 Schema 对象。仅在 inlineSchemaRefs=true 时消费 */\n    schemaDefs?: Readonly<Record<string, JsonSchemaObject>>;\n    /** @default false — true 时在注册前 inline #/$defs/*；false 时留给 AJV 2020 解析。 */\n    inlineSchemaRefs?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 可供 $ref 内联的外部 JSON Schema 定义集；键为 $ref 路径（如 \"#/$defs/Foo\"），值为对应 Schema 对象。仅在 inlineSchemaRefs=true 时消费 */\n    schemaDefs?: JsonSchemaDefs;\n    /** @default false — true 时在注册前 inline #/$defs/*；false 时留给 AJV 2020 解析。 */\n    inlineSchemaRefs?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 可供 $ref 内联的外部 JSON Schema 定义集；键为 $ref 路径（如 \"#/$defs/Foo\"），值为对应 Schema 对象。仅在 inlineSchemaRefs=true 时消费 */\n    schemaDefs?: Readonly<Record<string, JsonSchemaObject>>;\n    /** @default false — true 时在注册前 inline #/$defs/*；false 时留给 AJV 2020 解析。 */\n    inlineSchemaRefs?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 可供 $ref 内联的外部 JSON Schema 定义集；键为 $ref 路径（如 \"#/$defs/Foo\"），值为对应 Schema 对象。仅在 inlineSchemaRefs=true 时消费 */\n    schemaDefs?: JsonSchemaDefs;\n    /** @default false — true 时在注册前 inline #/$defs/*；false 时留给 AJV 2020 解析。 */\n    inlineSchemaRefs?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],

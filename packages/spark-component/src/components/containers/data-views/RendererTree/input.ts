@@ -5,10 +5,11 @@
  * AI用途：需要判断 renderer tree 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。
  */
 import { computed } from 'vue'
-import { getSparkNodeChildren, type SparkNode } from '../../../internal'
+
 import type { REditorProps } from '../../zones/RendererEditor.types'
 import type { RToolbarProps } from '../../layout/RendererToolbar.types'
 import { useContainerToolbar } from '../../runtime/container-ui'
+import { type SparkNode, getSparkNodeChildren } from '@spark-appworks/spark-data'
 
 /** Renderer Tree Input Props 的属性契约。 */
 type RendererTreeInputProps = {

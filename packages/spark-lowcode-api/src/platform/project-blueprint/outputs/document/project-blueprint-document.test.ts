@@ -3,7 +3,6 @@ import { HttpClientBase } from '@spark-appworks/spark-utils'
 import { describe, expect, it } from 'vitest'
 
 import { LowcodeApi } from '../../../../lowcode-api.js'
-import { ProjectBlueprint, ProjectBlueprintNode } from '../../project-blueprint.js'
 
 class DocumentFixtureHttpClient extends HttpClientBase {
   public readonly requests: RequestConfig[] = []
@@ -19,27 +18,8 @@ class DocumentFixtureHttpClient extends HttpClientBase {
   }
 }
 
-describe('ProjectBlueprint document outputs', () => {
-  it('exposes legacy menu coverage instead of claiming full-blueprint generation', async () => {
-    const blueprint = new ProjectBlueprint('PROJECT-1', [
-      new ProjectBlueprintNode({
-        id: 'ROOT', parentId: '', projectId: 'PROJECT-1', title: '项目', kind: 'project', description: '',
-        legacyContentId: '', legacyContentType: '', runtimeTarget: '', runtimeNavigationCandidate: true,
-        order: 0, source: {},
-      }),
-      new ProjectBlueprintNode({
-        id: 'REQ-1', parentId: 'ROOT', projectId: 'PROJECT-1', title: '需求', kind: 'requirement', description: '',
-        legacyContentId: '', legacyContentType: '', runtimeTarget: '', runtimeNavigationCandidate: false,
-        order: 1, source: {},
-      }),
-    ])
-
-    expect(blueprint.outputs.document.source('requirements-specification')).toMatchObject({
-      coverage: 'legacy-menu-scope',
-      includedNodeIds: ['ROOT'],
-      excludedNodeIds: ['REQ-1'],
-    })
-
+describe('LowcodeProjectBlueprintApi document endpoint', () => {
+  it('submits the real legacy endpoint and reports its limited coverage', async () => {
     const http = new DocumentFixtureHttpClient()
     const task = await new LowcodeApi({ http }).blueprint.submitDocument(
       'PROJECT-1',

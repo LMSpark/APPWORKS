@@ -10,7 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-data:data-view\n职责：提供 spark-data 数据管线中的 data view 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDataView — 数据视图，SPARK 数据层的统一交互枢纽。\n引用链：DataView → DataTable → DataSet。\n级联加载：子订阅父，父不知子。\n请求编排：requestData(上行) / refresh(下行) / requestState(唯一状态源)。\n委托分工：CrudDelegate / CascadeDelegate / SelectionDelegate / etc.",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "DataViewEventMap",
       "DataViewRecomputeColumnsOptions",
       "DataViewServerRowsPayload",
       "DataView"
@@ -159,6 +158,16 @@
         "viewId": {
           "type": "string"
         },
+        "fieldProjection": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataViewFieldProjection"
+          }
+        },
+        "queryContext": {
+          "type": "object",
+          "title": "DataViewQueryContext"
+        },
         "rows": {
           "type": "array",
           "items": {
@@ -295,6 +304,8 @@
       "required": [
         "tableName",
         "viewId",
+        "fieldProjection",
+        "queryContext",
         "rows",
         "permissionSnapshot",
         "_currentRowId",
@@ -486,12 +497,12 @@
         "method.stripComputedColumns.return": {
           "$ref": "types.ts.json#/$defs/DataRow"
         },
-        "method.onDataSetRelationsReady.params": {
+        "method.onDataSetStructureReady.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.onDataSetRelationsReady.return": true,
+        "method.onDataSetStructureReady.return": true,
         "method.getColumn.params": {
           "type": "object",
           "properties": {
@@ -648,9 +659,9 @@
           "type": "object",
           "properties": {
             "rel": {
-              "$ref": "types.ts.json#/$defs/DataRelation"
+              "$ref": "types.ts.json#/$defs/DataViewCascade"
             },
-            "parentRows": {
+            "_parentRows": {
               "type": "array",
               "items": {
                 "$ref": "types.ts.json#/$defs/DataRow"
@@ -1288,7 +1299,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:36:54.974Z",
+  "generatedAt": "2026-08-10T11:33:40.240Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -1491,6 +1502,18 @@
             {
               "name": "viewId",
               "jsdoc": "视图标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldProjection",
+              "jsdoc": "当前模型视图对 DataTable 资源字段的稳定投影。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "queryContext",
+              "jsdoc": "随每次查询提交给 DataTable.crudService 的后端无关上下文。",
               "readable": true,
               "writable": true
             },
@@ -1935,8 +1958,8 @@
               }
             },
             {
-              "name": "onDataSetRelationsReady",
-              "jsdoc": "@internal DataSet 关系规范化完成后由 DataTable 调用——重挂级联订阅并重编译计算列（含聚合 resolver）",
+              "name": "onDataSetStructureReady",
+              "jsdoc": "@internal DataSet 资源关系与视图级联索引完成后由 DataTable 调用——重挂级联订阅并重编译计算列（含聚合 resolver）",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -2269,18 +2292,18 @@
             },
             {
               "name": "applyInMemoryCascade",
-              "jsdoc": "无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。\n@param rel 父子视图依赖关系。\n@param parentRows 父视图当前参与级联的行列表。",
+              "jsdoc": "无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。\n@param rel DataView 输入级联。\n@param _parentRows 父视图当前参与级联的行列表；过滤值统一由 DataSet 解析。",
               "parameters": [
                 {
                   "name": "rel",
                   "type": {
                     "type": "reference",
-                    "name": "DataRelation",
+                    "name": "DataViewCascade",
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 },
                 {
-                  "name": "parentRows",
+                  "name": "_parentRows",
                   "type": {
                     "type": "unknown",
                     "name": "readonly DataRow[]"

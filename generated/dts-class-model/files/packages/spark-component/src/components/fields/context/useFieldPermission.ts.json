@@ -7,12 +7,10 @@
     "sourceFile": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "components/fields/context/useFieldPermission",
-    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useFieldPermission\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldPermission 的模块能力，围绕 OptionalWithUndefined、FieldPermissionProps、UseFieldPermissionOptions 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useFieldPermission 的声明、导出和使用边界时，从本模块开始。",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useFieldPermission\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldPermission 的字段权限投影。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useFieldPermission 的声明、导出和使用边界时，从本模块开始。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "OptionalWithUndefined",
-      "FieldPermissionProps",
-      "UseFieldPermissionOptions"
+      "FieldPermissionProps"
     ]
   },
   "$defs": {
@@ -79,28 +77,19 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:40:52.824Z",
+  "generatedAt": "2026-08-10T12:24:44.092Z",
   "models": {
-    "OptionalWithUndefined": {
-      "name": "OptionalWithUndefined",
-      "jsdoc": "Optional With Undefined 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    [K in keyof T]?: T[K] | undefined;\n}",
-        "members": {}
-      }
-    },
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",
       "jsdoc": "Field Permission Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "OptionalWithUndefined<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>> & {\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}",
+        "declarationTypeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>> & {\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "OptionalWithUndefined<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>>",
-            "targetName": "OptionalWithUndefined"
+            "typeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>>",
+            "targetName": "FieldComposableProps"
           },
           {
             "kind": "intersection",

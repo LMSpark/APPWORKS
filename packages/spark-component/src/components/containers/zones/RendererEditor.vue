@@ -19,8 +19,9 @@ AI用途：需要理解 renderer editor 的实际渲染结构、slot/toolbar/状
  * @description 编辑面板组件，在 r-tree 中作为侧边编辑面板提取渲染，用于节点详情编辑。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId } from '../../internal'
+import { SparkComponentRenderer } from '../../internal'
 import type { REditorProps as Props } from './RendererEditor.types'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-editor',

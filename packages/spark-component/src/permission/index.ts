@@ -49,7 +49,6 @@ export {
 // ── Vue composable 桥接 ──
 export { usePermission } from './usePermission'
 
-// ── 类型 ──
-export type { FieldRenderConfig, FieldRenderState } from './FieldRenderHelper'
-export type { PermissionAction, PermissionActionContext, PermissionActionName } from './PermissionResolver'
+// ── 类型（FieldRender* 定义在 utils/data，勿从此包再导出）──
+export type { PermissionAction, ComponentPermissionActionContext, PermissionActionName } from './PermissionResolver'
 export type { UsePermissionReturn } from './usePermission'

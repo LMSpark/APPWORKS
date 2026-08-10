@@ -35,7 +35,6 @@ const interfaceAllowlist = new Set([
 
 const allowedSparkAiSpecifiers = new Set([
   '@spark-appworks/spark-ai',
-  '@spark-appworks/spark-ai/json',
   '@spark-appworks/spark-ai/agent',
   '@spark-appworks/spark-ai/class-model',
 ])
@@ -103,7 +102,6 @@ const publicSurfaceAllowlist = new Set([
   'packages/spark-ai/src/class-model/metadata/index.ts:./ai-api-object-metadata-schema',
   'packages/spark-ai/src/class-model/projection/index.ts:./dts-renderer',
   'packages/spark-ai/src/class-model/runtime/index.ts:./class-model-runtime',
-  'packages/spark-ai/src/json/index.ts:./helpers',
   'packages/spark-project-model/src/index.ts:./project/project-types',
   'packages/spark-project-model/src/index.ts:./blueprint/project-blueprint-node',
   'packages/spark-project-model/src/index.ts:./blueprint/project-blueprint-tree',

@@ -7,12 +7,11 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/lowcode-platform-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/lowcode-platform-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeCurrentUser, LowcodeLoginCredentials, LowcodeVerificationChannel, LowcodeVerificationScene, LowcodeVerificationRequest, LowcodeUserRegistration, LowcodeEnterpriseRegistration, LowcodeRegistrationResult 等（共 13 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "低代码平台门面 API：登录/刷新/登出、企业目录与注册、应用选择与导航根解析。\n会话与应用上下文分别委托 {@link LowcodeSessionStore}、{@link LowcodeApplicationStore} 持久化；\n登录成功会清空应用上下文，避免跨企业/跨应用残留导航身份。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeCurrentUser",
       "LowcodeLoginCredentials",
-      "LowcodeVerificationChannel",
       "LowcodeVerificationScene",
       "LowcodeVerificationRequest",
       "LowcodeUserRegistration",
@@ -112,22 +111,6 @@
       },
       "additionalProperties": false
     },
-    "LowcodeVerificationChannel": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "LowcodeVerificationChannel",
-      "enum": [
-        "EMAIL",
-        "MOBILE"
-      ]
-    },
-    "LowcodeVerificationScene": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "LowcodeVerificationScene",
-      "enum": [
-        "REGISTER",
-        "REGISTER_ENT"
-      ]
-    },
     "LowcodeVerificationRequest": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -137,13 +120,14 @@
           "type": "string"
         },
         "channel": {
-          "$ref": "#/$defs/LowcodeVerificationChannel"
+          "$ref": "../contracts/lowcode-send-code.ts.json#/$defs/SendCodeType"
         },
         "account": {
           "type": "string"
         },
         "scene": {
-          "$ref": "#/$defs/LowcodeVerificationScene"
+          "type": "object",
+          "title": "LowcodeVerificationScene"
         }
       },
       "additionalProperties": false
@@ -172,7 +156,7 @@
           ]
         },
         "channel": {
-          "$ref": "#/$defs/LowcodeVerificationChannel"
+          "$ref": "../contracts/lowcode-send-code.ts.json#/$defs/SendCodeType"
         },
         "phone": {
           "type": "string"
@@ -219,7 +203,7 @@
           "type": "string"
         },
         "channel": {
-          "$ref": "#/$defs/LowcodeVerificationChannel"
+          "$ref": "../contracts/lowcode-send-code.ts.json#/$defs/SendCodeType"
         },
         "verificationAccount": {
           "type": "string"
@@ -539,11 +523,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:51:40.567Z",
+  "generatedAt": "2026-08-10T12:27:48.568Z",
   "models": {
     "LowcodeCurrentUser": {
       "name": "LowcodeCurrentUser",
-      "jsdoc": "",
+      "jsdoc": "当前用户资料；wire 响应字段为 camelCase（如 account、realName、userInfo）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    account: string | null;\n    realName: string | null;\n    avatar: string | null;\n    address: string | null;\n    signature: string | null;\n    orgId: number | null;\n    orgName: string | null;\n    posName: string | null;\n    buttons: readonly string[] | null;\n    userInfo: Readonly<Record<string, unknown>> | null;\n}>",
@@ -612,7 +596,7 @@
     },
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
-      "jsdoc": "",
+      "jsdoc": "企业域登录凭据；请求体映射为 strUser、strPwd、entName（大小写固定）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    password: string;\n}>",
@@ -644,39 +628,17 @@
         }
       }
     },
-    "LowcodeVerificationChannel": {
-      "name": "LowcodeVerificationChannel",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'EMAIL' | 'MOBILE'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'EMAIL'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'MOBILE'"
-          }
-        ],
-        "members": {}
-      }
-    },
     "LowcodeVerificationScene": {
       "name": "LowcodeVerificationScene",
-      "jsdoc": "",
+      "jsdoc": "验证码业务场景；本门面仅支持注册子集（全集见 contracts SendCodeScene）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'REGISTER' | 'REGISTER_ENT'",
+        "declarationTypeText": "Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>",
         "declarationRelations": [
           {
-            "kind": "union",
-            "typeText": "'REGISTER'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'REGISTER_ENT'"
+            "kind": "alias",
+            "typeText": "Extract<SendCodeScene, 'REGISTER' | 'REGISTER_ENT'>",
+            "targetName": "Extract"
           }
         ],
         "members": {}
@@ -684,14 +646,14 @@
     },
     "LowcodeVerificationRequest": {
       "name": "LowcodeVerificationRequest",
-      "jsdoc": "",
+      "jsdoc": "发送验证码请求；wire 字段 ent、type、account、scene。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    channel: LowcodeVerificationChannel;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    channel: SendCodeType;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    enterpriseName: string;\n    channel: LowcodeVerificationChannel;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    channel: SendCodeType;\n    account: string;\n    scene: LowcodeVerificationScene;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -723,14 +685,14 @@
     },
     "LowcodeUserRegistration": {
       "name": "LowcodeUserRegistration",
-      "jsdoc": "",
+      "jsdoc": "用户注册输入；wire 含 loginName、username、user_types、depId、jobId 等固定键名。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: LowcodeVerificationChannel;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: SendCodeType;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: LowcodeVerificationChannel;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
+            "typeText": "Readonly<{\n    enterpriseName: string;\n    account: string;\n    displayName: string;\n    password: string;\n    sex: 'F' | 'M';\n    channel: SendCodeType;\n    phone: string;\n    email: string;\n    verificationCode: string;\n    userType?: string;\n    departmentId?: string;\n    jobId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -802,14 +764,14 @@
     },
     "LowcodeEnterpriseRegistration": {
       "name": "LowcodeEnterpriseRegistration",
-      "jsdoc": "",
+      "jsdoc": "企业注册输入；ent 子对象 wire 键为 PascalCase（Name、CName、ShortName、ShortCName 等）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: LowcodeVerificationChannel;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: SendCodeType;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: LowcodeVerificationChannel;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
+            "typeText": "Readonly<{\n    englishName: string;\n    chineseName: string;\n    domainKey: string;\n    chineseShortName: string;\n    administratorAccount: string;\n    administratorPassword: string;\n    channel: SendCodeType;\n    verificationAccount: string;\n    verificationCode: string;\n    phone: string;\n    email: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -876,7 +838,7 @@
     },
     "LowcodeRegistrationResult": {
       "name": "LowcodeRegistrationResult",
-      "jsdoc": "",
+      "jsdoc": "注册操作结果；id 从 rowid/ROWID/userId 等 wire 别名中择优提取。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    id: string | null;\n    raw: unknown;\n}>",
@@ -905,7 +867,7 @@
     },
     "LowcodeIdentity": {
       "name": "LowcodeIdentity",
-      "jsdoc": "",
+      "jsdoc": "登录后会话身份；由 userinfo 的 ROWID/ID、LoginName、EntId 等 wire 字段归一化。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    userId: string;\n    account: string;\n    displayName: string;\n    enterpriseId: string | null;\n    enterpriseShortName: string;\n    role: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
@@ -959,7 +921,7 @@
     },
     "LowcodeEnterprise": {
       "name": "LowcodeEnterprise",
-      "jsdoc": "",
+      "jsdoc": "登录后会话企业快照；由 entinfo 的 rowid、Name、CName、ShortName 等 wire 字段归一化。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    id: string | null;\n    name: string | null;\n    code: string | null;\n    shortName: string;\n    shortCode: string | null;\n    raw: Readonly<Record<string, unknown>>;\n}>",
@@ -1008,7 +970,7 @@
     },
     "LowcodeCacheStats": {
       "name": "LowcodeCacheStats",
-      "jsdoc": "",
+      "jsdoc": "平台缓存统计；wire Result.Count 须为非负整数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    dataSetModelCount: number;\n    developmentFileCount: number;\n}>",
@@ -1037,7 +999,7 @@
     },
     "LowcodeSession": {
       "name": "LowcodeSession",
-      "jsdoc": "",
+      "jsdoc": "完整低代码会话：双 token、过期时间与身份/企业快照。\naccessToken/refreshToken 已剥离 Bearer 前缀；刷新时 Authorization 与 X-Authorization 分别携带二者。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    accessToken: string;\n    refreshToken: string;\n    accessExpiresAt: number;\n    refreshExpiresAt: number;\n    identity: LowcodeIdentity;\n    enterprise: LowcodeEnterprise;\n}>",
@@ -1086,7 +1048,7 @@
     },
     "LowcodePlatformApi": {
       "name": "LowcodePlatformApi",
-      "jsdoc": "",
+      "jsdoc": "低代码平台 HTTP 门面；并发 refreshSession 共享同一 in-flight Promise，避免重复刷新。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -1133,6 +1095,7 @@
           "methods": [
             {
               "name": "login",
+              "jsdoc": "企业域登录；响应须含 userinfo、entinfo、token、refreshToken、expire、refreshExpire，成功后清空应用上下文。",
               "parameters": [
                 {
                   "name": "credentials",
@@ -1157,6 +1120,7 @@
             },
             {
               "name": "listEnterprises",
+              "jsdoc": "拉取公开企业目录；无需已登录会话。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1171,6 +1135,7 @@
             },
             {
               "name": "getEnterpriseInfo",
+              "jsdoc": "从当前会话 entinfo.raw 归一化企业详情；无会话时 401。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1186,6 +1151,7 @@
             },
             {
               "name": "getCacheStats",
+              "jsdoc": "查询 DATA_SET_MODEL 与 DEV_FILE_UPDATE_TIME 两类缓存条目数；需已认证。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1201,6 +1167,7 @@
             },
             {
               "name": "sendVerificationCode",
+              "jsdoc": "发送注册/企业注册验证码；公开接口，账号与企业名会先 trim。",
               "parameters": [
                 {
                   "name": "request",
@@ -1224,6 +1191,7 @@
             },
             {
               "name": "registerUser",
+              "jsdoc": "注册用户；必填字段缺失时本地 fail-fast，不发起无效请求。",
               "parameters": [
                 {
                   "name": "input",
@@ -1248,6 +1216,7 @@
             },
             {
               "name": "registerEnterprise",
+              "jsdoc": "注册企业；ent 子对象 wire 键大小写必须与平台约定一致。",
               "parameters": [
                 {
                   "name": "input",
@@ -1272,6 +1241,7 @@
             },
             {
               "name": "refreshSession",
+              "jsdoc": "刷新 token 对；并发调用合并为单次请求，无会话时 401。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1287,6 +1257,7 @@
             },
             {
               "name": "logout",
+              "jsdoc": "登出；远端失败仍本地清空会话与应用上下文，避免残留凭据。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1301,6 +1272,7 @@
             },
             {
               "name": "getCurrentUser",
+              "jsdoc": "拉取当前用户；有会话时附带 Authorization Bearer accessToken。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1316,6 +1288,7 @@
             },
             {
               "name": "listApplications",
+              "jsdoc": "列出当前企业可访问应用；请求头 x-FormKey 固定为应用目录表单键。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1330,6 +1303,7 @@
             },
             {
               "name": "resolveNavigationRootId",
+              "jsdoc": "按应用 systemId 解析唯一导航根 rowid；0 或 多个根节点时抛错。",
               "parameters": [
                 {
                   "name": "systemId",
@@ -1352,6 +1326,7 @@
             },
             {
               "name": "selectApplication",
+              "jsdoc": "选中应用并持久化应用上下文（含 navigationRootId）；返回解析到的导航根 id。",
               "parameters": [
                 {
                   "name": "application",

@@ -51,11 +51,11 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
+import type { NavigationRootPlacement } from '@spark-appworks/spark-utils'
 import {
   loadProjectRuntimeSettings,
   saveProjectRuntimeSettings,
   type ProjectHomeNodeOption,
-  type ProjectLayoutPlacement,
   type ProjectRuntimeSettings,
 } from '@/services/project/project-settings'
 
@@ -75,7 +75,7 @@ const loading = ref(false)
 const saving = ref(false)
 const snapshot = ref<ProjectRuntimeSettings | null>(null)
 const homeNodeOptions = ref<ProjectHomeNodeOption[]>([])
-const form = ref<{ childPlacement: ProjectLayoutPlacement; homeNodeId: string | null } | null>(null)
+const form = ref<{ childPlacement: NavigationRootPlacement; homeNodeId: string | null } | null>(null)
 
 const dialogTitle = computed(() => `项目设置 — ${props.projectName || props.projectId}`)
 const canEditLayout = computed(() => Boolean(snapshot.value?.rootModuleId))

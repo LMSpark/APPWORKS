@@ -87,11 +87,14 @@
           "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
         },
         "consumeCapability": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "SparkCapabilityConsumer"
+          "anyOf": [
+            {
+              "$ref": "../../../packages/spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "events": {
           "$ref": "#/$defs/PageDesignAiRunEvents"

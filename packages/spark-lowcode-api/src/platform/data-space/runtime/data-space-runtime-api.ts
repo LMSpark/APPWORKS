@@ -4,9 +4,11 @@
  */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
+import type { OrderType } from '../../../contracts/lowcode-wire-query.js'
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
 import { LowcodeClient } from '../../../core/lowcode-client.js'
 import type { DataSpaceFrontendModel } from '../data-space.js'
+import { encodeDataSpaceResourceType } from '../data-space-resource-type-wire.js'
 import {
   prepareDataSpaceRuntimeMutation,
   type DataSpaceRuntimeMutationCommand,
@@ -19,10 +21,10 @@ export type DataSpaceRuntimeFilter = Readonly<Record<string, unknown>>
 /** 运行态入参；透传至 GetData Table.inputParams。 */
 export type DataSpaceRuntimeInputParameter = Readonly<Record<string, unknown>>
 
-/** 运行态排序；direction 映射为 wire OrderType。 */
+/** 运行态排序；direction 即 wire OrderType。 */
 export type DataSpaceRuntimeSort = Readonly<{
   fieldId: string
-  direction: 'ascending' | 'descending'
+  direction: OrderType
 }>
 
 /** 运行态查询输入；model 须来自 design 读或已校验的 {@link DataSpaceFrontendModel}。 */
@@ -71,17 +73,6 @@ export type DataSpaceRuntimePreparedQuery = Readonly<{
   data: Readonly<Record<string, unknown>>
 }>
 
-type LowcodeResourceType = '数据库表' | '视图' | '字典' | '接口' | 'JSON' | '文件'
-
-const RESOURCE_TYPE_WIRE: Readonly<Record<string, LowcodeResourceType>> = {
-  table: '数据库表',
-  view: '视图',
-  dictionary: '字典',
-  interface: '接口',
-  json: 'JSON',
-  file: '文件',
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -117,7 +108,7 @@ function queryFilter(query: DataSpaceRuntimeQuery): unknown {
 
 function fieldSort(query: DataSpaceRuntimeQuery, fieldId: string): Readonly<{
   order: number
-  orderType: string | null
+  orderType: OrderType | null
 }> | null {
   if (query.sort === undefined) return null
   const index = query.sort.findIndex((item) => item.fieldId === fieldId)
@@ -168,7 +159,7 @@ function queryPayload(query: DataSpaceRuntimeQuery): Readonly<Record<string, unk
     Name: query.model.name,
     MetaName: resource.resourceName,
     PrimaryKeyFields: resource.primaryKeyField,
-    Type: RESOURCE_TYPE_WIRE[resource.resourceType],
+    Type: encodeDataSpaceResourceType(resource.resourceType),
     OutputType: query.model.query.outputType || 'Table',
     Filter: queryFilter(query),
     inputParams: query.inputParameters ?? [],

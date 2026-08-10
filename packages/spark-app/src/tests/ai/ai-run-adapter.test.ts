@@ -18,7 +18,7 @@ import {
   AiAgentToolResult,
   DefaultAiAgentSessionStore,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import {
   createAiRunAdapter,
   formatAiRunError,
@@ -142,11 +142,11 @@ function createDeferred<T>(): Deferred<T> {
 
 describe('createAiRunAdapter', () => {
   it('runs headlessly without a trace sink', async () => {
-    const input = { prompt: 'build page' } satisfies AiJsonParams
+    const input = { prompt: 'build page' } satisfies JsonParams
     const result = createRunResult()
     const run = vi.fn(async (
       _alias: string,
-      _input: AiJsonParams,
+      _input: JsonParams,
       _chat?: AiAgentTaskChatOptions,
     ) => result)
     const host: AiRunHost = { run }
@@ -184,7 +184,7 @@ describe('createAiRunAdapter', () => {
     const result = createRunResult()
     const run = vi.fn(async (
       _alias: string,
-      _input: AiJsonParams,
+      _input: JsonParams,
       chat?: AiAgentTaskChatOptions,
     ) => {
       chat?.onStreamEvent?.(event)
@@ -233,7 +233,7 @@ describe('createAiRunAdapter', () => {
     const result = createRunResult()
     const run = vi.fn(async (
       _alias: string,
-      _input: AiJsonParams,
+      _input: JsonParams,
       chat?: AiAgentTaskChatOptions,
     ) => {
       await chat?.beforeFunctionCall?.(createBeforeOptions())
@@ -300,7 +300,7 @@ describe('createAiRunAdapter', () => {
     let signal: AbortSignal | undefined
     const run = vi.fn((
       _alias: string,
-      _input: AiJsonParams,
+      _input: JsonParams,
       chat?: AiAgentTaskChatOptions,
     ) => {
       signal = chat?.signal
@@ -341,7 +341,7 @@ describe('createAiRunAdapter', () => {
     const result = createRunResult('late-session')
     const run = vi.fn((
       _alias: string,
-      _input: AiJsonParams,
+      _input: JsonParams,
       _chat?: AiAgentTaskChatOptions,
     ) => pending.promise)
     const host: AiRunHost = { run }
@@ -366,7 +366,7 @@ describe('createAiRunAdapter', () => {
     const result = createRunResult()
     const run = vi.fn((
       _alias: string,
-      _input: AiJsonParams,
+      _input: JsonParams,
       _chat?: AiAgentTaskChatOptions,
     ) => pending.promise)
     const host: AiRunHost = { run }

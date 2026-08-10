@@ -9,7 +9,7 @@ import type {
   AiAgentBeforeFunctionCallDirective,
   AiAgentBeforeFunctionCallOptions,
   AiAgentRuntimeContext,
-} from '@/services/ai/spark-ai-agent-bindings'
+} from '@spark-appworks/spark-ai/agent'
 import type { ClassModelKnowledgeProvider } from '@spark-appworks/spark-ai/class-model'
 import type {
   ProjectModel,
@@ -32,7 +32,7 @@ export type ProjectPlanningRunInput = Readonly<{
   blueprintNodes: readonly BlueprintPlanningRunInput[]
 }>
 
-/** Host inputContract 用可变数组，满足 AiJsonParams。 */
+/** Host inputContract 用可变数组，满足 JsonParams。 */
 export type ProjectPlanningAgentInput = Readonly<{
   /** 租户标识；用于后端附件读取 scope 校验。 */
   tenantId?: string

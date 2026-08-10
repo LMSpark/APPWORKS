@@ -8,6 +8,8 @@
  * 页面配置缓存管理（spark-app 内聚）
  */
 
+import { PAGE_NODE_FILE_NAMES } from '@spark-appworks/spark-project-model'
+
 type PageCacheSource = {
   /** 清除指定页面的内存缓存，同时由 handle 清除 localStorage 中对应的四文件条目 */
   clearPageCache(pageId: string): void
@@ -30,7 +32,7 @@ export function createPageCache(source: PageCacheSource): PageCacheHandle {
     clearPageCache(pageId: string): void {
       source.clearPageCache(pageId)
       if (typeof localStorage === 'undefined') return
-      for (const file of PAGE_FILES) {
+      for (const file of PAGE_NODE_FILE_NAMES) {
         const base = `${CACHE_PREFIX}/${pageId}/${file}`
         localStorage.removeItem(base)
         localStorage.removeItem(`${base}:raw`)
@@ -58,4 +60,3 @@ export function createPageCache(source: PageCacheSource): PageCacheHandle {
 }
 
 const CACHE_PREFIX = 'spark_page_'
-const PAGE_FILES: readonly string[] = ['rule.json', 'pagedata.json', 'script.js', 'style.css']

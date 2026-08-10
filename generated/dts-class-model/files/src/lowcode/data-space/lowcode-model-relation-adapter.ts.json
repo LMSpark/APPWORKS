@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-model-relation-adapter",
+    "sourcePath": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-model-relation-adapter",
+    "jsdoc": "app 的 lowcode/data-space/lowcode-model-relation-adapter 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeModelRelationAdapterResult, LowcodeModelRelationAdapter（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeModelRelationAdapterResult",
+      "LowcodeModelRelationAdapter"
+    ]
+  },
+  "$defs": {
+    "LowcodeModelRelationAdapterResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeModelRelationAdapterResult",
+      "properties": {
+        "resourceRelations": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+          }
+        },
+        "viewCascades": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataViewCascade"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "lowcode-frontend-model-adapter.ts.json#/$defs/LowcodeDataSpaceAdapterDiagnostic"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeModelRelationAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeModelRelationAdapter",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.adapt.params": {
+          "type": "object",
+          "properties": {
+            "relations": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json#/$defs/LowcodeModelRelationRecord"
+              }
+            },
+            "models": {
+              "$ref": "lowcode-frontend-model-adapter.ts.json#/$defs/LowcodeFrontendModelAdapterResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adapt.return": {
+          "$ref": "#/$defs/LowcodeModelRelationAdapterResult"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T05:29:48.388Z",
+  "models": {
+    "LowcodeModelRelationAdapterResult": {
+      "name": "LowcodeModelRelationAdapterResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceRelations: readonly DataResourceRelation[];\n    viewCascades: readonly DataViewCascade[];\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceRelations: readonly DataResourceRelation[];\n    viewCascades: readonly DataViewCascade[];\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceRelations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewCascades",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeModelRelationAdapter": {
+      "name": "LowcodeModelRelationAdapter",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "adapt",
+              "parameters": [
+                {
+                  "name": "relations",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly LowcodeModelRelationRecord[]"
+                  }
+                },
+                {
+                  "name": "models",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFrontendModelAdapterResult",
+                    "sourcePath": "src/lowcode/data-space/lowcode-frontend-model-adapter.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeModelRelationAdapterResult",
+                "sourcePath": "src/lowcode/data-space/lowcode-model-relation-adapter.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

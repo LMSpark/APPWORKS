@@ -11,8 +11,7 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "RendererTreeViewState",
-      "TreeTableRowsInput",
-      "RendererTreeViewStateOptions"
+      "TreeTableRowsInput"
     ],
     "componentLevel": "table-level",
     "componentLayer": "data-view-container",
@@ -26,7 +25,7 @@
       "properties": {
         "treeData": {
           "type": "object",
-          "title": "ComputedRef<TreeNode[]>"
+          "title": "ComputedRef<RendererTreeNode[]>"
         },
         "treeIdField": {
           "type": "object",
@@ -84,7 +83,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:21:45.724Z",
+  "generatedAt": "2026-08-10T11:35:59.405Z",
   "models": {
     "RendererTreeViewState": {
       "name": "RendererTreeViewState",
@@ -96,7 +95,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "DataViewState & {\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<TreeNode[]>;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}",
+        "declarationTypeText": "DataViewState & {\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<RendererTreeNode[]>;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -105,7 +104,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<TreeNode[]>;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}"
+            "typeText": "{\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<RendererTreeNode[]>;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}"
           }
         ],
         "members": {

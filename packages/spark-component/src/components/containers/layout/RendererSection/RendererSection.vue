@@ -94,12 +94,13 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
  */
 import { computed, useSlots } from 'vue'
 import { useSparkPageComponent, SparkComponentRenderer } from '../../../internal'
-import { getSparkNodeChildren, nodeId } from '../../../internal'
+
 import { useContainerGrid } from '../../runtime/container-layout'
 import type { RendererSectionApi } from './types'
 import { createRendererSectionZeroCode } from './zero-code'
 import { useMirroredValue } from '../state'
 import type { RSectionProps } from './RendererSection.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RSectionProps>(), {
   type: 'r-section',
@@ -153,7 +154,6 @@ const { sectionApi, handleHeaderClick, toggleCollapsed }: {
 })
 
 registerApi(sectionApi)
-
 
 function getHeaderScope() {
   return {

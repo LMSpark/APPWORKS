@@ -131,10 +131,9 @@ import {
   FieldText,
   PAGE_DATASET,
   RendererForm,
-  type SparkNode,
   useSparkContextScope,
 } from '@spark-appworks/spark-component'
-import { SparkData, type DataRow } from '@spark-appworks/spark-data'
+import { SparkData, type DataRow, type SparkNode } from '@spark-appworks/spark-data'
 
 type EmployeeRecord = DataRow & {
   id: number

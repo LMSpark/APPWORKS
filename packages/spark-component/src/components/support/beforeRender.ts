@@ -6,7 +6,7 @@
  */
 import type { DataPermissionSnapshot, DataRow, DataView } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
-import type { SparkNode, SparkNodeChildren } from '../../core/types.js'
+import type { SparkNodeChildren, SparkNode } from '@spark-appworks/spark-data'
 
 export const BEFORE_RENDER_RESOLVED_PROP = '$beforeRenderResolved'
 

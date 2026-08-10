@@ -12,7 +12,6 @@
     "symbols": [
       "ProjectSwitchService",
       "ProjectWorkspaceScope",
-      "ProjectApiScope",
       "ShellNavRootListener"
     ]
   },

@@ -9,7 +9,7 @@ import type {
   AiAgentHostRunResult,
   AiAgentTaskChatOptions,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { PageNodeFileName, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import {
   PAGE_DESIGN_MODULE_ID,
@@ -71,7 +71,7 @@ export type PageDataDesignHostInput = Readonly<{
 
 export function normalizePageDataDesignToPageDesignInput(
   args: Record<string, unknown>,
-): AiJsonParams {
+): JsonParams {
   const input = readPageDataDesignHostInput(args)
   const description = mergePageDataDesignDescription(input)
   const normalized: PageDesignRunInput = {
@@ -125,7 +125,7 @@ function createPageDataDesignPresetHost(
     },
     async run(
       alias: string,
-      args: AiJsonParams,
+      args: JsonParams,
       chat?: AiAgentTaskChatOptions,
     ): Promise<AiAgentHostRunResult> {
       if (alias !== PAGE_DATA_DESIGN_MODULE_ID) {

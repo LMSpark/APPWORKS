@@ -152,8 +152,8 @@ type StreamDisplayEntry =
 export type AiAgentFrontendTool = Readonly<{
   name: string
   description: string
-  parameters: AiJsonSchemaObject
-  execute(args: AiJsonParams, context: AiAgentFrontendToolContext): Promise<AiJsonValue>
+  parameters: JsonSchemaObject
+  execute(args: JsonParams, context: AiAgentFrontendToolContext): Promise<JsonValue>
 }>
 
 export type AiAgentFrontendToolContext = Readonly<{
@@ -167,7 +167,7 @@ export type AiAgentFrontendToolContext = Readonly<{
 export type AiAgentFrontendToolCall = Readonly<{
   callId: string
   name: string
-  args: AiJsonParams
+  args: JsonParams
   context: AiAgentFrontendToolContext
 }>
 
@@ -175,7 +175,7 @@ export type AiAgentFrontendToolCall = Readonly<{
 export type AiAgentFrontendToolResult = Readonly<{
   callId: string
   ok: boolean
-  data?: AiJsonValue
+  data?: JsonValue
   error?: string
 }>
 ```
@@ -187,7 +187,7 @@ export type AiAgentSteeringCommand = Readonly<{
   type: 'redirect' | 'pause' | 'cancel' | 'inject-message'
   sessionId: string
   turnId: string
-  payload: AiJsonParams
+  payload: JsonParams
 }>
 ```
 

@@ -52,6 +52,14 @@ export function assertClassModelBundleComplete(bundleRoot, options = {}) {
 
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
   assertClassModelBundleNativeShardPaths(manifest)
+  const duplicates = Array.isArray(manifest.duplicates) ? manifest.duplicates : []
+  if (duplicates.length > 0) {
+    throw new Error([
+      `ClassModel public symbol index contains ${String(duplicates.length)} duplicate(s).`,
+      'Public type names must be globally unique; module-private declarations must not enter module.symbols.',
+      ...duplicates.slice(0, 10).map(item => `- ${String(item.className)}: ${String(item.keptFile)} / ${String(item.skippedFile)}`),
+    ].join('\n'))
+  }
   const missing = []
   for (const [sourcePath, entry] of Object.entries(manifest.files ?? {})) {
     const relativeFile = entry?.file

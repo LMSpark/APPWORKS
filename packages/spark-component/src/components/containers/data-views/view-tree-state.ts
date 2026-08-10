@@ -12,7 +12,7 @@ import {
   type DataRow,
   type TreeConfig,
 } from '@spark-appworks/spark-data'
-import type { TreeNode } from './RendererTree/zero-code'
+import type { RendererTreeNode } from './RendererTree/zero-code'
 import type { DataViewState } from './view-runtime-state.js'
 import {
   resolveTreeNodeText,
@@ -23,7 +23,7 @@ import {
 /** 树形视图态（RendererTree 专用扩展）。 */
 export type RendererTreeViewState = DataViewState & {
     /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */
-    treeData: ComputedRef<TreeNode[]>
+    treeData: ComputedRef<RendererTreeNode[]>
     /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */
     treeIdField: ComputedRef<string>}
 
@@ -45,12 +45,12 @@ type TreeSeedBuildResult = {
   seedNodes: TreeManagerSeedNode[]
   hasParentLink: boolean}
 
-function toTreeRows(rows: readonly DataRow[]): TreeNode[] {
-  return rows.map(toTreeNode)
+function toTreeRows(rows: readonly DataRow[]): RendererTreeNode[] {
+  return rows.map(toRendererTreeNode)
 }
 
-function toTreeNode(row: DataRow): TreeNode {
-  const node: TreeNode = {}
+function toRendererTreeNode(row: DataRow): RendererTreeNode {
+  const node: RendererTreeNode = {}
   for (const [key, value] of Object.entries(row)) {
     if (key === 'children') continue
     node[key] = value
@@ -61,7 +61,7 @@ function toTreeNode(row: DataRow): TreeNode {
       .map(toDataRecord)
       .filter((record): record is Record<string, unknown> => record !== null)
       .map(toDataRow)
-      .map(toTreeNode)
+      .map(toRendererTreeNode)
   }
   return node
 }
@@ -181,7 +181,7 @@ export function useRendererTreeViewState(options: RendererTreeViewStateOptions):
 
   const treeIdField = computed<string>(() => treeConfig.value?.idField ?? 'id')
 
-  const treeData = computed<TreeNode[]>(() => {
+  const treeData = computed<RendererTreeNode[]>(() => {
     const resolvedRows = toTreeRows(rows.value)
     if (resolvedRows.length === 0) return []
     if (isAlreadyNested(resolvedRows)) return resolvedRows

@@ -103,6 +103,45 @@ export { deepClone } from './clone'
 
 export { SnapshotHistory } from './snapshot-history'
 
+// ==================== 项目蓝图共享契约 ====================
+
+export {
+  PROJECT_BLUEPRINT_NODE_KINDS,
+  isProjectBlueprintNodeKind,
+} from './project-blueprint-node-kind'
+
+export type { ProjectBlueprintNodeKind } from './project-blueprint-node-kind'
+
+// ==================== 权限展示三态 ====================
+
+export {
+  PERMISSION_MODES,
+  isPermissionMode,
+} from './permission-mode'
+
+export type { PermissionMode } from './permission-mode'
+
+// ==================== 运行导航表面共享契约 ====================
+
+export {
+  RUNTIME_NAVIGATION_ITEM_KINDS,
+  isRuntimeNavigationItemKind,
+  NAVIGATION_PLACEMENTS,
+  isNavigationPlacement,
+  NAVIGATION_ROOT_PLACEMENTS,
+  isNavigationRootPlacement,
+  NAVIGATION_LINK_TARGETS,
+  isNavigationLinkTarget,
+} from './navigation-surface'
+
+export type {
+  RuntimeNavigationItemKind,
+  NavigationPlacement,
+  NavigationRootPlacement,
+  NavigationLinkTarget,
+  NavigationContextConfig,
+} from './navigation-surface'
+
 // ==================== 能力树遍历辅助（公开基础设施） ====================
 
 export {

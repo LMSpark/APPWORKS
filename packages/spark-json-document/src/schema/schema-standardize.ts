@@ -10,17 +10,9 @@
  * Every schema node — primitives, pooled $defs, arrays, objects — must pass this pass.
  */
 
-export const JSON_SCHEMA_DRAFT_2020_12 = 'https://json-schema.org/draft/2020-12/schema'
+import type { JsonSchemaType } from './schema-types'
 
-/** Draft 2020-12 `type` 关键字允许的基础 JSON 类型。 */
-type JsonSchemaType =
-  | 'null'
-  | 'boolean'
-  | 'object'
-  | 'array'
-  | 'number'
-  | 'integer'
-  | 'string'
+export const JSON_SCHEMA_DRAFT_2020_12 = 'https://json-schema.org/draft/2020-12/schema'
 
 /** JSON Schema enum/const 可承载的 JSON 标量值。 */
 type JsonLiteralValue = string | number | boolean | null

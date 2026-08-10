@@ -32,8 +32,9 @@ AI用途：需要理解 display timeline item 的实际渲染结构、slot/toolb
  * @description 时间线项。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RTimelineItemProps } from './DisplayTimelineItem.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RTimelineItemProps>(), {
   type: 'r-timeline-item',
@@ -49,5 +50,4 @@ const { isVisible } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

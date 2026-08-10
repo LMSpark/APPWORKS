@@ -7,17 +7,13 @@
 import type { SparkFieldSemanticProps, SparkNodeProps } from '../../../shared-types.js'
 import { useFieldPermission } from '../../context/useFieldPermission'
 import type { FieldPermissionProps } from '../../context/useFieldPermission'
+import type { FieldComposableProps } from '../../context/field-composable-props'
 import { useFieldControlState } from './useFieldControlState'
 
-/** Optional With Undefined 的语义模型。 */
-type OptionalWithUndefined<T> = {
-  [K in keyof T]?: T[K] | undefined
-}
-
 /** Basic Field Props 的属性契约。 */
-type BasicFieldProps<TValue> = FieldPermissionProps<TValue> & OptionalWithUndefined<Pick<SparkNodeProps,
+type BasicFieldProps<TValue> = FieldPermissionProps<TValue> & FieldComposableProps<Pick<SparkNodeProps,
     | 'type' | 'children'
-  >> & OptionalWithUndefined<Pick<SparkFieldSemanticProps,
+  >> & FieldComposableProps<Pick<SparkFieldSemanticProps,
     | 'width'
     | 'resizable'
     | 'titleAlign' | 'valueAlign'

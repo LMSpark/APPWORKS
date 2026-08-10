@@ -20,8 +20,7 @@
  * ```
  */
 
-import type { SparkNode } from '../../core/types'
-import { nodeInputProps } from '../../core/types'
+import { type SparkNode, nodeInputProps } from '@spark-appworks/spark-data'
 import type {
   ActionDescriptor,
   ActionPromptConfig,

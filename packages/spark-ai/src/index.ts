@@ -10,16 +10,11 @@
  * SPARK AI root facade.
  *
  * Use the focused public entries for new code:
- * - `@spark-appworks/spark-ai/json`
  * - `@spark-appworks/spark-ai/class-model`
  * - `@spark-appworks/spark-ai/agent`
+ *
+ * JSON Schema / 值类型 SSOT：`@spark-appworks/spark-json-document`（本包不再转发）。
  */
-
-export {
-  AiJsonSchemaValidator,
-  noParamsSchema,
-  paramsSchema,
-} from './json'
 
 export {
   ClassModelRuntime,

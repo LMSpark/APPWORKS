@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/data-space-resource-type-wire",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space-resource-type-wire.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-resource-type-wire.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/data-space-resource-type-wire",
+    "jsdoc": "DataSpace 资源类型与 wire 中文标签的双向映射（设计读回 / 运行写出共用）。\n领域正式名仍为 {@link DataSpaceResourceType}；禁止在 design/runtime 各维护一份表。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSpaceResourceTypeWireLabel"
+    ]
+  },
+  "$defs": {
+    "DataSpaceResourceTypeWireLabel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceResourceTypeWireLabel",
+      "enum": [
+        "数据库表",
+        "视图",
+        "字典",
+        "接口",
+        "JSON",
+        "文件"
+      ]
+    }
+  },
+  "generatedAt": "2026-08-10T12:23:45.491Z",
+  "models": {
+    "DataSpaceResourceTypeWireLabel": {
+      "name": "DataSpaceResourceTypeWireLabel",
+      "jsdoc": "wire Type 字段中文标签（Jackson / GetData 资源行）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'数据库表' | '视图' | '字典' | '接口' | 'JSON' | '文件'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'数据库表'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'视图'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'字典'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'接口'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'JSON'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'文件'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

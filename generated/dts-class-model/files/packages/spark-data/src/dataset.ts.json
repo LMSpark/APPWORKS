@@ -10,7 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-data:dataset\n职责：提供 spark-data 数据管线中的 dataset 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "DataSetConfig",
       "DataSet"
     ]
   },
@@ -30,16 +29,16 @@
         "schemaVersion": {
           "type": "number"
         },
-        "tableRelations": {
+        "resourceRelations": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/TableRelation"
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
           }
         },
-        "viewDependencies": {
+        "viewCascades": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/ViewDependency"
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
           }
         },
         "version": {
@@ -71,22 +70,16 @@
           "type": "object",
           "title": "Record<string, DataTable>"
         },
-        "tableRelations": {
+        "resourceRelations": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/TableRelation"
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
           }
         },
-        "viewDependencies": {
+        "viewCascades": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/ViewDependency"
-          }
-        },
-        "_resolvedRelations": {
-          "type": "array",
-          "items": {
-            "$ref": "types.ts.json#/$defs/DataRelation"
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
           }
         },
         "schemaVersion": {
@@ -167,9 +160,8 @@
       "required": [
         "dataSetName",
         "tables",
-        "tableRelations",
-        "viewDependencies",
-        "_resolvedRelations",
+        "resourceRelations",
+        "viewCascades",
         "schemaVersion",
         "version",
         "pageId",
@@ -281,7 +273,7 @@
           "additionalProperties": false
         },
         "method.triggerAutoLoad.return": true,
-        "method.getChildRelations.params": {
+        "method.getChildCascades.params": {
           "type": "object",
           "properties": {
             "parentTable": {
@@ -293,13 +285,13 @@
           },
           "additionalProperties": false
         },
-        "method.getChildRelations.return": {
+        "method.getChildCascades.return": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/DataRelation"
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
           }
         },
-        "method.getParentRelations.params": {
+        "method.getParentCascades.params": {
           "type": "object",
           "properties": {
             "childTable": {
@@ -311,22 +303,22 @@
           },
           "additionalProperties": false
         },
-        "method.getParentRelations.return": {
+        "method.getParentCascades.return": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/DataRelation"
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
           }
         },
-        "method.resolveDependencyFilter.params": {
+        "method.resolveCascadeFilter.params": {
           "type": "object",
           "properties": {
             "rel": {
-              "$ref": "types.ts.json#/$defs/DataRelation"
+              "$ref": "types.ts.json#/$defs/DataViewCascade"
             }
           },
           "additionalProperties": false
         },
-        "method.resolveDependencyFilter.return": {
+        "method.resolveCascadeFilter.return": {
           "anyOf": [
             {
               "$ref": "types.ts.json#/$defs/FilterExpression"
@@ -336,7 +328,7 @@
             }
           ]
         },
-        "method.getTableChildRelations.params": {
+        "method.getResourceChildRelations.params": {
           "type": "object",
           "properties": {
             "parentTable": {
@@ -345,13 +337,13 @@
           },
           "additionalProperties": false
         },
-        "method.getTableChildRelations.return": {
+        "method.getResourceChildRelations.return": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/TableRelation"
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
           }
         },
-        "method.getTableParentRelations.params": {
+        "method.getResourceParentRelations.params": {
           "type": "object",
           "properties": {
             "childTable": {
@@ -360,10 +352,10 @@
           },
           "additionalProperties": false
         },
-        "method.getTableParentRelations.return": {
+        "method.getResourceParentRelations.return": {
           "type": "array",
           "items": {
-            "$ref": "types.ts.json#/$defs/TableRelation"
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
           }
         },
         "method.replaceFromJson.params": {
@@ -486,7 +478,7 @@
           "additionalProperties": false
         },
         "method.removeTable.return": true,
-        "method.addRelation.params": {
+        "method.addResourceRelation.params": {
           "type": "object",
           "properties": {
             "params": {
@@ -519,8 +511,8 @@
           },
           "additionalProperties": false
         },
-        "method.addRelation.return": true,
-        "method.updateRelation.params": {
+        "method.addResourceRelation.return": true,
+        "method.updateResourceRelation.params": {
           "type": "object",
           "properties": {
             "selector": {
@@ -546,15 +538,15 @@
               "additionalProperties": false
             },
             "updates": {
-              "$ref": "types.ts.json#/$defs/TableRelation"
+              "$ref": "types.ts.json#/$defs/DataResourceRelation"
             }
           },
           "additionalProperties": false
         },
-        "method.updateRelation.return": {
-          "$ref": "types.ts.json#/$defs/TableRelation"
+        "method.updateResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
         },
-        "method.removeRelation.params": {
+        "method.removeResourceRelation.params": {
           "type": "object",
           "properties": {
             "selector": {
@@ -582,48 +574,42 @@
           },
           "additionalProperties": false
         },
-        "method.removeRelation.return": true,
-        "method.addDependency.params": {
+        "method.removeResourceRelation.return": true,
+        "method.addCascade.params": {
           "type": "object",
           "properties": {
-            "dependency": {
-              "$ref": "types.ts.json#/$defs/ViewDependency"
+            "cascade": {
+              "$ref": "types.ts.json#/$defs/DataViewCascade"
             }
           },
           "additionalProperties": false
         },
-        "method.addDependency.return": true,
-        "method.updateDependency.params": {
+        "method.addCascade.return": true,
+        "method.updateCascade.params": {
           "type": "object",
           "properties": {
-            "parentTable": {
-              "type": "string"
-            },
-            "childTable": {
-              "type": "string"
+            "selector": {
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
             },
             "updates": {
-              "$ref": "types.ts.json#/$defs/ViewDependency"
+              "$ref": "types.ts.json#/$defs/DataViewCascade"
             }
           },
           "additionalProperties": false
         },
-        "method.updateDependency.return": {
-          "$ref": "types.ts.json#/$defs/ViewDependency"
+        "method.updateCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
         },
-        "method.removeDependency.params": {
+        "method.removeCascade.params": {
           "type": "object",
           "properties": {
-            "parentTable": {
-              "type": "string"
-            },
-            "childTable": {
-              "type": "string"
+            "selector": {
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
             }
           },
           "additionalProperties": false
         },
-        "method.removeDependency.return": true,
+        "method.removeCascade.return": true,
         "method.destroy.params": {
           "type": "object",
           "properties": {},
@@ -704,14 +690,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-19T09:58:23.296Z",
+  "generatedAt": "2026-08-10T05:54:02.608Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
       "jsdoc": "Data Set Config 的配置结构。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** data Set Name 名称。 */\n    dataSetName: string;\n    /** tables 字段。 */\n    tables: Record<string, TableMetadata>;\n    /** schema Version 字段。 */\n    schemaVersion?: number | undefined;\n    /** table Relations 字段。 */\n    tableRelations?: TableRelation[] | undefined;\n    /** view Dependencies 字段。 */\n    viewDependencies?: ViewDependency[] | undefined;\n    /** version 字段。 */\n    version?: number | undefined;\n    /** page Id 标识。 */\n    pageId?: string | undefined;\n    /** save Changes 字段。 */\n    saveChanges?: DataSetSaveChangesConfig | undefined;\n    /** layout 字段。 */\n    layout?: DataSetMetadata['layout'] | undefined;\n}",
+        "declarationTypeText": "{\n    /** data Set Name 名称。 */\n    dataSetName: string;\n    /** tables 字段。 */\n    tables: Record<string, TableMetadata>;\n    /** schema Version 字段。 */\n    schemaVersion?: number | undefined;\n    /** table Relations 字段。 */\n    resourceRelations?: DataResourceRelation[] | undefined;\n    /** view Dependencies 字段。 */\n    viewCascades?: DataViewCascade[] | undefined;\n    /** version 字段。 */\n    version?: number | undefined;\n    /** page Id 标识。 */\n    pageId?: string | undefined;\n    /** save Changes 字段。 */\n    saveChanges?: DataSetSaveChangesConfig | undefined;\n    /** layout 字段。 */\n    layout?: DataSetMetadata['layout'] | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -733,13 +719,13 @@
               "writable": false
             },
             {
-              "name": "tableRelations",
+              "name": "resourceRelations",
               "jsdoc": "table Relations 字段。",
               "readable": true,
               "writable": false
             },
             {
-              "name": "viewDependencies",
+              "name": "viewCascades",
               "jsdoc": "view Dependencies 字段。",
               "readable": true,
               "writable": false
@@ -818,20 +804,14 @@
               "writable": true
             },
             {
-              "name": "tableRelations",
-              "jsdoc": "L1: 表关系定义",
+              "name": "resourceRelations",
+              "jsdoc": "数据资源关系定义",
               "readable": true,
               "writable": true
             },
             {
-              "name": "viewDependencies",
-              "jsdoc": "L2: 视图联动定义",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_resolvedRelations",
-              "jsdoc": "@internal 展开后的内部扁平关系（TableRelation + ViewDependency 合并）。\nCascadeDelegate / DataView / ComputedColumnDelegate 消费此结构。",
+              "name": "viewCascades",
+              "jsdoc": "DataView 输入级联定义",
               "readable": true,
               "writable": true
             },
@@ -1094,8 +1074,8 @@
               }
             },
             {
-              "name": "getChildRelations",
-              "jsdoc": "查询以指定视图为父的子关系（视图级索引）\n@param parentTable 父表名\n@param parentViewId 父视图ID",
+              "name": "getChildCascades",
+              "jsdoc": "查询以指定 DataView 为源的目标级联（视图级索引）\n@param parentTable 父表名\n@param parentViewId 父视图ID",
               "parameters": [
                 {
                   "name": "parentTable",
@@ -1116,14 +1096,14 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "DataRelation",
+                  "name": "DataViewCascade",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "getParentRelations",
-              "jsdoc": "查询以指定视图为子的父关系（视图级索引）\n@param childTable 子表名\n@param childViewId 子视图ID",
+              "name": "getParentCascades",
+              "jsdoc": "查询以指定 DataView 为目标的源级联（视图级索引）\n@param childTable 子表名\n@param childViewId 子视图ID",
               "parameters": [
                 {
                   "name": "childTable",
@@ -1144,20 +1124,20 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "DataRelation",
+                  "name": "DataViewCascade",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "resolveDependencyFilter",
-              "jsdoc": "解析 Dependency Filter。",
+              "name": "resolveCascadeFilter",
+              "jsdoc": "将 DataView 输入级联解析为目标视图过滤表达式。",
               "parameters": [
                 {
                   "name": "rel",
                   "type": {
                     "type": "reference",
-                    "name": "DataRelation",
+                    "name": "DataViewCascade",
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
@@ -1182,8 +1162,8 @@
               }
             },
             {
-              "name": "getTableChildRelations",
-              "jsdoc": "查询以指定表为父的所有表关系（表级索引，聚合函数消费）",
+              "name": "getResourceChildRelations",
+              "jsdoc": "查询以指定资源为父的所有资源关系（聚合函数消费）",
               "parameters": [
                 {
                   "name": "parentTable",
@@ -1197,14 +1177,14 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "TableRelation",
+                  "name": "DataResourceRelation",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
             },
             {
-              "name": "getTableParentRelations",
-              "jsdoc": "查询以指定表为子的所有表关系（表级索引）",
+              "name": "getResourceParentRelations",
+              "jsdoc": "查询以指定资源为子的所有资源关系",
               "parameters": [
                 {
                   "name": "childTable",
@@ -1218,7 +1198,7 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "TableRelation",
+                  "name": "DataResourceRelation",
                   "sourcePath": "packages/spark-data/src/types.ts"
                 }
               }
@@ -1420,7 +1400,7 @@
             },
             {
               "name": "removeTable",
-              "jsdoc": "删除未被关系或依赖引用的数据表。\nfail-fast：若仍被 tableRelation / viewDependency 引用，则拒绝删除。",
+              "jsdoc": "删除未被数据资源关系或 DataView 输入级联引用的数据表。\nfail-fast：若仍被 resourceRelations / viewCascades 引用，则拒绝删除。",
               "parameters": [
                 {
                   "name": "tableName",
@@ -1436,8 +1416,8 @@
               }
             },
             {
-              "name": "addRelation",
-              "jsdoc": "添加 TableRelation（父子表关系）。\n@throws 引用的表/字段不存在或关系已重复时抛 Error",
+              "name": "addResourceRelation",
+              "jsdoc": "添加 DataResourceRelation（数据资源字段关系）。\n@throws 引用的表/字段不存在或关系已重复时抛 Error",
               "parameters": [
                 {
                   "name": "params",
@@ -1453,8 +1433,8 @@
               }
             },
             {
-              "name": "updateRelation",
-              "jsdoc": "更新 TableRelation。\n若存在多个同 parentTable→childTable 的关系，必须显式指定 parentField/childField 消歧。",
+              "name": "updateResourceRelation",
+              "jsdoc": "更新 DataResourceRelation。\n若存在多个同 parentTable→childTable 的关系，必须显式指定 parentField/childField 消歧。",
               "parameters": [
                 {
                   "name": "selector",
@@ -1471,7 +1451,7 @@
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "name": "TableRelation",
+                        "name": "DataResourceRelation",
                         "sourcePath": "packages/spark-data/src/types.ts"
                       }
                     ]
@@ -1480,13 +1460,13 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "TableRelation",
+                "name": "DataResourceRelation",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "removeRelation",
-              "jsdoc": "删除 TableRelation。\n@throws 关系不存在或被 viewDependency 引用时抛 Error",
+              "name": "removeResourceRelation",
+              "jsdoc": "删除 DataResourceRelation。\n@throws 关系不存在时抛 Error",
               "parameters": [
                 {
                   "name": "selector",
@@ -1502,14 +1482,14 @@
               }
             },
             {
-              "name": "addDependency",
-              "jsdoc": "添加 ViewDependency（视图联动依赖）。\n@throws 依赖引用非法或重复时抛 Error",
+              "name": "addCascade",
+              "jsdoc": "添加 DataViewCascade（DataView 输入级联）。\n@throws 级联引用非法或重复时抛 Error",
               "parameters": [
                 {
-                  "name": "dependency",
+                  "name": "cascade",
                   "type": {
                     "type": "reference",
-                    "name": "ViewDependency",
+                    "name": "DataViewCascade",
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
@@ -1520,21 +1500,15 @@
               }
             },
             {
-              "name": "updateDependency",
-              "jsdoc": "更新 ViewDependency。\nfail-fast：目标 parentTable→childTable 必须已有底层 tableRelation。",
+              "name": "updateCascade",
+              "jsdoc": "更新 DataViewCascade。\n资源关系与输入级联独立；这里只校验 DataView 端点和字段绑定。",
               "parameters": [
                 {
-                  "name": "parentTable",
+                  "name": "selector",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "childTable",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 },
                 {
@@ -1545,7 +1519,7 @@
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "name": "ViewDependency",
+                        "name": "DataViewCascade",
                         "sourcePath": "packages/spark-data/src/types.ts"
                       }
                     ]
@@ -1554,26 +1528,20 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "ViewDependency",
+                "name": "DataViewCascade",
                 "sourcePath": "packages/spark-data/src/types.ts"
               }
             },
             {
-              "name": "removeDependency",
-              "jsdoc": "删除 ViewDependency。\n@throws 依赖不存在时抛 Error",
+              "name": "removeCascade",
+              "jsdoc": "删除 DataViewCascade。\n@throws 级联不存在时抛 Error",
               "parameters": [
                 {
-                  "name": "parentTable",
+                  "name": "selector",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "childTable",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 }
               ],
@@ -1645,7 +1613,7 @@
             },
             {
               "name": "saveChanges",
-              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n提交顺序按 tableRelations 做父表 → 子表排序，保证主从页面一次提交时主表先落库。",
+              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n提交顺序按 resourceRelations 做父表 → 子表排序，保证主从页面一次提交时主表先落库。",
               "parameters": [
                 {
                   "name": "options",

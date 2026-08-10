@@ -16,7 +16,6 @@
       "ActionDescriptor",
       "ActionDescriptorActionName",
       "ActionRowTarget",
-      "ActionDescriptorBase",
       "ShowMessageAction",
       "ShowConfirmAction",
       "ShowAlertAction",

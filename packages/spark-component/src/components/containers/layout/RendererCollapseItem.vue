@@ -31,9 +31,10 @@ AI用途：需要理解 renderer collapse item 的实际渲染结构、slot/tool
  */
 import { computed } from 'vue'
 import { SparkComponentRenderer, useSparkComponent } from '../../internal'
-import { nodeId } from '../../internal'
+
 import { useCompositeItemGrid } from '../runtime/container-layout'
 import type { SparkNodeProps } from '../../shared-types'
+import { nodeId } from '@spark-appworks/spark-data'
 
 /** r-collapse-item 内部面板项属性，继承 SparkNode 通用节点属性。 */
 type Props = SparkNodeProps & {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { PAGE_RUNTIME_SERVICES } from '../runtime'
-import type { CapabilityContext } from '@spark-appworks/spark-component'
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
 import type { LoggerApi } from '@spark-appworks/spark-utils'
 import { createPageRuntimeServices, readPageRuntimeServices } from './logger-test-helpers'
 

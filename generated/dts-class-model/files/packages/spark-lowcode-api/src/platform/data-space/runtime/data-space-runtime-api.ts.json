@@ -7,18 +7,35 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/runtime/data-space-runtime-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/runtime/data-space-runtime-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceRuntimeFilter, DataSpaceRuntimeQuery, DataSpaceSparsePermission, DataSpaceRuntimeRow, DataSpaceRuntimeSnapshot, DataSpaceRuntimeApi（共 6 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "数据空间运行态 API：按页面 FormKey 查询业务数据并解析后端稀疏权限。\n与 design 入口分离；变更须走 {@link prepareMutation}，读操作直接调用 GetData。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceRuntimeFilter",
+      "DataSpaceRuntimeInputParameter",
+      "DataSpaceRuntimeSort",
       "DataSpaceRuntimeQuery",
       "DataSpaceSparsePermission",
       "DataSpaceRuntimeRow",
       "DataSpaceRuntimeSnapshot",
+      "DataSpaceRuntimePreparedQuery",
       "DataSpaceRuntimeApi"
     ]
   },
   "$defs": {
+    "DataSpaceRuntimeSort": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRuntimeSort",
+      "properties": {
+        "fieldId": {
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "../../../contracts/lowcode-wire-query.ts.json#/$defs/OrderType"
+        }
+      },
+      "additionalProperties": false
+    },
     "DataSpaceRuntimeQuery": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -36,6 +53,19 @@
             "object"
           ],
           "title": "DataSpaceRuntimeFilter"
+        },
+        "inputParameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceRuntimeInputParameter"
+          }
+        },
+        "sort": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceRuntimeSort"
+          }
         },
         "pageIndex": {
           "type": "number"
@@ -134,6 +164,28 @@
       },
       "additionalProperties": false
     },
+    "DataSpaceRuntimePreparedQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRuntimePreparedQuery",
+      "properties": {
+        "path": {
+          "const": "/api/DataOperation/GetData"
+        },
+        "method": {
+          "const": "POST"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "data": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    },
     "DataSpaceRuntimeApi": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -161,6 +213,31 @@
           "type": "object",
           "title": "Promise<DataSpaceRuntimeSnapshot>"
         },
+        "method.prepareQuery.params": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "$ref": "#/$defs/DataSpaceRuntimeQuery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareQuery.return": {
+          "$ref": "#/$defs/DataSpaceRuntimePreparedQuery"
+        },
+        "method.parseQueryResult.params": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "$ref": "#/$defs/DataSpaceRuntimeQuery"
+            },
+            "result": true
+          },
+          "additionalProperties": false
+        },
+        "method.parseQueryResult.return": {
+          "$ref": "#/$defs/DataSpaceRuntimeSnapshot"
+        },
         "method.prepareMutation.params": {
           "type": "object",
           "properties": {
@@ -176,11 +253,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:51:40.561Z",
+  "generatedAt": "2026-08-10T12:24:16.439Z",
   "models": {
     "DataSpaceRuntimeFilter": {
       "name": "DataSpaceRuntimeFilter",
-      "jsdoc": "",
+      "jsdoc": "运行态附加过滤；与前端模型 Filter 以 AND 合并。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<Record<string, unknown>>",
@@ -194,16 +271,61 @@
         "members": {}
       }
     },
-    "DataSpaceRuntimeQuery": {
-      "name": "DataSpaceRuntimeQuery",
-      "jsdoc": "",
+    "DataSpaceRuntimeInputParameter": {
+      "name": "DataSpaceRuntimeInputParameter",
+      "jsdoc": "运行态入参；透传至 GetData Table.inputParams。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    formKey: string;\n    model: DataSpaceFrontendModel;\n    filter?: DataSpaceRuntimeFilter | null;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    formKey: string;\n    model: DataSpaceFrontendModel;\n    filter?: DataSpaceRuntimeFilter | null;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceRuntimeSort": {
+      "name": "DataSpaceRuntimeSort",
+      "jsdoc": "运行态排序；direction 即 wire OrderType。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fieldId: string;\n    direction: OrderType;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fieldId: string;\n    direction: OrderType;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "direction",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRuntimeQuery": {
+      "name": "DataSpaceRuntimeQuery",
+      "jsdoc": "运行态查询输入；model 须来自 design 读或已校验的 {@link DataSpaceFrontendModel}。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    model: DataSpaceFrontendModel;\n    filter?: DataSpaceRuntimeFilter | null;\n    inputParameters?: readonly DataSpaceRuntimeInputParameter[];\n    sort?: readonly DataSpaceRuntimeSort[];\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    model: DataSpaceFrontendModel;\n    filter?: DataSpaceRuntimeFilter | null;\n    inputParameters?: readonly DataSpaceRuntimeInputParameter[];\n    sort?: readonly DataSpaceRuntimeSort[];\n    pageIndex?: number;\n    pageSize?: number;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -225,6 +347,16 @@
               "writable": false
             },
             {
+              "name": "inputParameters",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sort",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "pageIndex",
               "readable": true,
               "writable": false
@@ -240,7 +372,7 @@
     },
     "DataSpaceSparsePermission": {
       "name": "DataSpaceSparsePermission",
-      "jsdoc": "",
+      "jsdoc": "后端稀疏行级权限；r/e/h/m 为字段名集合，d 表示可删。缺失 lingma_sys_params 会 fail-fast。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    r: readonly string[];\n    e: readonly string[];\n    h: readonly string[];\n    m: readonly string[];\n    d: boolean;\n}>",
@@ -284,7 +416,7 @@
     },
     "DataSpaceRuntimeRow": {
       "name": "DataSpaceRuntimeRow",
-      "jsdoc": "",
+      "jsdoc": "运行态数据行；强制携带 lingma_sys_params 与 lingma_sys_key。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<Record<string, unknown>> & Readonly<{\n    lingma_sys_params: DataSpaceSparsePermission;\n    lingma_sys_key: string;\n}>",
@@ -318,7 +450,7 @@
     },
     "DataSpaceRuntimeSnapshot": {
       "name": "DataSpaceRuntimeSnapshot",
-      "jsdoc": "",
+      "jsdoc": "运行态查询快照；作为 runtime mutation 写前镜像，须与 query 身份一致。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    rows: readonly DataSpaceRuntimeRow[];\n    originalRows: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    total: number;\n    allowAdd: boolean;\n    systemKey: string;\n}>",
@@ -375,9 +507,48 @@
         }
       }
     },
+    "DataSpaceRuntimePreparedQuery": {
+      "name": "DataSpaceRuntimePreparedQuery",
+      "jsdoc": "GetData 请求预组装结果；headers 含页面 FormKey。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    path: '/api/DataOperation/GetData';\n    method: 'POST';\n    headers: Readonly<Record<string, string>>;\n    data: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    path: '/api/DataOperation/GetData';\n    method: 'POST';\n    headers: Readonly<Record<string, string>>;\n    data: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "method",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataSpaceRuntimeApi": {
       "name": "DataSpaceRuntimeApi",
-      "jsdoc": "",
+      "jsdoc": "数据空间运行态门面；query 直接读库，mutation 只 prepare 命令。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -416,6 +587,49 @@
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "prepareQuery",
+              "parameters": [
+                {
+                  "name": "query",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRuntimeQuery",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRuntimePreparedQuery",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts"
+              }
+            },
+            {
+              "name": "parseQueryResult",
+              "parameters": [
+                {
+                  "name": "query",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRuntimeQuery",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts"
+                  }
+                },
+                {
+                  "name": "result",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRuntimeSnapshot",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts"
               }
             },
             {

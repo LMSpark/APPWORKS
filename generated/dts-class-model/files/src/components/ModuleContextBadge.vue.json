@@ -9,9 +9,7 @@
     "modulePath": "components/ModuleContextBadge",
     "jsdoc": "@module app:components/ModuleContextBadge\n职责：提供主应用 ModuleContextBadge 能力，围绕 Props 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 components/ModuleContextBadge。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [
-      "Props"
-    ]
+    "symbols": []
   },
   "$defs": {
     "Props": {
@@ -32,7 +30,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.638Z",
+  "generatedAt": "2026-08-10T11:12:08.329Z",
   "models": {
     "Props": {
       "name": "Props",

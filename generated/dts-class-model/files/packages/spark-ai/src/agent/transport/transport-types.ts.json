@@ -40,8 +40,7 @@
               "type": "string"
             },
             "parameters": {
-              "type": "object",
-              "title": "AiJsonSchemaObject"
+              "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
             },
             "strict": {
               "type": "boolean"
@@ -338,18 +337,18 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:21:27.490Z",
+  "generatedAt": "2026-08-10T10:00:08.492Z",
   "models": {
     "AiAgentTransportToolSpec": {
       "name": "AiAgentTransportToolSpec",
       "jsdoc": "传输层工具规约（对齐 OpenAI function tool spec）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 工具类型，当前固定为 'function'（对齐 OpenAI） */\n    type: 'function';\n    /** 函数定义：名称、描述、参数 JSON Schema、可选 strict 模式 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: AiJsonSchemaObject;\n        /** OpenAI strict function calling：要求模型参数严格匹配 JSON Schema。 */\n        readonly strict?: boolean;\n    };\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 工具类型，当前固定为 'function'（对齐 OpenAI） */\n    type: 'function';\n    /** 函数定义：名称、描述、参数 JSON Schema、可选 strict 模式 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n        /** OpenAI strict function calling：要求模型参数严格匹配 JSON Schema。 */\n        readonly strict?: boolean;\n    };\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 工具类型，当前固定为 'function'（对齐 OpenAI） */\n    type: 'function';\n    /** 函数定义：名称、描述、参数 JSON Schema、可选 strict 模式 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: AiJsonSchemaObject;\n        /** OpenAI strict function calling：要求模型参数严格匹配 JSON Schema。 */\n        readonly strict?: boolean;\n    };\n}>",
+            "typeText": "Readonly<{\n    /** 工具类型，当前固定为 'function'（对齐 OpenAI） */\n    type: 'function';\n    /** 函数定义：名称、描述、参数 JSON Schema、可选 strict 模式 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n        /** OpenAI strict function calling：要求模型参数严格匹配 JSON Schema。 */\n        readonly strict?: boolean;\n    };\n}>",
             "targetName": "Readonly"
           }
         ],

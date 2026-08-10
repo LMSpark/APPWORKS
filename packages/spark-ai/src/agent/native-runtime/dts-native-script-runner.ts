@@ -4,7 +4,7 @@
  * 边界：只描述脚本调用输入输出，不负责生成脚本、不注册工具，也不直接访问页面配置文件。
  * AI用途：需要把 model_script tool call 交给本地脚本执行器时，用本模块确认命令载荷形状。
  */
-import type { AiJsonValue } from '../../json'
+import type { JsonValue } from '@spark-appworks/spark-json-document'
 import type { AiAgentRuntimeHostContext } from '../tool-runtime'
 import { AiAgentToolResult } from '../tool-runtime'
 import { DtsClassModelBundleLoader } from '../../class-model/class-model/dts-class-model-bundle-loader'
@@ -30,7 +30,7 @@ export type DtsNativeScriptRunCommand<TInstance = unknown> = Readonly<{
 
 export async function executeDtsNativeScript(
   command: DtsNativeScriptRunCommand,
-): Promise<AiAgentToolResult<AiJsonValue>> {
+): Promise<AiAgentToolResult<JsonValue>> {
   if (command.script.trim().length === 0) {
     return AiAgentToolResult.failCode(
       'SCRIPT_EMPTY',

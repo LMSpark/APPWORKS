@@ -7,8 +7,7 @@ import {
   Spark,
   useSparkComponent,
 } from '@spark-appworks/spark-component'
-import type { SparkNode } from '@spark-appworks/spark-component'
-import { DataMember, SparkData } from '@spark-appworks/spark-data'
+import { DataMember, SparkData, type SparkNode } from '@spark-appworks/spark-data'
 import { useFieldOptions } from '../../packages/spark-component/src/components/fields/options/useFieldOptions'
 
 const OptionProbe = defineComponent({

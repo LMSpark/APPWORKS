@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import { DATA_ROW, DATA_SOURCE, Spark, useSparkComponent } from '@spark-appworks/spark-component'
-import type { SparkNode } from '@spark-appworks/spark-component'
 import { SparkData } from '@spark-appworks/spark-data'
 import type { DataRow } from '@spark-appworks/spark-data'
 import RendererHostScope from '../../packages/spark-component/src/components/containers/support/RendererHostScope.vue'
 import { useFieldPermission } from '../../packages/spark-component/src/components/fields/context/useFieldPermission'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 describe('RendererHostScope DATA_ROW reactivity', () => {
   it('keeps cached DATA_ROW consumers in sync when row prop changes', async () => {

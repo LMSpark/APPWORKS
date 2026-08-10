@@ -14,7 +14,7 @@ import {
   sparkAgUi,
 } from '@spark-appworks/spark-ai/agent'
 import type * as SparkAgent from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 
 /** 外部 trace sink 接口：宿主方可实现此接口在 run 生命周期中接收观测数据 */
 export type AiRunTraceSink = Readonly<{
@@ -64,7 +64,7 @@ export type AiRunAdapterRunStatus = 'completed' | 'aborted'
 /** AI 运行宿主接口：封装 AiAgentHost.run() 调用，便于 adapter 在不依赖具体 Host 实现的情况下发起 run */
 export type AiRunHost = Readonly<{
   /** 按 alias 运行已注册业务，委托给 AiAgentHost.run() */
-  run<TInput extends AiJsonParams>(
+  run<TInput extends JsonParams>(
     alias: string,
     input: TInput,
     chat?: SparkAgent.AiAgentTaskChatOptions,
@@ -78,7 +78,7 @@ export type AiRunAdapterOptions = Readonly<{
 }>
 
 /** 单次 AI run 的启动命令参数 */
-export type AiRunAdapterCommand<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiRunAdapterCommand<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 运行宿主，封装了 AiAgentHost.run() 调用 */
   host: AiRunHost
   /** 业务注册别名，对应 Host 中已注册的业务 */
@@ -139,7 +139,7 @@ export type AiRunAdapterState = Readonly<{
   /** 订阅快照变化；返回取消订阅函数 */
   subscribe(listener: AiRunListener): () => void
   /** 发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错 */
-  run<TInput extends AiJsonParams>(
+  run<TInput extends JsonParams>(
     command: AiRunAdapterCommand<TInput>,
   ): Promise<AiRunAdapterRunStatus>
 }>
@@ -212,7 +212,7 @@ export function createAiRunAdapter(
     }
   }
 
-  async function run<TInput extends AiJsonParams>(
+  async function run<TInput extends JsonParams>(
     command: AiRunAdapterCommand<TInput>,
   ): Promise<AiRunAdapterRunStatus> {
     if (activeRun !== null) {

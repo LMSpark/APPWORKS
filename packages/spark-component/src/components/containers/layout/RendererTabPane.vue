@@ -33,9 +33,10 @@ AI用途：需要理解 renderer tab pane 的实际渲染结构、slot/toolbar/�
  */
 import { computed } from 'vue'
 import { SparkComponentRenderer, useSparkComponent } from '../../internal'
-import { nodeId } from '../../internal'
+
 import { useCompositeItemGrid } from '../runtime/container-layout'
 import type { SparkNodeProps } from '../../shared-types'
+import { nodeId } from '@spark-appworks/spark-data'
 
 /** r-tabs 内部标签页面板属性，描述标签头和内容区布局。 */
 type Props = SparkNodeProps & {

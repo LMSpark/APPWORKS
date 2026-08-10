@@ -6,8 +6,6 @@
  */
 import { useEventDefaults } from '../../../containers/support/index.js'
 
-export type { CancellableControl as FieldChangeControl } from '../../../internal'
-
 /** Field Value Update Emitter 的语义模型。 */
 export type FieldValueUpdateEmitter<TValue> = {
   (event: 'update:modelValue', value: TValue): void}

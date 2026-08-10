@@ -8,7 +8,7 @@
  * FC 失败恢复提示：把 tool result 的 code/msg/fix 映射成 ClassModel
  * 查询、guide 和 model_script 重试步骤，回灌给 LLM 形成失败自修复闭环。
  */
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { CLASS_MODEL_TOOL_NAMES, buildClassModelToolSchemaRecoveryHint, isClassModelToolName } from '../../class-model'
 import type {
   AiAgentFunctionCallCheck,
@@ -100,7 +100,7 @@ export type EnrichFunctionCallFailureCommand = Readonly<{
   /** ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。 */
   protocolToolName: string
   /** 本次工具调用发送的参数对象，供旧字段名检测和模板插值。 */
-  args: AiJsonParams
+  args: JsonParams
   /** 工具调用执行后返回的失败结果，包含 code / fix / checks。 */
   callResult: AiAgentFunctionCallFailure
   /** 当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。 */
@@ -182,7 +182,7 @@ function appendProtocolRecoveryHints(
 function appendLegacyClassModelToolArgHints(
   hints: string[],
   toolName: string,
-  args: AiJsonParams,
+  args: JsonParams,
 ): void {
   const toolHints = LEGACY_CLASS_MODEL_TOOL_ARG_HINTS[toolName]
   if (toolHints === undefined) return
@@ -238,7 +238,7 @@ type FailedFunctionContext = Readonly<{
   attributeName?: string
 }>
 
-function readStringArg(args: AiJsonParams, key: string): string | undefined {
+function readStringArg(args: JsonParams, key: string): string | undefined {
   const value = args[key]
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined
 }

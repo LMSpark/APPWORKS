@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/runtime/data-space-runtime-mutation",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/runtime/data-space-runtime-mutation 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceAddedRow, DataSpaceChangedRow, DataSpaceDeletedRow, DataSpaceRuntimeChanges, DataSpaceRuntimeMutationInput, DataSpaceRuntimeMutationCommand（共 6 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "数据空间运行态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。\n校验 preimage 身份、后端稀疏权限与字段白名单；禁止直接提交 lingma_sys_* 业务字段。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DataSpaceAddedRow",
       "DataSpaceChangedRow",
@@ -194,11 +194,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:50:15.256Z",
+  "generatedAt": "2026-08-10T07:32:03.785Z",
   "models": {
     "DataSpaceAddedRow": {
       "name": "DataSpaceAddedRow",
-      "jsdoc": "",
+      "jsdoc": "新增行变更；须 preimage.allowAdd 且携带 lingma_sys_key。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<Record<string, unknown>>",
@@ -214,7 +214,7 @@
     },
     "DataSpaceChangedRow": {
       "name": "DataSpaceChangedRow",
-      "jsdoc": "",
+      "jsdoc": "修改行变更；primaryKey 定位行，values 不得含主键字段名。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    primaryKey: unknown;\n    values: Readonly<Record<string, unknown>>;\n}>",
@@ -243,7 +243,7 @@
     },
     "DataSpaceDeletedRow": {
       "name": "DataSpaceDeletedRow",
-      "jsdoc": "",
+      "jsdoc": "删除行变更；须 preimage 行 lingma_sys_params.d 为 true。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    primaryKey: unknown;\n}>",
@@ -267,7 +267,7 @@
     },
     "DataSpaceRuntimeChanges": {
       "name": "DataSpaceRuntimeChanges",
-      "jsdoc": "",
+      "jsdoc": "运行态批量变更；至少一项非空，否则 prepare 拒绝。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    added?: readonly DataSpaceAddedRow[];\n    changed?: readonly DataSpaceChangedRow[];\n    deleted?: readonly DataSpaceDeletedRow[];\n}>",
@@ -301,7 +301,7 @@
     },
     "DataSpaceRuntimeMutationInput": {
       "name": "DataSpaceRuntimeMutationInput",
-      "jsdoc": "",
+      "jsdoc": "运行态 mutation 输入；formKey/model/preimage 三者身份须一致。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    formKey: string;\n    model: DataSpaceFrontendModel;\n    preimage: DataSpaceRuntimeSnapshot;\n    idempotencyKey: string;\n    changes: DataSpaceRuntimeChanges;\n}>",
@@ -345,7 +345,7 @@
     },
     "DataSpaceRuntimeMutationCommand": {
       "name": "DataSpaceRuntimeMutationCommand",
-      "jsdoc": "",
+      "jsdoc": "运行态 mutation 命令；added/changed/deleted 已注入 lingma_sys_key，risk 固定 medium。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    kind: 'data-space-runtime-mutation';\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    idempotencyKey: string;\n    preimage: DataSpaceRuntimeSnapshot;\n    added: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    changed: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    deleted: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    risk: 'medium';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        formKey: string;\n        dataSpaceId: string;\n        modelId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-data-space-runtime-snapshot';\n        preimage: DataSpaceRuntimeSnapshot;\n    }>;\n}>",

@@ -6,6 +6,7 @@ import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
+import type { DataSpaceDatabaseResourceType } from '../platform/data-space/data-space.js'
 
 export type LowcodeDatabaseServer = Readonly<{
   id: string
@@ -83,13 +84,10 @@ export type LowcodeCatalogSourceError = Readonly<{
   message: string
 }>
 
-export type LowcodeDatabaseResourceType = 'table' | 'view'
-
-/** 在已加载 catalog 内定位表/视图的键；databaseId 与 resourceName 均须与目录行精确匹配。 */
 export type LowcodeDatabaseResourceSelector = Readonly<{
   databaseId: string
   resourceName: string
-  resourceType: LowcodeDatabaseResourceType
+  resourceType: DataSpaceDatabaseResourceType
 }>
 
 /** 解析后的表/视图资源快照，含去歧义后的字段列表。 */
@@ -99,7 +97,7 @@ export type LowcodeDatabaseResource = Readonly<{
   name: string
   description: string
   schemaName: string
-  resourceType: LowcodeDatabaseResourceType
+  resourceType: DataSpaceDatabaseResourceType
   fields: readonly LowcodeDatabaseField[]
 }>
 

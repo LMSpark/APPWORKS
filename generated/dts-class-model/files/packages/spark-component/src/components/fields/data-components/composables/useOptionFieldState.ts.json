@@ -10,9 +10,7 @@
     "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/composables/useOptionFieldState\n职责：提供 useOptionFieldState（未注册组件类型）相关的组合式状态或行为封装，复用字段值、选项、权限、动作和交互控制逻辑。\n边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。\nAI用途：需要理解 use option field state 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "OptionalWithUndefined",
-      "OptionFieldStateProps",
-      "UseOptionFieldStateOptions"
+      "OptionFieldStateProps"
     ],
     "componentLevel": "field-level",
     "componentLayer": "data-field",
@@ -101,22 +99,8 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.538Z",
+  "generatedAt": "2026-08-10T12:24:44.094Z",
   "models": {
-    "OptionalWithUndefined": {
-      "name": "OptionalWithUndefined",
-      "jsdoc": "将选中 props 的每个字段都允许显式传 undefined。",
-      "declarationKind": "typeAlias",
-      "component": {
-        "level": "field-level",
-        "layer": "data-field",
-        "directory": "fields/data-components"
-      },
-      "typeAlias": {
-        "declarationTypeText": "{\n    [K in keyof T]?: T[K] | undefined;\n}",
-        "members": {}
-      }
-    },
     "OptionFieldStateProps": {
       "name": "OptionFieldStateProps",
       "jsdoc": "选项类字段组件共享的受控值和选项 props。",
@@ -127,12 +111,12 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "OptionalWithUndefined<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>> & {\n    /** Vue v-model 当前值。 */\n    modelValue?: TValue | undefined;\n    /** 兼容非 v-model 场景的当前值。 */\n    value?: TValue | undefined;\n    /** 原始选项集合，后续由 useFieldOptions 归一化。 */\n    options?: unknown[] | undefined;\n}",
+        "declarationTypeText": "FieldComposableProps<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>> & {\n    /** Vue v-model 当前值。 */\n    modelValue?: TValue | undefined;\n    /** 兼容非 v-model 场景的当前值。 */\n    value?: TValue | undefined;\n    /** 原始选项集合，后续由 useFieldOptions 归一化。 */\n    options?: unknown[] | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "OptionalWithUndefined<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>>",
-            "targetName": "OptionalWithUndefined"
+            "typeText": "FieldComposableProps<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>>",
+            "targetName": "FieldComposableProps"
           },
           {
             "kind": "intersection",

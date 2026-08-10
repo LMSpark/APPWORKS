@@ -23,8 +23,7 @@
           "$ref": "../core/types.ts.json#/$defs/ComponentRegistry"
         },
         "rootContext": {
-          "type": "object",
-          "title": "CapabilityContext"
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
         }
       },
       "required": [
@@ -39,8 +38,7 @@
             "config": {
               "allOf": [
                 {
-                  "type": "object",
-                  "title": "CapabilityContext"
+                  "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
                 },
                 {
                   "type": "object",
@@ -57,20 +55,18 @@
               ]
             },
             "parent": {
-              "type": "object",
-              "title": "CapabilityContext"
+              "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
             }
           },
           "additionalProperties": false
         },
         "method.createContext.return": {
-          "type": "object",
-          "title": "CapabilityContext"
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
         }
       }
     }
   },
-  "generatedAt": "2026-06-14T19:57:08.346Z",
+  "generatedAt": "2026-08-10T11:27:08.350Z",
   "models": {
     "SparkSystem": {
       "name": "SparkSystem",
@@ -109,8 +105,7 @@
                         "typeArguments": [
                           {
                             "type": "reference",
-                            "name": "CapabilityContext",
-                            "sourcePath": "packages/spark-component/src/core/types.ts"
+                            "name": "CapabilityContext"
                           }
                         ]
                       },
@@ -125,8 +120,7 @@
                   "name": "parent",
                   "type": {
                     "type": "reference",
-                    "name": "CapabilityContext",
-                    "sourcePath": "packages/spark-component/src/core/types.ts"
+                    "name": "CapabilityContext"
                   },
                   "flags": {
                     "isOptional": true
@@ -135,8 +129,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "CapabilityContext",
-                "sourcePath": "packages/spark-component/src/core/types.ts"
+                "name": "CapabilityContext"
               }
             }
           ]

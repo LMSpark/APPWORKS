@@ -5,11 +5,11 @@
  * AI用途：接入或排查 AI Host 初始化时，用本模块确认哪些依赖必须由应用层注入。
  */
 import type { AiAgentTurnCallbacks } from '../transport/transport-types'
-import type { AiJsonParams } from '../../json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { AiAgentRegistration } from './registration-types'
 
 /** Ai Agent Options 的调用配置。 */
-export type AiAgentOptions<TInput extends AiJsonParams = AiJsonParams> = Readonly<{
+export type AiAgentOptions<TInput extends JsonParams = JsonParams> = Readonly<{
   /** 业务注册查找表；host.run() 通过 moduleId 查找对应 AiAgentRegistration，找不到则 throw。 */
   registry: {
     get(moduleId: string): AiAgentRegistration<TInput> | undefined

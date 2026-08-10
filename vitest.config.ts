@@ -28,7 +28,6 @@ export default defineConfig({
       '@spark-appworks/spark-json-document': resolve(root, './packages/spark-json-document/src/index.ts'),
       '@spark-appworks/spark-project-model': resolve(root, './packages/spark-project-model/src/index.ts'),
       '@spark-appworks/spark-app': resolve(root, './packages/spark-app/src/index.ts'),
-      '@spark-appworks/spark-ai/json': resolve(root, './packages/spark-ai/src/json/index.ts'),
       '@spark-appworks/spark-ai/agent': resolve(root, './packages/spark-ai/src/agent/index.ts'),
       '@spark-appworks/spark-ai/class-model': resolve(root, './packages/spark-ai/src/class-model/index.ts'),
       '@spark-appworks/spark-ai': resolve(root, './packages/spark-ai/src/index.ts'),

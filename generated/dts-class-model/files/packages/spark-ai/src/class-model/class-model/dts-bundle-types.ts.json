@@ -69,7 +69,7 @@
         },
         "$defs": {
           "type": "object",
-          "title": "Record<string, AiJsonSchemaObject>"
+          "title": "Record<string, JsonSchemaObject>"
         },
         "models": {
           "type": "object",
@@ -380,18 +380,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-15T02:27:13.516Z",
+  "generatedAt": "2026-08-10T12:29:57.201Z",
   "models": {
     "DtsFileProjectionDocument": {
       "name": "DtsFileProjectionDocument",
       "jsdoc": "Dts File Projection Document 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** per-file 投影协议版本；与 bundle manifest 的 schemaVersion 独立演进。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 源码 repo 相对路径（如 packages/.../foo.ts）；与 manifest.files 索引键及 shard 路径一致。 */\n    sourcePath: string;\n    /** 该 shard 的模块级语义元数据：名称、JSDoc、组件归属和导出 symbol 列表。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 本 shard 导出的 DtsTypeDeclarationModel 符号名列表，与 models 键集合一致。 */\n    symbols: readonly string[];\n    /** 符号名 → 完整 DtsTypeDeclarationModel 投影；内存形态保留强类型，写盘时转为 bundle JSON 精简形态。 */\n    models: Readonly<Record<string, DtsTypeDeclarationModel>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** per-file 投影协议版本；与 bundle manifest 的 schemaVersion 独立演进。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 源码 repo 相对路径（如 packages/.../foo.ts）；与 manifest.files 索引键及 shard 路径一致。 */\n    sourcePath: string;\n    /** 该 shard 的模块级语义元数据：名称、JSDoc、组件归属和导出 symbol 列表。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 本 shard 可进入全局 classIndex 的导出符号名列表；私有声明仍保留在 models。 */\n    symbols: readonly string[];\n    /** 本 shard 全部符号名 → 完整 DtsTypeDeclarationModel 投影，包含模块私有声明。 */\n    models: Readonly<Record<string, DtsTypeDeclarationModel>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** per-file 投影协议版本；与 bundle manifest 的 schemaVersion 独立演进。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 源码 repo 相对路径（如 packages/.../foo.ts）；与 manifest.files 索引键及 shard 路径一致。 */\n    sourcePath: string;\n    /** 该 shard 的模块级语义元数据：名称、JSDoc、组件归属和导出 symbol 列表。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 本 shard 导出的 DtsTypeDeclarationModel 符号名列表，与 models 键集合一致。 */\n    symbols: readonly string[];\n    /** 符号名 → 完整 DtsTypeDeclarationModel 投影；内存形态保留强类型，写盘时转为 bundle JSON 精简形态。 */\n    models: Readonly<Record<string, DtsTypeDeclarationModel>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
+            "typeText": "Readonly<{\n    /** per-file 投影协议版本；与 bundle manifest 的 schemaVersion 独立演进。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 源码 repo 相对路径（如 packages/.../foo.ts）；与 manifest.files 索引键及 shard 路径一致。 */\n    sourcePath: string;\n    /** 该 shard 的模块级语义元数据：名称、JSDoc、组件归属和导出 symbol 列表。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 本 shard 可进入全局 classIndex 的导出符号名列表；私有声明仍保留在 models。 */\n    symbols: readonly string[];\n    /** 本 shard 全部符号名 → 完整 DtsTypeDeclarationModel 投影，包含模块私有声明。 */\n    models: Readonly<Record<string, DtsTypeDeclarationModel>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -417,13 +417,13 @@
             },
             {
               "name": "symbols",
-              "jsdoc": "本 shard 导出的 DtsTypeDeclarationModel 符号名列表，与 models 键集合一致。",
+              "jsdoc": "本 shard 可进入全局 classIndex 的导出符号名列表；私有声明仍保留在 models。",
               "readable": true,
               "writable": false
             },
             {
               "name": "models",
-              "jsdoc": "符号名 → 完整 DtsTypeDeclarationModel 投影；内存形态保留强类型，写盘时转为 bundle JSON 精简形态。",
+              "jsdoc": "本 shard 全部符号名 → 完整 DtsTypeDeclarationModel 投影，包含模块私有声明。",
               "readable": true,
               "writable": false
             },
@@ -442,11 +442,11 @@
       "jsdoc": "Dts File Projection Bundle Json 是写盘 shard 的精简形态；声明 schema 统一放入顶层 $defs。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** JSON Schema Draft 2020-12 标识；校验工具据此选择 schema 方言。 */\n    $schema: 'https://json-schema.org/draft/2020-12/schema';\n    /** per-file 投影协议版本，与 DtsFileProjectionDocument.schemaVersion 对齐。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 该 shard 的模块级语义元数据，与内存投影 document.module 一致。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 共享 JSON Schema 定义池；models 内各声明的 jsonSchema 通过 $ref 引用此字典以保证 shard 自包含。 */\n    $defs: Readonly<Record<string, AiJsonSchemaObject>>;\n    /** 符号名 → 精简 model 载荷；强类型字段已剥离，仅保留 JSON 可序列化结构。 */\n    models: Readonly<Record<string, unknown>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** JSON Schema Draft 2020-12 标识；校验工具据此选择 schema 方言。 */\n    $schema: 'https://json-schema.org/draft/2020-12/schema';\n    /** per-file 投影协议版本，与 DtsFileProjectionDocument.schemaVersion 对齐。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 该 shard 的模块级语义元数据，与内存投影 document.module 一致。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 共享 JSON Schema 定义池；models 内各声明的 jsonSchema 通过 $ref 引用此字典以保证 shard 自包含。 */\n    $defs: Readonly<Record<string, JsonSchemaObject>>;\n    /** 符号名 → 精简 model 载荷；强类型字段已剥离，仅保留 JSON 可序列化结构。 */\n    models: Readonly<Record<string, unknown>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** JSON Schema Draft 2020-12 标识；校验工具据此选择 schema 方言。 */\n    $schema: 'https://json-schema.org/draft/2020-12/schema';\n    /** per-file 投影协议版本，与 DtsFileProjectionDocument.schemaVersion 对齐。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 该 shard 的模块级语义元数据，与内存投影 document.module 一致。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 共享 JSON Schema 定义池；models 内各声明的 jsonSchema 通过 $ref 引用此字典以保证 shard 自包含。 */\n    $defs: Readonly<Record<string, AiJsonSchemaObject>>;\n    /** 符号名 → 精简 model 载荷；强类型字段已剥离，仅保留 JSON 可序列化结构。 */\n    models: Readonly<Record<string, unknown>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
+            "typeText": "Readonly<{\n    /** JSON Schema Draft 2020-12 标识；校验工具据此选择 schema 方言。 */\n    $schema: 'https://json-schema.org/draft/2020-12/schema';\n    /** per-file 投影协议版本，与 DtsFileProjectionDocument.schemaVersion 对齐。 */\n    schemaVersion: typeof DTS_FILE_PROJECTION_VERSION;\n    /** 该 shard 的模块级语义元数据，与内存投影 document.module 一致。 */\n    module: DtsFileModuleSemanticMeta;\n    /** 共享 JSON Schema 定义池；models 内各声明的 jsonSchema 通过 $ref 引用此字典以保证 shard 自包含。 */\n    $defs: Readonly<Record<string, JsonSchemaObject>>;\n    /** 符号名 → 精简 model 载荷；强类型字段已剥离，仅保留 JSON 可序列化结构。 */\n    models: Readonly<Record<string, unknown>>;\n    /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */\n    generatedAt?: string;\n}>",
             "targetName": "Readonly"
           }
         ],

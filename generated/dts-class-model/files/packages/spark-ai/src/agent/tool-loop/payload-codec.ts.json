@@ -52,7 +52,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.101Z",
+  "generatedAt": "2026-08-10T10:00:08.489Z",
   "models": {
     "ToolArgsParseError": {
       "name": "ToolArgsParseError",

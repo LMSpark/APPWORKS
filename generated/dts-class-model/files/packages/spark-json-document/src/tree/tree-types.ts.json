@@ -11,7 +11,7 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "JsonNodeType",
-      "TreeNode",
+      "JsonTreeNode",
       "TreeDisplayNode",
       "TreeModel",
       "MutationResult",
@@ -35,10 +35,10 @@
         "null"
       ]
     },
-    "TreeNode": {
+    "JsonTreeNode": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "TreeNode",
+      "title": "JsonTreeNode",
       "properties": {
         "id": {
           "type": "string"
@@ -414,14 +414,14 @@
         "rows": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/TreeNode"
+            "$ref": "#/$defs/JsonTreeNode"
           }
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:21:20.963Z",
+  "generatedAt": "2026-08-10T11:35:34.100Z",
   "models": {
     "JsonNodeType": {
       "name": "JsonNodeType",
@@ -458,8 +458,8 @@
         "members": {}
       }
     },
-    "TreeNode": {
-      "name": "TreeNode",
+    "JsonTreeNode": {
+      "name": "JsonTreeNode",
       "jsdoc": "Tree Node 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
@@ -511,12 +511,12 @@
       "jsdoc": "Tree Display Node 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "TreeNode & {\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n}",
+        "declarationTypeText": "JsonTreeNode & {\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "TreeNode",
-            "targetName": "TreeNode"
+            "typeText": "JsonTreeNode",
+            "targetName": "JsonTreeNode"
           },
           {
             "kind": "intersection",
@@ -570,11 +570,11 @@
       "jsdoc": "Tree Model 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ReadonlyMap<string, TreeNode>",
+        "declarationTypeText": "ReadonlyMap<string, JsonTreeNode>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "ReadonlyMap<string, TreeNode>",
+            "typeText": "ReadonlyMap<string, JsonTreeNode>",
             "targetName": "ReadonlyMap"
           }
         ],
@@ -952,7 +952,7 @@
       "jsdoc": "Flat Json Tree Document 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** root Type 字段。 */\n    readonly rootType: 'object' | 'array';\n    /** 行数据集合。 */\n    readonly rows: TreeNode[];\n}",
+        "declarationTypeText": "{\n    /** root Type 字段。 */\n    readonly rootType: 'object' | 'array';\n    /** 行数据集合。 */\n    readonly rows: JsonTreeNode[];\n}",
         "members": {
           "attributes": [
             {

@@ -55,7 +55,8 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ProjectBlueprintDeliveryKind, ProjectBlueprintNodeKind } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
+import { isRuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
 import { isNestedConfigPageNode } from '@spark-appworks/spark-project-model'
 import type { DevState } from '../useDevState'
 import IconPicker from '@/components/IconPicker.vue'
@@ -91,17 +92,7 @@ function onNodeKindUiChange(value: string): void {
     props.state.applyNestedConfigPagePreset()
     return
   }
-  if (isDeliveryKind(value)) props.state.handleNodeKindChange(value)
-}
-
-function isDeliveryKind(value: string): value is ProjectBlueprintDeliveryKind {
-  return value === 'system-directory'
-    || value === 'module'
-    || value === 'system-page'
-    || value === 'system-action'
-    || value === 'page'
-    || value === 'link'
-    || value === 'ref'
+  if (isRuntimeNavigationItemKind(value)) props.state.handleNodeKindChange(value)
 }
 </script>
 

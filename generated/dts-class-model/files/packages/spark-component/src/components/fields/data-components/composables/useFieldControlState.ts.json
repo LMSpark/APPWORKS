@@ -9,13 +9,7 @@
     "modulePath": "components/fields/data-components/composables/useFieldControlState",
     "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/composables/useFieldControlState\n职责：提供 useFieldControlState（未注册组件类型）相关的组合式状态或行为封装，复用字段值、选项、权限、动作和交互控制逻辑。\n边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。\nAI用途：需要理解 use field control state 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "FieldContextStateLike",
-      "ControlledFieldStateLike",
-      "OptionalWithUndefined",
-      "FieldControlProps",
-      "UseFieldControlStateOptions"
-    ],
+    "symbols": [],
     "componentLevel": "field-level",
     "componentLayer": "data-field",
     "componentDirectory": "fields/data-components"
@@ -169,11 +163,11 @@
       "allOf": [
         {
           "type": "object",
-          "title": "OptionalWithUndefined<Pick<SparkNodeProps, 'type' | 'children'>>"
+          "title": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>>"
         },
         {
           "type": "object",
-          "title": "OptionalWithUndefined<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>"
+          "title": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>"
         }
       ]
     },
@@ -213,7 +207,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.535Z",
+  "generatedAt": "2026-08-10T12:24:44.093Z",
   "models": {
     "FieldContextStateLike": {
       "name": "FieldContextStateLike",
@@ -376,20 +370,6 @@
         }
       }
     },
-    "OptionalWithUndefined": {
-      "name": "OptionalWithUndefined",
-      "jsdoc": "将选中 props 的每个字段都允许显式传 undefined。",
-      "declarationKind": "typeAlias",
-      "component": {
-        "level": "field-level",
-        "layer": "data-field",
-        "directory": "fields/data-components"
-      },
-      "typeAlias": {
-        "declarationTypeText": "{\n    [K in keyof T]?: T[K] | undefined;\n}",
-        "members": {}
-      }
-    },
     "FieldControlProps": {
       "name": "FieldControlProps",
       "jsdoc": "字段控件层消费的通用组件属性子集。",
@@ -400,17 +380,17 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "OptionalWithUndefined<Pick<SparkNodeProps, 'type' | 'children'>> & OptionalWithUndefined<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "OptionalWithUndefined<Pick<SparkNodeProps, 'type' | 'children'>>",
-            "targetName": "OptionalWithUndefined"
+            "typeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>>",
+            "targetName": "FieldComposableProps"
           },
           {
             "kind": "intersection",
-            "typeText": "OptionalWithUndefined<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
-            "targetName": "OptionalWithUndefined"
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+            "targetName": "FieldComposableProps"
           }
         ],
         "members": {}

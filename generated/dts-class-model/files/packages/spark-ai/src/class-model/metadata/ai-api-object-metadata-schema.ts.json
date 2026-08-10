@@ -53,12 +53,10 @@
           "type": "string"
         },
         "args": {
-          "type": "object",
-          "title": "AiJsonValue"
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
         },
         "call": {
-          "type": "object",
-          "title": "AiJsonValue"
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
         }
       },
       "additionalProperties": false
@@ -75,8 +73,7 @@
           "type": "string"
         },
         "args": {
-          "type": "object",
-          "title": "AiJsonValue"
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
         }
       },
       "additionalProperties": false
@@ -162,8 +159,7 @@
           "$ref": "#/$defs/AiApiSourceProvenanceMetadata"
         },
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         }
       },
       "additionalProperties": false
@@ -186,8 +182,7 @@
           "$ref": "#/$defs/AiApiSourceProvenanceMetadata"
         },
         "schema": {
-          "type": "object",
-          "title": "AiJsonSchema"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
         },
         "readable": {
           "type": "boolean"
@@ -225,15 +220,13 @@
           "$ref": "#/$defs/AiApiSourceProvenanceMetadata"
         },
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "takesContext": {
           "type": "boolean"
         },
         "resultSchema": {
-          "type": "object",
-          "title": "AiJsonSchema"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
         },
         "resultApis": {
           "type": "array",
@@ -260,8 +253,7 @@
           }
         },
         "example": {
-          "type": "object",
-          "title": "AiJsonValue"
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
         },
         "examples": {
           "type": "array",
@@ -320,7 +312,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T22:54:39.450Z",
+  "generatedAt": "2026-08-10T10:00:08.507Z",
   "models": {
     "AiApiActionFailureMode": {
       "name": "AiApiActionFailureMode",
@@ -364,11 +356,11 @@
       "jsdoc": "Ai Api Action Example 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 用户输入示例，可用于判断触发条件。 */\n    user?: string;\n    /** 示例意图说明。 */\n    intent?: string;\n    /** 业务 action 参数示例。 */\n    args?: AiJsonValue;\n    /** 完整调用示例，通常展示 model_script 对象链或 tool arguments。 */\n    call?: AiJsonValue;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 用户输入示例，可用于判断触发条件。 */\n    user?: string;\n    /** 示例意图说明。 */\n    intent?: string;\n    /** 业务 action 参数示例。 */\n    args?: JsonValue;\n    /** 完整调用示例，通常展示 model_script 对象链或 tool arguments。 */\n    call?: JsonValue;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 用户输入示例，可用于判断触发条件。 */\n    user?: string;\n    /** 示例意图说明。 */\n    intent?: string;\n    /** 业务 action 参数示例。 */\n    args?: AiJsonValue;\n    /** 完整调用示例，通常展示 model_script 对象链或 tool arguments。 */\n    call?: AiJsonValue;\n}>",
+            "typeText": "Readonly<{\n    /** 用户输入示例，可用于判断触发条件。 */\n    user?: string;\n    /** 示例意图说明。 */\n    intent?: string;\n    /** 业务 action 参数示例。 */\n    args?: JsonValue;\n    /** 完整调用示例，通常展示 model_script 对象链或 tool arguments。 */\n    call?: JsonValue;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -407,11 +399,11 @@
       "jsdoc": "Ai Api Action Anti Example 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 用户输入或场景示例。 */\n    user?: string;\n    /** 不应调用该 action 的原因。 */\n    reason: string;\n    /** 容易误传的参数示例。 */\n    args?: AiJsonValue;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 用户输入或场景示例。 */\n    user?: string;\n    /** 不应调用该 action 的原因。 */\n    reason: string;\n    /** 容易误传的参数示例。 */\n    args?: JsonValue;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 用户输入或场景示例。 */\n    user?: string;\n    /** 不应调用该 action 的原因。 */\n    reason: string;\n    /** 容易误传的参数示例。 */\n    args?: AiJsonValue;\n}>",
+            "typeText": "Readonly<{\n    /** 用户输入或场景示例。 */\n    user?: string;\n    /** 不应调用该 action 的原因。 */\n    reason: string;\n    /** 容易误传的参数示例。 */\n    args?: JsonValue;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -569,11 +561,11 @@
       "jsdoc": "API 对象构造函数元数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 构造函数面向 LLM 的说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 构造参数 JSON Schema（object 形态）。 */\n    paramsSchema: AiJsonSchemaObject;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 构造函数面向 LLM 的说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 构造参数 JSON Schema（object 形态）。 */\n    paramsSchema: JsonSchemaObject;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 构造函数面向 LLM 的说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 构造参数 JSON Schema（object 形态）。 */\n    paramsSchema: AiJsonSchemaObject;\n}>",
+            "typeText": "Readonly<{\n    /** 构造函数面向 LLM 的说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 构造参数 JSON Schema（object 形态）。 */\n    paramsSchema: JsonSchemaObject;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -612,11 +604,11 @@
       "jsdoc": "API 属性元数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 属性名，脚本 object 链上的键。 */\n    name: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 属性值 JSON Schema。 */\n    schema: AiJsonSchema;\n    /** LLM/脚本是否可读该属性。 */\n    readable: boolean;\n    /** LLM/脚本是否可写该属性。 */\n    writable: boolean;\n    /** 子 API kind；标量对象与集合属性均指向元素/值类型的 API（schema.type=array 表示集合）。 */\n    api?: AiApiObjectMetadata;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 属性名，脚本 object 链上的键。 */\n    name: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 属性值 JSON Schema。 */\n    schema: JsonSchema;\n    /** LLM/脚本是否可读该属性。 */\n    readable: boolean;\n    /** LLM/脚本是否可写该属性。 */\n    writable: boolean;\n    /** 子 API kind；标量对象与集合属性均指向元素/值类型的 API（schema.type=array 表示集合）。 */\n    api?: AiApiObjectMetadata;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 属性名，脚本 object 链上的键。 */\n    name: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 属性值 JSON Schema。 */\n    schema: AiJsonSchema;\n    /** LLM/脚本是否可读该属性。 */\n    readable: boolean;\n    /** LLM/脚本是否可写该属性。 */\n    writable: boolean;\n    /** 子 API kind；标量对象与集合属性均指向元素/值类型的 API（schema.type=array 表示集合）。 */\n    api?: AiApiObjectMetadata;\n}>",
+            "typeText": "Readonly<{\n    /** 属性名，脚本 object 链上的键。 */\n    name: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 属性值 JSON Schema。 */\n    schema: JsonSchema;\n    /** LLM/脚本是否可读该属性。 */\n    readable: boolean;\n    /** LLM/脚本是否可写该属性。 */\n    writable: boolean;\n    /** 子 API kind；标量对象与集合属性均指向元素/值类型的 API（schema.type=array 表示集合）。 */\n    api?: AiApiObjectMetadata;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -679,11 +671,11 @@
       "jsdoc": "API action 元数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** action 对外名称，script 上下文中的 callable 键。 */\n    name: string;\n    /** 业务 class 上实际调用的 methodName。 */\n    methodName: string;\n    /** 可选完整方法签名文本，供 guide 投影。 */\n    signatureText?: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 调用参数 JSON Schema（object 形态）。 */\n    paramsSchema: AiJsonSchemaObject;\n    /** 是否将 AiNativePathContext 作为首参注入 method。 */\n    takesContext?: boolean;\n    /** 返回值 JSON Schema。 */\n    resultSchema?: AiJsonSchema;\n    /** action 返回值中嵌套 API 对象的引用列表。 */\n    resultApis?: readonly AiApiResultApiRef[];\n    /** 调用前须遵守的使用规则（自然语言）。 */\n    usageRules?: readonly string[];\n    /** 调用前必须先完成的 action 名列表。 */\n    requiredBeforeCall?: readonly string[];\n    /** 已知失败模式与修复建议。 */\n    failureModes?: readonly AiApiActionFailureMode[];\n    /** 单参数示例；多示例场景优先 examples。 */\n    example?: AiJsonValue;\n    /** 多组调用示例。 */\n    examples?: readonly AiApiActionExample[];\n    /** 不应调用的反例与原因。 */\n    antiExamples?: readonly AiApiActionAntiExample[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** action 对外名称，script 上下文中的 callable 键。 */\n    name: string;\n    /** 业务 class 上实际调用的 methodName。 */\n    methodName: string;\n    /** 可选完整方法签名文本，供 guide 投影。 */\n    signatureText?: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 调用参数 JSON Schema（object 形态）。 */\n    paramsSchema: JsonSchemaObject;\n    /** 是否将 AiNativePathContext 作为首参注入 method。 */\n    takesContext?: boolean;\n    /** 返回值 JSON Schema。 */\n    resultSchema?: JsonSchema;\n    /** action 返回值中嵌套 API 对象的引用列表。 */\n    resultApis?: readonly AiApiResultApiRef[];\n    /** 调用前须遵守的使用规则（自然语言）。 */\n    usageRules?: readonly string[];\n    /** 调用前必须先完成的 action 名列表。 */\n    requiredBeforeCall?: readonly string[];\n    /** 已知失败模式与修复建议。 */\n    failureModes?: readonly AiApiActionFailureMode[];\n    /** 单参数示例；多示例场景优先 examples。 */\n    example?: JsonValue;\n    /** 多组调用示例。 */\n    examples?: readonly AiApiActionExample[];\n    /** 不应调用的反例与原因。 */\n    antiExamples?: readonly AiApiActionAntiExample[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** action 对外名称，script 上下文中的 callable 键。 */\n    name: string;\n    /** 业务 class 上实际调用的 methodName。 */\n    methodName: string;\n    /** 可选完整方法签名文本，供 guide 投影。 */\n    signatureText?: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 调用参数 JSON Schema（object 形态）。 */\n    paramsSchema: AiJsonSchemaObject;\n    /** 是否将 AiNativePathContext 作为首参注入 method。 */\n    takesContext?: boolean;\n    /** 返回值 JSON Schema。 */\n    resultSchema?: AiJsonSchema;\n    /** action 返回值中嵌套 API 对象的引用列表。 */\n    resultApis?: readonly AiApiResultApiRef[];\n    /** 调用前须遵守的使用规则（自然语言）。 */\n    usageRules?: readonly string[];\n    /** 调用前必须先完成的 action 名列表。 */\n    requiredBeforeCall?: readonly string[];\n    /** 已知失败模式与修复建议。 */\n    failureModes?: readonly AiApiActionFailureMode[];\n    /** 单参数示例；多示例场景优先 examples。 */\n    example?: AiJsonValue;\n    /** 多组调用示例。 */\n    examples?: readonly AiApiActionExample[];\n    /** 不应调用的反例与原因。 */\n    antiExamples?: readonly AiApiActionAntiExample[];\n}>",
+            "typeText": "Readonly<{\n    /** action 对外名称，script 上下文中的 callable 键。 */\n    name: string;\n    /** 业务 class 上实际调用的 methodName。 */\n    methodName: string;\n    /** 可选完整方法签名文本，供 guide 投影。 */\n    signatureText?: string;\n    /** 面向 LLM 的简短说明。 */\n    description: string;\n    /** 从源码 JSDoc 原样拷贝的语义块。 */\n    jsdoc?: AiApiJsDocMetadata;\n    /** 反射溯源，指向源码声明位置。 */\n    provenance?: AiApiSourceProvenanceMetadata;\n    /** 调用参数 JSON Schema（object 形态）。 */\n    paramsSchema: JsonSchemaObject;\n    /** 是否将 AiNativePathContext 作为首参注入 method。 */\n    takesContext?: boolean;\n    /** 返回值 JSON Schema。 */\n    resultSchema?: JsonSchema;\n    /** action 返回值中嵌套 API 对象的引用列表。 */\n    resultApis?: readonly AiApiResultApiRef[];\n    /** 调用前须遵守的使用规则（自然语言）。 */\n    usageRules?: readonly string[];\n    /** 调用前必须先完成的 action 名列表。 */\n    requiredBeforeCall?: readonly string[];\n    /** 已知失败模式与修复建议。 */\n    failureModes?: readonly AiApiActionFailureMode[];\n    /** 单参数示例；多示例场景优先 examples。 */\n    example?: JsonValue;\n    /** 多组调用示例。 */\n    examples?: readonly AiApiActionExample[];\n    /** 不应调用的反例与原因。 */\n    antiExamples?: readonly AiApiActionAntiExample[];\n}>",
             "targetName": "Readonly"
           }
         ],

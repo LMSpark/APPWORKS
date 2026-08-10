@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-lowcode-api/src/index.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "index",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 index 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
-    "jsdocSource": "inferred",
+    "jsdoc": "`spark-lowcode-api` 公共导出入口。\n聚合平台会话、目录、设计资产、数据空间、蓝图、权限与实时通道等门面；调用方应从此处 import，避免依赖内部路径。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-09T23:31:42.229Z",
+  "generatedAt": "2026-08-10T12:28:00.253Z",
   "models": {}
 }

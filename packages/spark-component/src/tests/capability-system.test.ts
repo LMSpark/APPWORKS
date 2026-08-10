@@ -1,3 +1,4 @@
+import type { SparkNode } from '@spark-appworks/spark-data'
 /**
  * 能力系统集成测试
  *
@@ -21,7 +22,6 @@ import {
   PAGE_SERVICE,
   PAGE_COMPONENT_REGISTRY,
 } from '@spark-appworks/spark-component'
-import type { SparkNode } from '@spark-appworks/spark-component'
 import type { SparkEventEmitter } from '@spark-appworks/spark-data'
 import { createPageComponentRegistry } from '../page/context/page-component-registry'
 

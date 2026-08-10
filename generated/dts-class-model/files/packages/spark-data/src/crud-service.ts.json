@@ -136,7 +136,7 @@
         },
         "method.list.return": {
           "type": "object",
-          "title": "Promise<CrudResult<T>>"
+          "title": "Promise<CrudResult>"
         },
         "method.executeTransaction.params": {
           "type": "object",
@@ -253,7 +253,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:44:36.938Z",
+  "generatedAt": "2026-08-10T05:26:25.759Z",
   "models": {
     "CrudService": {
       "name": "CrudService",
@@ -592,14 +592,7 @@
                   {
                     "type": "reference",
                     "name": "CrudResult",
-                    "sourcePath": "packages/spark-data/src/types.ts",
-                    "typeArguments": [
-                      {
-                        "type": "reference",
-                        "name": "T",
-                        "refersToTypeParameter": true
-                      }
-                    ]
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 ]
               }

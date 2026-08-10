@@ -10,7 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/container-form-detail\n职责：提供 container form detail 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "FormDetailContainerProps",
       "FormDetailContainerConsumerProps"
     ]
   },
@@ -118,7 +117,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T20:39:26.898Z",
+  "generatedAt": "2026-08-10T11:37:41.364Z",
   "models": {
     "FormDetailContainerProps": {
       "name": "FormDetailContainerProps",

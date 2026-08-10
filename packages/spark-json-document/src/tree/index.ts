@@ -18,7 +18,7 @@ export type {
   RenameNodeKeyInput,
   TreeDisplayNode,
   TreeModel,
-  TreeNode,
+  JsonTreeNode,
   UpdateNodeTypeInput,
 } from './tree-types'
 
@@ -27,7 +27,7 @@ export {
   buildJsonTreeRows,
   buildTreeModel,
   exportJsonDocument,
-  filterTreeNodes,
+  filterJsonTreeNodes,
   getNodePath,
   toDisplayRows,
 } from './tree-build'

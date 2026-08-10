@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/dts-class-model-bundle-loader 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonSchema } from '../../json'
+import type { JsonSchema } from '@spark-appworks/spark-json-document'
 import type {
   AttributeMeta,
   DtsTypeDeclarationModel,
@@ -299,7 +299,7 @@ function collectFromTypeText(
 function collectFromSchema(
   manifest: DtsClassModelBundleManifest,
   linked: Set<string>,
-  schema: AiJsonSchema | undefined,
+  schema: JsonSchema | undefined,
 ): void {
   if (schema === undefined || schema === true || schema === false || typeof schema !== 'object') return
   if (typeof schema.$ref === 'string') collectFromTypeText(manifest, linked, schema.$ref)

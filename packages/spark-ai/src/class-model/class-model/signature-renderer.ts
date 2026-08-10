@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/signature-renderer 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonSchemaObject } from '../../json'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import { jsonSchemaToTypeText } from './json-schema-to-type'
 import {
   classNameForKind,
@@ -168,7 +168,7 @@ export function renderMethodDeclarationLine(
   return renderMethodSignature(document, ownerKind, method)
 }
 
-function paramsTextFromSchema(schema: AiJsonSchemaObject): string {
+function paramsTextFromSchema(schema: JsonSchemaObject): string {
   const properties = schema.properties
   if (properties === undefined) return ''
   const required = new Set(schema.required ?? [])

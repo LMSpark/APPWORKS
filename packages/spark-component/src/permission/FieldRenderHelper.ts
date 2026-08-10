@@ -14,16 +14,13 @@
 import type { DataRow, FieldRenderState } from '@spark-appworks/spark-data'
 import { FieldVisibility } from '@spark-appworks/spark-data'
 import type { FieldRenderConfig } from '@spark-appworks/spark-utils'
-import type { PagePermissionMode } from '../core/capability-keys.js'
+import type { PermissionMode } from '@spark-appworks/spark-utils'
 import { canEdit, isFieldEditable, getFieldVisibility, maskFieldValue } from './PermissionChecker'
-
-export type { FieldRenderConfig } from '@spark-appworks/spark-utils'
-export type { FieldRenderState } from '@spark-appworks/spark-data'
 
 /**
  * 计算单个字段的渲染状态（可见性 + 可编辑性 + 展示值）。
  */
-export function computeFieldState(config: FieldRenderConfig, row: DataRow, permissionMode?: PagePermissionMode): FieldRenderState {
+export function computeFieldState(config: FieldRenderConfig, row: DataRow, permissionMode?: PermissionMode): FieldRenderState {
   const { field } = config
   const visibility = getFieldVisibility(field, row, permissionMode)
   const readable = visibility !== FieldVisibility.Hidden && (config.visible !== false)

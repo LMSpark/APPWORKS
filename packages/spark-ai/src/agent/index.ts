@@ -69,7 +69,6 @@ export type {
   AgentWorkflowBindings,
   AgentWorkflowDefinition,
   AgentWorkflowDefinitionKind,
-  AgentWorkflowDefinitionRuntimeBinding,
   AgentWorkflowDefinitionSchema,
   AgentWorkflowDefinitionSource,
   AgentWorkflowDefinitionSparkMeta,

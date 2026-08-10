@@ -23,8 +23,9 @@ AI用途：需要理解 display breadcrumb 的实际渲染结构、slot/toolbar/
  * @description 面包屑导航容器，支持自定义分隔符。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RBreadcrumbProps } from './DisplayBreadcrumb.props'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RBreadcrumbProps>(), {
   type: 'r-breadcrumb',
@@ -35,5 +36,4 @@ const { isVisible } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

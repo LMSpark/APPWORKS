@@ -5,7 +5,7 @@ import {
   executeAiApiAction,
   executeAiNativeScript,
 } from '../agent/native-runtime'
-import { paramsSchema, type AiJsonParams } from '../json'
+import { paramsSchema, type JsonParams } from '@spark-appworks/spark-json-document'
 import type { AiApiObjectMetadata } from '../class-model'
 
 type ScriptCallableForTest = (...args: readonly unknown[]) => unknown
@@ -178,7 +178,7 @@ describe('executeAiApiAction', () => {
     const result = await executeAiApiAction({
       target: { editDataSet },
       action,
-      args: testAiJsonParams({ run: mutator }),
+      args: testJsonParams({ run: mutator }),
       ctx: { segments: [] },
     })
     expect(result.ok).toBe(true)
@@ -191,7 +191,7 @@ describe('executeAiApiAction', () => {
     const result = await executeAiApiAction({
       target: { editDataSet },
       action,
-      args: testAiJsonParams({ run: { tableName: 'LeaveRequest' } }),
+      args: testJsonParams({ run: { tableName: 'LeaveRequest' } }),
       ctx: { segments: [] },
     })
     expect(result.ok).toBe(false)
@@ -335,10 +335,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function testAiJsonParams(record: Record<string, unknown>): AiJsonParams {
-  return isAiJsonParams(record) ? record : {}
+function testJsonParams(record: Record<string, unknown>): JsonParams {
+  return isJsonParams(record) ? record : {}
 }
 
-function isAiJsonParams(value: unknown): value is AiJsonParams {
+function isJsonParams(value: unknown): value is JsonParams {
   return isRecord(value)
 }

@@ -54,7 +54,7 @@
             },
             "args": {
               "type": "object",
-              "title": "AiJsonParams"
+              "title": "JsonParams"
             },
             "chat": {
               "$ref": "../../../packages/spark-ai/src/agent/business/business-task.ts.json#/$defs/AiAgentTaskChatOptions"
@@ -87,18 +87,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:27:28.967Z",
+  "generatedAt": "2026-08-10T10:00:08.530Z",
   "models": {
     "AiAgentRunTarget": {
       "name": "AiAgentRunTarget",
       "jsdoc": "可由页面或自动化入口直接执行的前端 Agent 能力。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    has(alias: string): boolean;\n    dryRun(alias: string, args: unknown): AiAgentHostDryRunResult;\n    run(alias: string, args: AiJsonParams, chat?: AiAgentTaskChatOptions): Promise<AiAgentHostRunResult>;\n}>",
+        "declarationTypeText": "Readonly<{\n    has(alias: string): boolean;\n    dryRun(alias: string, args: unknown): AiAgentHostDryRunResult;\n    run(alias: string, args: JsonParams, chat?: AiAgentTaskChatOptions): Promise<AiAgentHostRunResult>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    has(alias: string): boolean;\n    dryRun(alias: string, args: unknown): AiAgentHostDryRunResult;\n    run(alias: string, args: AiJsonParams, chat?: AiAgentTaskChatOptions): Promise<AiAgentHostRunResult>;\n}>",
+            "typeText": "Readonly<{\n    has(alias: string): boolean;\n    dryRun(alias: string, args: unknown): AiAgentHostDryRunResult;\n    run(alias: string, args: JsonParams, chat?: AiAgentTaskChatOptions): Promise<AiAgentHostRunResult>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -157,7 +157,7 @@
                   "name": "args",
                   "type": {
                     "type": "reference",
-                    "name": "AiJsonParams"
+                    "name": "JsonParams"
                   }
                 },
                 {

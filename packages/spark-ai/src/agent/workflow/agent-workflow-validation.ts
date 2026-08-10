@@ -69,6 +69,20 @@ type AgentWorkflowArrayFieldValidationCommand = Readonly<{
   nodeId?: string
 }>
 
+type AgentWorkflowModelValidationCommand = Readonly<{
+  value: unknown
+  path: string
+  nodeId: string | undefined
+  issues: AgentWorkflowValidationIssueSink
+}>
+
+type AgentWorkflowLineEndpointValidationCommand = Readonly<{
+  value: unknown
+  path: string
+  nodeIds: ReadonlySet<string>
+  issues: AgentWorkflowValidationIssueSink
+}>
+
 type AgentWorkflowErrorIssueDetail = Readonly<{
   code: string
   message: string
@@ -367,8 +381,8 @@ function validateGraph(
       return
     }
     expectNonBlankString({ record: line, field: 'id', path: `${path}.id`, issues })
-    const from = validateLineEndpoint(line['from'], `${path}.from`, nodeIds, issues)
-    const to = validateLineEndpoint(line['to'], `${path}.to`, nodeIds, issues)
+    const from = validateLineEndpoint({ value: line['from'], path: `${path}.from`, nodeIds, issues })
+    const to = validateLineEndpoint({ value: line['to'], path: `${path}.to`, nodeIds, issues })
     validateOptionalText({ record: line, field: 'type', path: `${path}.type`, nodeId: undefined, issues })
     validateLineData(line['data'], `${path}.data`, issues)
     if (from === undefined || to === undefined) return
@@ -452,12 +466,12 @@ function validateBusinessNodeData(command: AgentWorkflowNodeFieldValidationComma
   validateOptionalObject({ record: data, field: 'state', context: { path: `${path}.state`, nodeId, issues } })
   validateOptionalObject({ record: data, field: 'result', context: { path: `${path}.result`, nodeId, issues } })
 
-  models?.forEach((model, index) => validateBusinessNodeModel(
-    model,
-    `${path}.models[${index}]`,
+  models?.forEach((model, index) => validateBusinessNodeModel({
+    value: model,
+    path: `${path}.models[${index}]`,
     nodeId,
     issues,
-  ))
+  }))
 
   if (llm !== undefined) {
     expectObject({ record: llm, field: 'task', path: `${path}.llm.task`, issues })
@@ -687,12 +701,8 @@ function validateRuntimeBinding(
   })
 }
 
-function validateBusinessNodeModel(
-  value: unknown,
-  path: string,
-  nodeId: string | undefined,
-  issues: AgentWorkflowDefinitionValidationIssue[],
-): void {
+function validateBusinessNodeModel(command: AgentWorkflowModelValidationCommand): void {
+  const { value, path, nodeId, issues } = command
   if (!isJsonRecord(value)) {
     issues.push(errorIssue(
       { code: 'AGENT_WORKFLOW_MODEL_INVALID', message: `${path} must be an object.` },
@@ -939,11 +949,9 @@ function validateForbiddenNodeDataFields(command: AgentWorkflowNodeFieldValidati
 }
 
 function validateLineEndpoint(
-  value: unknown,
-  path: string,
-  nodeIds: ReadonlySet<string>,
-  issues: AgentWorkflowDefinitionValidationIssue[],
+  command: AgentWorkflowLineEndpointValidationCommand,
 ): Readonly<{ nodeId: string }> | undefined {
+  const { value, path, nodeIds, issues } = command
   if (!isJsonRecord(value)) {
     issues.push(errorIssue(
       { code: 'AGENT_WORKFLOW_LINE_ENDPOINT_INVALID', message: `${path} must be an object.` },

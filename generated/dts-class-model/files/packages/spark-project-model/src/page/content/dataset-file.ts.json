@@ -125,15 +125,14 @@
       }
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.281Z",
+  "generatedAt": "2026-08-10T07:44:12.936Z",
   "models": {
     "PageDataSetFile": {
       "name": "PageDataSetFile",
-      "jsdoc": "Page Data Set File 的语义模型。",
+      "jsdoc": "",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "创建 Page Data Set File 实例。",
           "signatureText": "constructor(pageId: string)",
           "parameters": [
             {
@@ -205,7 +204,6 @@
             },
             {
               "name": "markSaved",
-              "jsdoc": "执行 mark Saved 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -223,7 +221,6 @@
             },
             {
               "name": "replaceTool",
-              "jsdoc": "执行 replace Tool 操作。",
               "parameters": [
                 {
                   "name": "tool",
@@ -240,7 +237,6 @@
             },
             {
               "name": "editTool",
-              "jsdoc": "执行 edit Tool 操作。",
               "parameters": [
                 {
                   "name": "run",
@@ -296,7 +292,6 @@
             },
             {
               "name": "undo",
-              "jsdoc": "执行 undo 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -305,7 +300,6 @@
             },
             {
               "name": "redo",
-              "jsdoc": "执行 redo 操作。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

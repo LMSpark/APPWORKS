@@ -5,7 +5,7 @@ import type {
   AiAgentHostDryRunResult,
   AiAgentHostRunResult,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { prepareProjectPlanningAgentRun } from '@/services/project-planning/project-planning-agent-run-provider'
 import { readAiDeliveryErrorExtras } from '@/services/ai/ai-delivery-port'
 
@@ -120,7 +120,7 @@ describe('prepareProjectPlanningAgentRun', () => {
       args,
     }, {} as AiAgentHost)
 
-    host.dryRun('projectPlanning', args as AiJsonParams)
+    host.dryRun('projectPlanning', args as JsonParams)
 
     expect(mocks.createHeadlessProjectPlanningEditor).toHaveBeenCalledWith({
       tenantId: 'lmspark',
@@ -173,7 +173,7 @@ describe('prepareProjectPlanningAgentRun', () => {
       },
     }, {} as AiAgentHost)
 
-    const result = await host.run('projectPlanning', {} as AiJsonParams)
+    const result = await host.run('projectPlanning', {} as JsonParams)
 
     expect(editor.saveAll).not.toHaveBeenCalled()
     expect(result.resultExtras?.['delivery']).toEqual({
@@ -208,7 +208,7 @@ describe('prepareProjectPlanningAgentRun', () => {
       },
     }, {} as AiAgentHost)
 
-    const result = await host.run('projectPlanning', {} as AiJsonParams)
+    const result = await host.run('projectPlanning', {} as JsonParams)
 
     expect(editor.saveAll).toHaveBeenCalledOnce()
     expect(result.resultExtras?.['delivery']).toEqual({
@@ -249,7 +249,7 @@ describe('prepareProjectPlanningAgentRun', () => {
 
     let thrown: unknown
     try {
-      await host.run('projectPlanning', {} as AiJsonParams)
+      await host.run('projectPlanning', {} as JsonParams)
     } catch (error: unknown) {
       thrown = error
     }

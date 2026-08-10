@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { auditDraft2020Schema } from '@spark-appworks/spark-json-document'
 
-import type { AiJsonSchemaObject } from '../../json'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import type { AttributeMeta, DtsTypeDeclarationModel, ConstructorMeta, MethodMeta } from '../class-model/types'
 import type { DtsFileProjectionDocument } from '../class-model/dts-bundle-types'
 import { DTS_FILE_PROJECTION_VERSION } from '../class-model/dts-bundle-types'
@@ -37,7 +37,7 @@ function makeClassModel(options: Readonly<{
   jsdoc?: string
   attributes?: readonly AttributeMeta[]
   methods?: readonly MethodMeta[]
-  jsonSchema?: AiJsonSchemaObject
+  jsonSchema?: JsonSchemaObject
 }>): Extract<DtsTypeDeclarationModel, { declarationKind: 'class' }> {
   return {
     name: options.name,
@@ -72,7 +72,7 @@ function makeEnumModel(options: Readonly<{
 function makeTypeAliasModel(options: Readonly<{
   name: string
   jsdoc?: string
-  jsonSchema?: AiJsonSchemaObject
+  jsonSchema?: JsonSchemaObject
   attributes?: readonly AttributeMeta[]
   methods?: readonly MethodMeta[]
 }>): Extract<DtsTypeDeclarationModel, { declarationKind: 'typeAlias' }> {

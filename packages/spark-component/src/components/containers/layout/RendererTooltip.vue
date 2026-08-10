@@ -34,10 +34,9 @@ AI用途：需要理解 renderer tooltip 的实际渲染结构、slot/toolbar/�
  * @description 文字提示组件，支持位置和延迟配置。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RTooltipProps } from './RendererTooltip.props'
-
-
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RTooltipProps>(), {
   type: 'r-tooltip',
@@ -52,5 +51,4 @@ const { isVisible, isDisabled } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

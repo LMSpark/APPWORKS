@@ -1,6 +1,6 @@
 /**
  * @module @spark-appworks/spark-component:components/fields/options/useFieldOptions
- * 职责：维护 @spark-appworks/spark-component 中 components/fields/options/useFieldOptions 的模块能力，围绕 FieldTransferOption、OptionalWithUndefined、FieldOptionProps 等 5 个公开契约 提供稳定的公开契约。
+ * 职责：维护 @spark-appworks/spark-component 中 components/fields/options/useFieldOptions 的字段选项解析合同。
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/fields/options/useFieldOptions 的声明、导出和使用边界时，从本模块开始。
  */
@@ -11,6 +11,7 @@ import { PAGE_DATASET, useSparkConsume } from '../../internal'
 import { DataMember, resolveDataViewKey, resolveDataViewMember } from '@spark-appworks/spark-data'
 import { useFieldPermission } from '../context/useFieldPermission'
 import type { FieldPermissionProps } from '../context/useFieldPermission'
+import type { FieldComposableProps } from '../context/field-composable-props'
 import { buildOptionSourceFromView } from './option-source.js'
 import {
   flattenOptions,
@@ -30,13 +31,8 @@ label: string
     /** 是否禁用。 */
 disabled?: boolean}
 
-/** Optional With Undefined 的语义模型。 */
-type OptionalWithUndefined<T> = {
-  [K in keyof T]?: T[K] | undefined
-}
-
 /** Field Option Props 的属性契约。 */
-type FieldOptionProps = OptionalWithUndefined<Pick<
+type FieldOptionProps = FieldComposableProps<Pick<
   SparkOptionFieldProps,
   'options'
   | 'optionLabelField'

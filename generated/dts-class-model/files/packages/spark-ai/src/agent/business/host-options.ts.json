@@ -33,7 +33,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T19:26:37.289Z",
+  "generatedAt": "2026-08-10T10:00:08.478Z",
   "models": {
     "AiAgentOptions": {
       "name": "AiAgentOptions",

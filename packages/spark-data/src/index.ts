@@ -199,7 +199,6 @@ export type {
   DataPermissionSnapshotInput,
   DataViewFieldProjection,
   DataViewQueryContext,
-  DataViewQueryResult,
 } from './types'
 
 // ===== 枚举 & 权限渲染常量 =====

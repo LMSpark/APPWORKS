@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "design/lowcode-design-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 design/lowcode-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeFileLocator, LowcodeFileDirectory, LowcodeFileEntry, LowcodeDesignApi（共 4 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "lowcode 文件服务只读门面：读取设计态文本资产与目录列表。\n写入/替换须走带 journal 的治理通道；本模块不提供 mutating API。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeFileLocator",
       "LowcodeFileDirectory",
@@ -111,11 +111,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T10:52:07.212Z",
+  "generatedAt": "2026-08-10T07:44:53.305Z",
   "models": {
     "LowcodeFileLocator": {
       "name": "LowcodeFileLocator",
-      "jsdoc": "",
+      "jsdoc": "单文件读取定位；appType/customPath/fileName 组合须与后端文件命名空间一致，跨企业读需显式 `isCrossEnterprise`。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    appType: string;\n    customPath: string;\n    fileName: string;\n    isCrossEnterprise?: boolean;\n}>",
@@ -154,7 +154,7 @@
     },
     "LowcodeFileDirectory": {
       "name": "LowcodeFileDirectory",
-      "jsdoc": "",
+      "jsdoc": "目录列表查询键；folderPath 可为空字符串表示根级，appType 必填。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    appType: string;\n    folderPath: string;\n}>",
@@ -212,7 +212,7 @@
     },
     "LowcodeDesignApi": {
       "name": "LowcodeDesignApi",
-      "jsdoc": "lowcode 文件服务的稳定只读设计资产门面。写入需由具备 journal 的治理通道另行实现。",
+      "jsdoc": "",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -231,6 +231,7 @@
           "methods": [
             {
               "name": "readTextFile",
+              "jsdoc": "读取 UTF-8 文本文件全文；Result 非 string 视为协议错误。",
               "parameters": [
                 {
                   "name": "locator",
@@ -254,6 +255,7 @@
             },
             {
               "name": "listFiles",
+              "jsdoc": "列出目录下文件；非法条目静默过滤，仅返回 name 非空且结构合法的项。",
               "parameters": [
                 {
                   "name": "directory",

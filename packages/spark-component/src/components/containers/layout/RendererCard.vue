@@ -30,10 +30,9 @@ AI用途：需要理解 renderer card 的实际渲染结构、slot/toolbar/状�
  * @description 卡片容器，在卡片体内渲染子组件。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RCardProps } from './RendererCard.props'
-
-
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RCardProps>(), {
   type: 'r-card',
@@ -44,5 +43,4 @@ const { isVisible } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

@@ -61,7 +61,7 @@ export type WorkflowDesignDocument = {
     version: number
     variables?: WorkflowDesignVariable[]
     capabilities?: WorkflowDesignCapability[]
-    runtimeBinding?: SparkAgent.AgentWorkflowDefinitionRuntimeBinding
+    runtimeBinding?: SparkAgent.AgentWorkflowNodeRuntimeBinding
     graph: WorkflowDesignGraph
     [key: string]: unknown
   }
@@ -920,8 +920,8 @@ function toDefinitionLine(line: WorkflowDesignGraphLine): SparkAgent.AgentWorkfl
 }
 
 function normalizeWorkflowRuntimeBinding(
-  value: SparkAgent.AgentWorkflowDefinitionRuntimeBinding | undefined,
-): SparkAgent.AgentWorkflowDefinitionRuntimeBinding {
+  value: SparkAgent.AgentWorkflowNodeRuntimeBinding | undefined,
+): SparkAgent.AgentWorkflowNodeRuntimeBinding {
   if (value !== undefined) return value
   return {
     registration: {

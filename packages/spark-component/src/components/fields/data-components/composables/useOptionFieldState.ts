@@ -8,14 +8,10 @@ import type { SparkOptionFieldProps } from '../../../shared-types.js'
 import { useFieldControlState } from './useFieldControlState'
 import { useOptionField } from '../../options/useFieldOptions'
 import type { useFieldOptions } from '../../options/useFieldOptions'
-
-/** 将选中 props 的每个字段都允许显式传 undefined。 */
-type OptionalWithUndefined<T> = {
-  [K in keyof T]?: T[K] | undefined
-}
+import type { FieldComposableProps } from '../../context/field-composable-props'
 
 /** 选项类字段组件共享的受控值和选项 props。 */
-export type OptionFieldStateProps<TValue> = OptionalWithUndefined<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>> & {
+export type OptionFieldStateProps<TValue> = FieldComposableProps<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>> & {
   /** Vue v-model 当前值。 */
   modelValue?: TValue | undefined
   /** 兼容非 v-model 场景的当前值。 */

@@ -5,5 +5,4 @@
  * AI用途：需要发现 renderer drawer 对外暴露哪些子模块时，从本模块进入，再跳到具体 props、Vue 或 zero-code 文件。
  */
 export { default } from './RendererDrawer.vue'
-export type { RendererDrawerApi } from './types.js'
 export type { RDrawerProps } from './RendererDrawer.props'

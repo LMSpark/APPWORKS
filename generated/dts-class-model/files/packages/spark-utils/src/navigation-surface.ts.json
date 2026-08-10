@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:navigation-surface",
+    "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
+    "sourceFile": "packages/spark-utils/src/navigation-surface.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "navigation-surface",
+    "jsdoc": "@module @spark-appworks/spark-utils:navigation-surface\n职责：运行导航表面共享契约（item kind / placement / linkTarget / root placement / context config）的唯一字面量 SSOT。\n边界：跨包共享的导航表面形状；不含蓝图业务 kind、壳导航树装配或 lowcode wire。\nAI用途：蓝图交付投影与壳 RuntimeNavigation 共用这些字面量时只改本文件，禁止各包再定义同形别名。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RuntimeNavigationItemKind",
+      "NavigationPlacement",
+      "NavigationRootPlacement",
+      "NavigationLinkTarget",
+      "NavigationContextConfig"
+    ]
+  },
+  "$defs": {
+    "NavigationContextConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavigationContextConfig",
+      "properties": {
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "script-types.ts.json#/$defs/ContextItem"
+              }
+            }
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "paramName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T12:07:45.414Z",
+  "models": {
+    "RuntimeNavigationItemKind": {
+      "name": "RuntimeNavigationItemKind",
+      "jsdoc": "运行导航项种类；蓝图 nodeKind 交付投影与壳 itemKind 共用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(typeof RUNTIME_NAVIGATION_ITEM_KINDS)[number]",
+        "members": {}
+      }
+    },
+    "NavigationPlacement": {
+      "name": "NavigationPlacement",
+      "jsdoc": "导航子节点布局区域；蓝图 childPlacement 与壳 childPlacement 共用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(typeof NAVIGATION_PLACEMENTS)[number]",
+        "members": {}
+      }
+    },
+    "NavigationRootPlacement": {
+      "name": "NavigationRootPlacement",
+      "jsdoc": "项目根与壳 RuntimeNavigation.childPlacement 共用；不可放宽为完整 NavigationPlacement。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(typeof NAVIGATION_ROOT_PLACEMENTS)[number]",
+        "members": {}
+      }
+    },
+    "NavigationLinkTarget": {
+      "name": "NavigationLinkTarget",
+      "jsdoc": "link 打开目标；蓝图 linkTarget 与壳 RuntimeNavigationItem.linkTarget 共用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(typeof NAVIGATION_LINK_TARGETS)[number]",
+        "members": {}
+      }
+    },
+    "NavigationContextConfig": {
+      "name": "NavigationContextConfig",
+      "jsdoc": "动态导航上下文配置；source 可为远端名或内联 ContextItem 列表。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    source: string | readonly ContextItem[];\n    placeholder?: string;\n    defaultValue?: string | number;\n    paramName?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "placeholder",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paramName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

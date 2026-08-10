@@ -170,6 +170,39 @@ describe('readDtsClassModelBundleJson', () => {
     }
   })
 
+  it('keeps private declarations in shards without adding them to the global class index', () => {
+    const tempRoot = resolve(tmpdir(), `spark-dts-class-model-private-${String(process.pid)}-${String(Date.now())}`)
+    try {
+      const firstSourcePath = 'class-model-emit/packages/demo/src/first.d.ts'
+      const secondSourcePath = 'class-model-emit/packages/demo/src/second.d.ts'
+      const firstPath = resolve(tempRoot, firstSourcePath)
+      const secondPath = resolve(tempRoot, secondSourcePath)
+      const outputDir = resolve(tempRoot, 'generated/dts-class-model')
+      mkdirSync(dirname(firstPath), { recursive: true })
+      writeFileSync(firstPath, 'type Props = { first: string }\nexport type FirstApi = { props: Props }\n', 'utf8')
+      writeFileSync(secondPath, 'type Props = { second: string }\nexport type SecondApi = { props: Props }\n', 'utf8')
+
+      const result = buildDtsClassModelBundle({
+        repoRoot: tempRoot,
+        rootFiles: [firstPath, secondPath],
+        outputDir,
+      })
+
+      expect(result.manifest.duplicates).toBeUndefined()
+      expect(Object.keys(result.manifest.classIndex)).toEqual(['FirstApi', 'SecondApi'])
+      const firstEntry = result.manifest.files[bundleSourcePath(firstSourcePath)]
+      if (firstEntry === undefined) throw new Error('Missing first private-symbol shard.')
+      const firstProjection = readDtsFileProjectionDocument(
+        JSON.parse(readFileSync(resolve(outputDir, firstEntry.file), 'utf8')),
+      )
+      expect(firstProjection.symbols).toEqual(['FirstApi'])
+      expect(firstProjection.models['Props']).toBeDefined()
+      expect(firstProjection.models['FirstApi']).toBeDefined()
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true })
+    }
+  })
+
   it('parses a generated per-file projection shard', () => {
     const tempRoot = resolve(tmpdir(), `spark-dts-class-model-shard-${String(process.pid)}-${String(Date.now())}`)
     try {

@@ -7,7 +7,8 @@
 
 import { computed, toValue } from 'vue'
 import type { CSSProperties, ComputedRef, MaybeRefOrGetter } from 'vue'
-import { getSparkNodeChildren, nodeInputProp, type SparkNode } from '../../internal.js'
+
+import { type SparkNode, getSparkNodeChildren, nodeInputProp } from '@spark-appworks/spark-data'
 
 // ============================================================
 // § 布局常量

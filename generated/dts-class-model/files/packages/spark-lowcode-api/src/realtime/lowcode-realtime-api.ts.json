@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "realtime/lowcode-realtime-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 realtime/lowcode-realtime-api 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeRealtimeEvent, LowcodeSparkEnvelope, LowcodeAgentTurnInput, LowcodeAgentTurnAck, LowcodeAgentToolResult, LowcodeAgentToolAppendInput, LowcodeAgentEvent, LowcodeSystemDownload 等（共 13 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "lowcode 实时通道与 AI 门面：SSE 连接、AI chat/turn 与事件解码。\nSSE 依赖构造时注入的 fetch 与会话 Bearer；Agent 响应须为 SparkEnvelope v4。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeRealtimeEvent",
       "LowcodeSparkEnvelope",
@@ -375,11 +375,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T23:09:09.276Z",
+  "generatedAt": "2026-08-10T07:32:18.105Z",
   "models": {
     "LowcodeRealtimeEvent": {
       "name": "LowcodeRealtimeEvent",
-      "jsdoc": "",
+      "jsdoc": "SSE 原始事件；data 经 JSON 解析失败时保留字符串。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    event: string;\n    data: unknown;\n}>",
@@ -408,7 +408,7 @@
     },
     "LowcodeSparkEnvelope": {
       "name": "LowcodeSparkEnvelope",
-      "jsdoc": "",
+      "jsdoc": "SparkEnvelope v4 协议壳；ok=false 或 protocolVersion≠4 时解码 fail-fast。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    protocolVersion: number;\n    ok: boolean;\n    data?: TData;\n    error?: Readonly<{\n        code?: string;\n        message?: string;\n    }>;\n    context?: Readonly<Record<string, unknown>>;\n    event?: Readonly<{\n        channel?: string;\n        name?: string;\n        terminal?: boolean;\n    }>;\n}>",
@@ -457,7 +457,7 @@
     },
     "LowcodeAgentTurnInput": {
       "name": "LowcodeAgentTurnInput",
-      "jsdoc": "",
+      "jsdoc": "Agent turn 启动输入；sessionId 可空表示由服务端分配新会话。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    agentId: string;\n    sessionId?: string;\n    message: string;\n}>",
@@ -491,7 +491,7 @@
     },
     "LowcodeAgentTurnAck": {
       "name": "LowcodeAgentTurnAck",
-      "jsdoc": "",
+      "jsdoc": "Agent turn 启动回执；后续 SSE 与 append 须使用同一 sessionId/turnId。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    sessionId: string;\n    turnId: string;\n}>",
@@ -520,7 +520,7 @@
     },
     "LowcodeAgentToolResult": {
       "name": "LowcodeAgentToolResult",
-      "jsdoc": "",
+      "jsdoc": "单条 Agent 工具执行结果；toolCallId/toolName 提交前 trim 并校验非空。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    toolCallId: string;\n    toolName: string;\n    result: string;\n}>",
@@ -554,7 +554,7 @@
     },
     "LowcodeAgentToolAppendInput": {
       "name": "LowcodeAgentToolAppendInput",
-      "jsdoc": "",
+      "jsdoc": "Agent 工具结果追加输入；走 /api/ai/sessions/{sessionId}/turn/append，toolResults 不可空。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    sessionId: string;\n    turnId: string;\n    toolResults: readonly LowcodeAgentToolResult[];\n}>",
@@ -588,7 +588,7 @@
     },
     "LowcodeAgentEvent": {
       "name": "LowcodeAgentEvent",
-      "jsdoc": "",
+      "jsdoc": "从 AI SSE 解码的结构化 Agent 事件；非 AI messageType 时 decodeAgentEvent 返回 null。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    name: string;\n    sessionId: string;\n    turnId: string;\n    terminal: boolean;\n    sequence?: number;\n    data: unknown;\n    raw: LowcodeSparkEnvelope;\n}>",
@@ -642,7 +642,7 @@
     },
     "LowcodeSystemDownload": {
       "name": "LowcodeSystemDownload",
-      "jsdoc": "",
+      "jsdoc": "SYSTEM_DOWNLOAD SSE 解码结果；filePath/fileName/appType 缺失时抛错。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    title: string;\n    filePath: string;\n    fileName: string;\n    appType: string;\n}>",
@@ -681,7 +681,7 @@
     },
     "LowcodeRealtimeSubscription": {
       "name": "LowcodeRealtimeSubscription",
-      "jsdoc": "",
+      "jsdoc": "SSE 订阅句柄；close 触发 AbortController，closed 在流结束或中断后 resolve。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    closed: Promise<void>;\n    close(): void;\n}>",
@@ -715,7 +715,7 @@
     },
     "LowcodeRealtimeConnectOptions": {
       "name": "LowcodeRealtimeConnectOptions",
-      "jsdoc": "",
+      "jsdoc": "SSE 连接选项；scope 可选，映射 /api/sse/connect?scope= 查询参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    scope?: string;\n    onEvent(event: LowcodeRealtimeEvent): void;\n}>",
@@ -758,7 +758,7 @@
     },
     "LowcodeAiChatInput": {
       "name": "LowcodeAiChatInput",
-      "jsdoc": "",
+      "jsdoc": "AI chat 输入；POST /api/ai/chat，taskId 与 query 均须非空。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    taskId: string;\n    conversationId?: string;\n    query: string;\n}>",
@@ -792,7 +792,7 @@
     },
     "LowcodeFetch": {
       "name": "LowcodeFetch",
-      "jsdoc": "",
+      "jsdoc": "浏览器 fetch 注入类型；SSE 连接必须使用支持 ReadableStream 的 fetch 实现。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>",
@@ -801,7 +801,7 @@
     },
     "LowcodeRealtimeApi": {
       "name": "LowcodeRealtimeApi",
-      "jsdoc": "",
+      "jsdoc": "lowcode SSE 与 AI HTTP 门面；构造时须注入 session 与可选 fetch，否则 connect 不可用。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -839,6 +839,7 @@
           "methods": [
             {
               "name": "chat",
+              "jsdoc": "发起 AI chat；POST /api/ai/chat，fire-and-forget，不等待 SSE 回执。",
               "parameters": [
                 {
                   "name": "input",
@@ -862,6 +863,7 @@
             },
             {
               "name": "startAgentTurn",
+              "jsdoc": "启动 Agent turn；POST /api/ai/turns，响应须含 sessionId 与 turnId。",
               "parameters": [
                 {
                   "name": "input",
@@ -886,6 +888,7 @@
             },
             {
               "name": "appendAgentToolResults",
+              "jsdoc": "追加 Agent 工具结果；POST /api/ai/sessions/{sessionId}/turn/append，响应须为 ok 的 SparkEnvelope v4。",
               "parameters": [
                 {
                   "name": "input",
@@ -909,6 +912,7 @@
             },
             {
               "name": "decodeAgentEvent",
+              "jsdoc": "解码 AI SSE 事件；messageType≠AI 或 content 非 JSON 时返回 null 或抛错。",
               "parameters": [
                 {
                   "name": "event",
@@ -936,6 +940,7 @@
             },
             {
               "name": "decodeSystemDownload",
+              "jsdoc": "解码 SYSTEM_DOWNLOAD SSE 事件；非匹配 messageType 时返回 null。",
               "parameters": [
                 {
                   "name": "event",
@@ -963,6 +968,7 @@
             },
             {
               "name": "connect",
+              "jsdoc": "建立 SSE 长连接；GET /api/sse/connect，无 fetch 或无会话时 fail-fast。",
               "parameters": [
                 {
                   "name": "options",

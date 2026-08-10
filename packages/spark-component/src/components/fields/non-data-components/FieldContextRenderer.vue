@@ -94,12 +94,13 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
 defineOptions({ inheritAttrs: false })
 import { computed, inject } from 'vue'
 import { SparkComponentRenderer } from '../../internal'
-import { getSparkNodeChildren, nodeId, type SparkNode } from '../../internal'
-import type { DataRow } from '@spark-appworks/spark-data'
+
+import { type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import type { SparkNodeProps } from '../../shared-types.js'
 import type { FormItemRule } from '../columnFormRules'
 import { useResolvedFieldContext } from '../context/useResolvedFieldContext'
 import { TABLE_COLUMN_RESIZABLE_KEY } from '../context/tableColumnContext'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 /** 字段上下文渲染器属性，统一描述字段在表格、表单、详情中的展示状态。 */
 type Props = SparkNodeProps & {

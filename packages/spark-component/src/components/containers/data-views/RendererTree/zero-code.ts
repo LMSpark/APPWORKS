@@ -19,7 +19,7 @@ import {
 import type { RendererTreeApi } from './types'
 
 /** r-tree 对外暴露的树节点数据形态，兼容普通 DataRow 和嵌套 children。 */
-export type TreeNode = {
+export type RendererTreeNode = {
   /** 树节点的业务主键；用于选中、拖拽移动和 Element Plus 节点定位。 */
   id?: string | number
   /** 节点展示文本；优先用于树节点标题。 */
@@ -27,7 +27,7 @@ export type TreeNode = {
   /** 兼容后端常见字段名的节点展示文本。 */
   name?: string
   /** 子节点集合；存在时按嵌套树数据渲染。 */
-  children?: TreeNode[]
+  children?: RendererTreeNode[]
   /** 是否禁用该节点的选择、勾选或交互。 */
   disabled?: boolean
   /** 允许保留业务行上的额外字段，供脚本和动作读取。 */
@@ -77,11 +77,11 @@ export type NativeTreeLike = {
   /** 从树中移除节点实例或节点数据。 */
   remove?: (nodeOrData: unknown) => void
   /** 按业务 key 获取原生树节点实例。 */
-  getNode?: (key: string | number) => NativeTreeNodeLike | undefined
+  getNode?: (key: string | number) => NativeRendererTreeNodeLike | undefined
 }
 
 /** Element Plus 原生树节点实例的最小能力集合。 */
-export type NativeTreeNodeLike = {
+export type NativeRendererTreeNodeLike = {
   /** 展开当前原生树节点。 */
   expand?: () => void
   /** 原生树节点绑定的业务行数据。 */
@@ -97,7 +97,7 @@ export type TreeEventControl = {
 /** r-tree 节点交互事件处理函数。 */
 export type TreeEventHandler = {
   /** 树节点交互回调；可通过 control.cancel() 接管默认选中、展开等行为。 */
-  (data: TreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>
+  (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>
 }
 
 /** r-tree 与节点交互相关的行为属性。 */
@@ -130,7 +130,7 @@ type RendererTreeZeroCodeOptions = {
 
 type TreeEventRunOptions = {
   handler: TreeEventHandler | undefined
-  data: TreeNode
+  data: RendererTreeNode
   node: ElTreeNode
   component: ElTreeComponent
   autoHandle?: () => void}
@@ -150,7 +150,7 @@ function isNativeTreeLike(value: unknown): value is NativeTreeLike {
     && (!('getNode' in value) || typeof value.getNode === 'function')
 }
 
-function isNativeTreeNodeLike(value: unknown): value is NativeTreeNodeLike {
+function isNativeRendererTreeNodeLike(value: unknown): value is NativeRendererTreeNodeLike {
   if (typeof value !== 'object' || value === null) return false
   return (!('expand' in value) || typeof value.expand === 'function')
     && (!('data' in value) || isDataRow(value.data))
@@ -228,7 +228,7 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
       }
       for (const pathId of path.pathIds) {
         const nativeNode = tree.getNode(pathId)
-        if (isNativeTreeNodeLike(nativeNode)) {
+        if (isNativeRendererTreeNodeLike(nativeNode)) {
           nativeNode.expand?.()
         }
       }
@@ -285,7 +285,7 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
       const tree = getNativeTree()
       if (!tree) return false
       const elNode = tree.getNode?.(key)
-      if (!isNativeTreeNodeLike(elNode) || elNode.data === undefined) return false
+      if (!isNativeRendererTreeNodeLike(elNode) || elNode.data === undefined) return false
       Object.assign(elNode.data, patch)
       return true
     },
@@ -310,7 +310,7 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
     }
   }
 
-  const handleNodeClick = async (data: TreeNode, node: ElTreeNode, component: ElTreeComponent) => {
+  const handleNodeClick = async (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => {
     await runTreeEvent({
       handler: props.onNodeClick,
       data,
@@ -330,11 +330,11 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
     })
   }
 
-  const handleNodeExpand = async (data: TreeNode, node: ElTreeNode, component: ElTreeComponent) => {
+  const handleNodeExpand = async (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => {
     await runTreeEvent({ handler: props.onNodeExpand, data, node, component })
   }
 
-  const handleNodeCollapse = async (data: TreeNode, node: ElTreeNode, component: ElTreeComponent) => {
+  const handleNodeCollapse = async (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => {
     await runTreeEvent({ handler: props.onNodeCollapse, data, node, component })
   }
 

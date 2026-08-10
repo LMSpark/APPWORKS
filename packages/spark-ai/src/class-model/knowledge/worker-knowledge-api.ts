@@ -4,7 +4,7 @@
  * 边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/knowledge/worker-knowledge-api 这一段如何生成、加载或投影时，用本模块定位职责。
  */
-import type { AiJsonValue } from '../../json'
+import type { JsonValue } from '@spark-appworks/spark-json-document'
 import type {
   ClassModelAttributeGuideInput,
   ClassModelKnowledgeQueryInput,
@@ -33,7 +33,7 @@ export type ClassModelKnowledgeWorkerApi = Readonly<{
   /** 重新加载知识分片；可指定 className 做增量刷新，否则全量重建。 */
   refresh(input?: ClassModelKnowledgeWorkerRefreshInput): Promise<{ refreshed: true }>
   /** 结构化查询：返回类模型摘要、成员列表等 JSON 数据，供程序消费。 */
-  query(input: ClassModelKnowledgeQueryInput): Promise<AiJsonValue>
+  query(input: ClassModelKnowledgeQueryInput): Promise<JsonValue>
   /** 渲染完整类声明的 .d.ts 风格文本，供 LLM 作为上下文知识。 */
   modelGuide(input: ClassModelModelGuideInput): Promise<string>
   /** 渲染单个属性的聚焦声明文本（含所属类头部），供 LLM 精确理解属性语义。 */

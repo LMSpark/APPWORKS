@@ -10,7 +10,6 @@
     "jsdoc": "@module app:services/project/project-settings\n职责：项目运行时设置（HTTP）与壳层 UI 偏好（localStorage）。\n边界：只处理 app 层配置读写，不修改 spark-project-model 协议。\nAI用途：调整项目布局偏好或读取项目详情/导航元数据时，用本模块定位 HTTP 与 localStorage 接线。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "ProjectLayoutPlacement",
       "ProjectDetail",
       "ProjectHomeNodeOption",
       "ProjectRuntimeSettings",
@@ -20,14 +19,6 @@
     ]
   },
   "$defs": {
-    "ProjectLayoutPlacement": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "ProjectLayoutPlacement",
-      "enum": [
-        "header",
-        "sidebar"
-      ]
-    },
     "ProjectDetail": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -108,7 +99,8 @@
           "$ref": "#/$defs/ProjectDetail"
         },
         "childPlacement": {
-          "$ref": "#/$defs/ProjectLayoutPlacement"
+          "type": "object",
+          "title": "NavigationRootPlacement"
         },
         "rootModuleId": {
           "type": [
@@ -137,7 +129,8 @@
       "title": "ProjectRuntimeSettingsInput",
       "properties": {
         "childPlacement": {
-          "$ref": "#/$defs/ProjectLayoutPlacement"
+          "type": "object",
+          "title": "NavigationRootPlacement"
         },
         "homeNodeId": {
           "type": [
@@ -199,27 +192,8 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:51:40.572Z",
+  "generatedAt": "2026-08-10T12:08:10.560Z",
   "models": {
-    "ProjectLayoutPlacement": {
-      "name": "ProjectLayoutPlacement",
-      "jsdoc": "Project Layout Placement 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'header' | 'sidebar'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'header'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'sidebar'"
-          }
-        ],
-        "members": {}
-      }
-    },
     "ProjectDetail": {
       "name": "ProjectDetail",
       "jsdoc": "项目详情：从后端 API 读取的项目元数据投影",
@@ -321,7 +295,7 @@
       "jsdoc": "项目运行时设置：聚合项目详情、导航布局与首页候选列表，供 Shell 初始化使用",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 项目详情元数据 */\n    project: ProjectDetail;\n    /** 子页面放置位置：header=顶部标签栏 / sidebar=侧边栏 */\n    childPlacement: ProjectLayoutPlacement;\n    /** 导航根模块 ID，null 表示导航未加载；用于保存布局时定位后端节点 */\n    rootModuleId: string | null;\n    /** 可配置为首页的节点候选列表 */\n    homeNodeOptions: ProjectHomeNodeOption[];\n}",
+        "declarationTypeText": "{\n    /** 项目详情元数据 */\n    project: ProjectDetail;\n    /** 子页面放置位置：header=顶部标签栏 / sidebar=侧边栏 */\n    childPlacement: NavigationRootPlacement;\n    /** 导航根模块 ID，null 表示导航未加载；用于保存布局时定位后端节点 */\n    rootModuleId: string | null;\n    /** 可配置为首页的节点候选列表 */\n    homeNodeOptions: ProjectHomeNodeOption[];\n}",
         "members": {
           "attributes": [
             {
@@ -357,7 +331,7 @@
       "jsdoc": "保存项目运行时设置的输入参数，只包含用户可修改的字段",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 子页面放置位置 */\n    childPlacement: ProjectLayoutPlacement;\n    /** 首页节点 ID，null 表示清除首页配置 */\n    homeNodeId: string | null;\n}",
+        "declarationTypeText": "{\n    /** 子页面放置位置 */\n    childPlacement: NavigationRootPlacement;\n    /** 首页节点 ID，null 表示清除首页配置 */\n    homeNodeId: string | null;\n}",
         "members": {
           "attributes": [
             {

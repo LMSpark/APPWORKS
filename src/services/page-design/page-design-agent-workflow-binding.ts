@@ -353,5 +353,4 @@ export {
 export type {
   PageDesignGateState,
   PageDesignGateValidationResult,
-  PageDesignImplGate,
 } from '@/services/page-design/page-design-gates'

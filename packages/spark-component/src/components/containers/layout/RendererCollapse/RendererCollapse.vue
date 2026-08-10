@@ -40,12 +40,13 @@ AI用途：需要理解 renderer collapse 的实际渲染结构、slot/toolbar/�
  */
 import { computed } from 'vue'
 import { useSparkPageComponent, SparkComponentRenderer } from '../../../internal'
-import { getSparkNodeChildren, nodeId, nodeInputProp, nodeInputProps, type SparkNode } from '../../../internal'
+
 import { useContainerToolbar } from '../../runtime/container-ui'
 import type { RendererCollapseApi } from './types'
 import { createRendererCollapseZeroCode } from './zero-code'
 import { useUnifiedValueBridge } from '../state'
 import type { RCollapseProps } from './RendererCollapse.props'
+import { type SparkNode, getSparkNodeChildren, nodeInputProps, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RCollapseProps>(), {
   type: 'r-collapse',

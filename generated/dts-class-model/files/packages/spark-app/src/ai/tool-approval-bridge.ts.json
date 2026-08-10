@@ -41,7 +41,7 @@
         },
         "args": {
           "type": "object",
-          "title": "AiJsonParams"
+          "title": "JsonParams"
         },
         "requestedAt": {
           "type": "number"
@@ -174,18 +174,18 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T22:54:12.104Z",
+  "generatedAt": "2026-08-10T10:00:08.518Z",
   "models": {
     "AiToolApprovalRequest": {
       "name": "AiToolApprovalRequest",
       "jsdoc": "Ai Tool Approval Request 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 审批请求唯一标识。 */\n    id: string;\n    /** 发起 tool call 的业务模块 id。 */\n    moduleId: string;\n    /** 业务模块实例 id。 */\n    moduleInstanceId: string;\n    /** Agent 实例 id。 */\n    instanceId: string;\n    /** 待审批的工具名称。 */\n    toolName: string;\n    /** 工具调用参数。 */\n    args: AiJsonParams;\n    /** 请求创建时间戳（毫秒）。 */\n    requestedAt: number;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 审批请求唯一标识。 */\n    id: string;\n    /** 发起 tool call 的业务模块 id。 */\n    moduleId: string;\n    /** 业务模块实例 id。 */\n    moduleInstanceId: string;\n    /** Agent 实例 id。 */\n    instanceId: string;\n    /** 待审批的工具名称。 */\n    toolName: string;\n    /** 工具调用参数。 */\n    args: JsonParams;\n    /** 请求创建时间戳（毫秒）。 */\n    requestedAt: number;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 审批请求唯一标识。 */\n    id: string;\n    /** 发起 tool call 的业务模块 id。 */\n    moduleId: string;\n    /** 业务模块实例 id。 */\n    moduleInstanceId: string;\n    /** Agent 实例 id。 */\n    instanceId: string;\n    /** 待审批的工具名称。 */\n    toolName: string;\n    /** 工具调用参数。 */\n    args: AiJsonParams;\n    /** 请求创建时间戳（毫秒）。 */\n    requestedAt: number;\n}>",
+            "typeText": "Readonly<{\n    /** 审批请求唯一标识。 */\n    id: string;\n    /** 发起 tool call 的业务模块 id。 */\n    moduleId: string;\n    /** 业务模块实例 id。 */\n    moduleInstanceId: string;\n    /** Agent 实例 id。 */\n    instanceId: string;\n    /** 待审批的工具名称。 */\n    toolName: string;\n    /** 工具调用参数。 */\n    args: JsonParams;\n    /** 请求创建时间戳（毫秒）。 */\n    requestedAt: number;\n}>",
             "targetName": "Readonly"
           }
         ],

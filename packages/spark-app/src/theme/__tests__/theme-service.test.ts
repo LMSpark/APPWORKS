@@ -8,7 +8,7 @@
  * - toggle() 切换明暗
  * - html.dark class 自动切换
  * - localStorage 持久化
- * - ThemeCapability 接口兼容
+ * - AppThemeCapability 接口兼容
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
@@ -143,10 +143,10 @@ describe('ThemeService', () => {
     })
   })
 
-  it('should satisfy ThemeCapability contract', () => {
+  it('should satisfy AppThemeCapability contract', () => {
     scope.run(() => {
       const theme = createThemeService()
-      // All ThemeCapability members must exist
+      // All AppThemeCapability members must exist
       expect(typeof theme.current).toBe('string')
       expect(typeof theme.mode).toBe('string')
       expect(typeof theme.isDark).toBe('boolean')

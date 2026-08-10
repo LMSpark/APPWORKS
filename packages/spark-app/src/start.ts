@@ -15,7 +15,9 @@ import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router
 import {
   PageContentLoader,
   type PageFileReader,
+  type PageDataSpaceBinding,
 } from '@spark-appworks/spark-project-model'
+import type { DataSet } from '@spark-appworks/spark-data'
 import { Spark, SparkPageRenderer, registerAllRenderers } from '@spark-appworks/spark-component'
 import { createPageCache } from './navigation/page-cache'
 import { createDynamicRouter, type DynamicRouterOptions } from './router/dynamic'
@@ -119,7 +121,13 @@ export type PageNodeOptions = {
    * 当用户未登录时，`registerRoutes()` 使用此本地导航树注册路由（如 / 和 /login）。
    * 登录后 `refreshRoutes()` 会用远程导航树替换。
    */
-  preAuthNavTree?: RuntimeNavigation}
+  preAuthNavTree?: RuntimeNavigation
+  /**
+   * 运行态 DataSet 装载器（有 PageDataSpaceBinding 时由 DynamicRouter 注入 SparkPageRenderer）。
+   * 有绑定则不得再把 pagedata.json 当运行数据真源。
+   */
+  loadRuntimeDataSet?: (binding: PageDataSpaceBinding) => Promise<DataSet>
+}
 
 /**
  * 启动配置（扩展自 BootstrapOptions）
@@ -327,6 +335,7 @@ export async function start(options: StartOptions): Promise<void> {
         ...(pageNode.platformPathPrefix !== undefined && { platformPathPrefix: pageNode.platformPathPrefix }),
         ...(pageNode.preAuthNavTree !== undefined && { preAuthNavTree: pageNode.preAuthNavTree }),
         ...(pageNode.isAuthenticated !== undefined && { isAuthenticated: pageNode.isAuthenticated }),
+        ...(pageNode.loadRuntimeDataSet !== undefined && { loadRuntimeDataSet: pageNode.loadRuntimeDataSet }),
       }
 
       const dynamicRouter = createDynamicRouter(dynamicRouterOptions)

@@ -10,9 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/view-data-source\n职责：支撑 view-data-source（未注册组件类型）在 table-level/data-view-container 中的运行时协作，补齐配置、状态或渲染器之间的连接逻辑。\n边界：只覆盖当前组件目录 containers/data-views 的局部能力，不定义全局页面模型，也不越级操作业务数据源。\nAI用途：需要判断 view data source 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "DataSourceLoggerLike",
-      "UseContainerDataSourceOptions",
-      "UseContainerDataSourceEffectsOptions",
       "ContainerDataSourceState"
     ],
     "componentLevel": "table-level",
@@ -66,8 +63,7 @@
           "title": "MaybeRefOrGetter<string | undefined>"
         },
         "sparkConsume": {
-          "type": "object",
-          "title": "SparkCapabilityConsumer"
+          "$ref": "../../../../../spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
         },
         "externalDataSource": {
           "type": "object",

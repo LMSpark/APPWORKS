@@ -8,7 +8,7 @@ import { LowcodeCatalogApi } from './catalog/lowcode-catalog-api.js'
 import { LowcodeDesignApi } from './design/lowcode-design-api.js'
 import { LowcodeApplicationStore } from './platform/lowcode-application-store.js'
 import { DataSpaceApi } from './platform/data-space/data-space-api.js'
-import { ProjectBlueprintApi } from './platform/project-blueprint/project-blueprint-api.js'
+import { LowcodeProjectBlueprintApi } from './platform/project-blueprint/project-blueprint-api.js'
 import { PermissionApi } from './platform/permission/permission-api.js'
 import { LowcodeRealtimeApi, type LowcodeFetch } from './realtime/lowcode-realtime-api.js'
 import { LowcodePlatformApi } from './platform/lowcode-platform-api.js'
@@ -28,7 +28,7 @@ export type LowcodeApiOptions = Readonly<{
 
 /** lowcode 平台统一入口，按子域划分只读/读写能力，共享同一 `HttpClientBase` 与 `LowcodeSessionStore`。 */
 export class LowcodeApi {
-  public readonly blueprint: ProjectBlueprintApi
+  public readonly blueprint: LowcodeProjectBlueprintApi
   public readonly catalog: LowcodeCatalogApi
   public readonly dataSpace: DataSpaceApi
   public readonly design: LowcodeDesignApi
@@ -39,7 +39,7 @@ export class LowcodeApi {
   public readonly session: LowcodeSessionStore
 
   public constructor(options: LowcodeApiOptions) {
-    this.blueprint = new ProjectBlueprintApi(options.http)
+    this.blueprint = new LowcodeProjectBlueprintApi(options.http)
     this.session = new LowcodeSessionStore({
       ...(options.sessionStorage === undefined ? {} : { storage: options.sessionStorage }),
       ...(options.sessionKey === undefined ? {} : { sessionKey: options.sessionKey }),

@@ -27,8 +27,7 @@
         "contentChildren": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "SparkNode"
+            "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
           }
         },
         "width": {
@@ -53,7 +52,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.440Z",
+  "generatedAt": "2026-08-10T11:14:49.068Z",
   "models": {
     "RPopoverProps": {
       "name": "RPopoverProps",

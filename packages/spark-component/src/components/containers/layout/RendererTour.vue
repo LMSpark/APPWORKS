@@ -42,11 +42,10 @@ AI用途：需要理解 renderer tour 的实际渲染结构、slot/toolbar/状�
  * @description 引导流程组件，管理引导打开/关闭状态。
  */
 import { ref, watch, computed } from 'vue'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import {
   useSparkPageComponent,
   SparkComponentRenderer,
-  getSparkNodeChildren,
-  nodeId,
 } from '../../internal'
 import type { RTourProps } from './RendererTour.props'
 
@@ -110,5 +109,4 @@ function handleChange(current: number) {
   display: contents;
 }
 </style>
-
 

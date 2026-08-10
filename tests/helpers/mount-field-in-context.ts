@@ -11,8 +11,9 @@ import {
   Spark,
   useSparkComponent,
 } from '@spark-appworks/spark-component'
-import type { SparkNode, SparkCapabilityContext, ComponentRegistry, PageServiceCapability } from '@spark-appworks/spark-component'
-import type { DataRow, DataSetContract, DataView } from '@spark-appworks/spark-data'
+import type { ComponentRegistry, PageServiceCapability } from '@spark-appworks/spark-component'
+import type { CapabilityContext } from '@spark-appworks/spark-utils'
+import type { DataRow, DataSetContract, DataView, SparkNode } from '@spark-appworks/spark-data'
 
 type MountFieldInContextOptions = {
   component: Component
@@ -28,7 +29,7 @@ type MountFieldInContextOptions = {
 
 type SparkTestSystem = {
   registry: ComponentRegistry
-  rootContext: SparkCapabilityContext}
+  rootContext: CapabilityContext}
 
 function createTestSystem(): SparkTestSystem {
   return Spark.createSystem()

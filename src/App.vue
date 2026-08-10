@@ -135,9 +135,9 @@ import { PAGE_RUNTIME_SERVICES } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
   useSparkComponent,
-  type ModuleContext,
   type ModuleContextCapability,
 } from '@spark-appworks/spark-component'
+import type { ContextSnapshot } from '@spark-appworks/spark-utils'
 import {
   activateLowcodeApplication,
   enterLowcodeApplicationCatalog,
@@ -441,7 +441,7 @@ const isSparkRendererRoute = computed(() => {
   const routeType = route.meta['type']
   return routeType === 'config-page' || routeType === 'cross-project-ref'
 })
-const pageModuleContext = computed<ModuleContext | null>(() => {
+const pageModuleContext = computed<ContextSnapshot | null>(() => {
   const state = nav.moduleContext.value
   if (!state) return null
   return {
@@ -451,10 +451,10 @@ const pageModuleContext = computed<ModuleContext | null>(() => {
   }
 })
 type ModuleContextChangeHandler = {
-  (next: ModuleContext | null, prev: ModuleContext | null): void}
+  (next: ContextSnapshot | null, prev: ContextSnapshot | null): void}
 const moduleContextListeners = new Set<ModuleContextChangeHandler>()
 
-function cloneModuleContext(value: ModuleContext | null | undefined): ModuleContext | null {
+function cloneModuleContext(value: ContextSnapshot | null | undefined): ContextSnapshot | null {
   if (!value) return null
   const safeItems = Array.isArray(value.items) ? value.items : []
   return {
@@ -464,7 +464,7 @@ function cloneModuleContext(value: ModuleContext | null | undefined): ModuleCont
   }
 }
 
-function moduleContextSignature(value: ModuleContext | null | undefined): string {
+function moduleContextSignature(value: ContextSnapshot | null | undefined): string {
   if (!value) return ''
   const safeItems = Array.isArray(value.items) ? value.items : []
   return JSON.stringify({
@@ -475,8 +475,8 @@ function moduleContextSignature(value: ModuleContext | null | undefined): string
 }
 
 function emitModuleContextChange(
-  next: ModuleContext | null | undefined,
-  prev: ModuleContext | null | undefined,
+  next: ContextSnapshot | null | undefined,
+  prev: ContextSnapshot | null | undefined,
 ): void {
   const nextSnapshot = cloneModuleContext(next)
   const prevSnapshot = cloneModuleContext(prev)

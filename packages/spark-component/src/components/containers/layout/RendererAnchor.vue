@@ -30,15 +30,12 @@ AI用途：需要理解 renderer anchor 的实际渲染结构、slot/toolbar/状
  * @description 锚点导航容器。
  */
 import { computed } from 'vue'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import {
   useSparkPageComponent,
   SparkComponentRenderer,
-  getSparkNodeChildren,
-  nodeId,
 } from '../../internal'
 import type { RAnchorProps } from './RendererAnchor.props'
-
-
 
 const props = withDefaults(defineProps<RAnchorProps>(), {
   type: 'r-anchor',
@@ -76,5 +73,4 @@ function handleClick(e: MouseEvent, href?: string) {
   emit('click', e, href)
 }
 </script>
-
 

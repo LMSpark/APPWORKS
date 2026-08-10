@@ -19,10 +19,11 @@ AI用途：需要理解 display timeline 的实际渲染结构、slot/toolbar/�
  * @description 时间线容器。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
-import type { RTimelineProps } from './DisplayTimeline.props'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
+import type { SparkNodeProps } from '../../shared-types'
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
-const props = withDefaults(defineProps<RTimelineProps>(), {
+const props = withDefaults(defineProps<SparkNodeProps>(), {
   type: 'r-timeline',
 })
 
@@ -30,5 +31,4 @@ const { isVisible } = useSparkPageComponent(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>
-
 

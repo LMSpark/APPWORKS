@@ -21,7 +21,6 @@ export { default as DisplayIcon } from './DisplayIcon.vue'
 // ── Props 类型 ──
 export type { RDescriptionsProps } from './DisplayDescriptions.props'
 export type { RDescriptionsItemProps } from './DisplayDescriptionsItem.props'
-export type { RTimelineProps } from './DisplayTimeline.props'
 export type { RTimelineItemProps } from './DisplayTimelineItem.props'
 export type { RAlertProps } from './DisplayAlert.props'
 export type { REmptyProps } from './DisplayEmpty.props'

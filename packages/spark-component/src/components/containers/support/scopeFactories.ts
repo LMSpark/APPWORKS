@@ -5,7 +5,7 @@
  * AI用途：需要定位 components/containers/support/scopeFactories 的声明、导出和使用边界时，从本模块开始。
  */
 import type { DataPermissionSnapshot, DataRow } from '@spark-appworks/spark-data'
-import type { ModuleContext } from '../../internal'
+import type { ContextSnapshot } from '@spark-appworks/spark-utils'
 
 // ── 通用作用域结构 ───────────────────────────────────────────────────────────
 
@@ -16,7 +16,7 @@ dataSource: TSource | null | undefined
     /** model Permission 字段。 */
 permissionSnapshot: DataPermissionSnapshot | null
     /** module Context 字段。 */
-moduleContext?: ModuleContext | null | undefined}
+moduleContext?: ContextSnapshot | null | undefined}
 
 // ── 作用域构建辅助函数 ───────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ export function createToolbarScope<TSource>(
 export function createRowScope<TSource>(params: {
   dataSource: TSource | null | undefined
   permissionSnapshot: DataPermissionSnapshot | null
-  moduleContext?: ModuleContext | null | undefined
+  moduleContext?: ContextSnapshot | null | undefined
   row: DataRow
   index: number
   extra?: Record<string, unknown>
@@ -59,7 +59,7 @@ export function createRowScope<TSource>(params: {
 export function createCurrentRowScope<TSource>(params: {
   dataSource: TSource | null | undefined
   permissionSnapshot: DataPermissionSnapshot | null
-  moduleContext?: ModuleContext | null | undefined
+  moduleContext?: ContextSnapshot | null | undefined
   row: DataRow
   model?: DataRow
 }) {

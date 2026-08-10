@@ -5,10 +5,10 @@
  * AI用途：排查 model_script 执行失败、参数 schema 或返回值映射时，用本模块定位运行链路。
  */
 import type {
-  AiJsonSchema,
-  AiJsonSchemaValidateOptions,
-  AiJsonValue,
-} from '../../json'
+  JsonSchema,
+  JsonSchemaValidateOptions,
+  JsonValue,
+} from '@spark-appworks/spark-json-document'
 import type { AiAgentRuntimeHostContext } from '../tool-runtime'
 import { AiAgentToolResult } from '../tool-runtime'
 import {
@@ -20,7 +20,7 @@ import { executeModuleScript } from './native-script-sandbox'
 import { createAiApiScriptContext } from './native-script-context'
 
 /** Ai Native Runtime Schema Defs 的语义模型。 */
-export type AiNativeRuntimeSchemaDefs = Readonly<Record<string, AiJsonSchema>>
+export type AiNativeRuntimeSchemaDefs = Readonly<Record<string, JsonSchema>>
 
 /** Ai Native Script Context Command 的命令参数。 */
 export type AiNativeScriptContextCommand<TInstance = unknown> = Readonly<{
@@ -56,7 +56,7 @@ export function createAiNativeScriptContext(
 
 export async function executeAiNativeScript(
   command: AiNativeScriptRunCommand,
-): Promise<AiAgentToolResult<AiJsonValue>> {
+): Promise<AiAgentToolResult<JsonValue>> {
   if (command.script.trim().length === 0) {
     return AiAgentToolResult.failCode(
       'SCRIPT_EMPTY',
@@ -79,7 +79,7 @@ function createNativePathContext(host: AiAgentRuntimeHostContext | undefined): R
 
 function createSchemaValidateOptions(
   schemaDefs: AiNativeRuntimeSchemaDefs | undefined,
-): AiJsonSchemaValidateOptions {
+): JsonSchemaValidateOptions {
   return schemaDefs === undefined || Object.keys(schemaDefs).length === 0
     ? {}
     : { schemaDefs }

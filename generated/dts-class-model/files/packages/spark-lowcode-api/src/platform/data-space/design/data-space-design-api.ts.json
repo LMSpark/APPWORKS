@@ -7,11 +7,12 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/design/data-space-design-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/design/data-space-design-api 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceInputParameter, DataSpaceDesignSnapshot, DataSpaceDesignApi（共 3 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "数据空间设计态只读 API：从 QYVirtualPlat 设计表拉取数据空间/模型/字段/关系快照。\n变更须走 {@link prepareMutation}，与 runtime 入口分离；读操作依赖固定 FormKey 与 catalog 目录解析。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceInputParameter",
       "DataSpaceDesignSnapshot",
+      "DataSpaceDesignReadInput",
       "DataSpaceDesignApi"
     ]
   },
@@ -56,11 +57,47 @@
             "$ref": "#/$defs/DataSpaceInputParameter"
           }
         },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-space.ts.json#/$defs/DataSpaceResourceReference"
+          }
+        },
         "models": {
           "type": "array",
           "items": {
             "$ref": "../data-space.ts.json#/$defs/DataSpaceFrontendModel"
           }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-space.ts.json#/$defs/LowcodeModelRelationRecord"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceDesignReadInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignReadInput",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "catalogFormKeys": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -82,8 +119,8 @@
         "method.read.params": {
           "type": "object",
           "properties": {
-            "dataSpaceId": {
-              "type": "string"
+            "input": {
+              "$ref": "#/$defs/DataSpaceDesignReadInput"
             }
           },
           "additionalProperties": false
@@ -107,11 +144,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:50:15.256Z",
+  "generatedAt": "2026-08-10T12:46:09.986Z",
   "models": {
     "DataSpaceInputParameter": {
       "name": "DataSpaceInputParameter",
-      "jsdoc": "",
+      "jsdoc": "数据空间入参定义；inputParams JSON 解析失败会 fail-fast。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    parameterId: string;\n    name: string;\n    description: string;\n    business: boolean;\n}>",
@@ -150,14 +187,14 @@
     },
     "DataSpaceDesignSnapshot": {
       "name": "DataSpaceDesignSnapshot",
-      "jsdoc": "",
+      "jsdoc": "数据空间设计态完整快照；作为 mutation 写前镜像（preimage）与读回验收基准。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    models: readonly DataSpaceFrontendModel[];\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    resources: readonly DataSpaceResourceReference[];\n    models: readonly DataSpaceFrontendModel[];\n    relations: readonly LowcodeModelRelationRecord[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    models: readonly DataSpaceFrontendModel[];\n}>",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    resources: readonly DataSpaceResourceReference[];\n    models: readonly DataSpaceFrontendModel[];\n    relations: readonly LowcodeModelRelationRecord[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -184,7 +221,46 @@
               "writable": false
             },
             {
+              "name": "resources",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignReadInput": {
+      "name": "DataSpaceDesignReadInput",
+      "jsdoc": "设计态读取输入；catalogFormKeys 用于解析 table/view 资源的稳定目录身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    catalogFormKeys: string | readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    catalogFormKeys: string | readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogFormKeys",
               "readable": true,
               "writable": false
             }
@@ -194,7 +270,7 @@
     },
     "DataSpaceDesignApi": {
       "name": "DataSpaceDesignApi",
-      "jsdoc": "",
+      "jsdoc": "数据空间设计态门面；只读拉取与 mutation 命令 prepare，不执行线上写入。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -215,10 +291,11 @@
               "name": "read",
               "parameters": [
                 {
-                  "name": "dataSpaceId",
+                  "name": "input",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "DataSpaceDesignReadInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
                   }
                 }
               ],

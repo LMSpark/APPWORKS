@@ -42,7 +42,6 @@
       "AgentWorkflowNodeBeforeFunctionCall",
       "AgentWorkflowNodeResolveInstance",
       "AgentWorkflowNodeRuntimeBinding",
-      "AgentWorkflowDefinitionRuntimeBinding",
       "AgentWorkflowBusinessNodeData",
       "AgentWorkflowGraphNodeBase",
       "AgentWorkflowStartNode",
@@ -467,8 +466,7 @@
           "type": "string"
         },
         "paramsSchema": {
-          "type": "object",
-          "title": "AiJsonSchemaObject"
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
         },
         "readonlySteps": {
           "type": "array",
@@ -870,8 +868,7 @@
           }
         },
         "runtimeBinding": {
-          "type": "object",
-          "title": "AgentWorkflowDefinitionRuntimeBinding"
+          "$ref": "#/$defs/AgentWorkflowNodeRuntimeBinding"
         },
         "graph": {
           "$ref": "#/$defs/AgentWorkflowGraph"
@@ -923,7 +920,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-22T06:54:22.380Z",
+  "generatedAt": "2026-08-10T11:32:39.912Z",
   "models": {
     "AgentWorkflowJsonRecord": {
       "name": "AgentWorkflowJsonRecord",
@@ -1639,11 +1636,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    identityField: string;\n    messageField: string;\n    paramsSchema: AiJsonSchemaObject;\n    readonlySteps?: readonly string[];\n}>",
+        "declarationTypeText": "Readonly<{\n    identityField: string;\n    messageField: string;\n    paramsSchema: JsonSchemaObject;\n    readonlySteps?: readonly string[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    identityField: string;\n    messageField: string;\n    paramsSchema: AiJsonSchemaObject;\n    readonlySteps?: readonly string[];\n}>",
+            "typeText": "Readonly<{\n    identityField: string;\n    messageField: string;\n    paramsSchema: JsonSchemaObject;\n    readonlySteps?: readonly string[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1977,22 +1974,6 @@
             }
           ]
         }
-      }
-    },
-    "AgentWorkflowDefinitionRuntimeBinding": {
-      "name": "AgentWorkflowDefinitionRuntimeBinding",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "AgentWorkflowNodeRuntimeBinding",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "AgentWorkflowNodeRuntimeBinding",
-            "targetName": "AgentWorkflowNodeRuntimeBinding"
-          }
-        ],
-        "members": {}
       }
     },
     "AgentWorkflowBusinessNodeData": {
@@ -2400,11 +2381,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    variables: readonly AgentWorkflowVariable[];\n    capabilities: readonly AgentWorkflowCapability[];\n    runtimeBinding: AgentWorkflowDefinitionRuntimeBinding;\n    graph: AgentWorkflowGraph;\n}>",
+        "declarationTypeText": "Readonly<{\n    variables: readonly AgentWorkflowVariable[];\n    capabilities: readonly AgentWorkflowCapability[];\n    runtimeBinding: AgentWorkflowNodeRuntimeBinding;\n    graph: AgentWorkflowGraph;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    variables: readonly AgentWorkflowVariable[];\n    capabilities: readonly AgentWorkflowCapability[];\n    runtimeBinding: AgentWorkflowDefinitionRuntimeBinding;\n    graph: AgentWorkflowGraph;\n}>",
+            "typeText": "Readonly<{\n    variables: readonly AgentWorkflowVariable[];\n    capabilities: readonly AgentWorkflowCapability[];\n    runtimeBinding: AgentWorkflowNodeRuntimeBinding;\n    graph: AgentWorkflowGraph;\n}>",
             "targetName": "Readonly"
           }
         ],

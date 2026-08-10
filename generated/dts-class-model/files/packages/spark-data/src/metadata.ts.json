@@ -9,9 +9,7 @@
     "modulePath": "metadata",
     "jsdoc": "@module @spark-appworks/spark-data:metadata\n职责：提供数据层 metadata 能力，围绕 TableMetadataLike 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 metadata 的数据语义。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [
-      "TableMetadataLike"
-    ]
+    "symbols": []
   },
   "$defs": {
     "TableMetadataLike": {
@@ -26,7 +24,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.614Z",
+  "generatedAt": "2026-08-10T12:44:44.279Z",
   "models": {
     "TableMetadataLike": {
       "name": "TableMetadataLike",

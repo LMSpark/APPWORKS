@@ -10,7 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-ai:agent/tool-loop/tool-loop-runner\n职责：支撑 Agent tool loop 的 tool loop runner 能力，处理工具调用、结果映射、诊断事件或 payload 编解码。\n边界：只服务单次 turn 内的工具循环，不定义业务注册协议，也不直接管理 UI 或持久化页面状态。\nAI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "AiAgentToolLoopInput",
       "AiAgentToolLoopRunner"
     ]
   },
@@ -76,7 +75,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:17:01.327Z",
+  "generatedAt": "2026-08-10T10:00:08.490Z",
   "models": {
     "AiAgentToolLoopInput": {
       "name": "AiAgentToolLoopInput",

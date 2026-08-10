@@ -4,7 +4,7 @@
  * 边界：只维护 JSON 结构契约，不读取文件系统、不执行 TypeScript 投影，也不渲染知识提示词。
  * AI用途：修改 generated/dts-class-model 协议或消费 manifest/shard 时，用本模块确认字段含义和协议边界。
  */
-import type { AiJsonSchemaObject } from '../../json'
+import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import type {
   DtsTypeDeclarationModel,
   ComponentClassModelLayer,
@@ -25,9 +25,9 @@ export type DtsFileProjectionDocument = Readonly<{
   sourcePath: string
   /** 该 shard 的模块级语义元数据：名称、JSDoc、组件归属和导出 symbol 列表。 */
   module: DtsFileModuleSemanticMeta
-  /** 本 shard 导出的 DtsTypeDeclarationModel 符号名列表，与 models 键集合一致。 */
+  /** 本 shard 可进入全局 classIndex 的导出符号名列表；私有声明仍保留在 models。 */
   symbols: readonly string[]
-  /** 符号名 → 完整 DtsTypeDeclarationModel 投影；内存形态保留强类型，写盘时转为 bundle JSON 精简形态。 */
+  /** 本 shard 全部符号名 → 完整 DtsTypeDeclarationModel 投影，包含模块私有声明。 */
   models: Readonly<Record<string, DtsTypeDeclarationModel>>
   /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */
   generatedAt?: string
@@ -42,7 +42,7 @@ export type DtsFileProjectionBundleJson = Readonly<{
   /** 该 shard 的模块级语义元数据，与内存投影 document.module 一致。 */
   module: DtsFileModuleSemanticMeta
   /** 共享 JSON Schema 定义池；models 内各声明的 jsonSchema 通过 $ref 引用此字典以保证 shard 自包含。 */
-  $defs: Readonly<Record<string, AiJsonSchemaObject>>
+  $defs: Readonly<Record<string, JsonSchemaObject>>
   /** 符号名 → 精简 model 载荷；强类型字段已剥离，仅保留 JSON 可序列化结构。 */
   models: Readonly<Record<string, unknown>>
   /** 对应源文件（module.sourceFile）最后修改时间 ISO；重编译时源码未改则保持不变。 */

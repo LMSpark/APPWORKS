@@ -75,7 +75,7 @@ AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模
           </el-tag>
           <span v-if="data.path" class="node-path">{{ data.path }}</span>
           <el-tag v-if="data.childPlacement" size="small" type="info" class="node-tag">
-            {{ formatChildPlacementLabel(data.childPlacement) }}
+            {{ formatNavigationPlacementLabel(data.childPlacement) }}
           </el-tag>
           <el-tag v-if="data.context" size="small" type="warning" class="node-tag">
             context
@@ -106,7 +106,7 @@ import { ElMessageBox } from 'element-plus'
 import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { isNestedConfigPageNode } from '@spark-appworks/spark-project-model'
 import type { DevState } from './useDevState'
-import { formatChildPlacementLabel } from './childPlacementLabels'
+import { formatNavigationPlacementLabel } from './childPlacementLabels'
 import NavIcon from '@/components/NavIcon.vue'
 
 const props = defineProps<{ state: DevState }>()

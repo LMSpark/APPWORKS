@@ -5,10 +5,10 @@ import { defineComponent, h } from 'vue'
 import type { Component } from 'vue'
 import { PAGE_RUNTIME_SERVICES } from '@spark-appworks/spark-component'
 import { PAGE_COMPONENT_REGISTRY, PAGE_DATASET, Spark, useSparkComponent } from '@spark-appworks/spark-component'
-import type { SparkNode } from '@spark-appworks/spark-component'
 import type { DataSetContract, DataView } from '@spark-appworks/spark-data'
 import type { PageComponentRegistry } from '@spark-appworks/spark-component'
 import { createPageComponentRegistry } from '../../packages/spark-component/src/page/context/page-component-registry'
+import type { SparkNode } from '@spark-appworks/spark-data'
 
 const TEST_APP_LOGGER = {
   debug: (message: string, context?: unknown) => console.info(message, context),

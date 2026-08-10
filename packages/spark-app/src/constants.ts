@@ -16,13 +16,9 @@
  * ============================================
  * 依赖注入 Symbol Keys（Injection Keys）
  * ============================================
+ *
+ * SPARK_REGISTRY_KEY SSOT：`@spark-appworks/spark-component`（禁止在此薄包转发）
  */
-
-/**
- * SparkRegistry 注入键
- * 从 spark-component 导入（架构允许 spark-app 依赖 spark-component）
- */
-export { SPARK_REGISTRY_KEY } from '@spark-appworks/spark-component'
 
 /**
  * ============================================
@@ -71,26 +67,6 @@ export const ErrorCodes = {
 
 /** Error Code 的语义模型。 */
 export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes]
-
-/**
- * ============================================
- * 环境常量
- * ============================================
- */
-
-/**
- * 环境常量
- * @internal 待实际使用时移除 internal 标记
- */
-export const Environments = {
-  DEVELOPMENT: 'development',
-  STAGING: 'staging',
-  PRODUCTION: 'production',
-  TEST: 'test'
-} as const
-
-/** Environment 的语义模型。 */
-export type Environment = typeof Environments[keyof typeof Environments]
 
 /**
  * ============================================

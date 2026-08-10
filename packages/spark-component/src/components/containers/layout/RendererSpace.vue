@@ -19,10 +19,9 @@ AI用途：需要理解 renderer space 的实际渲染结构、slot/toolbar/状�
  * @description 间距容器，使用 flex 布局为子组件提供均匀的水平或垂直间距，支持换行和填充。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, getSparkNodeChildren, nodeId, useSparkPageComponent } from '../../internal'
+import { SparkComponentRenderer, useSparkPageComponent } from '../../internal'
 import type { RSpaceProps } from './RendererSpace.props'
-
-
+import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
 const props = withDefaults(defineProps<RSpaceProps>(), {
   type: 'r-space',

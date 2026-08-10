@@ -7,17 +7,17 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/project-blueprint/project-blueprint-api",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/project-blueprint/project-blueprint-api 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintApi（共 1 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "lowcode 项目蓝图 HTTP 门面：读取 Base_NavigationInfo 记录、导航授权证据与文档导出任务。\n本模块不构造 AppWorks 项目蓝图、运行导航、治理或 AI 领域输出。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "ProjectBlueprintApi"
+      "LowcodeProjectBlueprintApi"
     ]
   },
   "$defs": {
-    "ProjectBlueprintApi": {
+    "LowcodeProjectBlueprintApi": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "ProjectBlueprintApi",
+      "title": "LowcodeProjectBlueprintApi",
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -28,7 +28,7 @@
           },
           "additionalProperties": false
         },
-        "method.read.params": {
+        "method.readRecords.params": {
           "type": "object",
           "properties": {
             "projectId": {
@@ -37,11 +37,11 @@
           },
           "additionalProperties": false
         },
-        "method.read.return": {
+        "method.readRecords.return": {
           "type": "object",
-          "title": "Promise<ProjectBlueprint>"
+          "title": "Promise<readonly LowcodeProjectBlueprintRecord[]>"
         },
-        "method.readRuntimeNavigation.params": {
+        "method.readNavigationAuthorization.params": {
           "type": "object",
           "properties": {
             "projectId": {
@@ -53,9 +53,9 @@
           },
           "additionalProperties": false
         },
-        "method.readRuntimeNavigation.return": {
+        "method.readNavigationAuthorization.return": {
           "type": "object",
-          "title": "Promise<RuntimeNavigation>"
+          "title": "Promise<LowcodeNavigationAuthorizationEvidence>"
         },
         "method.submitDocument.params": {
           "type": "object",
@@ -64,26 +64,26 @@
               "type": "string"
             },
             "kind": {
-              "$ref": "outputs/document/project-blueprint-document.ts.json#/$defs/ProjectBlueprintDocumentKind"
+              "$ref": "outputs/document/project-blueprint-document.ts.json#/$defs/LowcodeProjectBlueprintDocumentKind"
             },
             "options": {
-              "$ref": "outputs/document/project-blueprint-document.ts.json#/$defs/ProjectBlueprintDocumentSubmitOptions"
+              "$ref": "outputs/document/project-blueprint-document.ts.json#/$defs/LowcodeProjectBlueprintDocumentSubmitOptions"
             }
           },
           "additionalProperties": false
         },
         "method.submitDocument.return": {
           "type": "object",
-          "title": "Promise<ProjectBlueprintDocumentTask>"
+          "title": "Promise<LowcodeProjectBlueprintDocumentTask>"
         }
       }
     }
   },
-  "generatedAt": "2026-08-09T20:57:04.499Z",
+  "generatedAt": "2026-08-10T12:16:41.563Z",
   "models": {
-    "ProjectBlueprintApi": {
-      "name": "ProjectBlueprintApi",
-      "jsdoc": "",
+    "LowcodeProjectBlueprintApi": {
+      "name": "LowcodeProjectBlueprintApi",
+      "jsdoc": "项目蓝图只读与文档任务提交门面；依赖应用目录 FormKey 访问 GetData。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -101,7 +101,8 @@
         "members": {
           "methods": [
             {
-              "name": "read",
+              "name": "readRecords",
+              "jsdoc": "按 SysId 拉取并校验完整 Base_NavigationInfo 记录；不投影领域聚合。",
               "parameters": [
                 {
                   "name": "projectId",
@@ -116,15 +117,15 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "reference",
-                    "name": "ProjectBlueprint",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
+                    "type": "unknown",
+                    "name": "readonly LowcodeProjectBlueprintRecord[]"
                   }
                 ]
               }
             },
             {
-              "name": "readRuntimeNavigation",
+              "name": "readNavigationAuthorization",
+              "jsdoc": "读取 GetNavigationMenus 的后端授权事实；beginNodeId 为授权树根。",
               "parameters": [
                 {
                   "name": "projectId",
@@ -147,14 +148,15 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "RuntimeNavigation",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/runtime-navigation.ts"
+                    "name": "LowcodeNavigationAuthorizationEvidence",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts"
                   }
                 ]
               }
             },
             {
               "name": "submitDocument",
+              "jsdoc": "提交 legacy 文档导出任务（SRS/SDD/功能设计）；返回 coverage=legacy-menu-scope 的任务回执，不等待生成完成。",
               "parameters": [
                 {
                   "name": "projectId",
@@ -167,7 +169,7 @@
                   "name": "kind",
                   "type": {
                     "type": "reference",
-                    "name": "ProjectBlueprintDocumentKind",
+                    "name": "LowcodeProjectBlueprintDocumentKind",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
                   }
                 },
@@ -175,7 +177,7 @@
                   "name": "options",
                   "type": {
                     "type": "reference",
-                    "name": "ProjectBlueprintDocumentSubmitOptions",
+                    "name": "LowcodeProjectBlueprintDocumentSubmitOptions",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
                   },
                   "flags": {
@@ -189,7 +191,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ProjectBlueprintDocumentTask",
+                    "name": "LowcodeProjectBlueprintDocumentTask",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts"
                   }
                 ]

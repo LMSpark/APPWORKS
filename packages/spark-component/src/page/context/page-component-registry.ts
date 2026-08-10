@@ -6,16 +6,16 @@
  */
 import type {
   PageComponentApiEntry,
-  PageComponentInstanceEntry,
   PageComponentRegistry,
 } from '../../core/capability-keys.js'
+import type { ComponentInstanceSnapshot } from '@spark-appworks/spark-utils'
 
 export function createPageComponentRegistry(): PageComponentRegistry {
-  const instanceMap = new Map<string, PageComponentInstanceEntry>()
+  const instanceMap = new Map<string, ComponentInstanceSnapshot>()
   const instanceRefCount = new Map<string, number>()
   const apiMap = new Map<string, PageComponentApiEntry>()
 
-  function listInstances(type?: string): PageComponentInstanceEntry[] {
+  function listInstances(type?: string): ComponentInstanceSnapshot[] {
     if (type === undefined || type.trim().length === 0) {
       return Array.from(instanceMap.values())
     }

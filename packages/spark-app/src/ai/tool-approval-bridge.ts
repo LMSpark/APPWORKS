@@ -8,7 +8,7 @@ import type {
   AiAgentBeforeFunctionCallDirective,
   AiAgentBeforeFunctionCallOptions,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 
 /** Ai Tool Approval Request 的语义模型。 */
 export type AiToolApprovalRequest = Readonly<{
@@ -23,7 +23,7 @@ export type AiToolApprovalRequest = Readonly<{
   /** 待审批的工具名称。 */
   toolName: string
   /** 工具调用参数。 */
-  args: AiJsonParams
+  args: JsonParams
   /** 请求创建时间戳（毫秒）。 */
   requestedAt: number
 }>

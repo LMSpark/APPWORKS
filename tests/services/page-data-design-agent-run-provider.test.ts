@@ -5,7 +5,7 @@ import type {
   AiAgentHostDryRunResult,
   AiAgentHostRunResult,
 } from '@spark-appworks/spark-ai/agent'
-import type { AiJsonParams } from '@spark-appworks/spark-ai/json'
+import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { PAGE_DESIGN_MODULE_ID } from '@/services/page-design/page-design-agent-workflow-binding'
 import { preparePageDataDesignAgentRun } from '@/services/page-data-design/page-data-design-agent-run-provider'
 import { readAiDeliveryErrorExtras } from '@/services/ai/ai-delivery-port'
@@ -107,7 +107,7 @@ describe('preparePageDataDesignAgentRun', () => {
       pageId: 'orders',
       description: '补 CRUD 表',
       effectiveDescription: '订单列表需要主从表',
-    } as AiJsonParams)
+    } as JsonParams)
 
     expect(mocks.activatePageDesignAgentWorkflow).toHaveBeenCalledOnce()
     expect(mocks.delegateHost.run).toHaveBeenCalledWith(
@@ -141,7 +141,7 @@ describe('preparePageDataDesignAgentRun', () => {
       pageId: 'orders',
       description: 'noop',
       effectiveDescription: 'x',
-    } as AiJsonParams)
+    } as JsonParams)
     expect(result.resultExtras?.['delivery']).toEqual({
       mode: 'auto',
       status: 'skipped',
@@ -166,7 +166,7 @@ describe('preparePageDataDesignAgentRun', () => {
         pageId: 'orders',
         description: 'fail',
         effectiveDescription: 'x',
-      } as AiJsonParams)
+      } as JsonParams)
     } catch (error: unknown) {
       caught = error
     }

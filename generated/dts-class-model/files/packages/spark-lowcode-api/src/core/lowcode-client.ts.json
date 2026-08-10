@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "core/lowcode-client",
-    "jsdoc": "@spark-appworks/spark-lowcode-api 的 core/lowcode-client 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeClient, LowcodeClientCommand（共 2 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "lowcode HTTP 薄封装：发起请求并强制解包 `AjaxResult`。\nHTTP 4xx/5xx 若仍携带 AjaxResult 体则按业务码处理；非 AjaxResult 或 `Code !== 200` 一律抛 `LowcodeApiError`。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeClient",
       "LowcodeClientCommand"
@@ -67,11 +67,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T10:09:14.704Z",
+  "generatedAt": "2026-08-10T07:31:18.127Z",
   "models": {
     "LowcodeClient": {
       "name": "LowcodeClient",
-      "jsdoc": "",
+      "jsdoc": "面向 lowcode 后端的通用请求客户端，返回值仅为 AjaxResult.Result 载荷。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -90,6 +90,7 @@
           "methods": [
             {
               "name": "requestResult",
+              "jsdoc": "执行单次 lowcode 请求；`authenticated: false` 时跳过根门面注入的 Bearer（如登录接口）。",
               "parameters": [
                 {
                   "name": "command",
@@ -117,7 +118,7 @@
     },
     "LowcodeClientCommand": {
       "name": "LowcodeClientCommand",
-      "jsdoc": "",
+      "jsdoc": "单次 lowcode 请求描述；path 为相对 API 路径，method 受底层 HttpClient 约束。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",

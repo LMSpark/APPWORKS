@@ -24,28 +24,12 @@ export type {
 } from './useSparkComponent.js'
 
 export type {
-  CapabilityName,
-  CapabilityContext,
-  SparkCapabilityContext,
-  SparkNode,
-  SparkNodeChildren,
   FilterItemConfig,
   ComponentDefinition,
   ComponentRegistry,
-  LoggerApi,
 } from './types.js'
 
 export { SPARK_REGISTRY_KEY } from '../system/keys.js'
-
-export {
-  SPARK_NODE_STRUCT_KEYS,
-  normalizeSparkNode,
-  nodeId,
-  nodeInputProp,
-  nodeInputProps,
-  isSparkNode,
-  getSparkNodeChildren,
-} from './types.js'
 
 export type {
   PageServiceCapability,
@@ -56,24 +40,20 @@ export type {
   PageUploadFilesOptions,
   PageSelectEntitiesOptions,
   PageSelectorOption,
-  PageSelectedEntity,
   PageSelectedFile,
   PageUploadedFile,
-  PagePermissionMode,
 } from './capability-keys.js'
 
 export {
   PAGE_SERVICE,
   PAGE_PERMISSION_MODE,
+  isThemeMode,
 } from './capability-keys.js'
 
 export type {
   ThemeMode,
   ThemeCapability,
-  ModuleContextItem,
-  ModuleContext,
   ModuleContextCapability,
-  PageComponentInstanceEntry,
   PageComponentApiEntry,
   PageComponentRegistry,
   PageCssScopeCapability,
@@ -88,8 +68,3 @@ export {
   CSS_SCOPE,
 } from './capability-keys.js'
 
-export {
-  sparkFindNearestProvider,
-  sparkFindNearestProviderByKeys,
-  sparkConsumeFromProvider,
-} from '@spark-appworks/spark-utils'

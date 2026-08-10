@@ -26,7 +26,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-22T06:56:07.732Z",
+  "generatedAt": "2026-08-10T12:44:44.278Z",
   "models": {
     "ValidateAgentWorkflowDefinitionOptions": {
       "name": "ValidateAgentWorkflowDefinitionOptions",

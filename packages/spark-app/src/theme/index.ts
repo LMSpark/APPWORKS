@@ -23,18 +23,17 @@
  * ```
  */
 
-import type { ThemeCapability as ComponentThemeCapability, ThemeMode } from '@spark-appworks/spark-component'
+import { isThemeMode, type ThemeCapability as ComponentThemeCapability, type ThemeMode } from '@spark-appworks/spark-component'
 import { computed, getCurrentScope, inject, onScopeDispose, ref, watch, type ComputedRef, type InjectionKey, type Ref } from 'vue'
-export type { ThemeMode }
 
-/** Theme Capability 的语义模型。 */
-export type ThemeCapability = ComponentThemeCapability & {
+/** 应用壳主题能力：组件 ThemeCapability + 存储作用域切换。 */
+export type AppThemeCapability = ComponentThemeCapability & {
   /** 切换 localStorage 作用域键；传入 null 重置为默认（无作用域）键。切换后自动从新作用域重新加载已存储的主题模式并持久化 */
   setStorageScope(scopeKey: string | null): void
 }
 
 /** Vue DI 注入键（仅供 App.vue / Settings.vue 等非 SPARK 组件使用） */
-export const THEME_INJECTION_KEY: InjectionKey<ThemeCapability> = Symbol('spark-theme')
+export const THEME_INJECTION_KEY: InjectionKey<AppThemeCapability> = Symbol('spark-theme')
 
 /** 主题服务配置 */
 export type ThemeServiceOptions = {
@@ -46,15 +45,11 @@ export type ThemeServiceOptions = {
   storageScope?: string | null}
 
 /** 响应式主题服务（内部使用，组件层可直接读 ref） */
-export type ThemeServiceReactive = ThemeCapability & {
+export type ThemeServiceReactive = AppThemeCapability & {
   /** 响应式当前模式 */
     readonly modeRef: Ref<ThemeMode>
     /** 响应式 isDark */
     readonly isDarkRef: ComputedRef<boolean>}
-
-export function isThemeMode(value: unknown): value is ThemeMode {
-  return value === 'light' || value === 'dark' || value === 'auto'
-}
 
 function normalizeScopeKey(scopeKey: string | null | undefined): string | null {
   if (typeof scopeKey !== 'string') return null
@@ -207,6 +202,6 @@ export function createThemeService(options: ThemeServiceOptions = {}): ThemeServ
  * 适用于 App.vue / Settings.vue 等非 SPARK 组件；
  * SPARK 组件使用 `consume(THEME)` 获取。
  */
-export function useTheme(): ThemeCapability | undefined {
+export function useTheme(): AppThemeCapability | undefined {
   return inject(THEME_INJECTION_KEY, undefined)
 }

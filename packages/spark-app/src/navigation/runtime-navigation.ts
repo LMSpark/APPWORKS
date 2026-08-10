@@ -1,44 +1,22 @@
+import type {
+  ContextItem,
+  NavigationContextConfig,
+  NavigationLinkTarget,
+  NavigationPlacement,
+  NavigationRootPlacement,
+  PermissionMode,
+  RuntimeNavigationItemKind,
+} from '@spark-appworks/spark-utils'
 /**
  * 应用壳唯一可消费的运行导航合同。
  *
  * 它只表达后端授权后可见的菜单、路由和动作，不是项目蓝图的持久化形状。
  */
-export type RuntimeNavigationItemKind =
-  | 'system-directory'
-  | 'module'
-  | 'system-page'
-  | 'system-action'
-  | 'page'
-  | 'link'
-  | 'ref'
-
-export type RuntimeNavigationPlacement =
-  | 'header'
-  | 'sidebar'
-  | 'toolbar'
-  | 'user-menu'
-  | 'parent'
-  | 'flat'
-
-export type RuntimeNavigationPermissionMode = 'none' | 'masked' | 'invisible'
-
-export type RuntimeNavigationContextItem = Readonly<{
-  id: string | number
-  title: string
-}>
-
-export type RuntimeNavigationContextConfig = Readonly<{
-  source: string | readonly RuntimeNavigationContextItem[]
-  placeholder?: string
-  defaultValue?: string | number
-  paramName?: string
-}>
-
 export type RuntimeNavigationContextState = {
-  config: RuntimeNavigationContextConfig
+  config: NavigationContextConfig
   nodeId: string
   selected: string | number | null
-  items: RuntimeNavigationContextItem[]
+  items: ContextItem[]
   loading: boolean
   error: string | null
 }
@@ -49,19 +27,19 @@ export type RuntimeNavigationItem = {
   description?: string
   icon?: string
   itemKind?: RuntimeNavigationItemKind
-  childPlacement?: RuntimeNavigationPlacement
-  context?: string | readonly RuntimeNavigationContextItem[] | RuntimeNavigationContextConfig
+  childPlacement?: NavigationPlacement
+  context?: string | readonly ContextItem[] | NavigationContextConfig
   order?: number
   hidden?: boolean
   disabled?: boolean
   dividerAfter?: boolean
-  permissionMode?: RuntimeNavigationPermissionMode
+  permissionMode?: PermissionMode
   children?: RuntimeNavigationItem[]
   path?: string
   formKey?: string
   dataSpaceId?: string
   modelId?: string
-  linkTarget?: 'iframe' | 'new-tab' | 'self'
+  linkTarget?: NavigationLinkTarget
   redirect?: string
   refId?: string
   refPath?: string
@@ -73,7 +51,7 @@ export type RuntimeNavigation = {
   id?: string
   projectId?: string
   title: string
-  childPlacement: 'header' | 'sidebar'
+  childPlacement: NavigationRootPlacement
   items: RuntimeNavigationItem[]
   homePath?: string
 }

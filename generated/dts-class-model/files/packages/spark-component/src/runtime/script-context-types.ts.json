@@ -161,8 +161,7 @@
               "type": "string"
             },
             "context": {
-              "type": "object",
-              "title": "PermissionActionContext"
+              "$ref": "../../../spark-data/src/script-types.ts.json#/$defs/PermissionActionContext"
             }
           },
           "additionalProperties": false
@@ -604,7 +603,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:39:26.876Z",
+  "generatedAt": "2026-08-10T11:48:02.941Z",
   "models": {
     "PageRoute": {
       "name": "PageRoute",

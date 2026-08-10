@@ -4,6 +4,7 @@
  * 边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。
  * AI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/runtime-target。
  */
+import type { NavigationLinkTarget } from '@spark-appworks/spark-utils'
 import type { RuntimeNavigationItem } from './runtime-navigation'
 
 /** Nav Node Route Target Kind 的语义模型。 */
@@ -18,12 +19,15 @@ routeKind: NavNodeRouteTargetKind
     /** 资源路径。 */
 path: string}
 
+/** 外链打开方式；NavigationLinkTarget 去掉 iframe（iframe 走壳内路由宿主）。 */
+export type NavNodeExternalLinkMode = Exclude<NavigationLinkTarget, 'iframe'>
+
 /** Nav Node External Target 的语义模型。 */
 export type NavNodeExternalTarget = {
     /** 类型判别字段。 */
 kind: 'external'
     /** mode 字段。 */
-mode: 'new-tab' | 'self'
+mode: NavNodeExternalLinkMode
     /** href 字段。 */
 href: string}
 

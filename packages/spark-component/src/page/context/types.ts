@@ -11,26 +11,18 @@
  */
 
 import type { DataSetContract, SparkData } from '@spark-appworks/spark-data'
-import type { PageNodeRenderConfig } from '@spark-appworks/spark-project-model'
-import type { PageRoute, ScriptContext } from '../../runtime'
+import type { ComponentInstanceSnapshot } from '@spark-appworks/spark-utils'
+import type { ScriptContext } from '../../runtime'
 import type { h } from 'vue'
-import type { PageComponentInstanceEntry } from '../../core/capability-keys.js'
-
-// ── 基础重导出 ────────────────────────────────────────────────────────────
-
-// PageNode 渲染态来自 spark-project-model，是渲染层的唯一页面输入形态。
-export type { PageNodeRenderConfig }
-// PageRoute 重导出供渲染层实现层使用
-export type { PageRoute }
 
 // ── 分区 C：脚本沙箱能力（页面运行时访问面） ─────────────────────────────────
 
 /** 页面脚本组件访问 API（由渲染器根节点注入） */
 export type PageComponentAccessApi = {
   /** 按组件 id 获取实例快照（只读元数据，不返回组件 API 对象） */
-  get(id: string): PageComponentInstanceEntry | null
+  get(id: string): ComponentInstanceSnapshot | null
   /** 列出页面组件实例（可按 type 过滤，只读元数据） */
-  list(type?: string): PageComponentInstanceEntry[]
+  list(type?: string): ComponentInstanceSnapshot[]
   /** 按组件 id 获取组件暴露 API（用于脚本调用组件能力） */
   getApi<T = unknown>(id: string): T | null
   /** 按 type 获取同类组件 API 列表 */

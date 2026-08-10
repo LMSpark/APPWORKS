@@ -76,15 +76,19 @@ import {
   type VNode,
   type VNodeArrayChildren,
 } from 'vue'
+import { type SparkNode, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
-import { Logger, isCallable, type HttpClientBase } from '@spark-appworks/spark-utils'
-import type { PagePermissionMode } from '../../core/capability-keys.js'
+import { Logger, isCallable, isPermissionMode, type HttpClientBase } from '@spark-appworks/spark-utils'
 import type { DataSet } from '@spark-appworks/spark-data'
 import { DataSetCrudTool } from '@spark-appworks/spark-data'
 import { SparkNodeTree } from '@spark-appworks/spark-data'
-import type { PageNodeLike, PageNodeRenderConfig } from '@spark-appworks/spark-project-model'
+import type {
+  PageDataSpaceBinding,
+  PageNodeLike,
+  PageNodeRenderConfig,
+} from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '../../runtime'
-import { getSparkNodeChildren, nodeId, type SparkNode } from '../../core/types'
+
 import { PAGE_DATASET } from '../../core/capability-keys'
 import {
   PAGE_SERVICE,
@@ -411,6 +415,11 @@ type Props = Omit<SparkNode, 'type'> & {
     beforeLoad?: (pageId: string) => void | Promise<void>
     /** 页面加载后钩子（applyNodeProps 之后） */
     afterLoad?: (state: PageNodeRenderConfig) => void | Promise<void>
+    /**
+     * 运行态 DataSet 装载器：页面有 dataSpaceBinding 时必填。
+     * 有绑定则禁止再用 pagedata.json 作为运行数据真源。
+     */
+    loadRuntimeDataSet?: (binding: PageDataSpaceBinding) => Promise<DataSet>
     /** 错误处理函数 */
     onError?: (error: Error) => void
     /** 运行时错误回调（供外层采集脚本编译/初始化/加载错误）。 */
@@ -447,7 +456,7 @@ let _loadObjectKeySeq = 0
 const _loadObjectKeys = new WeakMap<object, number>()
 // ── SparkNodeTree：rule.json 的 SSoT（设计时编辑入口）──
 let _nodeTree: SparkNodeTree | null = null
-// ── DataSetCrudTool：pagedata.json 的 SSoT（设计时编辑入口）──
+// ── DataSetCrudTool：设计时编辑入口（pagedata）；运行态有 binding 时由 loadRuntimeDataSet 装载 ──
 let _crudTool: DataSetCrudTool | null = null
 const pageContainer = ref<HTMLElement | null>(null)
 const currentCapabilityContext = currentInstance
@@ -460,11 +469,8 @@ sparkProvide(CSS_SCOPE, { inject(css: string) { setScopedCss(currentPageId.value
 
 // ── 页面权限模式 ──
 // 与导航节点默认语义保持一致：未提供 permissionMode 时默认 'masked'。
-function isPagePermissionMode(value: unknown): value is PagePermissionMode {
-  return value === 'none' || value === 'masked' || value === 'invisible'
-}
 
-sparkProvide(PAGE_PERMISSION_MODE, isPagePermissionMode(route.meta['permissionMode']) ? route.meta['permissionMode'] : 'masked')
+sparkProvide(PAGE_PERMISSION_MODE, isPermissionMode(route.meta['permissionMode']) ? route.meta['permissionMode'] : 'masked')
 
 // ── DataSet ──
 const pds = usePageDataSet({ enableDataSet: props.enableDataSet })
@@ -624,6 +630,20 @@ async function loadNodeProps(pageId: string, options: { forceReload?: boolean } 
 }
 
 /**
+ * 解析运行态 DataSet：有 dataSpaceBinding 时必须走宿主注入装载器；否则沿用四文件 hydrate（设计轴）。
+ */
+async function resolveRuntimeDataSet(nodeProps: PageNodeRenderConfig): Promise<DataSet> {
+  const binding = nodeProps.dataSpaceBinding
+  if (binding === null) return nodeProps.data
+  if (props.loadRuntimeDataSet === undefined) {
+    throw new Error(
+      `页面 ${nodeProps.pageId} 已绑定数据空间（${binding.formKey}/${binding.dataSpaceId}/${binding.modelId}），但未注入 loadRuntimeDataSet`,
+    )
+  }
+  return props.loadRuntimeDataSet(binding)
+}
+
+/**
  * spark-page props 应用流水线：将节点 props 应用到渲染状态。
  *
  * 时序：
@@ -691,10 +711,13 @@ async function loadConfig(options: { force?: boolean } = {}): Promise<void> {
       if (isStale()) return
       const nodeProps = await loadNodeProps(targetPageId, { forceReload: options.force === true })
       if (isStale()) return
-      applyNodeProps(targetPageId, nodeProps)
+      const runtimeData = await resolveRuntimeDataSet(nodeProps)
+      if (isStale()) return
+      const appliedProps: PageNodeRenderConfig = { ...nodeProps, data: runtimeData }
+      applyNodeProps(targetPageId, appliedProps)
       didApply = true
       if (isStale()) return
-      if (props.afterLoad) await props.afterLoad(nodeProps)
+      if (props.afterLoad) await props.afterLoad(appliedProps)
     }, (error) => {
       reportRuntimeError('load', targetPageId, error)
       props.onError?.(error)

@@ -6,7 +6,8 @@
  *
  * 基 class 按 nodeKind 选择 ConfigPageNode 等子类；ProjectBlueprintTreeNodeData 仅为序列化形状。
  */
-import { deepClone, isRecord } from '@spark-appworks/spark-utils'
+import * as SparkUtils from '@spark-appworks/spark-utils'
+import type { ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
 
 export function normalizePid(v: string | null | undefined): string { return v?.trim() ?? '' }
 
@@ -18,40 +19,10 @@ export function formatProjectDescriptionContext(context: readonly ProjectDescrip
   return context.map(item => `${item.title}: ${item.description}`).join('\n')
 }
 
-/** 子节点布局位置：决定子节点在 UI 中的渲染区域。 */
-export type ChildPlacement = 'header' | 'sidebar' | 'toolbar' | 'user-menu' | 'parent' | 'flat'
-
-/** 项目蓝图向运行时交付的投影类型；不是蓝图业务类型。 */
-export type ProjectBlueprintDeliveryKind =
-  | 'system-directory'
-  | 'module'
-  | 'system-page'
-  | 'system-action'
-  | 'page'
-  | 'link'
-  | 'ref'
-
-/** 项目蓝图节点的业务种类；与运行导航 itemKind 严格分离。 */
-export type ProjectBlueprintNodeKind =
-  | 'project'
-  | 'module'
-  | 'requirement'
-  | 'prototype'
-  | 'data-space'
-  | 'page'
-  | 'sub-page'
-  | 'report'
-  | 'workflow'
-  | 'integration'
-  | 'action'
-  | 'external'
-  | 'permission-management'
-  | 'unresolved'
-
-/** 权限未匹配时的展示模式。 */
-export type ProjectBlueprintPermissionMode = 'none' | 'masked' | 'invisible'
-
 export type ProjectBlueprintNodeFamily = 'module' | 'config-page' | 'system-page' | 'system-action' | 'link' | 'ref'
+
+/** pageDesign 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */
+export type ProjectBlueprintImplGate = 'closed' | 'open'
 
 /** Project Description Context 的运行上下文。 */
 export type ProjectDescriptionContext = {
@@ -63,26 +34,6 @@ export type ProjectDescriptionContext = {
   nodeKind: string
   /** 上下文来源节点描述文本。 */
   description: string
-}
-
-/** 上下文下拉选项项。 */
-export type ProjectBlueprintContextItem = {
-  /** 选项稳定值，会写入蓝图上下文状态。 */
-  id: string | number
-  /** 选项展示标题。 */
-  title: string
-}
-
-/** 动态上下文配置：描述 ProjectNode 上下文的来源和交互行为。 */
-export type ProjectBlueprintContextConfig = {
-  /** 上下文选项来源；字符串表示远端/命名来源，数组表示内联静态选项。 */
-  source: string | ProjectBlueprintContextItem[]
-  /** 上下文未选择时的占位提示。 */
-  placeholder?: string | undefined
-  /** 上下文默认选中值。 */
-  defaultValue?: string | number | undefined
-  /** 写入路由或查询参数时使用的参数名。 */
-  paramName?: string | undefined
 }
 
 /** 项目树节点的可序列化数据形状。 */
@@ -100,13 +51,13 @@ export type ProjectBlueprintTreeNodeData = {
   /** 节点图标名。 */
   icon?: string | undefined
   /** 运行交付投影类型，决定菜单、页面、链接、引用等输出行为。 */
-  nodeKind?: ProjectBlueprintDeliveryKind | undefined
+  nodeKind?: SparkUtils.RuntimeNavigationItemKind | undefined
   /** 蓝图业务种类；nodeKind 仅是旧设计器的运行表面投影。 */
   blueprintKind?: ProjectBlueprintNodeKind | undefined
   /** 子节点在应用壳中的布局区域。 */
-  childPlacement?: ChildPlacement | undefined
+  childPlacement?: SparkUtils.NavigationPlacement | undefined
   /** 项目蓝图上下文配置或静态上下文选项。 */
-  context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig | undefined
+  context?: string | SparkUtils.ContextItem[] | SparkUtils.NavigationContextConfig | undefined
   /** 同级排序值，数值越小越靠前。 */
   order?: number | undefined
   /** 输出为运行菜单时是否隐藏。 */
@@ -116,7 +67,7 @@ export type ProjectBlueprintTreeNodeData = {
   /** 是否在该节点后显示分隔线。 */
   dividerAfter?: boolean | undefined
   /** 权限不匹配时的展示策略。 */
-  permissionMode?: ProjectBlueprintPermissionMode | undefined
+  permissionMode?: SparkUtils.PermissionMode | undefined
   /** 子蓝图节点。 */
   children?: ProjectBlueprintTreeNodeData[] | undefined
   /** 页面路由路径。 */
@@ -128,7 +79,7 @@ export type ProjectBlueprintTreeNodeData = {
   /** 页面在数据空间内消费的唯一前端模型身份。 */
   modelId?: string | undefined
   /** link 节点的打开目标。 */
-  linkTarget?: 'iframe' | 'new-tab' | 'self' | undefined
+  linkTarget?: SparkUtils.NavigationLinkTarget | undefined
   /** 重定向目标路径。 */
   redirect?: string | undefined
   /** ref 节点引用的目标节点 ID。 */
@@ -140,7 +91,7 @@ export type ProjectBlueprintTreeNodeData = {
   /** ref 引用是否已失效。 */
   refBroken?: boolean | undefined
   /** pageDesign 实现放行闸门；缺省过渡期为 open。 */
-  implGate?: 'closed' | 'open' | undefined
+  implGate?: ProjectBlueprintImplGate | undefined
   /** 上游 iPaaS / 契约就绪；缺省 true。 */
   upstreamContractsSatisfied?: boolean | undefined
 }
@@ -151,7 +102,7 @@ export type ProjectBlueprintNodePatch = {
   /** 新蓝图业务类型；不得由运行交付投影推断。 */
   blueprintKind?: ProjectBlueprintNodeKind | undefined
   /** 新节点类型。 */
-  nodeKind?: ProjectBlueprintDeliveryKind | undefined
+  nodeKind?: SparkUtils.RuntimeNavigationItemKind | undefined
   /** 新图标名。 */
   icon?: string | undefined
   /** 是否在节点后显示分隔线。 */
@@ -175,11 +126,11 @@ export type ProjectBlueprintNodePatch = {
   /** 新 ref 目标节点 ID。 */
   refId?: string | undefined
   /** 新权限展示策略。 */
-  permissionMode?: ProjectBlueprintPermissionMode | undefined
+  permissionMode?: SparkUtils.PermissionMode | undefined
   /** 新项目蓝图上下文配置。 */
-  context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig | undefined
+  context?: string | SparkUtils.ContextItem[] | SparkUtils.NavigationContextConfig | undefined
   /** 新 pageDesign 实现放行闸门。 */
-  implGate?: 'closed' | 'open' | undefined
+  implGate?: ProjectBlueprintImplGate | undefined
   /** 新上游契约就绪状态。 */
   upstreamContractsSatisfied?: boolean | undefined
 }
@@ -196,7 +147,7 @@ export type ProjectBlueprintTreeNodeLocation = {
 }
 
 export function isProjectBlueprintTreeNodeData(value: unknown): value is ProjectBlueprintTreeNodeData {
-  if (!isRecord(value)) return false
+  if (!SparkUtils.isRecord(value)) return false
   if (typeof value['id'] !== 'string') return false
   if (typeof value['title'] !== 'string') return false
   const children = value['children']
@@ -212,7 +163,7 @@ export type ProjectBlueprintTreeData = Omit<ProjectBlueprintTreeNodeData, 'id' |
   /** 项目标题。 */
   title: string
   /** 项目根节点子级布局区域。 */
-  childPlacement: 'header' | 'sidebar'
+  childPlacement: SparkUtils.NavigationRootPlacement
   /** 项目蓝图根级子节点。 */
   children: ProjectBlueprintTreeNodeData[]
   /** 项目首页路径。 */
@@ -237,7 +188,7 @@ export type ProjectPageNodeSummary = Record<string, unknown> & {
   /** 项目蓝图节点 ID。 */
   nodeId: string
   /** 运行交付投影类型。 */
-  nodeKind: ProjectBlueprintDeliveryKind
+  nodeKind: SparkUtils.RuntimeNavigationItemKind
   /** 模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件 */
   designSurface: ProjectPageSurface
   /** 页面节点自身描述。 */
@@ -249,7 +200,7 @@ export type ProjectPageNodeSummary = Record<string, unknown> & {
   /** 聚合后的有效描述文本，供 AI 理解页面意图。 */
   effectiveDescription: string
   /** 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */
-  implGate?: 'closed' | 'open'
+  implGate?: ProjectBlueprintImplGate
   /** 上游 iPaaS / 契约就绪；缺省 true。 */
   upstreamContractsSatisfied?: boolean
   /** 页面图标名。 */
@@ -267,7 +218,7 @@ export type ProjectBlueprintNodeModelOptions = {
 }
 
 function cloneProjectBlueprintTreeNodeData(node: ProjectBlueprintTreeNodeData): ProjectBlueprintTreeNodeData {
-  const cloned = deepClone(node)
+  const cloned = SparkUtils.deepClone(node)
   delete cloned.children
   return cloned
 }
@@ -316,7 +267,7 @@ toNodeData(): ProjectBlueprintTreeNodeData { return cloneProjectBlueprintTreeNod
     if (!('implGate' in patch)) delete next.implGate
     if (!('upstreamContractsSatisfied' in patch)) delete next.upstreamContractsSatisfied
 
-    Object.assign(next, deepClone(patch))
+    Object.assign(next, SparkUtils.deepClone(patch))
 
     if (!next.icon) delete next.icon
     if (!next.description) delete next.description
@@ -354,7 +305,7 @@ toNodeData(): ProjectBlueprintTreeNodeData { return cloneProjectBlueprintTreeNod
   /** 节点版本号或版本标签。 */
   get version(): string | undefined { return this.#node.version }
   /** 节点类型，未配置时按普通 page 处理。 */
-  get nodeKind(): ProjectBlueprintDeliveryKind { return this.#node.nodeKind ?? 'page' }
+  get nodeKind(): SparkUtils.RuntimeNavigationItemKind { return this.#node.nodeKind ?? 'page' }
   /** 节点路由路径。 */
   get path(): string | undefined { return this.#node.path }
   /** 页面消费的数据空间身份。 */
@@ -368,7 +319,7 @@ toNodeData(): ProjectBlueprintTreeNodeData { return cloneProjectBlueprintTreeNod
   /** 是否在节点后显示分隔线。 */
   get dividerAfter(): boolean { return this.#node.dividerAfter === true }
   /** 子节点布局区域。 */
-  get childPlacement(): ChildPlacement | undefined { return this.#node.childPlacement }
+  get childPlacement(): SparkUtils.NavigationPlacement | undefined { return this.#node.childPlacement }
   /** link 节点的打开目标。 */
   get linkTarget(): ProjectBlueprintTreeNodeData['linkTarget'] | undefined { return this.#node.linkTarget }
   /** 节点是否隐藏。 */
@@ -388,7 +339,7 @@ toNodeData(): ProjectBlueprintTreeNodeData { return cloneProjectBlueprintTreeNod
   /** 项目蓝图上下文配置或选项。 */
   get context(): ProjectBlueprintTreeNodeData['context'] { return this.#node.context }
   /** 权限不匹配时的展示策略。 */
-  get permissionMode(): ProjectBlueprintPermissionMode | undefined { return this.#node.permissionMode }
+  get permissionMode(): SparkUtils.PermissionMode | undefined { return this.#node.permissionMode }
   /** 节点策划详细说明附件引用。 */
   get planningAttachmentRef(): string | undefined { return this.#node.planningAttachmentRef }
   /** pageDesign 实现放行闸门。 */

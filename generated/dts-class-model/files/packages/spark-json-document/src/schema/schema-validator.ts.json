@@ -121,29 +121,11 @@
         },
         "method.formatJsonValidationIssues.return": {
           "type": "string"
-        },
-        "method.formatAiJsonValidationIssues.params": {
-          "type": "object",
-          "properties": {
-            "issues": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/JsonValidationIssue"
-              }
-            },
-            "maxCount": {
-              "type": "number"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.formatAiJsonValidationIssues.return": {
-          "type": "string"
         }
       }
     }
   },
-  "generatedAt": "2026-06-14T20:01:58.513Z",
+  "generatedAt": "2026-08-10T10:01:54.436Z",
   "models": {
     "JsonValidationIssue": {
       "name": "JsonValidationIssue",
@@ -313,33 +295,6 @@
             {
               "name": "formatJsonValidationIssues",
               "jsdoc": "将校验问题格式化为中文诊断字符串。\n默认最多显示 5 条，超出时追加 \"另有 N 个问题\"。",
-              "parameters": [
-                {
-                  "name": "issues",
-                  "type": {
-                    "type": "unknown",
-                    "name": "readonly JsonValidationIssue[]"
-                  }
-                },
-                {
-                  "name": "maxCount",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "number"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "formatAiJsonValidationIssues",
-              "jsdoc": "@deprecated 使用 formatJsonValidationIssues",
               "parameters": [
                 {
                   "name": "issues",

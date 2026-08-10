@@ -166,10 +166,10 @@ function isDataSetContract(value: unknown): value is DataSetContract {
   if (!isRecord(value)) return false
   return typeof value['dataSetName'] === 'string'
     && isRecord(value['tables'])
-    && hasCallable(value, 'getChildRelations')
-    && hasCallable(value, 'getParentRelations')
-    && hasCallable(value, 'getTableChildRelations')
-    && hasCallable(value, 'getTableParentRelations')
+    && hasCallable(value, 'getChildCascades')
+    && hasCallable(value, 'getParentCascades')
+    && hasCallable(value, 'getResourceChildRelations')
+    && hasCallable(value, 'getResourceParentRelations')
     && hasCallable(value, 'addTable')
     && hasCallable(value, 'removeTable')
     && hasCallable(value, 'getTable')

@@ -2,7 +2,7 @@ import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
 import type {
   DataSpaceFieldReference,
   DataSpaceFrontendModelSnapshot,
-  DataSpaceRelationReference,
+  LowcodeModelRelationRecord,
 } from '../data-space.js'
 import type { DataSpaceDesignSnapshot, DataSpaceInputParameter } from './data-space-design-api.js'
 
@@ -33,7 +33,7 @@ export type DataSpaceDesignMutationInput =
   | (DataSpaceDesignMutationBase & Readonly<{
       capability: 'update-relation-reference'
       modelId: string
-      change: DataSpaceRelationReference
+      change: LowcodeModelRelationRecord
     }>)
 
 export type DataSpaceDesignMutationCommand = Readonly<{
@@ -81,8 +81,8 @@ export function prepareDataSpaceDesignMutation(
     if (model === undefined) throw new LowcodeApiError(0, `前端模型不存在：${modelId}`)
     if (input.capability === 'update-relation-reference') {
       const relation = input.change
-      if (relation.sourceModelId !== modelId && relation.targetModelId !== modelId) {
-        throw new LowcodeApiError(0, `关系 ${relation.relationId} 未引用前端模型 ${modelId}`)
+      if (relation.parentModelId !== modelId && relation.childModelId !== modelId) {
+        throw new LowcodeApiError(0, `关系 ${relation.sourceRelationId} 未引用前端模型 ${modelId}`)
       }
     }
   }

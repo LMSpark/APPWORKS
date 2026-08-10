@@ -49,17 +49,20 @@ function createTestDataSet() {
         }
       }
     },
-    tableRelations: [
+    resourceRelations: [
       {
         parentTable: 'Departments',
         childTable: 'Users',
         childField: 'deptId',
       }
     ],
-    viewDependencies: [
+    viewCascades: [
       {
         parentTable: 'Departments',
+        parentViewId: 'default',
         childTable: 'Users',
+        childViewId: 'default',
+        filterBindings: [{ sourceField: 'id', targetField: 'deptId' }],
         dependencyType: 'currentRow',
         autoLoad: false,
       }

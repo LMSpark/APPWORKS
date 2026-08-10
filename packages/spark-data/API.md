@@ -55,7 +55,7 @@ const dataSet = SparkData.createDataSet({
     }
   },
   // 数据关系配置
-  tableRelations: [
+  resourceRelations: [
     {
       parentTable: 'Departments',
       childTable: 'Users',
@@ -64,10 +64,15 @@ const dataSet = SparkData.createDataSet({
       relationName: 'dept-users'
     }
   ],
-  viewDependencies: [
+  viewCascades: [
     {
       parentTable: 'Departments',
+      parentViewId: 'departmentGrid',
       childTable: 'Users',
+      childViewId: 'userGrid',
+      filterBindings: [
+        { sourceField: 'id', targetField: 'departmentId' }
+      ],
       dependencyType: 'currentRow',
       autoLoad: true,
     }
@@ -77,82 +82,51 @@ const dataSet = SparkData.createDataSet({
 
 ---
 
-### 数据关系管理
+### 数据资源关系与 DataView 输入级联
 
-#### DataRelation 配置
+`DataResourceRelation` 和 `DataViewCascade` 是两条独立的合同：前者描述数据资源之间的字段关系，后者描述两个明确 DataView 之间的运行时输入级联。框架不会从其中一条自动推导另一条。
 
-DataRelation 定义父子视图之间的依赖关系，支持级联操作和动态过滤。
-公共辅助函数也遵循同一条规矩：直接接受命名类型对象，而不是匿名 options。
+#### DataResourceRelation 配置
 
-**类型定义：**
 ```typescript
-type DataRelation = {
-  parentTable: string             // 父表名（数据源标识）
-  parentViewId?: string           // 父视图 ID（默认 'default'）
-
-  childTable: string              // 子表名（数据源标识）
-  childViewId?: string            // 子视图 ID（默认 'default'）
-
-  dependencyType: DependencyType  // 依赖类型：'currentRow' | 'selectedRows' | 'allRows' | 'pagedRows'
-  filterExpression: FilterExpression // 过滤表达式，定义如何从父上下文过滤子上下文
-  cascadeUpdate?: boolean         // 是否级联更新
-  cascadeDelete?: boolean         // 是否级联删除
-  autoLoad?: boolean              // 是否自动加载子表数据
-  relationName?: string           // 关系名称，便于引用
+type DataResourceRelation = {
+  relationId?: string
+  sourceRelationId?: string
+  parentTable: string
+  childTable: string
+  parentField?: string
+  childField?: string
+  fieldMappings?: readonly {
+    parentResourceField: string
+    childResourceField: string
+  }[]
+  cascadeUpdate?: boolean
+  cascadeDelete?: boolean
 }
 ```
 
-**依赖类型 (DependencyType)：**
-- `'currentRow'` - 依赖父上下文的当前行
-- `'selectedRows'` - 依赖父上下文的选中行
-- `'allRows'` - 依赖父上下文的全部行
-- `'pagedRows'` - 依赖父上下文的分页行
+`parentTable` / `childTable` 是 DataTable 资源标识。单字段关系可使用 `parentField` / `childField`；复合字段关系使用 `fieldMappings`。
 
-**过滤表达式 (FilterExpression)：**
+#### DataViewCascade 配置
+
 ```typescript
-type FilterExpression =
-  // 单一条件
-  | { field: string; op: FilterOperator; value: unknown }
-  // 逻辑组合
-  | { type: 'and' | 'or'; children: FilterExpression[] }
-  // 函数调用
-  | { func: string; args: unknown[] }
-```
-
-**示例：**
-```typescript
-// 部门-用户主从关系
-{
-  parentTable: 'Departments',
-  parentViewId: 'deptGrid',
-  childTable: 'Users',
-  childViewId: 'userGrid',
-  dependencyType: 'currentRow',
-  filterExpression: {
-    field: 'departmentId',
-    op: '==',
-    value: { func: 'parentRow.id', args: [] }
-  },
-  autoLoad: true,
-  cascadeDelete: true,
-  relationName: 'dept-users'
-}
-
-// 订单-订单明细关系
-{
-  parentTable: 'Orders',
-  childTable: 'OrderDetails',
-  dependencyType: 'selectedRows',
-  filterExpression: {
-    type: 'and',
-    children: [
-      { field: 'orderId', op: 'in', value: { func: 'parentRows.ids', args: [] } },
-      { field: 'status', op: '!=', value: 'cancelled' }
-    ]
-  },
-  autoLoad: false
+type DataViewCascade = {
+  cascadeId?: string
+  sourceRelationId?: string
+  parentTable: string
+  parentViewId: string
+  childTable: string
+  childViewId: string
+  filterBindings: readonly {
+    sourceField: string
+    targetField: string
+  }[]
+  dependencyType?: 'currentRow' | 'selectedRows' | 'allRows' | 'pagedRows'
+  autoLoad?: boolean
 }
 ```
+
+`filterBindings` 是 DataView 输入合同。运行时按 `dependencyType` 读取源 DataView 的行，把 `sourceField` 值转换为目标 DataView 的 `targetField` 查询条件。
 
 #### `SparkData.fromJson(json)`
 

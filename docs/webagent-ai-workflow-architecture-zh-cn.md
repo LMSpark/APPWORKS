@@ -2,7 +2,7 @@
 
 > 状态：架构理念稿  
 > 核心命题：**Workflow 替代 Blueprint；Workflow is the Agent。**  
-> 适用范围：浏览器 WebAgent、LLM SSE 传输、ClassModel 工具运行时、AI 会话持久化。
+> 适用范围：浏览器 WebAgent、lowcode LLM/SSE 传输、ClassModel 工具运行时、AI 会话持久化。
 
 ## 1. 文档目的
 
@@ -11,7 +11,7 @@
 WebAgent 的基本关系是：
 
 ```text
-用户 <=> 浏览器 WebAgent <=> SSE 后端 <=> LLM
+用户 <=> 浏览器 WebAgent <=> lowcode AI gateway <=> LLM
                          |
                          +=> ClassModel / 浏览器业务能力
 ```
@@ -21,7 +21,7 @@ WebAgent 的基本关系是：
 - 浏览器中的 WebAgent 是 Agent 主体和运行时；
 - AI Workflow 是 Agent 的完整、可执行定义；
 - LLM 是可替换的无状态推理能力；
-- 后端是 LLM 网关、SSE 通道和会话持久化服务；
+- lowcode 平台公开 API 提供 LLM 网关、SSE 通道和会话持久化能力；
 - ClassModel 是 WebAgent 向 LLM 提供业务知识与可执行能力的边界；
 - 不使用后端 Node 调度，也不以 Node、Line、DAG 作为 Workflow 的核心语义。
 
@@ -96,7 +96,7 @@ flowchart LR
     U["用户"] <--> WA["浏览器 WebAgent\nWorkflow + Tool Loop"]
     WA --> BR["业务实例与 ClassModel"]
     BR --> WA
-    WA --> GW["后端 LLM 网关\nHTTP ACK + SSE 透传"]
+    WA --> GW["lowcode AI gateway\nHTTP ACK + SSE 透传"]
     GW --> LLM["LLM"]
     LLM --> GW
     GW --> WA
@@ -119,16 +119,16 @@ flowchart LR
 - 将 assistant `tool_calls` 与 tool result 追加到会话；
 - 调用领域完成动作并决定是否收尾。
 
-### 3.2 后端
+### 3.2 lowcode AI 服务
 
-后端 AI 职责保持窄边界：
+AppWorks 浏览器只消费 lowcode 已公开的 AI 能力：
 
 1. 调用 LLM；
 2. 提供 APP 公共 SSE 通信；
 3. 持久化 AI 会话记录；
 4. 提供 AI 会话查询。
 
-后端还必须承担模型密钥保护、鉴权、租户隔离、额度控制和基础审计，但不执行 WebAgent 的业务 Tool Loop，不调度 Workflow Node，也不持有浏览器业务实例。
+模型密钥保护、鉴权、租户隔离、额度控制和基础审计属于 lowcode 服务端；AppWorks 不实现这些服务，也不把业务 Tool Loop、Workflow 调度或浏览器业务实例移入服务端。
 
 ### 3.3 ClassModel
 
@@ -358,7 +358,7 @@ Node A -> Node B -> Node C
 sequenceDiagram
     participant U as 用户
     participant W as 浏览器 WebAgent
-    participant B as SSE 后端
+    participant B as lowcode AI gateway
     participant L as LLM
     participant M as ClassModel/业务实例
 
@@ -426,11 +426,11 @@ APP 公共 SSE 通过 `llm-frame` 传输模型结果：
 
 1. Design 可编辑，Definition 发布后不可变；
 2. Session 固定引用一个 Definition 版本；
-3. 会话历史保存在后端，浏览器保存当前运行态；
+3. 会话历史由 lowcode 平台保存，浏览器保存当前运行态；
 4. 业务状态属于业务实例，不复制进 AI 会话作为第二事实源；
 5. SSE 帧是瞬时传输数据，不是权威存储；
 6. 工具调用和工具结果必须成对落入会话历史；
-7. 模型密钥只在后端保存。
+7. 模型密钥只由 lowcode 平台服务端保存。
 
 ### 6.2 Workflow Design
 
@@ -475,7 +475,7 @@ agent_workflow_definition
 
 ### 6.4 Session 与消息
 
-后端保存模型会话，以支持完整上下文、断线恢复和审计：
+lowcode 平台保存模型会话，以支持完整上下文、断线恢复和审计：
 
 ```text
 agent_session
@@ -539,9 +539,9 @@ abort / timeout controller
 - script marker 禁止项；
 - 完成动作校验。
 
-### 7.2 后端底线
+### 7.2 lowcode 服务端底线
 
-即使后端以透传为主，也必须保留不可绕过的基础保护：
+即使 lowcode AI gateway 以透传为主，也必须保留不可绕过的基础保护：
 
 - 身份认证与租户隔离；
 - LLM API Key 隔离；
@@ -551,7 +551,7 @@ abort / timeout controller
 - session 访问控制；
 - 请求和错误审计。
 
-浏览器门禁保护业务，后端门禁保护基础设施。二者职责不同，不互相替代。
+浏览器门禁保护业务，lowcode 服务端门禁保护基础设施。二者职责不同，不互相替代。
 
 ## 8. 与传统 Blueprint 的比较
 
@@ -577,7 +577,7 @@ WebAgent AI Workflow 的优势不是多一份配置，而是把 Agent 从“提�
 当前仓库已经具备：
 
 - 浏览器 `AiAgentHost` 与 Tool Loop；
-- 后端 LLM 调用、SSE 和会话持久化；
+- lowcode LLM 调用、SSE 和会话持久化接入；
 - `llm-frame` 中性传输帧；
 - ClassModel 七工具闭集；
 - `model_script` 本地业务实例执行；
@@ -627,9 +627,9 @@ BlueprintRun
 - session append；
 - `agent_complete`。
 
-### 10.3 不把后端升级为 Workflow Engine
+### 10.3 不把 lowcode 服务升级为 Workflow Engine
 
-移除 Node/Graph 后，不应在 Java 后端重新实现调度器。后端仍然只提供 LLM、SSE、会话和查询能力。
+移除 Node/Graph 后，不在 AppWorks 新建调度服务，也不要求修改 lowcode-jdk17；浏览器继续通过公开 LLM、SSE、会话和查询合同运行。
 
 ### 10.4 不用 Prompt 替代契约
 
@@ -649,7 +649,7 @@ Prompt 只表达自然语言目标和行为提示。
 
 WebAgent AI Workflow 的正式定义可以概括为：
 
-> **AI Workflow 是浏览器 WebAgent 驱动 LLM 完成一个业务目标所需的完整、可版本化、可执行交互协议。它统一表达 Agent 的目标、输入、指令、知识、工具、权限、工具循环、完成条件和输出契约，替代传统静态 Blueprint。浏览器 WebAgent 是运行时，后端是 LLM/SSE/会话网关，LLM 是可替换的推理引擎，ClassModel 是可验证的业务能力边界。**
+> **AI Workflow 是浏览器 WebAgent 驱动 LLM 完成一个业务目标所需的完整、可版本化、可执行交互协议。它统一表达 Agent 的目标、输入、指令、知识、工具、权限、工具循环、完成条件和输出契约，替代传统静态 Blueprint。浏览器 WebAgent 是运行时，lowcode 平台提供 LLM/SSE/会话网关，LLM 是可替换的推理引擎，ClassModel 是可验证的业务能力边界。**
 
 最终运行关系只有：
 
@@ -659,7 +659,7 @@ AI Workflow Design
 AI Workflow Definition
         -> 浏览器加载
 WebAgent Tool Loop
-        <=> SSE 后端
+        <=> lowcode AI gateway
         <=> LLM
         <=> ClassModel / 当前业务实例
 ```
@@ -671,7 +671,7 @@ Workflow is the Agent.
 Browser is the Runtime.
 LLM is the Reasoner.
 ClassModel is the Capability Boundary.
-SSE Backend is the Gateway.
+Lowcode AI Service is the Gateway.
 ```
 
 ## 12. 当前事实源

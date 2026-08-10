@@ -19,7 +19,7 @@
  * │ 7. 过滤 & 排序             FilterExpression, SortExpression      │
  * │ 8. 视图级元数据            ViewMetadata, AggregateType           │
  * │ 9. 树结构配置             TreeConfig, 树节点类型                 │
- * │ 10. 表关系 & 视图联动      TableRelation, ViewDependency, DataRelation │
+ * │ 10. 资源关系 & 视图级联    DataResourceRelation, DataViewCascade       │
  * │ 11. 请求状态 & 提交模式     RequestState, CommitMode             │
  * │ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │
  * │ 13. 数据源契约             DataSource, ViewChangeHandlers         │
@@ -223,7 +223,7 @@ export type DataColumn = {
    *
    * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，
    * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。
-   * 当前源码按 TableRelation 的 `childTable` 匹配子表 default 视图。
+   * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。
    * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。
    *
    * @example
@@ -660,6 +660,29 @@ export type AggregateColumnConfig = {
   /** join 聚合分隔符（默认 ', '），仅 type='join' 时有效 */
   separator?: string}
 
+/** DataView 对一个 DataTable 资源字段或派生字段的稳定投影。 */
+export type DataViewFieldProjection = Readonly<{
+  fieldId: string
+  source: 'resource' | 'derived'
+  resourceFieldId: string | null
+  resourceField: string
+  viewField: string
+  type: ColumnType
+  label: string
+  output: boolean
+  sortOrder: number
+  sortDirection: SortDirection | null
+  group: number
+  distinct: boolean
+  primaryKey: boolean
+  value: string
+  valueFunction: string
+  expression: string
+}>
+
+/** 后端无关的视图查询上下文；具体适配器解释其中的身份和输入参数。 */
+export type DataViewQueryContext = Readonly<Record<string, unknown>>
+
 /**
  * 数据视图元数据
  *
@@ -672,6 +695,10 @@ export type ViewMetadata = {
   tableName?: string
   /** 视图 ID */
   viewId?: string
+  /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */
+  fieldProjection?: readonly DataViewFieldProjection[]
+  /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */
+  queryContext?: DataViewQueryContext
   /**
    * 视图行数据。
    *
@@ -815,18 +842,18 @@ export type NestedTreeSearchResult = {
   path: FlatTreeNode[]}
 
 // ═══════════════════════════════════════════════════════
-// 10. 表关系 & 视图联动
+// 10. 数据资源关系 & DataView 输入级联
 //
-// L1: TableRelation 声明表间外键/逻辑关联（数据 Schema）
-// L2: ViewDependency 声明视图级联动策略（View Schema）
-// 内部: DataRelation 是二者合并后的字段绑定结果
+// DataResourceRelation 只声明资源间字段关系（数据 Schema）。
+// DataViewCascade 只声明视图输入联动（UI/运行 Schema）。
+// 两类关系分别索引、分别消费，不再合并成第三种关系。
 // ═══════════════════════════════════════════════════════
 
 /**
- * 表关系 — 声明两张表之间的外键/逻辑关联。
+ * 数据资源关系 — 声明两个 DataTable 所对应资源之间的字段关系。
  *
  * 纯数据结构描述，不涉及 UI 联动。
- * 消费者：计算列聚合函数（$sum/$count）、内存级联过滤、API 请求参数构建。
+ * 消费者：计算列聚合函数（$sum/$count）、提交排序与资源结构设计。
  *
  * SQL 等价：
  * ```sql
@@ -839,7 +866,16 @@ export type NestedTreeSearchResult = {
  * { "parentTable": "Users", "childTable": "Orders", "childField": "userId" }
  * ```
  */
-export type TableRelation = {
+export type DataResourceRelationFieldMapping = Readonly<{
+  parentResourceField: string
+  childResourceField: string
+}>
+
+export type DataResourceRelation = {
+  /** AppWorks 关系身份；外部适配关系应提供稳定值。 */
+  relationId?: string
+  /** 原始平台关系 ID，仅用于来源追踪。 */
+  sourceRelationId?: string
   /** 关系名称（可选，用于日志和调试） */
   relationName?: string
   /** 父表名 */
@@ -852,6 +888,9 @@ export type TableRelation = {
   childField?: string
   /** 父表匹配字段（默认取父表 primaryKey，通常 'id'） */
   parentField?: string
+
+  /** 资源字段映射；复合关系必须使用此集合。 */
+  fieldMappings?: readonly DataResourceRelationFieldMapping[]
 
   // ── 完整条件（与 childField/parentField 互斥，后续迭代定义具体结构）──
   /**
@@ -870,9 +909,9 @@ export type TableRelation = {
   cascadeDelete?: boolean}
 
 /**
- * 子表 default 视图响应父表 default 视图的数据变化触发源。
+ * 目标 DataView 响应源 DataView 数据变化的触发源。
  *
- * 配置在 `ViewDependency.dependencyType`，决定父表 default 视图"哪种数据变化"会触发子表 default 视图重新级联加载。
+ * 配置在 `DataViewCascade.dependencyType`，决定源 DataView 的哪种数据变化会触发目标 DataView 重新查询。
  *
  * - `'currentRow'`   — 父表 default 视图当前聚焦行变化时触发（默认值）；子表 default 视图用当前行主键过滤
  * - `'selectedRows'` — 父表 default 视图选中行集合变化时触发；子表 default 视图用所有选中行的主键 in-list 过滤
@@ -887,58 +926,58 @@ export type DependencyType =
   | (string & {})
 
 /**
- * 视图依赖 — 声明子表 default 视图如何响应父表 default 视图数据变化。
+ * DataView 输入级联 — 显式声明源/目标 DataView 和字段过滤绑定。
  *
- * 基于 TableRelation 的字段信息工作，独立描述视图层面的联动策略。
- * 省略 `viewDependencies` 时框架为每条 TableRelation 自动生成默认依赖。
+ * 它与 DataResourceRelation 独立，不从资源关系自动推导。
  *
  * @example
  * ```json
  * {
  *   "parentTable": "Users", "childTable": "Orders",
+ *   "parentViewId": "userGrid",
+ *   "childViewId": "orderGrid",
+ *   "filterBindings": [{ "sourceField": "id", "targetField": "userId" }],
  *   "dependencyType": "selectedRows"
  * }
  * ```
  */
-export type ViewDependency = {
-  /** 与 TableRelation 对齐的父表名 */
-  parentTable: string
-  /** 与 TableRelation 对齐的子表名 */
-  childTable: string
-  /** 响应父表 default 视图的哪种数据变化（默认 'currentRow'） */
-  dependencyType?: DependencyType
-  /** 父表 default 视图变化时是否自动级联加载子表 default 视图（默认 true） */
-  autoLoad?: boolean}
+export type DataViewCascadeFilterBinding = Readonly<{
+  /** 从源 DataView 行读取的字段。 */
+  sourceField: string
+  /** 作为目标 DataView 查询过滤条件的字段。 */
+  targetField: string
+}>
 
-/**
- * 展开后的内部关系格式 — TableRelation + ViewDependency 合并后的字段绑定结果。
- *
- * @internal 仅供 spark-data 内部消费（CascadeDelegate / DataView）。
- * 外部配置使用 `TableRelation` + `ViewDependency`。
- */
-export type DataRelation = {
-  /** 父表名 */
+/** DataView 输入级联；不引用 DataResourceRelation。 */
+export type DataViewCascade = {
+  /** AppWorks 级联身份。 */
+  cascadeId?: string
+  /** 原始平台关系 ID，仅用于来源追踪。 */
+  sourceRelationId?: string
+  /** 源 DataTable 名。 */
   parentTable: string
-  /** 父视图 ID */
-  parentViewId?: string
-  /** 子表名 */
+  /** 源 DataView ID。 */
+  parentViewId: string
+  /** 目标 DataTable 名。 */
   childTable: string
-  /** 子视图 ID */
-  childViewId?: string
-  /** 父表中用于匹配的字段（默认取父视图 primaryKey，通常为 'id'） */
-  parentField?: string
-  /** 子表中用于匹配的字段（简写模式必填） */
-  childField?: string
-  /** 依赖类型（默认 'currentRow'） */
+  /** 目标 DataView ID。 */
+  childViewId: string
+  /** 源字段到目标过滤字段的绑定。 */
+  filterBindings: readonly DataViewCascadeFilterBinding[]
+  /** 响应源视图的哪种数据变化（默认 'currentRow'）。 */
   dependencyType?: DependencyType
-  /** 父表记录更新时是否级联更新子表 */
-  cascadeUpdate?: boolean
-  /** 父表记录删除时是否级联删除子表 */
-  cascadeDelete?: boolean
-  /** 父变化时是否自动级联加载子视图（默认 true——仅 `false` 时跳过） */
+  /** 源变化时是否自动重新查询目标视图（默认 true）。 */
   autoLoad?: boolean
-  /** 关系名称（可选，用于日志和调试） */
-  relationName?: string}
+}
+
+/** 唯一定位一个 DataView 输入级联。 */
+export type DataViewCascadeSelector = Readonly<{
+  parentTable: string
+  parentViewId: string
+  childTable: string
+  childViewId: string
+  cascadeId?: string
+}>
 
 // ═══════════════════════════════════════════════════════
 // 11. 请求状态 & 提交模式
@@ -1009,10 +1048,10 @@ export type DataSetMetadata = {
   /** 表集合（表名 -> 表元数据） */
   tables: Record<string, TableMetadata>
 
-  /** L1: 表关系 — 声明表间外键/逻辑关联 */
-  tableRelations?: TableRelation[]
-  /** L2: 显式视图联动 — 声明运行时依赖图；不再从 tableRelations 自动推导 */
-  viewDependencies?: ViewDependency[]
+  /** 数据资源关系 — 声明 DataTable 所对应资源间的字段关系 */
+  resourceRelations?: DataResourceRelation[]
+  /** DataView 输入级联 — 显式声明运行时输入图；不从 resourceRelations 自动推导 */
+  viewCascades?: DataViewCascade[]
   /** 业务数据版本号（乐观锁），与 schemaVersion 含义不同 */
   version?: number
   /** 页面 ID */
@@ -1053,7 +1092,7 @@ export type DataSetAppServices = {
  *
  * 1. 行级计算列：`columns[].computeExpression` 对每一行求值，结果写回该行字段。
  *    表达式可直接读取行字段，可通过 `ctx` 读取外部上下文，也可通过
- *    `$sum/$count/$avg/$min/$max/$list/$join` 读取 DataRelation 匹配到的子表行。
+ *    `$sum/$count/$avg/$min/$max/$list/$join` 读取 DataResourceRelation 匹配到的子资源行。
  * 2. 视图级聚合配置：定义在 `ViewMetadata.aggregates`，不是 `DataSource` 字段。
  *    每个输出项包含 `type / field / separator` 等后端 API 认得的规则信息。
  * 3. 运行时聚合结果：`aggregateResult` 基于当前 `rows` 计算，`selectionAggregateResult`
@@ -1203,10 +1242,10 @@ export type DataSetContract = {
   readonly dataSetName: string
   /** 数据表集合 */
   readonly tables: Record<string, DataTable>
-  /** L1: 表关系定义 */
-  readonly tableRelations: TableRelation[] | undefined
-  /** L2: 视图联动定义 */
-  readonly viewDependencies: ViewDependency[] | undefined
+  /** 数据资源关系定义 */
+  readonly resourceRelations: DataResourceRelation[] | undefined
+  /** DataView 输入级联定义 */
+  readonly viewCascades: DataViewCascade[] | undefined
   /** Schema 格式版本（默认 1） */
   readonly schemaVersion: number
   /** 业务数据版本号（乐观锁） */
@@ -1214,60 +1253,59 @@ export type DataSetContract = {
   /** 页面 ID */
   readonly pageId: string | undefined
 
-  /** 查询以指定视图为父的子关系（视图级索引） */
-  getChildRelations(parentTable: string, parentViewId: string): DataRelation[]
-  /** 查询以指定视图为子的父关系（视图级索引） */
-  getParentRelations(childTable: string, childViewId: string): DataRelation[]
-  /** 查询以指定表为父的所有表关系（表级索引，聚合函数消费） */
-  getTableChildRelations(parentTable: string): TableRelation[]
-  /** 查询以指定表为子的所有表关系（表级索引） */
-  getTableParentRelations(childTable: string): TableRelation[]
+  /** 查询以指定 DataView 为源的目标级联（视图级索引） */
+  getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[]
+  /** 查询以指定 DataView 为目标的源级联（视图级索引） */
+  getParentCascades(childTable: string, childViewId: string): DataViewCascade[]
+  /** 查询以指定资源为父的所有资源关系（聚合函数消费） */
+  getResourceChildRelations(parentTable: string): DataResourceRelation[]
+  /** 查询以指定资源为子的所有资源关系 */
+  getResourceParentRelations(childTable: string): DataResourceRelation[]
   /** 动态添加数据表 */
   addTable(tableName: string, columns: DataColumn[]): DataTable
   /** 删除未被关系或依赖引用的数据表 */
   removeTable(tableName: string): void
-  /** 添加表关系 */
-  addRelation(params: {
+  /** 添加数据资源关系 */
+  addResourceRelation(params: {
     parentTable: string
     childTable: string
     parentField: string
     childField: string
     relationName?: string
   }): void
-  /** 更新表关系 */
-  updateRelation(
+  /** 更新数据资源关系 */
+  updateResourceRelation(
     selector: {
       parentTable: string
       childTable: string
       parentField?: string
       childField?: string
     },
-    updates: Partial<TableRelation>,
-  ): TableRelation
-  /** 删除表关系 */
-  removeRelation(selector: {
+    updates: Partial<DataResourceRelation>,
+  ): DataResourceRelation
+  /** 删除数据资源关系 */
+  removeResourceRelation(selector: {
     parentTable: string
     childTable: string
     parentField?: string
     childField?: string
   }): void
-  /** 添加视图依赖 */
-  addDependency(dependency: ViewDependency): void
-  /** 更新视图依赖 */
-  updateDependency(
-    parentTable: string,
-    childTable: string,
-    updates: Partial<ViewDependency>,
-  ): ViewDependency
-  /** 删除视图依赖 */
-  removeDependency(parentTable: string, childTable: string): void
-  /** 将运行时关系解析为目标视图过滤表达式；返回 null 表示父视图依赖不满足 */
-  resolveDependencyFilter(rel: DataRelation): FilterExpression | undefined | null
+  /** 添加 DataView 输入级联 */
+  addCascade(cascade: DataViewCascade): void
+  /** 更新 DataView 输入级联 */
+  updateCascade(
+    selector: DataViewCascadeSelector,
+    updates: Partial<DataViewCascade>,
+  ): DataViewCascade
+  /** 删除 DataView 输入级联 */
+  removeCascade(selector: DataViewCascadeSelector): void
+  /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */
+  resolveCascadeFilter(rel: DataViewCascade): FilterExpression | undefined | null
   /** 获取数据表 */
   getTable(name: string): DataTable | undefined
   /** 获取数据视图（委托到 DataTable） */
   getView(tableName: string, viewId?: string): DataView | undefined
-  /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按表关系父表先于子表提交所有有变更视图 */
+  /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按数据资源关系父资源先于子资源提交所有有变更视图 */
   saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>
   /** 注入页面运行时服务（用于 URL 模板 tenant/project 作用域解析） */
   setAppServices(appServices: DataSetAppServices): void
@@ -1492,6 +1530,10 @@ export type QueryParams = {
   viewId?: string
   /** 视图配置 */
   viewConfig?: ViewMetadata
+  /** 当前 DataView 的字段投影。 */
+  projection?: readonly DataViewFieldProjection[]
+  /** 当前 DataView 的运行查询上下文。 */
+  context?: DataViewQueryContext
   /** 树模式 */
   treeMode?: 'flat' | 'nested'
   /** 父节点 ID */
@@ -1536,7 +1578,7 @@ export type CrudOperationConfig = {
   /** 请求数据转换函数 */
   transformRequest?: (data: unknown) => unknown
   /** 响应数据转换函数 */
-  transformResponse?: (data: unknown) => unknown}
+  transformResponse?: (data: unknown, request: unknown) => unknown}
 /** 后端最终返回的五个稀疏权限集合；字段集合互相独立，不得压缩为枚举。 */
 export type DataPermissionSets = Readonly<{
   r: readonly string[]
@@ -1562,3 +1604,6 @@ export type DataPermissionSnapshotInput = DataPermissionSnapshot & Readonly<{
   rows: readonly DataRow[]
   total: number
 }>
+
+/** DataView 查询的原子结果：数据、原始行、总数、身份与权限必须来自同一次响应。 */
+export type DataViewQueryResult = DataPermissionSnapshotInput

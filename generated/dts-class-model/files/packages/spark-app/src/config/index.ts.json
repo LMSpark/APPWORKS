@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-app/src/config/index.ts",
     "packageName": "@spark-appworks/spark-app",
     "modulePath": "config/index",
-    "jsdoc": "@module @spark-appworks/spark-app:config/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nConfiguration Manager\n配置管理（环境变量 + 远程配置 + 多租户）",
+    "jsdoc": "@module @spark-appworks/spark-app:config/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nConfiguration helpers for an explicit application composition root.",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-06-11T12:48:50.937Z",
+  "generatedAt": "2026-08-10T01:24:29.336Z",
   "models": {}
 }

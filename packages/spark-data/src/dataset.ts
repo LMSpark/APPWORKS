@@ -6,7 +6,8 @@
  */
 
 import type {
-  DataSetContract, DataSetMetadata, TableMetadata, DataRelation, TableRelation, ViewDependency, DataRow, DataColumn,
+  DataSetContract, DataSetMetadata, TableMetadata, DataResourceRelation, DataViewCascade,
+  DataViewCascadeSelector, DataRow, DataColumn,
   ColumnType, ViewChangeHandlers, FilterExpression, FilterValueExpression, CrudResult,
   DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult,
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
@@ -130,9 +131,9 @@ tables: Record<string, TableMetadata>
     /** schema Version 字段。 */
 schemaVersion?: number | undefined
     /** table Relations 字段。 */
-tableRelations?: TableRelation[] | undefined
+resourceRelations?: DataResourceRelation[] | undefined
     /** view Dependencies 字段。 */
-viewDependencies?: ViewDependency[] | undefined
+viewCascades?: DataViewCascade[] | undefined
     /** version 字段。 */
 version?: number | undefined
     /** page Id 标识。 */
@@ -213,32 +214,44 @@ function normalizeTableMap(rawTables: unknown): Record<string, TableMetadata> {
   return normalizedTables
 }
 
-function isTableRelation(value: unknown): value is TableRelation {
+function isDataResourceRelation(value: unknown): value is DataResourceRelation {
   const record = asRecord(value)
   return record !== null
     && typeof record['parentTable'] === 'string'
     && typeof record['childTable'] === 'string'
 }
 
-function readTableRelations(value: unknown): TableRelation[] | undefined {
+function readResourceRelations(value: unknown): DataResourceRelation[] | undefined {
   if (value === undefined) return undefined
-  if (!Array.isArray(value) || !value.every(isTableRelation)) {
-    throw new Error('DataSet.fromJson: tableRelations 必须是 TableRelation 数组')
+  if (!Array.isArray(value) || !value.every(isDataResourceRelation)) {
+    throw new Error('DataSet.fromJson: resourceRelations 必须是 DataResourceRelation 数组')
   }
   return value
 }
 
-function isViewDependency(value: unknown): value is ViewDependency {
+function isDataViewCascade(value: unknown): value is DataViewCascade {
   const record = asRecord(value)
   return record !== null
     && typeof record['parentTable'] === 'string'
+    && typeof record['parentViewId'] === 'string'
     && typeof record['childTable'] === 'string'
+    && typeof record['childViewId'] === 'string'
+    && Array.isArray(record['filterBindings'])
+    && record['filterBindings'].length > 0
+    && record['filterBindings'].every((binding) => {
+      const bindingRecord = asRecord(binding)
+      return bindingRecord !== null
+        && typeof bindingRecord['sourceField'] === 'string'
+        && bindingRecord['sourceField'].trim() !== ''
+        && typeof bindingRecord['targetField'] === 'string'
+        && bindingRecord['targetField'].trim() !== ''
+    })
 }
 
-function readViewDependencies(value: unknown): ViewDependency[] | undefined {
+function readViewCascades(value: unknown): DataViewCascade[] | undefined {
   if (value === undefined) return undefined
-  if (!Array.isArray(value) || !value.every(isViewDependency)) {
-    throw new Error('DataSet.fromJson: viewDependencies 必须是 ViewDependency 数组')
+  if (!Array.isArray(value) || !value.every(isDataViewCascade)) {
+    throw new Error('DataSet.fromJson: viewCascades 必须是 DataViewCascade 数组')
   }
   return value
 }
@@ -295,11 +308,11 @@ function buildCanonicalDataSetConfig(rawJson: Record<string, unknown>): DataSetC
     tables: normalizeTableMap(rawJson['tables']),
   }
 
-  const tableRelations = readTableRelations(rawJson['tableRelations'])
-  if (tableRelations !== undefined) config.tableRelations = tableRelations
+  const resourceRelations = readResourceRelations(rawJson['resourceRelations'])
+  if (resourceRelations !== undefined) config.resourceRelations = resourceRelations
 
-  const viewDependencies = readViewDependencies(rawJson['viewDependencies'])
-  if (viewDependencies !== undefined) config.viewDependencies = viewDependencies
+  const viewCascades = readViewCascades(rawJson['viewCascades'])
+  if (viewCascades !== undefined) config.viewCascades = viewCascades
 
   if (typeof rawJson['schemaVersion'] === 'number') config.schemaVersion = rawJson['schemaVersion']
   if (typeof rawJson['version'] === 'number') config.version = rawJson['version']
@@ -339,81 +352,6 @@ function buildDataSetHistoryScope(
   }
 }
 
-/**
- * @internal 自动推导视图联动。
- *
- * - viewDependencies 未提供：每条 tableRelation 生成默认视图联动。
- * - viewDependencies 显式提供：使用显式列表，未覆盖的 tableRelation 仍自动推导。
- * - viewDependencies: []：明确无视图联动。
- */
-function deriveViewDependencies(
-  tableRelations: TableRelation[],
-  explicit: ViewDependency[] | undefined,
-): ViewDependency[] {
-  if (explicit?.length === 0) return []
-
-  const result: ViewDependency[] = explicit ? [...explicit] : []
-  const covered = new Set<string>()
-  for (const vd of result) {
-    covered.add(`${vd.parentTable}:${vd.childTable}`)
-  }
-
-  for (const tr of tableRelations) {
-    const key = `${tr.parentTable}:${tr.childTable}`
-    if (!covered.has(key)) {
-      result.push({
-        parentTable: tr.parentTable,
-        childTable: tr.childTable,
-        dependencyType: 'currentRow',
-        autoLoad: true,
-      })
-    }
-  }
-
-  return result
-}
-
-/**
- * @internal 将 TableRelation + ViewDependency 展开为内部扁平 DataRelation（供 CascadeDelegate / DataView 消费）。
- */
-function expandRelations(
-  tableRelations: TableRelation[],
-  viewDependencies: ViewDependency[],
-  ds: DataSet,
-): DataRelation[] {
-  const trMap = new Map<string, TableRelation>()
-  for (const tr of tableRelations) {
-    trMap.set(`${tr.parentTable}:${tr.childTable}`, tr)
-  }
-
-  return viewDependencies.map((vd): DataRelation => {
-    const tr = trMap.get(`${vd.parentTable}:${vd.childTable}`)
-    const dependencyType = vd.dependencyType ?? 'currentRow'
-
-    let parentField = tr?.parentField
-    if (!parentField) {
-      const parentView = ds.getView(vd.parentTable, 'default')
-      if (parentView) parentField = parentView.primaryKey
-      parentField = parentField ?? 'id'
-    }
-
-    const relation: DataRelation = {
-      parentTable: vd.parentTable,
-      childTable: vd.childTable,
-      parentViewId: 'default',
-      childViewId: 'default',
-      parentField,
-      dependencyType,
-    }
-    if (tr?.childField !== undefined) relation.childField = tr.childField
-    if (vd.autoLoad !== undefined) relation.autoLoad = vd.autoLoad
-    if (tr?.cascadeUpdate !== undefined) relation.cascadeUpdate = tr.cascadeUpdate
-    if (tr?.cascadeDelete !== undefined) relation.cascadeDelete = tr.cascadeDelete
-    if (tr?.relationName !== undefined) relation.relationName = tr.relationName
-    return relation
-  })
-}
-
 /** Data Set 的语义模型。 */
 export class DataSet extends SparkAIModel implements DataSetContract {
 
@@ -425,17 +363,11 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   /** 数据表集合 */
   tables: Record<string, DataTable> = {}
 
-  /** L1: 表关系定义 */
-  tableRelations: TableRelation[] | undefined
+  /** 数据资源关系定义 */
+  resourceRelations: DataResourceRelation[] | undefined
 
-  /** L2: 视图联动定义 */
-  viewDependencies: ViewDependency[] | undefined
-
-  /**
-   * @internal 展开后的内部扁平关系（TableRelation + ViewDependency 合并）。
-   * CascadeDelegate / DataView / ComputedColumnDelegate 消费此结构。
-   */
-  _resolvedRelations: DataRelation[] | undefined
+  /** DataView 输入级联定义 */
+  viewCascades: DataViewCascade[] | undefined
 
   /** Schema 格式版本（默认 1） */
   schemaVersion = 2
@@ -465,15 +397,15 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   /** @internal 页面路由快照（页面运行时服务缺失时的作用域兜底） */
   _pageRoute?: unknown
 
-  /** @internal 关系索引（视图级）：parentTable:parentViewId → children relations */
-  private _childRelIdx = new Map<string, DataRelation[]>()
-  /** @internal 关系索引（视图级）：childTable:childViewId → parent relations */
-  private _parentRelIdx = new Map<string, DataRelation[]>()
+  /** @internal DataView 级联索引：parentTable:parentViewId → target cascades */
+  private _childCascadeIdx = new Map<string, DataViewCascade[]>()
+  /** @internal DataView 级联索引：childTable:childViewId → source cascades */
+  private _parentCascadeIdx = new Map<string, DataViewCascade[]>()
 
-  /** @internal 关系索引（表级）：parentTable → TableRelation[]（聚合函数消费） */
-  private _tableChildIdx = new Map<string, TableRelation[]>()
-  /** @internal 关系索引（表级）：childTable → TableRelation[]  */
-  private _tableParentIdx = new Map<string, TableRelation[]>()
+  /** @internal 资源关系索引：parentTable → DataResourceRelation[]（聚合函数消费） */
+  private _resourceChildRelationIdx = new Map<string, DataResourceRelation[]>()
+  /** @internal 资源关系索引：childTable → DataResourceRelation[] */
+  private _resourceParentRelationIdx = new Map<string, DataResourceRelation[]>()
 
   // ===== 动态视图订阅追踪 =====
 
@@ -514,8 +446,8 @@ export class DataSet extends SparkAIModel implements DataSetContract {
       dataSetName: config.dataSetName,
       tables: config.tables,
       schemaVersion: config.schemaVersion ?? 2,
-      ...(config.tableRelations !== undefined ? { tableRelations: config.tableRelations } : {}),
-      ...(config.viewDependencies !== undefined ? { viewDependencies: config.viewDependencies } : {}),
+      ...(config.resourceRelations !== undefined ? { resourceRelations: config.resourceRelations } : {}),
+      ...(config.viewCascades !== undefined ? { viewCascades: config.viewCascades } : {}),
       ...(config.version !== undefined ? { version: config.version } : {}),
       ...(config.pageId !== undefined ? { pageId: config.pageId } : {}),
       ...(config.saveChanges !== undefined ? { saveChanges: config.saveChanges } : {}),
@@ -792,139 +724,125 @@ getRequestTemplateParams(): Record<string, unknown> {
   // ===== 关系图查询（网状关系，非树形） =====
 
   /**
-   * 查询以指定视图为父的子关系（视图级索引）
+   * 查询以指定 DataView 为源的目标级联（视图级索引）
    * @param parentTable 父表名
    * @param parentViewId 父视图ID
    */
-  getChildRelations(parentTable: string, parentViewId: string): DataRelation[] {
-    return this._childRelIdx.get(`${parentTable}:${parentViewId}`) ?? []
+  getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[] {
+    return this._childCascadeIdx.get(`${parentTable}:${parentViewId}`) ?? []
   }
 
   /**
-   * 查询以指定视图为子的父关系（视图级索引）
+   * 查询以指定 DataView 为目标的源级联（视图级索引）
    * @param childTable 子表名
    * @param childViewId 子视图ID
    */
-  getParentRelations(childTable: string, childViewId: string): DataRelation[] {
-    return this._parentRelIdx.get(`${childTable}:${childViewId}`) ?? []
+  getParentCascades(childTable: string, childViewId: string): DataViewCascade[] {
+    return this._parentCascadeIdx.get(`${childTable}:${childViewId}`) ?? []
   }
 
-    /** 解析 Dependency Filter。 */
-resolveDependencyFilter(rel: DataRelation): FilterExpression | undefined | null {
-    const parentView = this.getView(rel.parentTable, rel.parentViewId ?? 'default')
+  /** 将 DataView 输入级联解析为目标视图过滤表达式。 */
+  resolveCascadeFilter(rel: DataViewCascade): FilterExpression | undefined | null {
+    const parentView = this.getView(rel.parentTable, rel.parentViewId)
     if (!parentView) return null
 
     const parentRows = getParentRows(parentView, rel.dependencyType ?? 'currentRow')
     const parentReady = parentView.requestState === RequestState.Loaded || parentView.rows.length > 0
     if (!parentReady || parentRows.length === 0) return null
 
-    const parentKey = typeof rel.parentField === 'string' ? rel.parentField : parentView.primaryKey
-    const childKey = typeof rel.childField === 'string' ? rel.childField : parentKey
+    const filters: FilterExpression[] = []
+    for (const binding of rel.filterBindings) {
+      const isComputedField = parentView.columns.some(
+        column => column.name === binding.sourceField && column.computeExpression !== undefined,
+      )
+      const values: Array<Exclude<FilterValueExpression, FilterValueExpression[]>> = []
+      const seen = new Set<unknown>()
 
-    // 检查父字段是否为计算列（computeExpression），已定义但尚未求值时可优雅降级
-    const isComputedField = parentView.columns.some(c => c.name === parentKey && c.computeExpression !== undefined)
-
-    const values: Array<Exclude<FilterValueExpression, FilterValueExpression[]>> = []
-    const seen = new Set<unknown>()
-    for (const row of parentRows) {
-      if (parentKey in row) {
-        const v = row[parentKey]
-        if (v === undefined) {
-          if (!isComputedField) {
-            throw new Error(`远端关系过滤字段 "${parentKey}" 解析为 undefined [${rel.childTable}:${rel.childViewId ?? 'default'}]`)
+      for (const row of parentRows) {
+        if (binding.sourceField in row) {
+          const value = row[binding.sourceField]
+          if (value === undefined) {
+            if (!isComputedField) {
+              throw new Error(`远端级联过滤字段 "${binding.sourceField}" 解析为 undefined [${rel.childTable}:${rel.childViewId}]`)
+            }
+            continue
           }
-          // 计算列字段为 undefined 时跳过（可能尚未求值完成），等待下次级联重试
-          continue
+          if (!seen.has(value)) {
+            seen.add(value)
+            values.push(toFilterScalar(value, binding.sourceField))
+          }
+        } else if (!isComputedField) {
+          throw new Error(`远端级联过滤引用了不存在的源字段 "${binding.sourceField}" [${rel.childTable}:${rel.childViewId}]`)
         }
-        if (!seen.has(v)) {
-          seen.add(v)
-          values.push(toFilterScalar(v, parentKey))
-        }
+      }
+
+      if (values.length === 0) return null
+
+      if (values.length > 1) {
+        filters.push({ field: binding.targetField, op: 'in', value: values })
       } else {
-        if (!isComputedField) {
-          throw new Error(`远端关系过滤引用了不存在的父字段 "${parentKey}" [${rel.childTable}:${rel.childViewId ?? 'default'}]`)
-        }
-        // 计算列字段缺失时跳过，等待下次级联重试
+        const firstValue = values[0]
+        if (firstValue === undefined) return null
+        filters.push({ field: binding.targetField, op: '==', value: firstValue })
       }
     }
 
-    if (values.length === 0) return null
-
-    if (values.length > 1) {
-      return { field: childKey, op: 'in', value: values }
-    }
-    const firstValue = values[0]
-    return firstValue === undefined
-      ? null
-      : { field: childKey, op: '==', value: firstValue }
+    if (filters.length === 1) return filters[0]
+    return { type: 'and', children: filters }
   }
 
   /**
-   * 查询以指定表为父的所有表关系（表级索引，聚合函数消费）
+   * 查询以指定资源为父的所有资源关系（聚合函数消费）
    */
-  getTableChildRelations(parentTable: string): TableRelation[] {
-    return this._tableChildIdx.get(parentTable) ?? []
+  getResourceChildRelations(parentTable: string): DataResourceRelation[] {
+    return this._resourceChildRelationIdx.get(parentTable) ?? []
   }
 
   /**
-   * 查询以指定表为子的所有表关系（表级索引）
+   * 查询以指定资源为子的所有资源关系
    */
-  getTableParentRelations(childTable: string): TableRelation[] {
-    return this._tableParentIdx.get(childTable) ?? []
+  getResourceParentRelations(childTable: string): DataResourceRelation[] {
+    return this._resourceParentRelationIdx.get(childTable) ?? []
   }
 
-  /** @internal 构建视图级关系双向索引（从 _resolvedRelations） */
-  private _buildViewRelationIndex(): void {
-    this._childRelIdx.clear()
-    this._parentRelIdx.clear()
-    for (const r of this._resolvedRelations ?? []) {
-      const cKey = `${r.childTable}:${r.childViewId ?? 'default'}`
-      let cArr = this._parentRelIdx.get(cKey)
-      if (!cArr) { cArr = []; this._parentRelIdx.set(cKey, cArr) }
+  /** @internal 构建 DataView 输入级联双向索引。 */
+  private _buildViewCascadeIndex(): void {
+    this._childCascadeIdx.clear()
+    this._parentCascadeIdx.clear()
+    for (const r of this.viewCascades ?? []) {
+      const cKey = `${r.childTable}:${r.childViewId}`
+      let cArr = this._parentCascadeIdx.get(cKey)
+      if (!cArr) { cArr = []; this._parentCascadeIdx.set(cKey, cArr) }
       cArr.push(r)
 
-      const pKey = `${r.parentTable}:${r.parentViewId ?? 'default'}`
-      let pArr = this._childRelIdx.get(pKey)
-      if (!pArr) { pArr = []; this._childRelIdx.set(pKey, pArr) }
+      const pKey = `${r.parentTable}:${r.parentViewId}`
+      let pArr = this._childCascadeIdx.get(pKey)
+      if (!pArr) { pArr = []; this._childCascadeIdx.set(pKey, pArr) }
       pArr.push(r)
     }
   }
 
-  /** @internal 构建表级关系双向索引（从 tableRelations） */
-  private _buildTableRelationIndex(): void {
-    this._tableChildIdx.clear()
-    this._tableParentIdx.clear()
-    for (const tr of this.tableRelations ?? []) {
-      let pArr = this._tableChildIdx.get(tr.parentTable)
-      if (!pArr) { pArr = []; this._tableChildIdx.set(tr.parentTable, pArr) }
+  /** @internal 构建数据资源关系双向索引。 */
+  private _buildResourceRelationIndex(): void {
+    this._resourceChildRelationIdx.clear()
+    this._resourceParentRelationIdx.clear()
+    for (const tr of this.resourceRelations ?? []) {
+      let pArr = this._resourceChildRelationIdx.get(tr.parentTable)
+      if (!pArr) { pArr = []; this._resourceChildRelationIdx.set(tr.parentTable, pArr) }
       pArr.push(tr)
-      let cArr = this._tableParentIdx.get(tr.childTable)
-      if (!cArr) { cArr = []; this._tableParentIdx.set(tr.childTable, cArr) }
+      let cArr = this._resourceParentRelationIdx.get(tr.childTable)
+      if (!cArr) { cArr = []; this._resourceParentRelationIdx.set(tr.childTable, cArr) }
       cArr.push(tr)
     }
   }
 
   /** @internal 重建运行时关系图与索引，并通知各视图刷新级联订阅/聚合解析。 */
-  private _rebuildRelations(deriveDependencies: boolean): void {
-    if (deriveDependencies) {
-      this.viewDependencies = this.tableRelations?.length
-        ? deriveViewDependencies(this.tableRelations, this.viewDependencies)
-        : undefined
-    }
-
-    this._buildTableRelationIndex()
-
-    if (this.tableRelations?.length && this.viewDependencies?.length) {
-      this._resolvedRelations = expandRelations(this.tableRelations, this.viewDependencies, this)
-      this._buildViewRelationIndex()
-    } else {
-      this._resolvedRelations = undefined
-      this._childRelIdx.clear()
-      this._parentRelIdx.clear()
-    }
+  private _rebuildDataLinks(): void {
+    this._buildResourceRelationIndex()
+    this._buildViewCascadeIndex()
 
     for (const table of Object.values(this.tables)) {
-      table.onDataSetRelationsReady()
+      table.onDataSetStructureReady()
     }
   }
 
@@ -940,15 +858,14 @@ resolveDependencyFilter(rel: DataRelation): FilterExpression | undefined | null 
   private _applyNormalizedMetadata(normalized: DataSetMetadata): void {
     this.dataSetName = normalized.dataSetName
     this.schemaVersion = normalized.schemaVersion ?? 2
-    this.tableRelations = normalized.tableRelations
-    this.viewDependencies = normalized.viewDependencies
+    this.resourceRelations = normalized.resourceRelations
+    this.viewCascades = normalized.viewCascades
     this.version = normalized.version
     this.pageId = normalized.pageId
     this.saveChangesConfig = normalized.saveChanges
     this.layout = normalized.layout
-    this._buildTableRelationIndex()
     this._createTablesFromMetadata(normalized.tables)
-    this._rebuildRelations(true)
+    this._rebuildDataLinks()
   }
 
     /** 执行 replace From Json 操作。 */
@@ -1042,25 +959,25 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
   }
 
   /**
-   * 删除未被关系或依赖引用的数据表。
-   * fail-fast：若仍被 tableRelation / viewDependency 引用，则拒绝删除。
+   * 删除未被数据资源关系或 DataView 输入级联引用的数据表。
+   * fail-fast：若仍被 resourceRelations / viewCascades 引用，则拒绝删除。
    */
   removeTable(tableName: string): void {
     const table = this.tables[tableName]
     if (!table) throw new Error(`Table "${tableName}" not found in DataSet "${this.dataSetName}"`)
 
-    const relatedRelation = (this.tableRelations ?? []).find(
+    const relatedRelation = (this.resourceRelations ?? []).find(
       rel => rel.parentTable === tableName || rel.childTable === tableName,
     )
     if (relatedRelation) {
-      throw new Error(`Table "${tableName}" is referenced by tableRelation, remove relation first`)
+      throw new Error(`Table "${tableName}" is referenced by resourceRelations, remove resource relation first`)
     }
 
-    const relatedDependency = (this.viewDependencies ?? []).find(
+    const relatedCascade = (this.viewCascades ?? []).find(
       dep => dep.parentTable === tableName || dep.childTable === tableName,
     )
-    if (relatedDependency) {
-      throw new Error(`Table "${tableName}" is referenced by viewDependency, remove dependency first`)
+    if (relatedCascade) {
+      throw new Error(`Table "${tableName}" is referenced by viewCascades, remove cascade first`)
     }
 
     table.destroy()
@@ -1070,14 +987,14 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     this._rebindActiveSubscriptions()
   }
 
-  private _resolveRelationIndex(selector: {
+  private _resolveResourceRelationIndex(selector: {
     parentTable: string
     childTable: string
     parentField?: string
     childField?: string
   }): number {
-    this.tableRelations ??= []
-    const matches = this.tableRelations
+    this.resourceRelations ??= []
+    const matches = this.resourceRelations
       .map((relation, index) => ({ relation, index }))
       .filter(({ relation }) => {
         if (relation.parentTable !== selector.parentTable || relation.childTable !== selector.childTable) return false
@@ -1099,16 +1016,20 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     return match.index
   }
 
-  private _resolveDependencyIndex(parentTable: string, childTable: string): number {
-    this.viewDependencies ??= []
-    const idx = this.viewDependencies.findIndex(
-      dep => dep.parentTable === parentTable && dep.childTable === childTable,
-    )
-    if (idx < 0) throw new Error(`Dependency ${parentTable}→${childTable} not found`)
+  private _resolveCascadeIndex(selector: DataViewCascadeSelector): number {
+    this.viewCascades ??= []
+    const idx = this.viewCascades.findIndex(dep => {
+      if (dep.parentTable !== selector.parentTable || dep.parentViewId !== selector.parentViewId) return false
+      if (dep.childTable !== selector.childTable || dep.childViewId !== selector.childViewId) return false
+      return selector.cascadeId === undefined || dep.cascadeId === selector.cascadeId
+    })
+    if (idx < 0) {
+      throw new Error(`Cascade ${selector.parentTable}:${selector.parentViewId}→${selector.childTable}:${selector.childViewId} not found`)
+    }
     return idx
   }
 
-  private _assertRelationField(tableName: string, fieldName: string, role: 'Parent' | 'Child'): void {
+  private _assertResourceRelationField(tableName: string, fieldName: string, role: 'Parent' | 'Child'): void {
     const table = this.getTable(tableName)
     if (!table) throw new Error(`${role} table "${tableName}" not found`)
     if (!table.columns.some(column => column.name === fieldName)) {
@@ -1117,17 +1038,17 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
   }
 
   /**
-   * 添加 TableRelation（父子表关系）。
+   * 添加 DataResourceRelation（数据资源字段关系）。
    * @throws 引用的表/字段不存在或关系已重复时抛 Error
    */
-  addRelation(params: {
+  addResourceRelation(params: {
     parentTable: string
     childTable: string
     parentField: string
     childField: string
     relationName?: string
   }): void {
-    this.tableRelations ??= []
+    this.resourceRelations ??= []
 
     const parentTable = this.getTable(params.parentTable)
     const childTable = this.getTable(params.childTable)
@@ -1141,7 +1062,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       throw new Error(`Child field "${params.childField}" not found in table "${params.childTable}"`)
     }
 
-    const dup = this.tableRelations.some(
+    const dup = this.resourceRelations.some(
       (r) =>
         r.parentTable === params.parentTable &&
         r.childTable === params.childTable &&
@@ -1150,34 +1071,34 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     )
     if (dup) throw new Error(`Relation ${params.parentTable}→${params.childTable} already exists`)
 
-    const relation: TableRelation = {
+    const relation: DataResourceRelation = {
       parentTable: params.parentTable,
       childTable: params.childTable,
       parentField: params.parentField,
       childField: params.childField,
       ...(params.relationName ? { relationName: params.relationName } : {}),
     }
-    this.tableRelations.push(relation)
-    this._rebuildRelations(false)
+    this.resourceRelations.push(relation)
+    this._rebuildDataLinks()
   }
 
   /**
-   * 更新 TableRelation。
+   * 更新 DataResourceRelation。
    * 若存在多个同 parentTable→childTable 的关系，必须显式指定 parentField/childField 消歧。
    */
-  updateRelation(
+  updateResourceRelation(
     selector: {
       parentTable: string
       childTable: string
       parentField?: string
       childField?: string
     },
-    updates: Partial<TableRelation>,
-  ): TableRelation {
-    this.tableRelations ??= []
+    updates: Partial<DataResourceRelation>,
+  ): DataResourceRelation {
+    this.resourceRelations ??= []
 
-    const idx = this._resolveRelationIndex(selector)
-    const current = this.tableRelations[idx]
+    const idx = this._resolveResourceRelationIndex(selector)
+    const current = this.resourceRelations[idx]
     if (!current) {
       throw new Error(`Relation ${selector.parentTable}→${selector.childTable} not found`)
     }
@@ -1193,7 +1114,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       throw new Error(`Child field is required for relation ${current.parentTable}→${current.childTable}`)
     }
 
-    const next: TableRelation = {
+    const next: DataResourceRelation = {
       ...current,
       ...updates,
       parentTable: nextParentTable,
@@ -1202,20 +1123,10 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       childField: nextChildField,
     }
 
-    this._assertRelationField(next.parentTable, nextParentField, 'Parent')
-    this._assertRelationField(next.childTable, nextChildField, 'Child')
+    this._assertResourceRelationField(next.parentTable, nextParentField, 'Parent')
+    this._assertResourceRelationField(next.childTable, nextChildField, 'Child')
 
-    const pairChanged = next.parentTable !== current.parentTable || next.childTable !== current.childTable
-    if (pairChanged) {
-      const blocking = (this.viewDependencies ?? []).some(
-        dep => dep.parentTable === current.parentTable && dep.childTable === current.childTable,
-      )
-      if (blocking) {
-        throw new Error(`Relation ${current.parentTable}→${current.childTable} is referenced by viewDependency, update dependency first`)
-      }
-    }
-
-    const duplicate = this.tableRelations.some((relation, relationIndex) => {
+    const duplicate = this.resourceRelations.some((relation, relationIndex) => {
       if (relationIndex === idx) return false
       return relation.parentTable === next.parentTable
         && relation.childTable === next.childTable
@@ -1226,130 +1137,144 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       throw new Error(`Relation ${next.parentTable}→${next.childTable} already exists`)
     }
 
-    this.tableRelations[idx] = next
-    this._rebuildRelations(false)
+    this.resourceRelations[idx] = next
+    this._rebuildDataLinks()
     return next
   }
 
   /**
-   * 删除 TableRelation。
-   * @throws 关系不存在或被 viewDependency 引用时抛 Error
+   * 删除 DataResourceRelation。
+   * @throws 关系不存在时抛 Error
    */
-  removeRelation(selector: {
+  removeResourceRelation(selector: {
     parentTable: string
     childTable: string
     parentField?: string
     childField?: string
   }): void
-  removeRelation(selector: {
+  removeResourceRelation(selector: {
     parentTable: string
     childTable: string
     parentField?: string
     childField?: string
   }): void {
-    this.tableRelations ??= []
+    this.resourceRelations ??= []
 
-    const idx = this._resolveRelationIndex(selector)
-    const relation = this.tableRelations[idx]
+    const idx = this._resolveResourceRelationIndex(selector)
+    const relation = this.resourceRelations[idx]
     if (!relation) {
       throw new Error(`Relation ${selector.parentTable}→${selector.childTable} not found`)
     }
 
-    const blocking = (this.viewDependencies ?? []).some(
-      dep => dep.parentTable === relation.parentTable && dep.childTable === relation.childTable,
-    )
-    if (blocking) {
-      throw new Error(`Relation ${relation.parentTable}→${relation.childTable} is referenced by viewDependency, remove dependency first`)
-    }
-
-    this.tableRelations.splice(idx, 1)
-    this._rebuildRelations(false)
+    this.resourceRelations.splice(idx, 1)
+    this._rebuildDataLinks()
   }
 
-  private _assertDependencyShape(dependency: ViewDependency): void {
-    if (!this.getTable(dependency.parentTable)) throw new Error(`Parent table "${dependency.parentTable}" not found`)
-    if (!this.getTable(dependency.childTable)) throw new Error(`Child table "${dependency.childTable}" not found`)
-
-    const hasRelation = (this.tableRelations ?? []).some(
-      relation => relation.parentTable === dependency.parentTable && relation.childTable === dependency.childTable,
-    )
-    if (!hasRelation) {
-      throw new Error(`No tableRelation for ${dependency.parentTable}→${dependency.childTable}, add relation first`)
+  private _assertCascadeShape(cascade: DataViewCascade): void {
+    const parentTable = this.getTable(cascade.parentTable)
+    if (!parentTable) throw new Error(`Parent table "${cascade.parentTable}" not found`)
+    const childTable = this.getTable(cascade.childTable)
+    if (!childTable) throw new Error(`Child table "${cascade.childTable}" not found`)
+    const parentView = parentTable.getView(cascade.parentViewId)
+    if (!parentView) throw new Error(`Parent view "${cascade.parentTable}:${cascade.parentViewId}" not found`)
+    const childView = childTable.getView(cascade.childViewId)
+    if (!childView) throw new Error(`Child view "${cascade.childTable}:${cascade.childViewId}" not found`)
+    if (cascade.filterBindings.length === 0) {
+      throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} requires filterBindings`)
+    }
+    for (const binding of cascade.filterBindings) {
+      if (!parentView.columns.some(column => column.name === binding.sourceField)) {
+        throw new Error(`Source field "${binding.sourceField}" not found in view "${cascade.parentTable}:${cascade.parentViewId}"`)
+      }
+      if (!childView.columns.some(column => column.name === binding.targetField)) {
+        throw new Error(`Target field "${binding.targetField}" not found in view "${cascade.childTable}:${cascade.childViewId}"`)
+      }
     }
   }
 
   /**
-   * 添加 ViewDependency（视图联动依赖）。
-   * @throws 依赖引用非法或重复时抛 Error
+   * 添加 DataViewCascade（DataView 输入级联）。
+   * @throws 级联引用非法或重复时抛 Error
    */
-  addDependency(dependency: ViewDependency): void {
-    this._assertDependencyShape(dependency)
-    this.viewDependencies ??= []
+  addCascade(cascade: DataViewCascade): void {
+    this._assertCascadeShape(cascade)
+    this.viewCascades ??= []
 
-    const dup = this.viewDependencies.some(
-      dep => dep.parentTable === dependency.parentTable && dep.childTable === dependency.childTable,
-    )
-    if (dup) throw new Error(`Dependency ${dependency.parentTable}→${dependency.childTable} already exists`)
+    const dup = this.viewCascades.some(dep => {
+      if (cascade.cascadeId !== undefined && dep.cascadeId === cascade.cascadeId) return true
+      return dep.parentTable === cascade.parentTable
+        && dep.parentViewId === cascade.parentViewId
+        && dep.childTable === cascade.childTable
+        && dep.childViewId === cascade.childViewId
+        && JSON.stringify(dep.filterBindings) === JSON.stringify(cascade.filterBindings)
+    })
+    if (dup) {
+      throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} already exists`)
+    }
 
-    this.viewDependencies.push(deepClone({
-      ...dependency,
-      dependencyType: dependency.dependencyType ?? 'currentRow',
+    this.viewCascades.push(deepClone({
+      ...cascade,
+      dependencyType: cascade.dependencyType ?? 'currentRow',
     }))
-    this._rebuildRelations(false)
+    this._rebuildDataLinks()
   }
 
   /**
-   * 更新 ViewDependency。
-   * fail-fast：目标 parentTable→childTable 必须已有底层 tableRelation。
+   * 更新 DataViewCascade。
+   * 资源关系与输入级联独立；这里只校验 DataView 端点和字段绑定。
    */
-  updateDependency(
-    parentTable: string,
-    childTable: string,
-    updates: Partial<ViewDependency>,
-  ): ViewDependency {
-    this.viewDependencies ??= []
+  updateCascade(
+    selector: DataViewCascadeSelector,
+    updates: Partial<DataViewCascade>,
+  ): DataViewCascade {
+    this.viewCascades ??= []
 
-    const idx = this._resolveDependencyIndex(parentTable, childTable)
-    const current = this.viewDependencies[idx]
+    const idx = this._resolveCascadeIndex(selector)
+    const current = this.viewCascades[idx]
     if (!current) {
-      throw new Error(`Dependency ${parentTable}→${childTable} not found`)
+      throw new Error(`Cascade ${selector.parentTable}:${selector.parentViewId}→${selector.childTable}:${selector.childViewId} not found`)
     }
-    const next: ViewDependency = {
+    const next: DataViewCascade = {
       ...current,
       ...updates,
       parentTable: updates.parentTable ?? current.parentTable,
+      parentViewId: updates.parentViewId ?? current.parentViewId,
       childTable: updates.childTable ?? current.childTable,
+      childViewId: updates.childViewId ?? current.childViewId,
+      filterBindings: updates.filterBindings ?? current.filterBindings,
     }
 
-    this._assertDependencyShape(next)
+    this._assertCascadeShape(next)
 
-    const duplicate = this.viewDependencies.some((dep, depIndex) => {
+    const duplicate = this.viewCascades.some((dep, depIndex) => {
       if (depIndex === idx) return false
-      return dep.parentTable === next.parentTable && dep.childTable === next.childTable
+      if (next.cascadeId !== undefined && dep.cascadeId === next.cascadeId) return true
+      return dep.parentTable === next.parentTable
+        && dep.parentViewId === next.parentViewId
+        && dep.childTable === next.childTable
+        && dep.childViewId === next.childViewId
+        && JSON.stringify(dep.filterBindings) === JSON.stringify(next.filterBindings)
     })
     if (duplicate) {
-      throw new Error(`Dependency ${next.parentTable}→${next.childTable} already exists`)
+      throw new Error(`Cascade ${next.parentTable}:${next.parentViewId}→${next.childTable}:${next.childViewId} already exists`)
     }
 
-    this.viewDependencies[idx] = next
-    this._rebuildRelations(false)
+    this.viewCascades[idx] = next
+    this._rebuildDataLinks()
     return next
   }
 
   /**
-   * 删除 ViewDependency。
-   * @throws 依赖不存在时抛 Error
+   * 删除 DataViewCascade。
+   * @throws 级联不存在时抛 Error
    */
-  removeDependency(parentTable: string, childTable: string): void {
-    this.viewDependencies ??= []
+  removeCascade(selector: DataViewCascadeSelector): void {
+    this.viewCascades ??= []
 
-    const idx = this.viewDependencies.findIndex(
-      dep => dep.parentTable === parentTable && dep.childTable === childTable,
-    )
-    if (idx < 0) throw new Error(`Dependency ${parentTable}→${childTable} not found`)
+    const idx = this._resolveCascadeIndex(selector)
 
-    this.viewDependencies.splice(idx, 1)
-    this._rebuildRelations(false)
+    this.viewCascades.splice(idx, 1)
+    this._rebuildDataLinks()
   }
 
   // ===== 数据访问 =====
@@ -1423,7 +1348,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 保存 DataSet 范围内的编辑态和 staged 变更。
    *
    * 默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。
-   * 提交顺序按 tableRelations 做父表 → 子表排序，保证主从页面一次提交时主表先落库。
+   * 提交顺序按 resourceRelations 做父表 → 子表排序，保证主从页面一次提交时主表先落库。
    */
   async saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
     const targets = this.resolveSaveChangesTargets(options)
@@ -1792,7 +1717,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       inDegree.set(tableName, 0)
     }
 
-    for (const relation of this.tableRelations ?? []) {
+    for (const relation of this.resourceRelations ?? []) {
       if (!children.has(relation.parentTable) || !children.has(relation.childTable)) continue
       if (relation.parentTable === relation.childTable) continue
       const childSet = children.get(relation.parentTable)
@@ -1834,8 +1759,8 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       dataSetName: this.dataSetName,
       tables,
     }
-    if (this.tableRelations !== undefined) result.tableRelations = this.tableRelations
-    if (this.viewDependencies !== undefined) result.viewDependencies = this.viewDependencies
+    if (this.resourceRelations !== undefined) result.resourceRelations = this.resourceRelations
+    if (this.viewCascades !== undefined) result.viewCascades = this.viewCascades
     if (this.version !== undefined) result.version = this.version
     if (this.pageId !== undefined) result.pageId = this.pageId
     if (this.saveChangesConfig !== undefined) result.saveChanges = this.saveChangesConfig

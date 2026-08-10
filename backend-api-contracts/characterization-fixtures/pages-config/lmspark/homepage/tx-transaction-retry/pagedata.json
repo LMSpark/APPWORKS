@@ -13,8 +13,8 @@
             "requestId": "tx-config-retry-v1"
         }
     },
-    "tableRelations": [],
-    "viewDependencies": [],
+    "resourceRelations": [],
+    "viewCascades": [],
     "tables": {
         "SparkTxAudit": {
             "tableName": "SparkTxAudit",

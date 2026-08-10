@@ -15,7 +15,7 @@
 import { parseViewMetadataInput } from './metadata'
 import type {
   DataRow, ViewMetadata, FilterExpression, FilterOperator, FilterValueExpression, SortExpression,
-  QueryParams, DataColumn, DataRelation,
+  QueryParams, DataColumn, DataViewCascade,
   CrudResult, CrudOperationConfig,
   DataSource,
   AggregateResultRow,
@@ -25,6 +25,7 @@ import type {
   SparkEventEmitter,
   DataViewEditingFieldChangeEvent, DataViewApplyEditingRowsResult,
   DataPermissionSnapshot, DataPermissionSnapshotInput,
+  DataViewFieldProjection, DataViewQueryContext, DataViewQueryResult,
 } from './types'
 
 /** 过滤值字段引用形状（与 types.ts 中 FilterValueExpression 的内联形状一致） */
@@ -165,7 +166,7 @@ function resolveFilterFieldRef(fieldName: string, row: DataRow): unknown {
 
 function assertNoLegacyFilterPlaceholderString(value: string): void {
   if (LEGACY_PARENT_FILTER_PLACEHOLDER_TOKEN_RE.test(value)) {
-    throw new Error('过滤值中的 "$parent[...]" 协议已移除，请改用 DataRelation.parentField / childField')
+    throw new Error('过滤值中的 "$parent[...]" 协议已移除，请使用 DataViewCascade.filterBindings')
   }
   if (LEGACY_FILTER_PLACEHOLDER_TOKEN_RE.test(value)) {
     throw new Error('过滤值占位字符串协议已移除，请改用结构化字段引用 { kind: "field", field: "..." }')
@@ -194,6 +195,19 @@ function getArrayFilterValue(value: unknown): unknown[] | null {
   return Array.isArray(value) ? value : null
 }
 
+function isDataViewQueryResult(value: unknown): value is DataViewQueryResult {
+  if (!isRecord(value)) return false
+  return typeof value['formKey'] === 'string'
+    && typeof value['dataSpaceId'] === 'string'
+    && typeof value['modelId'] === 'string'
+    && Array.isArray(value['rows'])
+    && Array.isArray(value['originalRows'])
+    && typeof value['total'] === 'number'
+    && typeof value['allowAdd'] === 'boolean'
+    && typeof value['systemKey'] === 'string'
+    && Array.isArray(value['authorizedFeatureTags'])
+}
+
 // ─────────────────────────────────────────────
 // DataView 类
 // ─────────────────────────────────────────────
@@ -220,7 +234,7 @@ export class DataView implements DataSource {
   }
   set dataTable(table: DataTable) {
     this._dataTable = table
-    this._columnMap = new Map(table.columns.map(c => [c.name, c]))
+    this._rebuildColumnMap()
     // 统一注册 _pk 计算列（单列 / 多列 / 默认 'id' 均覆盖）
     this._primaryKeyDelegate.ensurePkColumn()
     // 注入 _pk 列元数据（table.columns + _columnMap）
@@ -237,6 +251,12 @@ export class DataView implements DataSource {
 tableName: string
     /** 视图标识。 */
 viewId: string
+
+  /** 当前模型视图对 DataTable 资源字段的稳定投影。 */
+  fieldProjection: readonly DataViewFieldProjection[] = []
+
+  /** 随每次查询提交给 DataTable.crudService 的后端无关上下文。 */
+  queryContext: DataViewQueryContext = {}
 
     /** 行数据集合。 */
 rows: DataRow[] = []
@@ -559,14 +579,14 @@ sortExpression?: SortExpression
   }
 
   private _mergeRemoteFilters(
-    relationFilter: FilterExpression | undefined,
+    cascadeFilter: FilterExpression | undefined,
     userFilter: FilterExpression | undefined,
   ): FilterExpression | undefined {
-    if (!relationFilter) return userFilter
-    if (!userFilter) return relationFilter
+    if (!cascadeFilter) return userFilter
+    if (!userFilter) return cascadeFilter
     return {
       type: 'and',
-      children: [relationFilter, userFilter],
+      children: [cascadeFilter, userFilter],
     }
   }
 
@@ -736,8 +756,8 @@ sortExpression?: SortExpression
     return api[operation] !== undefined
   }
 
-  /** @internal DataSet 关系规范化完成后由 DataTable 调用——重挂级联订阅并重编译计算列（含聚合 resolver） */
-  onDataSetRelationsReady(): void {
+  /** @internal DataSet 资源关系与视图级联索引完成后由 DataTable 调用——重挂级联订阅并重编译计算列（含聚合 resolver） */
+  onDataSetStructureReady(): void {
     // DataTable.setDataSet() 发生在 DataSet 展开视图级关系之前，
     // 关系图就绪后需要重新挂载一次 cascade 订阅，确保 currentRow 联动真正生效。
     this.cascade.setupCascade()
@@ -783,7 +803,24 @@ sortExpression?: SortExpression
    * @returns DataTable 的列定义数组；DataTable 未关联时返回空数组
    */
   get columns(): readonly DataColumn[] {
-    return this._dataTable?.columns ?? []
+    const table = this._dataTable
+    if (table === null || this.fieldProjection.length === 0) return table?.columns ?? []
+    const projected = this.fieldProjection
+      .filter((field) => field.output)
+      .map((field) => {
+        const resourceColumn = table.columns.find((column) => column.name === field.resourceField)
+        return {
+          ...(resourceColumn ?? {}),
+          name: field.viewField,
+          type: field.type,
+          label: field.label
+            ? field.label
+            : resourceColumn?.label ?? field.viewField,
+          isPrimaryKey: field.primaryKey,
+        }
+      })
+    const computedPrimaryKey = table.columns.find((column) => column.name === '_pk')
+    return computedPrimaryKey === undefined ? projected : [...projected, computedPrimaryKey]
   }
 
   /**
@@ -823,6 +860,10 @@ sortExpression?: SortExpression
       table.columns = [...table.columns, meta]
     }
     this._columnMap?.set('_pk', meta)
+  }
+
+  private _rebuildColumnMap(): void {
+    this._columnMap = new Map(this.columns.map((column) => [column.name, column]))
   }
 
   // ─────────────────────────────────────────────
@@ -1236,26 +1277,26 @@ protected logger = Logger('DataView')
 
       // 逐个父视图检查依赖是否满足
       const ds = this.dataSet
-      const parents = ds ? ds.getParentRelations(this.tableName, this.viewId) : []
+      const parents = ds ? ds.getParentCascades(this.tableName, this.viewId) : []
 
-      const relationFilters: FilterExpression[] = []
+      const cascadeFilters: FilterExpression[] = []
       for (const rel of parents) {
-        this.requestIdleDependencyViewSources(rel)
-        const relationFilter = ds?.resolveDependencyFilter(rel)
-        if (relationFilter === null) {
+        await this.requestIdleCascadeSource(rel)
+        const cascadeFilter = ds?.resolveCascadeFilter(rel)
+        if (cascadeFilter === null) {
           this.setRequestState(RequestState.Failed)
           return
         }
-        if (relationFilter !== undefined) relationFilters.push(relationFilter)
+        if (cascadeFilter !== undefined) cascadeFilters.push(cascadeFilter)
       }
 
       const params: QueryParams = {}
-      const relationFilter = relationFilters.length === 0
+      const cascadeFilter = cascadeFilters.length === 0
         ? undefined
-        : relationFilters.length === 1
-          ? relationFilters[0]
-          : { type: 'and', children: relationFilters } satisfies FilterExpression
-      const mergedFilter = this._mergeRemoteFilters(relationFilter, this.filterExpression)
+        : cascadeFilters.length === 1
+          ? cascadeFilters[0]
+          : { type: 'and', children: cascadeFilters } satisfies FilterExpression
+      const mergedFilter = this._mergeRemoteFilters(cascadeFilter, this.filterExpression)
       if (mergedFilter !== undefined) params.filter = mergedFilter
 
       // 注入视图自身的分页/排序/过滤参数
@@ -1287,12 +1328,12 @@ protected logger = Logger('DataView')
     }
   }
 
-  private requestIdleDependencyViewSources(rel: DataRelation): void {
+  private async requestIdleCascadeSource(rel: DataViewCascade): Promise<void> {
     const ds = this.dataSet
     if (!ds) return
-    const parentView = ds.getView(rel.parentTable, rel.parentViewId ?? 'default')
+    const parentView = ds.getView(rel.parentTable, rel.parentViewId)
     if (parentView?.requestState === RequestState.Idle) {
-      void parentView.requestData()
+      await parentView.requestData()
     }
   }
 
@@ -1312,6 +1353,18 @@ protected logger = Logger('DataView')
 
     try {
       const loadParams = this.buildTreeModeParams(params)
+      const hasModelQuery = this.fieldProjection.length > 0 || Object.keys(this.queryContext).length > 0
+      if (hasModelQuery) {
+        loadParams.viewId ??= this.viewId
+        loadParams.viewConfig ??= this._buildRemoteViewConfig()
+        loadParams.page ??= this.page
+        loadParams.pageSize ??= this.pageSize
+        loadParams.projection ??= this.fieldProjection
+        loadParams.context ??= this.queryContext
+        if (loadParams.sort === undefined && this.sortExpression !== undefined) {
+          loadParams.sort = this._serializeSort(this.sortExpression)
+        }
+      }
       const result = await this.crudDelegate.list(loadParams)
 
       if (requestId !== this.currentLoadRequestId) {
@@ -1320,7 +1373,11 @@ protected logger = Logger('DataView')
       }
 
       if (result.success && result.data !== undefined) {
-        this.updateFromServer(normalizeServerRowsData(result.data, `DataView.loadFromServer ${this.tableName}@${this.viewId}`))
+        if (isDataViewQueryResult(result.data)) {
+          this.ingestPermissionSnapshot(result.data)
+        } else {
+          this.updateFromServer(normalizeServerRowsData(result.data, `DataView.loadFromServer ${this.tableName}@${this.viewId}`))
+        }
         // 确保树形数据的所有子节点计算列已求值，再触发 autoFirst（会级联到子视图）
         this._applyComputedColumns(this.rows)
         this.selectionDelegate.applyAutoFirst()
@@ -1437,24 +1494,19 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   /**
    * 无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。
    *
-   * @param rel 父子视图依赖关系。
-   * @param parentRows 父视图当前参与级联的行列表。
+   * @param rel DataView 输入级联。
+   * @param _parentRows 父视图当前参与级联的行列表；过滤值统一由 DataSet 解析。
    */
-  applyInMemoryCascade(rel: DataRelation, parentRows: readonly DataRow[]): void {
+  applyInMemoryCascade(rel: DataViewCascade, _parentRows: readonly DataRow[]): void {
     // 从 DataTable.rows 读取全量静态源数据（可在多次父行切换中反复过滤）
     const srcRows: DataRow[] = this._dataTable?.rows ?? []
-    const relationFilter = this.dataSet?.resolveDependencyFilter(rel)
+    const cascadeFilter = this.dataSet?.resolveCascadeFilter(rel)
     let filteredRows = srcRows.slice()
 
-    if (relationFilter === null) {
+    if (cascadeFilter === null) {
       filteredRows = []
-    } else if (relationFilter !== undefined) {
-      filteredRows = srcRows.filter((row: DataRow) => this._matchesFilterExpression(row, relationFilter))
-    } else if (parentRows.length > 0 && typeof rel.childField === 'string') {
-      const pField = typeof rel.parentField === 'string' ? rel.parentField : 'id'
-      const childField = rel.childField
-      const parentValues = new Set<unknown>(parentRows.map((r: DataRow) => r[pField]))
-      filteredRows = srcRows.filter((r: DataRow) => parentValues.has(r[childField]))
+    } else if (cascadeFilter !== undefined) {
+      filteredRows = srcRows.filter((row: DataRow) => this._matchesFilterExpression(row, cascadeFilter))
     }
 
     this.updateFromServer(filteredRows)
@@ -2028,6 +2080,8 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
     if (this.labelField !== undefined) config.labelField = this.labelField
     if (this.selectionDelimiter !== ',') config.selectionDelimiter = this.selectionDelimiter
     if (Object.keys(this.aggregates).length > 0) config.aggregates = this.aggregates
+    if (this.fieldProjection.length > 0) config.fieldProjection = this.fieldProjection
+    if (Object.keys(this.queryContext).length > 0) config.queryContext = this.queryContext
     return config
   }
 
@@ -2231,6 +2285,8 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
     if (vc.valueField !== undefined) this.valueField = vc.valueField
     if (vc.labelField !== undefined) this.labelField = vc.labelField
     if (vc.selectionDelimiter !== undefined) this.selectionDelimiter = vc.selectionDelimiter
+    if (vc.fieldProjection !== undefined) this.fieldProjection = vc.fieldProjection.map((field) => ({ ...field }))
+    if (vc.queryContext !== undefined) this.queryContext = { ...vc.queryContext }
     if (vc.aggregates !== undefined) {
       for (const key of Object.keys(this.aggregates)) {
         Reflect.deleteProperty(this.aggregates, key)
@@ -2239,6 +2295,7 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
     }
     this.page = vc.page ?? 1
     this.pageSize = vc.pageSize ?? 20
+    this._rebuildColumnMap()
     if (vc.filterExpression !== undefined && this._shouldApplyStaticLocalFilter()) {
       this._syncStaticLocalFilterRows()
     }
@@ -2310,6 +2367,8 @@ toJson(): ViewMetadata {
     if (this.labelField !== undefined) result.labelField = this.labelField
     if (this.selectionDelimiter !== ',') result.selectionDelimiter = this.selectionDelimiter
     if (Object.keys(this.aggregates).length > 0) result.aggregates = this.aggregates
+    if (this.fieldProjection.length > 0) result.fieldProjection = this.fieldProjection
+    if (Object.keys(this.queryContext).length > 0) result.queryContext = this.queryContext
     return result
   }
 

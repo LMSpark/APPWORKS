@@ -9,7 +9,7 @@
             }
         }
     },
-    "tableRelations": [
+    "resourceRelations": [
         {
             "parentTable": "SparkTxOrders",
             "childTable": "SparkTxItems",
@@ -18,10 +18,18 @@
             "relationName": "SparkTxOrderItems"
         }
     ],
-    "viewDependencies": [
+    "viewCascades": [
         {
             "parentTable": "SparkTxOrders",
+            "parentViewId": "default",
             "childTable": "SparkTxItems",
+            "childViewId": "default",
+            "filterBindings": [
+                {
+                    "sourceField": "id",
+                    "targetField": "orderId"
+                }
+            ],
             "dependencyType": "currentRow",
             "autoLoad": true
         }

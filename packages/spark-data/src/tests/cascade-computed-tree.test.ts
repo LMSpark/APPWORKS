@@ -7,12 +7,19 @@ describe('Cascade with computed parent field on tree data', () => {
   it('should apply computed columns to nested children after updateFromServer', () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'test',
-      tableRelations: [{
+      resourceRelations: [{
         parentTable: 'Parent',
         childTable: 'Child',
         parentField: 'computedKey',
         childField: 'refKey',
         relationName: 'testRel',
+      }],
+      viewCascades: [{
+        parentTable: 'Parent',
+        parentViewId: 'default',
+        childTable: 'Child',
+        childViewId: 'default',
+        filterBindings: [{ sourceField: 'computedKey', targetField: 'refKey' }],
       }],
       tables: {
         Parent: {
@@ -67,15 +74,22 @@ describe('Cascade with computed parent field on tree data', () => {
     expect(nestedChild!['computedKey']).toBe('typeB')
   })
 
-  it('resolveDependencyFilter should handle missing computed field gracefully', () => {
+  it('resolveCascadeFilter should handle missing computed field gracefully', () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'test2',
-      tableRelations: [{
+      resourceRelations: [{
         parentTable: 'Parent',
         childTable: 'Child',
         parentField: 'computedKey',
         childField: 'refKey',
         relationName: 'testRel',
+      }],
+      viewCascades: [{
+        parentTable: 'Parent',
+        parentViewId: 'default',
+        childTable: 'Child',
+        childViewId: 'default',
+        filterBindings: [{ sourceField: 'computedKey', targetField: 'refKey' }],
       }],
       tables: {
         Parent: {
@@ -102,13 +116,13 @@ describe('Cascade with computed parent field on tree data', () => {
     })
 
     const parentView = ds.getView('Parent', 'default')!
-    // Force requestState to Loaded so resolveDependencyFilter doesn't return null early
+    // Force requestState to Loaded so resolveCascadeFilter doesn't return null early
     parentView.requestState = 2 // RequestState.Loaded
 
     // Should NOT throw — missing computed field is handled gracefully
-    const rel = ds.tableRelations?.[0]
-    if (!rel) throw new Error('Expected a table relation')
-    const filter = ds.resolveDependencyFilter(rel)
+    const rel = ds.viewCascades?.[0]
+    if (!rel) throw new Error('Expected a DataView cascade')
+    const filter = ds.resolveCascadeFilter(rel)
     // Returns null when computed field can't be resolved
     expect(filter).toBeNull()
   })

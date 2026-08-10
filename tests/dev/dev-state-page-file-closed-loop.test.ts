@@ -65,27 +65,23 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   readLowcodePrincipal: () => null,
   lowcodeApi: {
     platform: {
-      listApplications: async () => httpFns.get('/api/tenants/tenant-b/projects'),
+      listApplications: async () => httpFns.get('application-catalog:tenant-b'),
     },
   },
   createLowcodeProjectGateways: (projectId: string) => {
-    const navigationUrl = projectId === 'homepage'
-      ? '/api/navigation'
-      : `/api/tenants/tenant-b/projects/${projectId}/navigation`
-    const pageUrl = projectId === 'homepage'
-      ? '/api/pages-config'
-      : `/api/tenants/tenant-b/projects/${projectId}/pages-config`
+    const blueprintKey = `project-blueprint:${projectId}`
+    const pageFileKey = `designfile:${projectId}`
     return {
       pageFiles: {
         readPageFile: async (command: { pageId: string; fileName: string }) => {
-          const response = await httpFns.get(`${pageUrl}/${command.pageId}/${command.fileName}`)
+          const response = await httpFns.get(`${pageFileKey}/${command.pageId}/${command.fileName}`)
           return String(response?.content ?? '')
         },
         saveFileContent: async (pageId: string, fileName: string, content: string) => {
-          await httpFns.put(`${pageUrl}/${pageId}/${fileName}`, { content })
+          await httpFns.put(`${pageFileKey}/${pageId}/${fileName}`, { content })
         },
         listVersions: async (pageId: string, fileName: string) => {
-          const rows = await httpFns.get(`${pageUrl}/${pageId}/${fileName}/versions`)
+          const rows = await httpFns.get(`${pageFileKey}/${pageId}/${fileName}/versions`)
           return Array.isArray(rows)
             ? rows.map((row) => ({
                 ...row,
@@ -94,13 +90,13 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
             : []
         },
         restoreVersion: async (pageId: string, fileName: string, version: number) => {
-          await httpFns.post(`${pageUrl}/${pageId}/${fileName}/versions/${version}/restore`)
+          await httpFns.post(`${pageFileKey}/${pageId}/${fileName}/versions/${version}/restore`)
         },
       },
       blueprint: {
-        loadRoot: async () => httpFns.get(navigationUrl),
+        loadRoot: async () => httpFns.get(blueprintKey),
         updateNode: async (id: string, patch: unknown) => {
-          const response = await httpFns.put(`${navigationUrl}/nodes/${id}`, patch)
+          const response = await httpFns.put(`${blueprintKey}:nodes:${id}`, patch)
           return response.node ?? response
         },
       },
@@ -231,7 +227,7 @@ describe('DevState 页面文件闭环', () => {
   it('切换左侧节点时触发右侧 blueprintDraft 订阅刷新', async () => {
     const state = useDevState()
     httpMock.get.mockImplementation(async (url: string) => {
-      if (url === '/api/navigation') {
+      if (url === 'project-blueprint:homepage') {
         return {
           title: 'root',
           childPlacement: 'header',
@@ -259,10 +255,10 @@ describe('DevState 页面文件闭环', () => {
     expect(observedEditDtoIds.at(-1)).toBe('beta-node')
   })
 
-  it('初始化页面列表从导航树派生，不请求 pages-config __list', async () => {
+  it('初始化页面列表从项目蓝图派生，不请求页面文件清单', async () => {
     const state = useDevState()
     httpMock.get.mockImplementation(async (url: string) => {
-      if (url === '/api/navigation') {
+      if (url === 'project-blueprint:homepage') {
         return {
           title: 'root',
           childPlacement: 'header',
@@ -272,7 +268,7 @@ describe('DevState 页面文件闭环', () => {
           ],
         }
       }
-      if (url.includes('/__list')) {
+      if (url.includes(':__list')) {
         throw new Error(`unexpected GET ${url}`)
       }
       return pageFileResponse(url)
@@ -297,10 +293,10 @@ describe('DevState 页面文件闭环', () => {
         designSurface: 'system-page',
       }),
     ])
-    expect(httpMock.get).not.toHaveBeenCalledWith('/api/pages-config/__list')
+    expect(httpMock.get).not.toHaveBeenCalledWith('designfile:homepage/__list')
   })
 
-  it('header 保存导航属性时只提交选中节点 patch，不整树保存', async () => {
+  it('header 保存蓝图属性时只提交选中节点 patch，不整树保存', async () => {
     const state = useDevState()
     const root: ProjectBlueprintTreeData = {
       title: 'root',
@@ -311,7 +307,7 @@ describe('DevState 页面文件闭环', () => {
     }
     navTreeState.tree = root
     httpMock.get.mockImplementation(async (url: string) => {
-      if (url === '/api/navigation') return root
+      if (url === 'project-blueprint:homepage') return root
       return pageFileResponse(url)
     })
     httpMock.put.mockResolvedValueOnce({
@@ -344,12 +340,12 @@ describe('DevState 页面文件闭环', () => {
     expect(state.project.readBlueprintProjection().tree[0]?.title).toBe('Alpha updated')
 
     expect(httpMock.put).toHaveBeenCalledWith(
-      '/api/navigation/nodes/alpha-node',
+      'project-blueprint:homepage:nodes:alpha-node',
       expect.objectContaining({ title: 'Alpha updated', order: 0 }),
     )
-    expect(httpMock.put).not.toHaveBeenCalledWith('/api/navigation/nodes/alpha-node/move', expect.anything())
-    expect(httpMock.put).not.toHaveBeenCalledWith('/api/navigation', expect.anything())
-    expect(httpMock.post).not.toHaveBeenCalledWith('/api/navigation', expect.anything())
+    expect(httpMock.put).not.toHaveBeenCalledWith('project-blueprint:homepage:nodes:alpha-node:move', expect.anything())
+    expect(httpMock.put).not.toHaveBeenCalledWith('project-blueprint:homepage', expect.anything())
+    expect(httpMock.post).not.toHaveBeenCalledWith('project-blueprint:homepage', expect.anything())
   })
 
   it('可打开其他租户项目模型编辑，保存时不刷新当前 APP 导航', async () => {
@@ -362,12 +358,12 @@ describe('DevState 页面文件闭环', () => {
       ],
     }
     httpMock.get.mockImplementation(async (url: string) => {
-      if (url === '/api/tenants/tenant-b/projects') {
+      if (url === 'application-catalog:tenant-b') {
         return [
           { projectId: 'delegated-app', name: 'Delegated App', icon: 'Box', description: '' },
         ]
       }
-      if (url === '/api/tenants/tenant-b/projects/delegated-app/navigation') {
+      if (url === 'project-blueprint:delegated-app') {
         return delegatedRoot
       }
       return pageFileResponse(url)
@@ -392,7 +388,7 @@ describe('DevState 页面文件闭环', () => {
     await state.saveAll()
 
     expect(httpMock.put).toHaveBeenCalledWith(
-      '/api/tenants/tenant-b/projects/delegated-app/navigation/nodes/delegated-node',
+      'project-blueprint:delegated-app:nodes:delegated-node',
       expect.objectContaining({ title: 'Delegated updated' }),
     )
     expect(vi.mocked(refreshRoutes).mock.calls.length).toBe(refreshCallsBeforeSave)

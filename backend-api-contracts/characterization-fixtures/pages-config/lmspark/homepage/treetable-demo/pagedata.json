@@ -1,6 +1,6 @@
 {
   "dataSetName": "TreeTableDS",
-  "tableRelations": [],
+  "resourceRelations": [],
   "tables": {
     "OrgRows": {
       "columns": [

@@ -2,9 +2,9 @@
 
 > SPARK 融合平台的应用工场，面向 Vue 3 和 Element Plus，内置数据视图、权限策略和受约束的 AI 配置生成能力
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)](https://www.typescriptlang.org/)
 [![Vue 3](https://img.shields.io/badge/Vue-3.5-brightgreen.svg)](https://vuejs.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.0-646CFF.svg)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF.svg)](https://vitejs.dev/)
 
 ## 适合什么场景
 
@@ -36,16 +36,15 @@ cd SPARK_AppWorks
 # 2. 安装依赖
 pnpm install
 
-# 3. 只看前端示例
-pnpm run dev:fe
+# 3. 配置 lowcode-jdk17 gateway（也可写入 .env.local）
+$env:LOWCODE_GATEWAY_URL='http://127.0.0.1:8080'
 
-# 4. 需要页面配置和 AI 后端时，再启动完整开发模式
+# 4. 启动前端
 pnpm run dev
 ```
 
-- `pnpm run dev:fe`：只启动 Vite，适合先看组件系统和前端页面
-- `pnpm run dev`：启动 Vite 前端；运行 API 由 `LOWCODE_GATEWAY_URL` 指向只读的 lowcode-jdk17 宿主
-- 完整模式需要 JDK 17+
+- `pnpm run dev` 只启动 Vite；开发态同源 `/api` 由 `LOWCODE_GATEWAY_URL` 代理到 lowcode-jdk17 gateway。
+- AppWorks 不编译、启动或部署服务端，也不保存平台密钥。
 
 ## 核心特性
 
@@ -63,14 +62,13 @@ pnpm run dev
 ```
 packages/
 ├── spark-ai/                    # 🤖 AI 运行时（Function Calling 会话、DTS ClassModel 知识、页面编辑工具）
-├── spark-app/                   # 🏗️ 应用层基础设施（路由、认证、配置、插件系统）
+├── spark-app/                   # 🏗️ 应用层基础设施（路由、认证、宿主配置、插件系统）
 ├── spark-component/             # ⚙️ 组件核心系统（注册表、能力管理、上下文、页面渲染器）
 ├── spark-data/                  # 📊 数据空间（DataSet、DataView、TreeManager、关系与聚合）
 ├── spark-project-model/         # 📄 软件项目模型（ProjectModel、项目蓝图节点、配置页内容子模型）
 ├── spark-lowcode-api/           # 🔌 可发布的 lowcode-jdk17 前端 API 合同、领域入口与治理计划
 ├── spark-utils/                 # 🛠️ 共享工具（Logger、HTTP、能力键、基础类型）
-├── vite-plugin-spark-catalog/   # 组件扫描配置与命名工具
-└── vxe-table/                   # 📋 表格插件工作区（VXE Table 集成与适配）
+└── vite-plugin-spark-catalog/   # 组件扫描配置与命名工具
 ```
 
 - 运行时主线：`spark-app` + `spark-component` + `spark-data` + `spark-project-model`
@@ -83,9 +81,6 @@ packages/
 ```bash
 # 安装依赖
 pnpm install
-
-# 只启动前端
-pnpm run dev:fe
 
 # 启动前端开发环境（需配置 lowcode-jdk17 网关）
 pnpm run dev

@@ -6,8 +6,12 @@ export type {
   LowcodeDatabase,
   LowcodeDatabaseCatalog,
   LowcodeDatabaseField,
+  LowcodeDatabaseResource,
+  LowcodeDatabaseResourceSelector,
+  LowcodeDatabaseResourceType,
   LowcodeDatabaseServer,
   LowcodeDatabaseTable,
+  LowcodeDatabaseView,
   LowcodeCatalogSourceError,
 } from './catalog/lowcode-catalog-api.js'
 export { LowcodeDesignApi } from './design/lowcode-design-api.js'
@@ -20,6 +24,7 @@ export { DataSpaceApi } from './platform/data-space/data-space-api.js'
 export { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './platform/data-space/design/data-space-design-api.js'
 export type {
   DataSpaceDesignSnapshot,
+  DataSpaceDesignReadInput,
   DataSpaceInputParameter,
 } from './platform/data-space/design/data-space-design-api.js'
 export type {
@@ -29,16 +34,21 @@ export type {
 export { DataSpaceFrontendModel } from './platform/data-space/data-space.js'
 export type {
   DataSpaceFieldReference,
+  DataSpaceFrontendModelQuery,
   DataSpaceFrontendModelSnapshot,
-  DataSpaceRelationReference,
+  LowcodeModelRelationRecord,
+  DataSpaceResourceField,
   DataSpaceResourceReference,
   DataSpaceResourceType,
 } from './platform/data-space/data-space.js'
 export { DataSpaceRuntimeApi } from './platform/data-space/runtime/data-space-runtime-api.js'
 export type {
   DataSpaceRuntimeFilter,
+  DataSpaceRuntimeInputParameter,
   DataSpaceRuntimeQuery,
+  DataSpaceRuntimePreparedQuery,
   DataSpaceRuntimeRow,
+  DataSpaceRuntimeSort,
   DataSpaceRuntimeSnapshot,
   DataSpaceSparsePermission,
 } from './platform/data-space/runtime/data-space-runtime-api.js'

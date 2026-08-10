@@ -30,13 +30,16 @@ describe('DataSet relation rebuild', () => {
           },
         },
       },
-      tableRelations: [
+      resourceRelations: [
         { parentTable: 'Departments', childTable: 'Employees', parentField: 'id', childField: 'deptId' },
       ],
-      viewDependencies: [
+      viewCascades: [
         {
           parentTable: 'Departments',
+          parentViewId: 'default',
           childTable: 'Employees',
+          childViewId: 'default',
+          filterBindings: [{ sourceField: 'id', targetField: 'deptId' }],
           dependencyType: 'currentRow',
         },
       ],
@@ -55,7 +58,7 @@ describe('DataSet relation rebuild', () => {
     expect(child?.rows[0]).toMatchObject({ id: 102, deptId: 2 })
   })
 
-  it('运行期 addRelation/addDependency 会重建内部关系图', () => {
+  it('运行期 addResourceRelation/addCascade 会重建内部关系图', () => {
     const ds = DataSet.fromJson({
       dataSetName: 'RuntimeRelationDataSet',
       tables: {
@@ -86,15 +89,18 @@ describe('DataSet relation rebuild', () => {
       },
     })
 
-    ds.addRelation({
+    ds.addResourceRelation({
       parentTable: 'Departments',
       childTable: 'Employees',
       parentField: 'id',
       childField: 'deptId',
     })
-    ds.addDependency({
+    ds.addCascade({
       parentTable: 'Departments',
+      parentViewId: 'default',
       childTable: 'Employees',
+      childViewId: 'default',
+      filterBindings: [{ sourceField: 'id', targetField: 'deptId' }],
       dependencyType: 'currentRow',
     })
 

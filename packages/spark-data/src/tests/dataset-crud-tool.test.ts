@@ -157,7 +157,7 @@ describe('DataSetCrudTool', () => {
     expect(exported?.businessCategory).toBe('reference')
   })
 
-  it('should support relation and dependency CRUD including ambiguous pair disambiguation', () => {
+  it('should support resource relation and DataView cascade CRUD including ambiguous pair disambiguation', () => {
     const tool = new DataSetCrudTool('RelationDS')
 
     tool.createTable({
@@ -176,36 +176,123 @@ describe('DataSetCrudTool', () => {
       ],
     })
 
-    tool.createRelation({ parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId' })
-    tool.createRelation({ parentTable: 'Orders', childTable: 'Items', parentField: 'code', childField: 'orderCode' })
+    tool.createResourceRelation({ parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId' })
+    tool.createResourceRelation({ parentTable: 'Orders', childTable: 'Items', parentField: 'code', childField: 'orderCode' })
 
-    expect(() => tool.getRelation({ parentTable: 'Orders', childTable: 'Items' })).toThrow(/ambiguous/)
+    expect(() => tool.getResourceRelation({ parentTable: 'Orders', childTable: 'Items' })).toThrow(/ambiguous/)
 
-    tool.deleteRelation({ parentTable: 'Orders', childTable: 'Items', parentField: 'code', childField: 'orderCode' })
-    expect(tool.listRelations({ parentTable: 'Orders', childTable: 'Items' })).toHaveLength(1)
+    tool.deleteResourceRelation({ parentTable: 'Orders', childTable: 'Items', parentField: 'code', childField: 'orderCode' })
+    expect(tool.listResourceRelations({ parentTable: 'Orders', childTable: 'Items' })).toHaveLength(1)
 
-    tool.createDependency({
-      dependency: {
+    tool.createCascade({
+      cascade: {
         parentTable: 'Orders',
+        parentViewId: 'default',
         childTable: 'Items',
+        childViewId: 'default',
+        filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
         dependencyType: 'currentRow',
         autoLoad: true,
       },
     })
-    expect(tool.getDependency({ parentTable: 'Orders', childTable: 'Items' })?.dependencyType).toBe('currentRow')
-
-    tool.updateDependency({
+    const cascadeSelector = {
       parentTable: 'Orders',
+      parentViewId: 'default',
       childTable: 'Items',
+      childViewId: 'default',
+    }
+    expect(tool.getCascade(cascadeSelector)?.dependencyType).toBe('currentRow')
+
+    tool.updateCascade({
+      ...cascadeSelector,
       updates: {
         dependencyType: 'selectedRows',
         autoLoad: false,
       },
     })
-    expect(tool.getDependency({ parentTable: 'Orders', childTable: 'Items' })?.dependencyType).toBe('selectedRows')
+    expect(tool.getCascade(cascadeSelector)?.dependencyType).toBe('selectedRows')
 
-    tool.deleteDependency({ parentTable: 'Orders', childTable: 'Items' })
-    expect(tool.getDependency({ parentTable: 'Orders', childTable: 'Items' })).toBeUndefined()
+    tool.deleteCascade(cascadeSelector)
+    expect(tool.getCascade(cascadeSelector)).toBeUndefined()
+  })
+
+  it('should keep resource mappings and DataView cascade bindings aligned when a column is renamed', () => {
+    const tool = DataSetCrudTool.fromJson({
+      dataSetName: 'RenameDS',
+      tables: {
+        Customers: {
+          columns: [{ name: 'id', type: 'string', isPrimaryKey: true }],
+          views: {
+            default: {},
+            customerModel: {
+              fieldProjection: [{
+                fieldId: 'customer-id',
+                source: 'resource',
+                resourceFieldId: 'customer-id',
+                resourceField: 'id',
+                viewField: 'id',
+                type: 'string',
+                label: '客户 ID',
+                output: true,
+                sortOrder: 0,
+                sortDirection: null,
+                group: false,
+                distinct: false,
+                primaryKey: true,
+                value: '',
+                valueFunction: '',
+                expression: '',
+              }],
+            },
+          },
+        },
+        Orders: {
+          columns: [{ name: 'customerId', type: 'string' }],
+          views: { default: {}, orderModel: {} },
+        },
+      },
+      resourceRelations: [{
+        parentTable: 'Customers',
+        childTable: 'Orders',
+        parentField: 'id',
+        childField: 'customerId',
+        fieldMappings: [{ parentResourceField: 'id', childResourceField: 'customerId' }],
+      }],
+      viewCascades: [{
+        parentTable: 'Customers',
+        parentViewId: 'customerModel',
+        childTable: 'Orders',
+        childViewId: 'orderModel',
+        filterBindings: [{ sourceField: 'id', targetField: 'customerId' }],
+      }],
+    })
+
+    tool.renameColumn({ tableName: 'Customers', columnName: 'id', newColumnName: 'customerKey' })
+
+    expect(tool.dataSet.resourceRelations?.[0]).toMatchObject({
+      parentField: 'customerKey',
+      fieldMappings: [{ parentResourceField: 'customerKey', childResourceField: 'customerId' }],
+    })
+    expect(tool.dataSet.viewCascades?.[0]?.filterBindings).toEqual([
+      { sourceField: 'customerKey', targetField: 'customerId' },
+    ])
+    expect(tool.getView({ tableName: 'Customers', viewId: 'customerModel' })?.fieldProjection).toMatchObject([
+      { resourceField: 'customerKey', viewField: 'customerKey' },
+    ])
+  })
+
+  it('should reject deleting a column referenced by a resource relation or DataView cascade', () => {
+    const tool = new DataSetCrudTool('DeleteGuardDS')
+    tool.createTable({ tableName: 'Parents', columns: [{ name: 'id', type: 'string' }] })
+    tool.createTable({ tableName: 'Children', columns: [{ name: 'parentId', type: 'string' }] })
+    tool.createResourceRelation({
+      parentTable: 'Parents',
+      childTable: 'Children',
+      parentField: 'id',
+      childField: 'parentId',
+    })
+
+    expect(() => tool.deleteColumn({ tableName: 'Parents', columnName: 'id' })).toThrow(/resourceRelations/)
   })
 
   it('SparkData namespace should expose createDataSetCrudTool factory', () => {

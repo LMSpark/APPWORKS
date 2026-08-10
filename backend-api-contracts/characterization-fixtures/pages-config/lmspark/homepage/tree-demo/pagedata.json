@@ -1,6 +1,6 @@
 {
   "dataSetName": "TreeDemoNavigationEditor",
-  "tableRelations": [
+  "resourceRelations": [
     {
       "parentTable": "NavigationNodes",
       "childTable": "NodeEditorProfiles",

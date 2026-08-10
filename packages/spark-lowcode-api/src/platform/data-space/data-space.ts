@@ -2,28 +2,80 @@ import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 
 export type DataSpaceResourceType = 'table' | 'view' | 'dictionary' | 'interface' | 'json' | 'file'
 
+export type DataSpaceResourceField = Readonly<{
+  resourceFieldId: string
+  name: string
+  label: string
+  dataType: string
+  dataTypeName: string
+  length: string
+  nullable: boolean | null
+  primaryKey: boolean | null
+  unique: boolean | null
+  system: boolean | null
+  defaultValue: string
+  description: string
+  order: number | null
+}>
+
 export type DataSpaceResourceReference = Readonly<{
-  resourceId?: string
-  databaseId?: string
+  resourceId: string
+  databaseId: string | null
   resourceName: string
   resourceType: DataSpaceResourceType
   primaryKeyField: string
-  databaseName?: string
+  databaseName: string
+  fields: readonly DataSpaceResourceField[]
 }>
 
 export type DataSpaceFieldReference = Readonly<{
   fieldId: string
+  resourceFieldId: string | null
   resourceField: string
-  alias?: string
+  alias: string
+  fieldType: string
+  output: boolean
+  order: number
+  orderType: string
+  group: number
+  distinct: boolean
+  primaryKey: boolean
+  value: string
+  valueFunction: string
+  expression: string
 }>
 
-export type DataSpaceRelationReference = Readonly<{
-  relationId: string
-  sourceModelId: string
-  targetModelId: string
-  expression: string
+/** lowcode Base_DataModel_Relation 的只读原始合同。 */
+export type LowcodeModelRelationRecord = Readonly<{
+  sourceRelationId: string
+  dataSpaceId: string
+  parentModelId: string
+  childModelId: string
+  parentResourceName: string
+  childResourceName: string
+  filterExpression: string
   dependencyType: string
   cascadeDelete: boolean
+}>
+
+export type DataSpaceFrontendModelQuery = Readonly<{
+  outputType: string
+  filter: string
+  distinct: boolean
+  businessMain: boolean
+  joinType: string
+  joinFilter: string
+  parentModelId: string
+  requestComplete: string
+  hasChildField: string
+  parentField: string
+  foreignKeyFields: string
+  requestType: string
+  shortName: string
+  cacheType: string
+  items: string
+  selfType: string
+  topValue: string
 }>
 
 export type DataSpaceFrontendModelSnapshot = Readonly<{
@@ -32,7 +84,8 @@ export type DataSpaceFrontendModelSnapshot = Readonly<{
   name: string
   resource: DataSpaceResourceReference
   fields: readonly DataSpaceFieldReference[]
-  relations: readonly DataSpaceRelationReference[]
+  relations: readonly LowcodeModelRelationRecord[]
+  query: DataSpaceFrontendModelQuery
 }>
 
 function requiredText(value: string, name: string): string {
@@ -53,7 +106,8 @@ export class DataSpaceFrontendModel {
   public readonly name: string
   public readonly resource: DataSpaceResourceReference
   public readonly fields: readonly DataSpaceFieldReference[]
-  public readonly relations: readonly DataSpaceRelationReference[]
+  public readonly relations: readonly LowcodeModelRelationRecord[]
+  public readonly query: DataSpaceFrontendModelQuery
 
   public constructor(snapshot: DataSpaceFrontendModelSnapshot) {
     this.dataSpaceId = requiredText(snapshot.dataSpaceId, 'dataSpaceId')
@@ -61,8 +115,14 @@ export class DataSpaceFrontendModel {
     this.name = requiredText(snapshot.name, '前端模型 name')
     this.resource = {
       ...snapshot.resource,
+      resourceId: requiredText(snapshot.resource.resourceId, 'resourceId'),
       resourceName: requiredText(snapshot.resource.resourceName, 'resourceName'),
       primaryKeyField: requiredText(snapshot.resource.primaryKeyField, 'primaryKeyField'),
+      fields: snapshot.resource.fields.map((field) => ({
+        ...field,
+        resourceFieldId: requiredText(field.resourceFieldId, 'resourceFieldId'),
+        name: requiredText(field.name, '资源字段 name'),
+      })),
     }
     this.fields = snapshot.fields.map((field) => ({
       ...field,
@@ -70,18 +130,27 @@ export class DataSpaceFrontendModel {
       resourceField: requiredText(field.resourceField, 'resourceField'),
     }))
     this.relations = snapshot.relations.map((relation) => ({
-      relationId: requiredText(relation.relationId, 'relationId'),
-      sourceModelId: requiredText(relation.sourceModelId, 'sourceModelId'),
-      targetModelId: requiredText(relation.targetModelId, 'targetModelId'),
-      expression: relation.expression,
+      sourceRelationId: requiredText(relation.sourceRelationId, 'sourceRelationId'),
+      dataSpaceId: requiredText(relation.dataSpaceId, 'relation dataSpaceId'),
+      parentModelId: requiredText(relation.parentModelId, 'parentModelId'),
+      childModelId: requiredText(relation.childModelId, 'childModelId'),
+      parentResourceName: requiredText(relation.parentResourceName, 'parentResourceName'),
+      childResourceName: requiredText(relation.childResourceName, 'childResourceName'),
+      filterExpression: relation.filterExpression,
       dependencyType: relation.dependencyType,
       cascadeDelete: relation.cascadeDelete,
     }))
+    this.query = { ...snapshot.query }
+    assertUnique(this.resource.fields.map((field) => field.resourceFieldId), 'resourceFieldId')
+    assertUnique(this.resource.fields.map((field) => field.name), '资源字段 name')
     assertUnique(this.fields.map((field) => field.fieldId), 'fieldId')
-    assertUnique(this.relations.map((relation) => relation.relationId), 'relationId')
+    assertUnique(this.relations.map((relation) => relation.sourceRelationId), 'sourceRelationId')
     for (const relation of this.relations) {
-      if (relation.sourceModelId !== this.modelId && relation.targetModelId !== this.modelId) {
-        throw new LowcodeApiError(0, `关系 ${relation.relationId} 未引用当前 modelId`)
+      if (relation.dataSpaceId !== this.dataSpaceId) {
+        throw new LowcodeApiError(0, `关系 ${relation.sourceRelationId} 属于其他数据空间`)
+      }
+      if (relation.parentModelId !== this.modelId && relation.childModelId !== this.modelId) {
+        throw new LowcodeApiError(0, `关系 ${relation.sourceRelationId} 未引用当前 modelId`)
       }
     }
   }
@@ -94,6 +163,7 @@ export class DataSpaceFrontendModel {
       resource: this.resource,
       fields: this.fields,
       relations: this.relations,
+      query: this.query,
     }
   }
 }

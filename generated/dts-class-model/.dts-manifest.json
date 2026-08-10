@@ -534,17 +534,7 @@
     "packages/spark-app/src/config/index.ts": {
       "sourceFile": "packages/spark-app/src/config/index.ts",
       "shardFile": "files/packages/spark-app/src/config/index.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:50.937Z"
-    },
-    "packages/spark-app/src/config/loader.ts": {
-      "sourceFile": "packages/spark-app/src/config/loader.ts",
-      "shardFile": "files/packages/spark-app/src/config/loader.ts.json",
-      "sourceModifiedAt": "2026-06-14T13:57:55.662Z"
-    },
-    "packages/spark-app/src/config/types.ts": {
-      "sourceFile": "packages/spark-app/src/config/types.ts",
-      "shardFile": "files/packages/spark-app/src/config/types.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:50.940Z"
+      "sourceModifiedAt": "2026-08-10T01:24:29.336Z"
     },
     "packages/spark-app/src/constants.ts": {
       "sourceFile": "packages/spark-app/src/constants.ts",
@@ -564,12 +554,12 @@
     "packages/spark-app/src/index.ts": {
       "sourceFile": "packages/spark-app/src/index.ts",
       "shardFile": "files/packages/spark-app/src/index.ts.json",
-      "sourceModifiedAt": "2026-08-09T23:25:53.082Z"
+      "sourceModifiedAt": "2026-08-10T01:23:35.777Z"
     },
     "packages/spark-app/src/logger/index.ts": {
       "sourceFile": "packages/spark-app/src/logger/index.ts",
       "shardFile": "files/packages/spark-app/src/logger/index.ts.json",
-      "sourceModifiedAt": "2026-06-14T20:07:15.496Z"
+      "sourceModifiedAt": "2026-08-10T01:31:35.630Z"
     },
     "packages/spark-app/src/namespace.ts": {
       "sourceFile": "packages/spark-app/src/namespace.ts",
@@ -3224,7 +3214,7 @@
     "src/main.ts": {
       "sourceFile": "src/main.ts",
       "shardFile": "files/src/main.ts.json",
-      "sourceModifiedAt": "2026-08-09T23:15:49.852Z"
+      "sourceModifiedAt": "2026-08-10T01:26:19.509Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",

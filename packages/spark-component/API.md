@@ -280,7 +280,7 @@ cap?.doWork()
 
 | 键 | 类型 | 说明 |
 |---|---|---|
-| `PAGE_RUNTIME_SERVICES` | `PageRuntimeServicesCapability`，来自 `@spark-appworks/spark-component` | `{ router?, logger?, tenant?, configLoader?, authService?, pageService? }` |
+| `PAGE_RUNTIME_SERVICES` | `PageRuntimeServicesCapability`，来自 `@spark-appworks/spark-component` | `{ router?, logger?, tenant?, authService?, pageService? }` |
 | `PAGE_SERVICE` | `PageServiceCapability` | `showMessage / showConfirm / showLoading / navigate` |
 | `PAGE_DATASET` | `DataSetContract` | 页面级 DataSet，由 PageRenderer 提供 |
 | `DATA_SOURCE` | `DataSource` | 组件级 DataView，由容器组件提供 |

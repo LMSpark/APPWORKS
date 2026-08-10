@@ -11,10 +11,19 @@ import {
 
 export type DataSpaceRuntimeFilter = Readonly<Record<string, unknown>>
 
+export type DataSpaceRuntimeInputParameter = Readonly<Record<string, unknown>>
+
+export type DataSpaceRuntimeSort = Readonly<{
+  fieldId: string
+  direction: 'ascending' | 'descending'
+}>
+
 export type DataSpaceRuntimeQuery = Readonly<{
   formKey: string
   model: DataSpaceFrontendModel
   filter?: DataSpaceRuntimeFilter | null
+  inputParameters?: readonly DataSpaceRuntimeInputParameter[]
+  sort?: readonly DataSpaceRuntimeSort[]
   pageIndex?: number
   pageSize?: number
 }>
@@ -43,6 +52,13 @@ export type DataSpaceRuntimeSnapshot = Readonly<{
   systemKey: string
 }>
 
+export type DataSpaceRuntimePreparedQuery = Readonly<{
+  path: '/api/DataOperation/GetData'
+  method: 'POST'
+  headers: Readonly<Record<string, string>>
+  data: Readonly<Record<string, unknown>>
+}>
+
 type LowcodeResourceType = '数据库表' | '视图' | '字典' | '接口' | 'JSON' | '文件'
 
 const RESOURCE_TYPE_WIRE: Readonly<Record<string, LowcodeResourceType>> = {
@@ -67,6 +83,36 @@ function requiredText(value: string, name: string): string {
 function optionalText(value: string | undefined): string | undefined {
   const normalized = value?.trim()
   return normalized === '' ? undefined : normalized
+}
+
+function structuredText(value: string, name: string): unknown {
+  const normalized = value.trim()
+  if (!normalized) return null
+  try {
+    return JSON.parse(normalized)
+  } catch {
+    throw new LowcodeApiError(0, `${name} 不是有效 JSON`)
+  }
+}
+
+function queryFilter(query: DataSpaceRuntimeQuery): unknown {
+  const modelFilter = structuredText(query.model.query.filter, '前端模型 Filter')
+  const runtimeFilter = query.filter ?? null
+  if (modelFilter === null) return runtimeFilter
+  if (runtimeFilter === null) return modelFilter
+  return { Type: 'and', Filters: [modelFilter, runtimeFilter] }
+}
+
+function fieldSort(query: DataSpaceRuntimeQuery, fieldId: string): Readonly<{
+  order: number
+  orderType: string | null
+}> | null {
+  if (query.sort === undefined) return null
+  const index = query.sort.findIndex((item) => item.fieldId === fieldId)
+  if (index < 0) return { order: 0, orderType: null }
+  const item = query.sort[index]
+  if (item === undefined) return null
+  return { order: query.sort.length - index, orderType: item.direction }
 }
 
 function stringArray(value: unknown): readonly string[] {
@@ -107,26 +153,39 @@ function rowSystemKey(row: Record<string, unknown>): string {
 function queryPayload(query: DataSpaceRuntimeQuery): Readonly<Record<string, unknown>> {
   const resource = query.model.resource
   const table: Record<string, unknown> = {
-    Name: resource.resourceName,
+    Name: query.model.name,
+    MetaName: resource.resourceName,
     PrimaryKeyFields: resource.primaryKeyField,
     Type: RESOURCE_TYPE_WIRE[resource.resourceType],
-    OutputType: 'Table',
-    Filter: query.filter ?? null,
-    inputParams: [],
-    DISTINCT: true,
-    IsBusinessMain: resource.resourceType === 'table' ? 1 : 0,
+    OutputType: query.model.query.outputType || 'Table',
+    Filter: queryFilter(query),
+    inputParams: query.inputParameters ?? [],
+    DISTINCT: query.model.query.distinct,
+    IsBusinessMain: query.model.query.businessMain ? 1 : 0,
     RelationFilterType: 'and',
-    Fields: query.model.fields.map((field) => ({
-      Name: field.resourceField,
-      AsName: optionalText(field.alias) ?? field.resourceField,
-      IsOutput: true,
-      Order: 0,
-      OrderType: null,
-      Group: 0,
-    })),
+    Fields: query.model.fields.map((field) => {
+      const sort = fieldSort(query, field.fieldId)
+      const valueFunction = structuredText(field.valueFunction, `模型字段 ${field.fieldId} ValueFun`)
+      return {
+        Name: field.resourceField,
+        AsName: optionalText(field.alias) ?? field.resourceField,
+        FieldType: optionalText(field.fieldType),
+        IsOutput: field.output,
+        Order: sort?.order ?? field.order,
+        OrderType: sort?.orderType ?? optionalText(field.orderType) ?? null,
+        Group: field.group,
+        DISTINCT: field.distinct,
+        IsPKey: field.primaryKey,
+        Value: field.value,
+        ValueFun: valueFunction,
+        Expression: field.expression,
+      }
+    }),
   }
-  const databaseName = resource.databaseName?.trim()
+  const databaseName = resource.databaseName.trim()
   if (databaseName) table['DbName'] = databaseName
+  if (query.model.query.shortName) table['ShortName'] = query.model.query.shortName
+  if (query.model.query.foreignKeyFields) table['ForeignKeyFields'] = query.model.query.foreignKeyFields
   const payload: Record<string, unknown> = { Table: [table] }
   if ((query.pageSize ?? 0) > 0) {
     payload['PageParam'] = { index: query.pageIndex ?? 0, size: query.pageSize }
@@ -142,13 +201,28 @@ export class DataSpaceRuntimeApi {
   }
 
   public async query(query: DataSpaceRuntimeQuery): Promise<DataSpaceRuntimeSnapshot> {
-    const formKey = requiredText(query.formKey, 'formKey')
+    const prepared = this.prepareQuery(query)
     const result = await this.client.requestResult({
+      path: prepared.path,
+      method: prepared.method,
+      data: prepared.data,
+      headers: prepared.headers,
+    })
+    return this.parseQueryResult(query, result)
+  }
+
+  public prepareQuery(query: DataSpaceRuntimeQuery): DataSpaceRuntimePreparedQuery {
+    const formKey = requiredText(query.formKey, 'formKey')
+    return {
       path: '/api/DataOperation/GetData',
       method: 'POST',
       data: queryPayload(query),
       headers: { 'x-FormKey': formKey },
-    })
+    }
+  }
+
+  public parseQueryResult(query: DataSpaceRuntimeQuery, result: unknown): DataSpaceRuntimeSnapshot {
+    const formKey = requiredText(query.formKey, 'formKey')
     if (!isRecord(result)) throw new LowcodeApiError(0, '数据空间运行响应不是对象')
     if (typeof result['allowAdd'] !== 'boolean') {
       throw new LowcodeApiError(0, '数据空间运行响应缺少后端 allowAdd')

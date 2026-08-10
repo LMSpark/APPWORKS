@@ -611,7 +611,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         <div v-for="rel in relations" :key="rel.ID" class="relation-row">
           <span class="rel-name">{{ rel.RELATION_NAME }}</span>
           <span class="rel-arrow">{{ rel.parentPhysicalTableName || rel.parentTableName }}.{{ rel.PARENT_FIELD }} → {{ rel.childPhysicalTableName || rel.childTableName }}.{{ rel.CHILD_FIELD }}</span>
-          <el-button size="small" type="danger" text :disabled="catalogMutationsDisabled" @click="deleteRelation(rel.ID)">删除</el-button>
+          <el-button size="small" type="danger" text :disabled="catalogMutationsDisabled" @click="deleteResourceRelation(rel.ID)">删除</el-button>
         </div>
       </div>
       <div v-else class="empty">暂无表关系</div>
@@ -1462,7 +1462,7 @@ async function submitCreateRelation() {
   reportGovernanceBlocked()
 }
 
-async function deleteRelation(id: string) {
+async function deleteResourceRelation(id: string) {
   void id
   reportGovernanceBlocked()
 }

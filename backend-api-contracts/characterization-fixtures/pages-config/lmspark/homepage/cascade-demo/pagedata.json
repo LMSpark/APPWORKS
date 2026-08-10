@@ -1,9 +1,12 @@
 {
   "dataSetName": "CascadeDemo",
-  "tableRelations": [
+  "resourceRelations": [
     {
       "parentTable": "Users",
+      "parentViewId": "default",
       "childTable": "Orders",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "userId" }],
       "childField": "userId",
       "relationName": "UserOrders",
       "cascadeUpdate": true,
@@ -11,13 +14,16 @@
     },
     {
       "parentTable": "Orders",
+      "parentViewId": "default",
       "childTable": "OrderItems",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "orderId" }],
       "childField": "orderId",
       "relationName": "OrderItems",
       "cascadeDelete": true
     }
   ],
-  "viewDependencies": [
+  "viewCascades": [
     {
       "parentTable": "Users",
       "childTable": "Orders",

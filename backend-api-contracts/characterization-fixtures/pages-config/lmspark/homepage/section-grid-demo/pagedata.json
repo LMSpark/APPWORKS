@@ -1,6 +1,6 @@
 {
   "dataSetName": "SectionGridDemo",
-  "tableRelations": [],
+  "resourceRelations": [],
   "tables": {
     "Users": {
       "columns": [

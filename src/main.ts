@@ -74,7 +74,6 @@ const {
   SparkApp,
   PluginManager,
   configureRemoteLogger,
-  ConfigLoader,
   createLogger,
   getNavTree,
   getNavHomePath,
@@ -83,6 +82,36 @@ const {
 } = SparkAppRuntime
 const startupLogger = createLogger('main')
 const PLATFORM_PATH_PREFIX = '/platform'
+const HOST_APP_CONFIG: AppConfig = {
+  apiBaseUrl: '/api',
+  logLevel: import.meta.env.PROD ? 'info' : 'debug',
+  enableMock: false,
+  enableRemoteConfig: false,
+  version: '1.0.0',
+  features: {
+    enableExport: true,
+    enableOffline: false,
+  },
+}
+const HOST_PLUGIN_CONFIGS = {
+  'element-plus': {
+    enabled: true,
+    options: {
+      size: 'default',
+      zIndex: 2000,
+    },
+    priority: 1,
+  },
+  'vxe-table': {
+    enabled: true,
+    priority: 2,
+  },
+}
+const HOST_SPARK_CONFIG = { enabled: true }
+const HOST_PAGE_NODE_CONFIG = {
+  apiBaseUrl: '/api',
+  homePath: '/home',
+}
 
 function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
   const session = lowcodeApi.session.get()
@@ -147,7 +176,7 @@ import ErrorFallback from './components/ErrorFallback.vue'
 import './style.css'
 
 // ============================================================================
-// 应用启动入口（配置从 JSON 加载）
+// 应用启动入口（宿主配置由 composition root 明确提供）
 // ============================================================================
 
 /**
@@ -220,9 +249,9 @@ function mountStartupError(error: unknown, fallbackMessage: string): void {
  * 启动应用
  *
  * 流程：
- * 1. 识别租户（URL 参数、子域名、localStorage）
- * 2. 加载配置（默认配置 + 租户配置）
- * 3. 动态导入 UI 插件
+ * 1. 清理损坏的页面缓存
+ * 2. 动态导入 UI 插件
+ * 3. 从 lowcode 会话解析企业与应用上下文
  * 4. 启动 SPARK 应用
  */
 async function startApp() {
@@ -253,16 +282,7 @@ async function startApp() {
       }
     }
 
-    startupLogger.info('⏳ 正在加载应用配置...')
-
-    // 1. 加载配置（支持多租户）
-    // SPARK 产品运行配置属于前端宿主；企业身份与应用导航只来自 lowcode 会话和接口。
-    const appConfig = await ConfigLoader.getInstance().loadConfig()
-
-    startupLogger.info('✅ 配置加载完成', {
-      tenant: appConfig.tenant?.tenantName ?? '默认',
-      version: appConfig.config.version
-    })
+    startupLogger.info('✅ 宿主配置已就绪', { version: HOST_APP_CONFIG.version })
 
     // ━━ 1.5 全链路 Logger 贯穿（APP 层唯一注册点） ━━━━━━━━━━━━━━━━━━━━━━━
     //
@@ -276,11 +296,16 @@ async function startApp() {
 
     const auditRemoteLogsEnabled = import.meta.env['VITE_AUDIT_REMOTE_LOGS'] === 'true'
     if (auditRemoteLogsEnabled) {
+      const rawAuditEndpoint: unknown = import.meta.env['VITE_AUDIT_LOG_ENDPOINT']
+      const auditEndpoint = typeof rawAuditEndpoint === 'string' ? rawAuditEndpoint.trim() : ''
+      if (auditEndpoint === '') {
+        throw new Error('VITE_AUDIT_REMOTE_LOGS=true 时必须显式配置 VITE_AUDIT_LOG_ENDPOINT')
+      }
       const remoteTransport = configureRemoteLogger({
-        endpoint: appConfig.logger.remoteEndpoint ?? '/api/logs',
-        minLevel: appConfig.logger.minRemoteLevel ?? 'debug',
-        batchSize: appConfig.logger.batchSize ?? 50,
-        flushInterval: appConfig.logger.flushInterval ?? 5000,
+        endpoint: auditEndpoint,
+        minLevel: 'debug',
+        batchSize: 50,
+        flushInterval: 5000,
         getPageId: () => _currentPageId,
         sessionId: _sessionId,
       })
@@ -289,8 +314,8 @@ async function startApp() {
       // remoteTransport 已通过 configureRemoteLogger 注册到 spark-app _globalTransports
 
       startupLogger.info('📡 远程日志已启用（全链路）', {
-        endpoint: appConfig.logger.remoteEndpoint,
-        minLevel: appConfig.logger.minRemoteLevel ?? 'debug',
+        endpoint: auditEndpoint,
+        minLevel: 'debug',
       })
     } else {
       startupLogger.info('📋 日志模式：本地诊断（远程审计未启用）', {
@@ -303,19 +328,19 @@ async function startApp() {
 
     // 3. 动态加载插件（根据配置）
     startupLogger.info('🔌 正在加载 UI 插件...')
-    const pluginConfigs = isRecord(appConfig.plugins) ? appConfig.plugins : {}
+    const pluginConfigs = HOST_PLUGIN_CONFIGS
     const pluginInstances = await PluginManager.loadPlugins(pluginConfigs)
     const plugins = pluginInstances.map(p => p.plugin)
 
     // 加载插件样式
     const epConfig = pluginConfigs['element-plus']
-    if (epConfig === true || (typeof epConfig === 'object' && epConfig.enabled === true)) {
+    if (epConfig.enabled) {
       await import('element-plus/dist/index.css')
       // Element Plus 暗黑模式 CSS 变量（html.dark 时自动覆盖）
       await import('element-plus/theme-chalk/dark/css-vars.css')
     }
     const vxeConfig = pluginConfigs['vxe-table']
-    if (vxeConfig === true || (typeof vxeConfig === 'object' && vxeConfig.enabled === true)) {
+    if (vxeConfig.enabled) {
       await import('vxe-table/lib/style.css')
     }
 
@@ -355,8 +380,8 @@ async function startApp() {
       rootComponent: App,
 
       // === 路由配置（从 JSON 加载）===
-      routerMode: appConfig.router.mode,
-      mountTarget: appConfig.mountTarget,
+      routerMode: 'history',
+      mountTarget: '#app',
 
       // === UI 插件（动态加载）===
       plugins,
@@ -366,14 +391,14 @@ async function startApp() {
 
       // === SPARK 组件系统配置（从 JSON 加载）===
       spark: {
-        ...appConfig.spark
+        ...HOST_SPARK_CONFIG
         // SparkApp 会自动导入 virtual:spark-components
         // 不需要手动传递 registerComponents
       },
 
       // === PageNode 运行配置（路由从 DB 动态加载）===
       pageNode: {
-        ...appConfig.pageNode,
+        ...HOST_PAGE_NODE_CONFIG,
         getProjectId: () => lowcodeApi.application.get()?.application.id ?? 'homepage',
         readPageFile: readLowcodePageFile,
         pageComponent: SparkPageRenderer,
@@ -391,7 +416,7 @@ async function startApp() {
       },
 
       // === 应用基础配置（从 JSON 加载）===
-      config: appConfig.config,
+      config: HOST_APP_CONFIG,
 
       // 认证会话只由 lowcode 前端 API 解释，spark-app 不再绑定旧认证协议。
       authenticate: resolveLowcodeBootstrapContext,

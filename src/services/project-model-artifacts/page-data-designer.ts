@@ -16,7 +16,7 @@ import type {
   DataColumn,
   DataSetMetadata,
   TableMetadata,
-  TableRelation,
+  DataResourceRelation,
 } from '@spark-appworks/spark-data'
 import { withMeta } from '@spark-appworks/spark-json-document'
 
@@ -84,13 +84,13 @@ export const PAGE_DATA_JSON_SCHEMA: Record<string, unknown> = {
       type: 'object',
       additionalProperties: { $ref: '#/$defs/tableMetadata' },
     }),
-    tableRelations: withMeta('表关系集合', '描述表与表之间的父子关系。', {
+    resourceRelations: withMeta('数据资源关系集合', '描述 DataTable 所对应数据资源之间的字段关系，不表示 UI 输入联动。', {
       type: 'array',
-      items: { $ref: '#/$defs/tableRelation' },
+      items: { $ref: '#/$defs/dataResourceRelation' },
     }),
-    viewDependencies: withMeta('视图依赖集合', '描述父表 default 视图状态变化如何驱动子表 default 视图联动。', {
+    viewCascades: withMeta('DataView 输入级联集合', '描述源 DataView 的运行状态如何通过显式字段绑定驱动目标 DataView 查询。', {
       type: 'array',
-      items: { $ref: '#/$defs/viewDependency' },
+      items: { $ref: '#/$defs/dataViewCascade' },
     }),
     saveChanges: withMeta('保存策略', '描述 DataSet.saveChanges 的默认提交方式，例如走逐视图 CRUD 或后端统一事务。', {
       $ref: '#/$defs/dataSetSaveChangesConfig',
@@ -239,14 +239,30 @@ export const PAGE_DATA_JSON_SCHEMA: Record<string, unknown> = {
       },
       additionalProperties: false,
     }),
-    tableRelation: withMeta('表关系', '描述父表与子表之间的关联。', {
+    dataResourceRelationFieldMapping: withMeta('数据资源字段映射', '描述父数据资源字段与子数据资源字段的对应关系。', {
       type: 'object',
       properties: {
+        parentResourceField: { type: 'string' },
+        childResourceField: { type: 'string' },
+      },
+      required: ['parentResourceField', 'childResourceField'],
+      additionalProperties: false,
+    }),
+    dataResourceRelation: withMeta('数据资源关系', '描述两个 DataTable 所对应数据资源之间的字段关系；不承担 DataView 输入级联。', {
+      type: 'object',
+      properties: {
+        relationId: { type: 'string' },
+        sourceRelationId: { type: 'string' },
         relationName: { type: 'string' },
         parentTable: { type: 'string' },
         childTable: { type: 'string' },
         childField: { type: 'string' },
         parentField: { type: 'string' },
+        fieldMappings: {
+          type: 'array',
+          minItems: 1,
+          items: { $ref: '#/$defs/dataResourceRelationFieldMapping' },
+        },
         condition: { $ref: '#/$defs/jsonObject' },
         cascadeUpdate: { type: 'boolean' },
         cascadeDelete: { type: 'boolean' },
@@ -254,15 +270,33 @@ export const PAGE_DATA_JSON_SCHEMA: Record<string, unknown> = {
       required: ['parentTable', 'childTable'],
       additionalProperties: false,
     }),
-    viewDependency: withMeta('视图依赖', '描述父表 default 视图状态变化如何驱动子表 default 视图联动。', {
+    dataViewCascadeFilterBinding: withMeta('DataView 过滤绑定', '把源 DataView 行字段绑定为目标 DataView 的查询过滤字段。', {
       type: 'object',
       properties: {
+        sourceField: { type: 'string' },
+        targetField: { type: 'string' },
+      },
+      required: ['sourceField', 'targetField'],
+      additionalProperties: false,
+    }),
+    dataViewCascade: withMeta('DataView 输入级联', '描述两个明确 DataView 之间的运行时输入级联，不从数据资源关系自动推导。', {
+      type: 'object',
+      properties: {
+        cascadeId: { type: 'string' },
+        sourceRelationId: { type: 'string' },
         parentTable: { type: 'string' },
+        parentViewId: { type: 'string' },
         childTable: { type: 'string' },
+        childViewId: { type: 'string' },
+        filterBindings: {
+          type: 'array',
+          minItems: 1,
+          items: { $ref: '#/$defs/dataViewCascadeFilterBinding' },
+        },
         dependencyType: { type: 'string', enum: dependencyTypes },
         autoLoad: { type: 'boolean' },
       },
-      required: ['parentTable', 'childTable'],
+      required: ['parentTable', 'parentViewId', 'childTable', 'childViewId', 'filterBindings'],
       additionalProperties: false,
     }),
     tableMetadata: withMeta('数据表元数据', '描述一张表的列、资源语义、API 与视图配置。', {
@@ -311,7 +345,7 @@ columns: DesignerColumnProjection[]
 }
 
 /** Designer Relation Projection 的语义模型。 */
-export type DesignerRelationProjection = TableRelation & {
+export type DesignerRelationProjection = DataResourceRelation & {
     /** 关系类型：one-to-many（默认）/ one-to-one / many-to-many。 */
 relationType?: 'one-to-many' | 'one-to-one' | 'many-to-many'
 }
@@ -333,7 +367,7 @@ type LayoutForNewTable = (tableName: string, newIndex: number) => { x: number; y
 
 /** Designer Table Ui State Reconcile Input 的输入数据。 */
 export type DesignerTableUiStateReconcileInput = Readonly<{
-  /** 目标 DataSet 元数据，包含 tables / tableRelations / layout 等完整定义。 */
+  /** 目标 DataSet 元数据，包含 tables / resourceRelations / layout 等完整定义。 */
   metadata: DataSetMetadata
   /** 当前画布中已有的表投影快照，用于保留已有 ID 和坐标。 */
   currentTables: ReadonlyArray<Pick<DesignerTableProjection, 'tableName' | 'id' | 'x' | 'y' | 'columns'>>
@@ -403,7 +437,7 @@ export function projectDesignerTables(
 }
 
 export function projectDesignerRelations(metadata: DataSetMetadata): DesignerRelationProjection[] {
-  return (metadata.tableRelations ?? []).map((rel) => ({
+  return (metadata.resourceRelations ?? []).map((rel) => ({
     ...rel,
     relationType: 'one-to-many',
   }))
@@ -413,7 +447,7 @@ export function buildDataSetMetadataFromDesignerProjection(params: {
   dataSetName: string
   tables: readonly DesignerTableProjection[]
   relations: readonly DesignerRelationProjection[]
-  viewDependencies?: NonNullable<DataSetMetadata['viewDependencies']>
+  viewCascades?: NonNullable<DataSetMetadata['viewCascades']>
 }): DataSetMetadata {
   const tablesObj: Record<string, TableMetadata> = {}
   const tablePositions: Record<string, { x: number; y: number }> = {}
@@ -428,24 +462,27 @@ export function buildDataSetMetadataFromDesignerProjection(params: {
   return {
     dataSetName: params.dataSetName,
     tables: tablesObj,
-    tableRelations: params.relations.map((rel) => ({
+    resourceRelations: params.relations.map((rel) => ({
+      ...(rel.relationId !== undefined ? { relationId: rel.relationId } : {}),
+      ...(rel.sourceRelationId !== undefined ? { sourceRelationId: rel.sourceRelationId } : {}),
       parentTable: rel.parentTable,
       childTable: rel.childTable,
       ...(rel.parentField !== undefined ? { parentField: rel.parentField } : {}),
       ...(rel.childField !== undefined ? { childField: rel.childField } : {}),
+      ...(rel.fieldMappings !== undefined ? { fieldMappings: rel.fieldMappings } : {}),
       ...(rel.relationName !== undefined ? { relationName: rel.relationName } : {}),
       ...(rel.condition !== undefined ? { condition: rel.condition } : {}),
       ...(rel.cascadeUpdate !== undefined ? { cascadeUpdate: rel.cascadeUpdate } : {}),
       ...(rel.cascadeDelete !== undefined ? { cascadeDelete: rel.cascadeDelete } : {}),
     })),
-    ...(params.viewDependencies !== undefined ? { viewDependencies: params.viewDependencies } : {}),
+    ...(params.viewCascades !== undefined ? { viewCascades: params.viewCascades } : {}),
     layout: { tablePositions },
   }
 }
 
 export function hasDesignerProjectionChanges(current: DataSetMetadata, persisted: DataSetMetadata | null): boolean {
   if (!persisted) {
-    return Object.keys(current.tables).length > 0 || (current.tableRelations?.length ?? 0) > 0
+    return Object.keys(current.tables).length > 0 || (current.resourceRelations?.length ?? 0) > 0
   }
 
   if (current === persisted) return false
@@ -469,8 +506,8 @@ function isEqualComparableMetadata(a: DataSetMetadata, b: DataSetMetadata): bool
     if (!isEqualTableMetadata(at, bt)) return false
   }
 
-  const aRels = a.tableRelations ?? []
-  const bRels = b.tableRelations ?? []
+  const aRels = a.resourceRelations ?? []
+  const bRels = b.resourceRelations ?? []
   if (aRels.length !== bRels.length) return false
   for (let i = 0; i < aRels.length; i++) {
     const ar = aRels[i]
@@ -479,7 +516,7 @@ function isEqualComparableMetadata(a: DataSetMetadata, b: DataSetMetadata): bool
     if (!isEqualRelation(ar, br)) return false
   }
 
-  if (!isEqualViewDeps(a.viewDependencies, b.viewDependencies)) return false
+  if (!isEqualViewDeps(a.viewCascades, b.viewCascades)) return false
 
   const aPos = a.layout?.tablePositions
   const bPos = b.layout?.tablePositions
@@ -532,12 +569,15 @@ function isEqualColumn(a: DataColumn, b: DataColumn): boolean {
   )
 }
 
-function isEqualRelation(a: TableRelation, b: TableRelation): boolean {
+function isEqualRelation(a: DataResourceRelation, b: DataResourceRelation): boolean {
   return (
+    a.relationId === b.relationId &&
+    a.sourceRelationId === b.sourceRelationId &&
     a.parentTable === b.parentTable &&
     a.childTable === b.childTable &&
     a.parentField === b.parentField &&
     a.childField === b.childField &&
+    isEqualObject(a.fieldMappings, b.fieldMappings) &&
     a.relationName === b.relationName &&
     a.condition === b.condition &&
     a.cascadeUpdate === b.cascadeUpdate &&
@@ -550,8 +590,8 @@ function isViewDepArray(value: unknown): value is Array<Record<string, unknown>>
 }
 
 function isEqualViewDeps(
-  a: DataSetMetadata['viewDependencies'],
-  b: DataSetMetadata['viewDependencies'],
+  a: DataSetMetadata['viewCascades'],
+  b: DataSetMetadata['viewCascades'],
 ): boolean {
   if (!a && !b) return true
   if (!a || !b) return false
@@ -607,7 +647,7 @@ function normalizeDesignerComparableMetadata(metadata: DataSetMetadata): DataSet
 
   return {
     ...rest,
-    tableRelations: metadata.tableRelations ?? [],
+    resourceRelations: metadata.resourceRelations ?? [],
     ...(tableEntries.length > 0
       ? {
           layout: {

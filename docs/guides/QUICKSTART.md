@@ -1,69 +1,57 @@
 # 快速开始
 
-> 先跑起来，再理解模型：ProjectModel -> ConfigPageNode -> Renderer。
+## 环境
 
-## 安装与验证
+- Node.js 22.13+
+- pnpm 11
+- 可访问的 lowcode-jdk17 gateway
+
+```powershell
+pnpm install --frozen-lockfile
+$env:LOWCODE_GATEWAY_URL='http://127.0.0.1:8080'
+pnpm run dev
+```
+
+打开 Vite 输出的本地地址。AppWorks 只启动前端；开发态 `/api` 由 Vite 代理到显式 gateway。
+
+## 验证
+
+```bash
+pnpm run typecheck
+pnpm run lint
+pnpm run test:all
+pnpm run verify:rules
+pnpm run build
+```
+
+## 运行链
+
+```text
+lowcode session
+  -> enterprise + active application
+  -> complete project blueprint
+  -> authorized runtime navigation
+  -> Vue route or configuration page
+  -> FormKey + data space + frontend model
+  -> backend permission result
+```
+
+项目蓝图是项目策划事实，运行导航只是其授权输出。页面文件通过 `createLowcodeProjectGateways(projectId)` 注入 `ProjectWorkspace`，业务代码不拼接旧页面配置或导航端点。
+
+## 包级验证
+
+```bash
+pnpm --filter @spark-appworks/spark-lowcode-api run typecheck
+pnpm --filter @spark-appworks/spark-lowcode-api run test:run
+pnpm --filter @spark-appworks/spark-project-model run typecheck
+pnpm --filter @spark-appworks/spark-project-model run test:run
+```
+
+## 现场恢复
+
+如果为了交付清理了 `node_modules/` 和 `dist/`：
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm run typecheck
 ```
-
-模型包单独验证：
-
-```bash
-pnpm --filter @spark-appworks/spark-project-model typecheck
-pnpm --filter @spark-appworks/spark-project-model test:run
-```
-
-## 运行态创建页面节点
-
-```ts
-import { createPageNodeFactory } from '@spark-appworks/spark-project-model'
-
-const factory = createPageNodeFactory({
-  fileStorage: 'localStorage',
-})
-
-const pageNode = factory.create('orders')
-await pageNode.load()
-
-const renderConfig = pageNode.toRenderConfig()
-```
-
-`SparkPageRenderer` 消费 `pageNode`，不直接读取四文件。
-
-## 设计态编辑项目
-
-```ts
-import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
-
-const workspace = new ProjectWorkspace({
-  projectId: 'homepage',
-  http,
-  getPageFilesApi: () => '/api/pages-config',
-  getNavigationApi: () => '/api/navigation',
-})
-
-await workspace.loadNavigation()
-const planning = workspace.project.readPlanningProjection()
-```
-
-DevSystem 与 AI runner 共用同一 `ProjectWorkspace.project`（`ProjectModel`），手动编辑与 AI mutation 落在同一内存实例。
-
-## 模型速记
-
-```text
-ProjectWorkspace（IO 编排，非领域根）
-  └── project: ProjectModel
-        ├── design: ProjectDesign（nodesById + configPagesByPageId）
-        └── session: ProjectSession（选中 / dirty，不落盘）
-
-节点 class（按 nodeKind 实例化，非一 kind 一子类文件）：
-  ├── ProjectNode（module / link / ref / system-page / …）
-  └── ConfigPageNode（page；嵌套子页 = hidden + 无 path → 四文件）
-```
-
-策划投影经 `project.readPlanningProjection()` 读取；`domain-model/`（`ProjectRootModel` 等）已删除，勿再引入第二套领域根。
-
-`description` 是节点功能描述，也是 AI 策划与 pageDesign 的共同输入约束。

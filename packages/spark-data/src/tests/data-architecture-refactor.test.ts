@@ -9,6 +9,25 @@ import { DataSet } from '@spark-appworks/spark-data'
 import { getMember } from './test-type-helpers'
 
 describe('Data Architecture Refactor', () => {
+  it('固化 DataSpace/DataResource/FrontendModel 到 DataSet/DataTable/DataView 的三层身份', () => {
+    const ds = DataSet.fromJson({
+      dataSetName: 'SPACE-1',
+      tables: {
+        'RESOURCE-1': {
+          tableName: 'RESOURCE-1',
+          resourceId: 'RESOURCE-1',
+          resourceType: 'database-table',
+          columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }],
+          views: { default: {}, 'MODEL-1': {} },
+        },
+      },
+    })
+
+    expect(ds.dataSetName).toBe('SPACE-1')
+    expect(ds.getTable('RESOURCE-1')?.resourceId).toBe('RESOURCE-1')
+    expect(ds.getView('RESOURCE-1', 'MODEL-1')?.viewId).toBe('MODEL-1')
+  })
+
   it('DataTable 只提供配置，DataView 拥有数据', () => {
     const ds = DataSet.fromJson({
       dataSetName: 'TestDS',

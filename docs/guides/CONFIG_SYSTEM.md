@@ -1,64 +1,39 @@
-# 配置系统
+# 宿主配置
 
-SPARK 配置分两层：
+AppWorks 不再从本地 JSON、远程 `/api/config` 或租户模板加载启动配置。根应用 composition root `src/main.ts` 明确提供路由、插件、页面运行时和基础功能配置。
 
-- 应用启动配置：属于 `spark-app`，描述租户、认证、插件、主题、路由启动参数。
-- 项目节点配置：属于 `spark-project-model`，描述项目、模块、页面、子页面和页面内容。
+## 开发环境变量
 
-## 项目节点配置
+```dotenv
+LOWCODE_GATEWAY_URL=http://127.0.0.1:8080
+VITE_AUDIT_REMOTE_LOGS=false
+# VITE_AUDIT_LOG_ENDPOINT=/api/your-governed-audit-endpoint
+```
+
+- `LOWCODE_GATEWAY_URL` 只在 Vite 开发代理中使用；浏览器仍请求同源 `/api`。
+- `VITE_AUDIT_REMOTE_LOGS=true` 时必须同时显式提供审计端点，不存在默认日志服务。
+- 环境文件不得保存账号、口令、Token、数据库连接串或模型密钥。
+
+## 企业和应用上下文
+
+企业、用户与应用不是宿主配置：
 
 ```text
-ProjectModel
-  └── design: ProjectDesign
-        ├── nodesById + NavigationIndex  # 节点树 + 平铺索引
-        └── ConfigPageNode
-              ├── PageDesign (rule / dataSet / script / style)
-              └── 持久化 → rule.json / pagedata.json / script.js / style.css
+lowcode 登录会话
+  -> enterprise identity
+  -> active application
+  -> project blueprint + authorized runtime navigation
 ```
 
-后端 API 仍叫 `navigation`，但模型层由 `ProjectDesign` 统一持有节点树与配置页；内存可为树与索引，落盘映射到 DB 平铺行。
+前端不得从子域名、cookie、query 或 localStorage 发明平台身份。四级域名短名称必须与登录会话返回的企业短名称对账。
 
-## 节点描述
+## 页面运行配置
 
-每个节点的 `description` 是功能描述和用户需求。页面生成时使用：
+`SparkApp.start()` 由 composition root 注入：
 
-```text
-project.description
-  + parent descriptions
-  + current node.description
-```
+- `readPageFile`：通过 lowcode designfile API 读取页面文件。
+- `loadNavigation`：读取项目蓝图派生并经后端授权的运行导航。
+- `getProjectId`：读取当前 lowcode 应用身份。
+- `componentMap`：由 Vue 页面注册表生成。
 
-消费层统一读取 `ProjectEditor.readSnapshot().pageFeatures`（或等价的 `ProjectModel` 设计投影），不要自行拼约束链。
-
-## 运行态配置
-
-应用启动时使用 `pageNode` 配置：
-
-```ts
-SparkApp.start({
-  rootComponent: App,
-  pageNode: {
-    apiBaseUrl: '/api',
-    pagesConfigBaseUrl: '/api/pages-config',
-  },
-})
-```
-
-运行态由 `PageNodeFactory` 创建 `PageNodeLike`，再交给 `SparkPageRenderer`。
-
-## 脚本边界
-
-`script.js` 是 PageNode 的文本子模型，不是任意前端代码入口。
-
-允许全局变量：`$page`、`$route`、`$dataSet`、`$query`、`SparkData`、`h`。
-
-禁止：`$data`、ESM `import`、`window.xxx`、直接导入 Vue Router 或 Element Plus。
-
-## 后端边界
-
-```text
-/api/tenants/{tenantId}/projects/{projectId}/navigation
-/api/tenants/{tenantId}/projects/{projectId}/pages-config
-```
-
-`navigation` 持久化项目节点；`pages-config` 持久化配置页四文件。模型包不绑定 DB 或 file 的具体实现。
+页面配置不是独立后端系统；页面只能经 FormKey、数据空间和前端模型进入运行闭包。

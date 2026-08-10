@@ -116,7 +116,7 @@ function makeTestDS(
         },
       },
     },
-    tableRelations: [{
+    resourceRelations: [{
       parentTable: 'Orders',
       childTable: 'Items',
       childField: 'orderId',

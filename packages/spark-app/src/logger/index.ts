@@ -346,7 +346,7 @@ export function createBatchHttpTransport(options: BatchTransportOptions): LogTra
 }
 
 /**
- * 一键配置远程日志上报（推荐在 main.ts 中调用）
+ * 将日志发送到调用方明确提供的受治理端点。
  *
  * 内部创建 `createBatchHttpTransport` 并注入到全局传输器列表，
  * 所有已创建的 AppLogger 实例（startupLogger / pageLogger 等）自动生效。
@@ -355,12 +355,9 @@ export function createBatchHttpTransport(options: BatchTransportOptions): LogTra
  * ```ts
  * import { configureRemoteLogger } from '@spark-appworks/spark-app'
  *
- * const appConfig = await loadAppConfig()
  * configureRemoteLogger({
- *   endpoint: appConfig.logger.remoteEndpoint ?? '/api/logs',
- *   minLevel: appConfig.logger.minRemoteLevel,
- *   batchSize: appConfig.logger.batchSize,
- *   flushInterval: appConfig.logger.flushInterval,
+ *   endpoint: auditEndpoint,
+ *   minLevel: 'debug',
  * })
  * ```
  */

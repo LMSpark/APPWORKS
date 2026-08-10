@@ -19,7 +19,6 @@ import type {
   CrudApi,
   HttpEndpoint,
   DataRow,
-  DataSource,
   CrudResult,
   QueryParams,
   BatchResult,
@@ -269,10 +268,10 @@ export class CrudService {
    * @param config CRUD操作配置（包含权限快照）
    * @returns CRUD操作结果
    */
-  async list<T = DataSource>(
+  async list(
     params?: QueryParams,
     config?: CrudOperationConfig
-  ): Promise<CrudResult<T>> {
+  ): Promise<CrudResult> {
     if (!this.api.list) {
       return this.errorResult('List API not configured')
     }
@@ -283,17 +282,25 @@ export class CrudService {
       const queryParams = this.buildQueryParams(params, endpoint)
       const requestConfig = this.buildRequestConfig(config)
       const mergedQueryParams = { ...(resolvedEndpoint.params ?? {}), ...queryParams }
+      const transformedRequest = config?.transformRequest === undefined
+        ? mergedQueryParams
+        : config.transformRequest(mergedQueryParams)
 
-      let result: T
+      let result: unknown
       switch (endpoint.method ?? 'POST') {
         case 'GET':
-          result = await this.http.get<T>(resolvedEndpoint.url, mergedQueryParams, {
+          if (!isRecord(transformedRequest)) {
+            throw new Error('List GET transformRequest 必须返回对象参数')
+          }
+          result = await this.http.get<unknown>(resolvedEndpoint.url, transformedRequest, {
             ...requestConfig,
             headers: { ...resolvedEndpoint.headers, ...requestConfig?.headers }
           })
           break
         case 'POST':
-          result = await this.http.post<T>(resolvedEndpoint.url, { query: mergedQueryParams }, {
+          result = await this.http.post<unknown>(resolvedEndpoint.url, config?.transformRequest === undefined
+            ? { query: transformedRequest }
+            : transformedRequest, {
             ...requestConfig,
             headers: { ...resolvedEndpoint.headers, ...requestConfig?.headers }
           })
@@ -306,6 +313,9 @@ export class CrudService {
           throw new Error(`List API only supports GET or POST, got ${endpoint.method}`)
       }
 
+      if (config?.transformResponse !== undefined) {
+        result = config.transformResponse(result, mergedQueryParams)
+      }
       this.logger.info('列表查询成功', { params, count: this.getResultCount(result) })
       return { success: true, data: result }
     } catch (error) {

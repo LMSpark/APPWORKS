@@ -38,6 +38,69 @@ describe('DataTable responsibilities (refactor verification)', () => {
     expect(typeof def.events.on).toBe('function')
   })
 
+  it('一个稳定数据资源由一个 DataTable 承载，并可拥有多个 modelId DataView', () => {
+    const table = DataTable.fromJson({
+      tableName: 'RESOURCE-1',
+      resourceId: 'RESOURCE-1',
+      resourceType: 'database-table',
+      columns: [
+        { name: 'rowid', type: 'string', label: '主键', isPrimaryKey: true },
+        { name: 'salary', type: 'decimal', label: '薪资' },
+      ],
+      views: {
+        default: {},
+        'MODEL-1': {
+          fieldProjection: [{
+            fieldId: 'FIELD-1',
+            source: 'resource',
+            resourceFieldId: 'RESOURCE-FIELD-1',
+            resourceField: 'rowid',
+            viewField: 'rowid',
+            type: 'string',
+            label: '主键',
+            output: true,
+            sortOrder: 0,
+            sortDirection: null,
+            group: 0,
+            distinct: false,
+            primaryKey: true,
+            value: '',
+            valueFunction: '',
+            expression: '',
+          }],
+          queryContext: { dataSpaceId: 'SPACE-1', modelId: 'MODEL-1' },
+        },
+        'MODEL-2': {
+          fieldProjection: [{
+            fieldId: 'FIELD-2',
+            source: 'resource',
+            resourceFieldId: 'RESOURCE-FIELD-2',
+            resourceField: 'salary',
+            viewField: 'salaryAmount',
+            type: 'decimal',
+            label: '薪资',
+            output: true,
+            sortOrder: 1,
+            sortDirection: 'desc',
+            group: 0,
+            distinct: false,
+            primaryKey: false,
+            value: '',
+            valueFunction: '',
+            expression: '',
+          }],
+          queryContext: { dataSpaceId: 'SPACE-1', modelId: 'MODEL-2' },
+        },
+      },
+    })
+
+    expect(table.resourceId).toBe('RESOURCE-1')
+    expect(table.getView('MODEL-1')?.viewId).toBe('MODEL-1')
+    expect(table.getView('MODEL-2')?.viewId).toBe('MODEL-2')
+    expect(table.getView('MODEL-1')?.columns.map((column) => column.name)).toContain('rowid')
+    expect(table.getView('MODEL-2')?.columns.map((column) => column.name)).toContain('salaryAmount')
+  })
+
   it('DataView 的订阅可被 UI 与子视图使用（语义一致）', () => {
     const ds = DataSet.fromJson({
       dataSetName: 'S',
@@ -45,7 +108,7 @@ describe('DataTable responsibilities (refactor verification)', () => {
         Departments: { tableName: 'Departments', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [{ id: 1 }] } } },
         Users: { tableName: 'Users', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [{ id: 101, deptId: 1 }] } } }
       },
-      tableRelations: [
+      resourceRelations: [
         { parentTable: 'Departments', childTable: 'Users', childField: 'deptId' }
       ]
     })
@@ -168,7 +231,7 @@ describe('Event system', () => {
         Departments: { tableName: 'Departments', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [{ id: 1 }, { id: 2 }] } } },
         Employees: { tableName: 'Employees', columns: [{ name: 'id', type: 'number' }, { name: 'deptId', type: 'number' }], views: { default: { rows: [{ id: 101, deptId: 1 }, { id: 102, deptId: 2 }] } } }
       },
-      tableRelations: [
+      resourceRelations: [
         { parentTable: 'Departments', childTable: 'Employees', childField: 'deptId' }
       ]
     })

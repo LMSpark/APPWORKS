@@ -9,7 +9,7 @@
 ### verify:rules 可拆项运行
 
 - **场景**：`pnpm run verify:rules` 失败，需要定位是哪一项
-- **规则**：七项检查可单独运行：`verify:arch`、`verify:deps`、`verify:pages-config`、`verify:ai-codegen`、`verify:docs`、`verify:class-model`、`verify:ai-model`。`pnpm run verify` = typecheck + lint + verify:rules 全量门禁。
+- **规则**：九项检查可单独运行：`verify:arch`、`verify:deps`、`verify:pages-config`、`verify:ai-codegen`、`verify:docs`、`verify:class-model`、`verify:workflow-designs`、`verify:lowcode-contracts`、`verify:ai-model`。`pnpm run verify` = typecheck + lint + verify:rules 全量门禁。
 - **违反后果**：只知道全量失败不知道哪一项 → 排查方向错误
 
 ### verify:rules 可能被既有 arch 问题提前阻断

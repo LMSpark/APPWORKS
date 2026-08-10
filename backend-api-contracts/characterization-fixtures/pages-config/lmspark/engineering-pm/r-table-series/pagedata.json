@@ -1,6 +1,6 @@
 {
   "dataSetName": "RTableSeriesDS",
-  "tableRelations": [
+  "resourceRelations": [
     {
       "parentTable": "Orders",
       "childTable": "OrderItems",

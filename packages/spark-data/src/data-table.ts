@@ -77,7 +77,7 @@ export class DataTable {
    * 业务分类：描述该表在当前业务模型中的角色。
    * 例如主表、从表、引用表、静态数据表。
    *
-   * 注意：该字段仅用于语义建模，不代替 tableRelations / viewDependencies。
+   * 注意：该字段仅用于语义建模，不代替 resourceRelations / viewCascades。
    */
   businessCategory?: TableBusinessCategory
 
@@ -215,14 +215,14 @@ export class DataTable {
   }
 
   /**
-   * DataSet 关系规范化完成后调用——通知所有视图重编译含聚合的计算列并重算聚合行。
+   * DataSet 资源关系与视图级联索引完成后调用——通知所有视图重编译含聚合的计算列并重算聚合行。
    *
    * 封装后置重算职责：DataSet 只需调用此方法，不直接触碰 view 内部。
-   * 遍历各视图委托给 view.onDataSetRelationsReady()，DataSet 不需要了解视图内部细节。
+   * 遍历各视图委托给 view.onDataSetStructureReady()，DataSet 不需要了解视图内部细节。
    */
-  onDataSetRelationsReady(): void {
+  onDataSetStructureReady(): void {
     for (const view of Object.values(this.views)) {
-      view.onDataSetRelationsReady()
+      view.onDataSetStructureReady()
     }
   }
 

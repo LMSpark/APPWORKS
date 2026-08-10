@@ -6,7 +6,7 @@
  */
 
 import { Logger, toErrorMessage, createSafeProxy } from '@spark-appworks/spark-utils'
-import type { DataRow, ComputedColumnFn, TableRelation } from '../types'
+import type { DataRow, ComputedColumnFn, DataResourceRelation } from '../types'
 import type { DataSet } from '../dataset'
 import type { DataView } from '../data-view'
 
@@ -23,13 +23,13 @@ type ComputedColumnContext = {
 /**
  * 子表聚合行解析器（$sum/$count/$avg/$min/$max/$list/$join）。
  *
- * 子表引用格式：`'子表名'`。当前 resolver 按 TableRelation.childTable 匹配并读取 default 视图。
+ * 子表引用格式：`'子表名'`。当前 resolver 按 DataResourceRelation.childTable 匹配并读取 default 视图。
  */
 class ComputedColumnAggregateResolver {
-  private readonly relMap = new Map<string, TableRelation>()
+  private readonly relMap = new Map<string, DataResourceRelation>()
 
   constructor(
-    relations: readonly TableRelation[],
+    relations: readonly DataResourceRelation[],
     private readonly dataSet: DataSet,
     private readonly defaultParentField: string,
   ) {
@@ -43,13 +43,21 @@ class ComputedColumnAggregateResolver {
   resolveChildRows(childRef: string, parentRow: DataRow): DataRow[] {
     const rel = this.relMap.get(childRef)
     if (!rel) return []
-    const parentField = rel.parentField ?? this.defaultParentField
-    const parentValue = parentRow[parentField]
-    if (parentValue === null || parentValue === undefined) return []
     const childView = this.dataSet.getView(rel.childTable, 'default')
-    const childField = rel.childField
-    if (!childView || !childField) return []
-    return childView.rows.filter(row => row[childField] === parentValue)
+    if (!childView) return []
+    const mappings = rel.fieldMappings ?? (rel.childField === undefined
+      ? []
+      : [{
+          parentResourceField: rel.parentField ?? this.defaultParentField,
+          childResourceField: rel.childField,
+        }])
+    if (mappings.length === 0) return []
+    return childView.rows.filter(row => mappings.every(mapping => {
+      const parentValue = parentRow[mapping.parentResourceField]
+      return parentValue !== null
+        && parentValue !== undefined
+        && row[mapping.childResourceField] === parentValue
+    }))
   }
 }
 
@@ -190,7 +198,7 @@ function compileColumnsExpressions(
  * 通过 DataView 访问运行时状态，自身管理：
  * - 已编译函数注册表（Map<name, fn>）
  * - 编译缓存（列指纹字符串 + ctx 对象引用，=== 比较，零序列化开销）
- * - 聚合解析器构建（DataRelation → 子行解析）
+ * - 聚合解析器构建（DataResourceRelation → 子行解析）
  */
 export class ComputedColumnDelegate {
   private _columns = new Map<string, ComputedColumnFn>()
@@ -312,9 +320,9 @@ constructor(private readonly host: DataView) {}
     const ds = this.host.getDataSet()
     if (!ds) return undefined
 
-    const tableRelations = ds.tableRelations?.length
-      ? ds.getTableChildRelations(this.host.tableName)
+    const resourceRelations = ds.resourceRelations?.length
+      ? ds.getResourceChildRelations(this.host.tableName)
       : []
-    return new ComputedColumnAggregateResolver(tableRelations, ds, this.host.primaryKey)
+    return new ComputedColumnAggregateResolver(resourceRelations, ds, this.host.primaryKey)
   }
 }

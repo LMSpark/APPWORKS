@@ -29,7 +29,7 @@ function makeDs(sourceState: string) {
         api: { list: { url: '/test/items', method: 'GET' } }
       }
     },
-    tableRelations: [
+    resourceRelations: [
       {
         parentTable: 'Orders',
         childTable: 'Items',
@@ -37,10 +37,13 @@ function makeDs(sourceState: string) {
         childField: 'orderId',
       }
     ],
-    viewDependencies: [
+    viewCascades: [
       {
         parentTable: 'Orders',
+        parentViewId: 'default',
         childTable: 'Items',
+        childViewId: 'default',
+        filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
         dependencyType: sourceState,
         autoLoad: true,
       }

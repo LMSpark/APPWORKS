@@ -1,6 +1,6 @@
 {
   "dataSetName": "PageDataSet",
-  "tableRelations": [],
+  "resourceRelations": [],
   "tables": {
     "test-order": {
       "columns": [

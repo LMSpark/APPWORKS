@@ -1,6 +1,6 @@
 {
   "dataSetName": "PageDataSet",
-  "tableRelations": [
+  "resourceRelations": [
     {
       "parentTable": "Users",
       "childTable": "Orders",

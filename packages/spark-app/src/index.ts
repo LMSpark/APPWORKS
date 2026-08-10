@@ -103,8 +103,7 @@ export type { DynamicRouterOptions } from './router/dynamic'
 export { setupErrorHandler, createErrorBoundary } from './error-handler'
 
 // Config
-export { loadConfig, isFeatureEnabled, ConfigLoader, TenantResolver, loadAppConfig } from './config'
-export type { AppFullConfig, TenantConfig, ConfigSourceOptions, FullTenantInfo } from './config'
+export { isFeatureEnabled } from './config'
 
 // Page UI Service
 export {

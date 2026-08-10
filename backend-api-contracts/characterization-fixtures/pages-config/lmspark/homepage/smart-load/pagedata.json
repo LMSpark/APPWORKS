@@ -1,9 +1,12 @@
 {
   "dataSetName": "SmartLoadDemo",
-  "tableRelations": [
+  "resourceRelations": [
     {
       "parentTable": "Categories",
+      "parentViewId": "default",
       "childTable": "Products",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "categoryId" }],
       "childField": "categoryId",
       "relationName": "CategoryProducts",
       "cascadeUpdate": true,
@@ -11,13 +14,16 @@
     },
     {
       "parentTable": "Products",
+      "parentViewId": "default",
       "childTable": "OrderDetails",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "productId" }],
       "childField": "productId",
       "relationName": "ProductOrders",
       "cascadeDelete": true
     }
   ],
-  "viewDependencies": [
+  "viewCascades": [
     {
       "parentTable": "Categories",
       "childTable": "Products",

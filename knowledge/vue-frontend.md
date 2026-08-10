@@ -33,5 +33,5 @@
 ### src/views/ 的路由对应
 
 - **场景**：新增页面视图
-- **规则**：`src/views/` 的目录结构与路由对应：`app/` = 应用页面，`platform/` = 平台管理，`tenant/` = 租户管理。`dev-system/` 是开发系统面板，内有 DevSiteTree、DevPreviewTab、DevDataSetDesigner 等子组件。
+- **规则**：`src/views/` 的目录结构与路由对应：`app/` = 应用页面，`platform/` = 平台管理，`tenant/` = 租户管理。`dev-system/` 是项目蓝图开发工作台，树组件、预览和数据集设计器都消费同一 `ProjectWorkspace.project`，不能另建导航或页面身份。
 - **违反后果**：视图放在错误目录下 → 路由配置找不到组件

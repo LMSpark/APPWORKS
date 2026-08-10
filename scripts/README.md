@@ -12,7 +12,7 @@
   ensure:class-model-bundle → vite build (根应用；不预构建 packages dist)
 
 完整发布 (pnpm run build)
-  build-all.mjs → build-packages.mjs + build-frontend.mjs
+  build-packages.mjs → build-frontend.mjs
 
 npm 包 (pnpm run build:packages)
   build-packages.mjs → 按依赖拓扑串行构建 packages/* (vite JS + tsc/vue-tsc .d.ts)
@@ -50,7 +50,6 @@ ClassModel 全量门禁 (verify:class-model:full)
 ## 目录内容
 
 - `build-shared.mjs`：`runCommand` 与构建路径常量。
-- `build-all.mjs`：workspace 包 + 前端生产构建。
 - `build-frontend.mjs`：根 Vite 生产构建。
 - `build-packages.mjs`：workspace 包拓扑构建（`--only pkg1,pkg2` / `--dry-run`）。
 - `publish-packages.mjs`：构建并发布 `@spark-appworks/*`。

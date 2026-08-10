@@ -6,7 +6,7 @@
  */
 
 import { Logger } from '@spark-appworks/spark-utils'
-import type { DataRelation } from '../types'
+import { RequestState, type DataViewCascade } from '../types'
 import type { DataView } from '../data-view'
 import { getParentRows } from '../core/utils'
 
@@ -45,11 +45,11 @@ constructor(
     // DataTable 尚未绑定时 dataSet 为 undefined（如独立创建的 DataView），直接跳过
     const dataSet = this.host.dataSet
     if (!dataSet) return
-    const parentRels = dataSet.getParentRelations(this.host.tableName, this.host.viewId)
+    const parentRels = dataSet.getParentCascades(this.host.tableName, this.host.viewId)
 
     for (const rel of parentRels) {
-      const parentView = dataSet.getView(rel.parentTable, rel.parentViewId ?? 'default')
-      if (!parentView) throw new Error(`父视图 ${rel.parentTable}:${rel.parentViewId ?? 'default'} 不存在，请检查 DataSet 关系配置`)
+      const parentView = dataSet.getView(rel.parentTable, rel.parentViewId)
+      if (!parentView) throw new Error(`父视图 ${rel.parentTable}:${rel.parentViewId} 不存在，请检查 DataSet 级联配置`)
 
       const handler = () => this.respondToParentChange(rel, parentView)
 
@@ -97,11 +97,15 @@ constructor(
    * 由 setupCascade 中按 dependencyType 订阅的具体事件触发，
    * 无需再做 changeType 过滤——订阅时已完成过滤。
    */
-  private respondToParentChange(rel: DataRelation, parentView: DataView): void {
+  private respondToParentChange(rel: DataViewCascade, parentView: DataView): void {
+    // 子视图正在等待该父视图完成时，当前 requestData 会在 await 后读取最新父状态。
+    // 此处再次 refresh 会与原请求并发并把 requestState 留在 Loading。
+    if (this.host.requestState === RequestState.Preparing) return
+
     // 取消待处理的级联请求
     if (this.pendingCascadeRequest) {
       this.pendingCascadeRequest.cancel()
-      logger.debug(`取消级联请求 ${this.pendingCascadeRequest.requestId} (父视图 ${rel.parentTable}:${rel.parentViewId ?? 'default'} 变化)`)
+      logger.debug(`取消级联请求 ${this.pendingCascadeRequest.requestId} (父视图 ${rel.parentTable}:${rel.parentViewId} 变化)`)
       this.pendingCascadeRequest = undefined
     }
 

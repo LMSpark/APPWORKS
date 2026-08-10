@@ -34,7 +34,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <el-button size="small" @click="addTable">
             <NavIcon name="Plus" :size="12" /> 添加表
           </el-button>
-          <el-button size="small" @click="addRelation" :disabled="tables.length < 2">
+          <el-button size="small" @click="addResourceRelation" :disabled="tables.length < 2">
             <NavIcon name="Share" :size="12" /> 添加关联
           </el-button>
           <el-button size="small" @click="autoLayout" :disabled="tables.length === 0">
@@ -93,7 +93,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
                   @mouseenter="hoveredRelIdx = idx"
                   @mouseleave="hoveredRelIdx = -1"
                   @click.stop="editRelation(idx)"
-                  @contextmenu.prevent.stop="removeRelation(idx)"
+                  @contextmenu.prevent.stop="removeResourceRelation(idx)"
                   style="cursor: pointer; pointer-events: fill;"
                 />
                 <text
@@ -299,7 +299,7 @@ import type {
   CrudApi,
   DataColumn,
   DataSetCrudTool,
-  TableRelation,
+  DataResourceRelation,
   DataSetMetadata,
   TableBusinessCategory,
   TableResourceType,
@@ -590,7 +590,7 @@ watch(
   },
 )
 
-function normalizeRelation(rel: DesignerRelationProjection): TableRelation {
+function normalizeRelation(rel: DesignerRelationProjection): DataResourceRelation {
   return {
     parentTable: rel.parentTable,
     childTable: rel.childTable,
@@ -633,7 +633,7 @@ function deleteTableWithRelationFallback(
     // 兜底：若依赖导致 deleteTable 失败，先清理关联再删。
     for (const rel of currentRelations) {
       if (rel.parentTable === tableName || rel.childTable === tableName) {
-        tool.deleteRelation(buildRelationSelector(rel))
+        tool.deleteResourceRelation(buildRelationSelector(rel))
       }
     }
     tool.deleteTable(tableName)
@@ -859,7 +859,7 @@ function removeColumn(table: DesignerTableProjection, idx: number) {
 
 // ═══ 关联操作 ═══
 
-async function addRelation() {
+async function addResourceRelation() {
   if (tables.value.length < 2) {
     ElMessage.warning('至少需要两个表才能创建关联')
     return
@@ -867,7 +867,7 @@ async function addRelation() {
   const parentTable = tables.value[0]!.tableName
   const childTable = tables.value[1]!.tableName
   applyHistoryMutation((tool) => {
-    tool.createRelation({
+    tool.createResourceRelation({
       parentTable,
       childTable,
       parentField: 'id',
@@ -899,16 +899,16 @@ function upsertTableUiPosition(table: DesignerTableProjection, x: number, y: num
   }
 }
 
-function deleteRelationBySelector(selector: ReturnType<typeof buildRelationSelector>): void {
+function deleteResourceRelationBySelector(selector: ReturnType<typeof buildRelationSelector>): void {
   applyHistoryMutation((tool) => {
-    tool.deleteRelation(selector)
+    tool.deleteResourceRelation(selector)
   })
 }
 
-function removeRelation(idx: number) {
+function removeResourceRelation(idx: number) {
   const rel = relations.value[idx]
   if (!rel) return
-  deleteRelationBySelector(buildRelationSelector(rel))
+  deleteResourceRelationBySelector(buildRelationSelector(rel))
   if (editingRel.value?.sourceIndex === idx) editingRel.value = null
 }
 
@@ -926,7 +926,7 @@ function applyRelationEdit() {
   if (!editingRel.value) return
   const { sourceSelector, draft } = editingRel.value
   applyHistoryMutation((tool) => {
-    tool.updateRelation({
+    tool.updateResourceRelation({
       selector: sourceSelector,
       updates: normalizeRelation(draft),
     })
@@ -941,7 +941,7 @@ async function deleteEditingRelation() {
   const rel = relations.value[idx]
   editingRel.value = null
   if (!rel) return
-  deleteRelationBySelector(buildRelationSelector(rel))
+  deleteResourceRelationBySelector(buildRelationSelector(rel))
 }
 
 function toggleSchema(tableId: string) {

@@ -32,7 +32,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   createLowcodeProjectGateways: () => ({
     pageFiles: {
       readPageFile: async (command: { pageId: string; fileName: string }) => {
-        const response = await httpGet(`/api/pages-config/${command.pageId}/${command.fileName}`)
+        const response = await httpGet(`designfile:homepage/${command.pageId}/${command.fileName}`)
         return String(response?.content ?? '')
       },
     },

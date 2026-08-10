@@ -52,16 +52,20 @@ function fromPromptJson(json: Record<string, unknown>): DataSet {
   return DataSet.fromJson(json)
 }
 
-function viewDependency(
-  _id: string,
+function viewCascade(
+  id: string,
   parentTable: string,
   childTable: string,
-  _childField: string,
-  _parentField = 'id',
+  childField: string,
+  parentField = 'id',
 ): Record<string, unknown> {
   return {
+    cascadeId: id,
     parentTable,
+    parentViewId: 'default',
     childTable,
+    childViewId: 'default',
+    filterBindings: [{ sourceField: parentField, targetField: childField }],
     dependencyType: 'currentRow',
     autoLoad: true,
   }
@@ -114,7 +118,7 @@ const CASE_A_JSON = {
         },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         relationName:   'ReaderBorrowRecords',
         parentTable:    'Readers',
@@ -123,8 +127,8 @@ const CASE_A_JSON = {
         cascadeDelete:  true,
       },
     ],
-    viewDependencies: [
-      viewDependency('ReaderBorrowRecords', 'Readers', 'BorrowRecords', 'readerId'),
+    viewCascades: [
+      viewCascade('ReaderBorrowRecords', 'Readers', 'BorrowRecords', 'readerId'),
     ],
 }
 
@@ -250,7 +254,7 @@ const CASE_B_JSON = {
         },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         relationName:   'OrderItems',
         parentTable:    'Orders',
@@ -259,8 +263,8 @@ const CASE_B_JSON = {
         cascadeDelete:  true,
       },
     ],
-    viewDependencies: [
-      viewDependency('OrderItems', 'Orders', 'OrderItems', 'orderId'),
+    viewCascades: [
+      viewCascade('OrderItems', 'Orders', 'OrderItems', 'orderId'),
     ],
 }
 
@@ -393,7 +397,7 @@ const EXAMPLE_9_JSON = {
         },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         relationName:   'StudentGrades',
         parentTable:    'Students',
@@ -401,8 +405,8 @@ const EXAMPLE_9_JSON = {
         childField:     'studentId',
       },
     ],
-    viewDependencies: [
-      viewDependency('StudentGrades', 'Students', 'Grades', 'studentId'),
+    viewCascades: [
+      viewCascade('StudentGrades', 'Students', 'Grades', 'studentId'),
     ],
 }
 
@@ -528,7 +532,7 @@ const CASE_C_JSON = {
         },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         relationName:   'DeptEmployees',
         parentTable:    'Departments',
@@ -536,8 +540,8 @@ const CASE_C_JSON = {
         childField:     'deptId',
       },
     ],
-    viewDependencies: [
-      viewDependency('DeptEmployees', 'Departments', 'Employees', 'deptId'),
+    viewCascades: [
+      viewCascade('DeptEmployees', 'Departments', 'Employees', 'deptId'),
     ],
 }
 
@@ -584,10 +588,9 @@ describe('PROMPT 验证 — 案例 C: HR 部门管理', () => {
   // 注：Employees 配置了 api: '/api/employees'，级联触发的是 HTTP 请求而非内存过滤。
   // 需要 mock loadFromServer 才能验证级联行为，此处仅验证结构正确性。
   // API 级联行为的测试见 dataset-request-orchestration.test.ts。
-  it('C-5: DataSet 含 api 配置时显式 viewDependencies 能正常展开', () => {
+  it('C-5: DataSet 含 api 配置时显式 DataView cascade 能正常读取', () => {
     const ds = fromPromptJson(CASE_C_JSON)
-    // viewDependencies 展开后 parentViewId/childViewId 均来自显式 dataViewKey
-    const rel = ds._resolvedRelations?.[0]
+    const rel = ds.viewCascades?.[0]
     expect(rel?.parentTable).toBe('Departments')
     expect(rel?.childTable).toBe('Employees')
     expect(rel?.parentViewId).toBe('default')
@@ -666,7 +669,7 @@ const CASE_G_JSON = {
         },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         relationName:   'WarehouseStock',
         parentTable:    'Warehouses',
@@ -675,8 +678,8 @@ const CASE_G_JSON = {
         childField:     'warehouseId',
       },
     ],
-    viewDependencies: [
-      viewDependency('WarehouseStock', 'Warehouses', 'StockItems', 'warehouseId', 'id'),
+    viewCascades: [
+      viewCascade('WarehouseStock', 'Warehouses', 'StockItems', 'warehouseId', 'id'),
     ],
 }
 
@@ -867,7 +870,7 @@ const CASE_H_JSON = {
         },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         relationName:   'WarehouseInventories',
         parentTable:    'Warehouses',
@@ -881,9 +884,9 @@ const CASE_H_JSON = {
         childField:     'warehouseId',
       },
     ],
-    viewDependencies: [
-      viewDependency('WarehouseInventories', 'Warehouses', 'Inventories', 'warehouseId'),
-      viewDependency('WarehouseInbounds', 'Warehouses', 'Inbounds', 'warehouseId'),
+    viewCascades: [
+      viewCascade('WarehouseInventories', 'Warehouses', 'Inventories', 'warehouseId'),
+      viewCascade('WarehouseInbounds', 'Warehouses', 'Inbounds', 'warehouseId'),
     ],
 }
 
@@ -923,10 +926,10 @@ describe('Case H：外部AI生成 - 仓库库存管理（v1.9 结构验证）', 
     expect(f(rows[3], 'status')).toBe('预警')
   })
 
-  it('H-5: 两条 viewDependency 均已展开', () => {
+  it('H-5: 两条 DataView cascade 均保持独立身份', () => {
     const ds = fromPromptJson(CASE_H_JSON)
-    const relations = ds._resolvedRelations ?? []
-    const names = relations.map(r => r.relationName)
+    const relations = ds.viewCascades ?? []
+    const names = relations.map(r => r.cascadeId)
     expect(names).toContain('WarehouseInventories')
     expect(names).toContain('WarehouseInbounds')
   })
@@ -1060,7 +1063,7 @@ const CASE_I_JSON = {
         },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         relationName:   'CommunityBuildings',
         parentTable:    'Communities',
@@ -1074,9 +1077,9 @@ const CASE_I_JSON = {
         childField:     'buildingId',
       },
     ],
-    viewDependencies: [
-      viewDependency('CommunityBuildings', 'Communities', 'Buildings', 'communityId'),
-      viewDependency('BuildingRepairOrders', 'Buildings', 'RepairOrders', 'buildingId'),
+    viewCascades: [
+      viewCascade('CommunityBuildings', 'Communities', 'Buildings', 'communityId'),
+      viewCascade('BuildingRepairOrders', 'Buildings', 'RepairOrders', 'buildingId'),
     ],
 }
 
@@ -1120,9 +1123,9 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层�
     expect(f(rows[4], 'status')).toBe('一般')
   })
 
-  it('I-5: 两条 viewDependency 均已展开', () => {
+  it('I-5: 两条 DataView cascade 均保持独立身份', () => {
     const ds = fromPromptJson(CASE_I_JSON)
-    const names = (ds._resolvedRelations ?? []).map(r => r.relationName)
+    const names = (ds.viewCascades ?? []).map(r => r.cascadeId)
     expect(names).toContain('CommunityBuildings')
     expect(names).toContain('BuildingRepairOrders')
   })

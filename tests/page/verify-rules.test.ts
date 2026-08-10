@@ -4,6 +4,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { spawnSync } from 'node:child_process'
 import { afterEach, describe, expect, it } from 'vitest'
+// @ts-ignore TS7016 -- Node .mjs verifier
+import { scanRetiredServerResidue } from '../../tools/verify-docs.mjs'
 
 type CommandResult = Readonly<{
   status: number | null
@@ -323,6 +325,37 @@ describe('verification rules', () => {
     expect(result.status).toBe(1)
     expect(output).toContain('pure numeric pageId')
     expect(output).toContain('not listed in backend-api-contracts/characterization-fixtures/pages-config/manifest.json')
+  })
+
+  it('rejects retired embedded server paths and markers', () => {
+    const root = createTempRoot()
+    const retiredServerName = ['spark', 'ai', 'server'].join('-')
+    writeFile(root, ['scripts', 'start-dev.mjs'].join('/'), 'export const start = true\n')
+    writeFile(root, 'src/legacy-server.ts', `export const retired = '${retiredServerName}'\n`)
+
+    const result = scanRetiredServerResidue({ root })
+
+    expect(result.violations).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        file: ['scripts', 'start-dev.mjs'].join('/'),
+        message: expect.stringContaining('path must not exist'),
+      }),
+      expect.objectContaining({
+        file: 'src/legacy-server.ts',
+        message: expect.stringContaining('marker is forbidden'),
+      }),
+    ]))
+  })
+
+  it('allows the frontend spark-ai package and protected historical inputs', () => {
+    const root = createTempRoot()
+    const retiredServerName = ['spark', 'ai', 'server'].join('-')
+    writeFile(root, 'packages/spark-ai/src/index.ts', "export const runtime = 'frontend-agent-kernel'\n")
+    writeFile(root, 'notes/research-retired-server.md', `${retiredServerName}\n`)
+    writeFile(root, 'backend-api-contracts/legacy-ledger.json', `${JSON.stringify({ retiredServerName })}\n`)
+    writeFile(root, 'CHANGELOG.md', `${retiredServerName}\n`)
+
+    expect(scanRetiredServerResidue({ root }).violations).toEqual([])
   })
 })
 

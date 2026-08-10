@@ -1,4 +1,4 @@
-﻿// 0 代码主从联动页面：级联逻辑完全由 pagedata.json 的 tableRelations + viewDependencies 驱动。
+// 0 代码主从联动页面：数据资源关系与 DataView 输入级联均由 pagedata.json 显式声明。
 
 
 

@@ -28,12 +28,6 @@ CLAUDE.md
 *.runtimeconfig.json
 dist/
 
-# Java / Maven build output
-spark-ai-server/target/
-
-# H2 数据库运行时文件（不提交）
-spark-ai-server/data/sparkdb*.db
-
 # VS and IDE
 .vs/
 *.user
@@ -61,7 +55,6 @@ probe-*.mjs
 /scripts/claude-restore/
 /scripts/setup-claude-deepseek.ps1
 /scripts/claude-model.ps1
-/scripts/start-spark-ai-prod.ps1
 /scripts/render-appworks-*.py
 /scripts/synthesize-video-narration.ps1
 
@@ -69,11 +62,6 @@ probe-*.mjs
 .env
 .env.local
 .env.*.local
-.env.java
-spark-ai-server/.env.java
-
-
-data/sparkdb.mv.db
 /data/
 temp-*.json
 temp-*.txt
@@ -84,18 +72,6 @@ temp-catalog-per-comp/
 
 # AI / e2e 本地运行产物（报告、联调日志等，不提交）
 artifacts/
-
-# pageDesign LLM e2e 探针页（本地 replacePage / host-run 生成，不提交）
-spark-ai-server/data/pages-config/**/ai-leave-request-form-*/
-spark-ai-server/data/pages-config/**/ai-student-grade-management-*/
-spark-ai-server/data/pages-config/**/ai-employee-info-management-*/
-spark-ai-server/data/pages-config/**/ai-test/
-spark-ai-server/data/pages-config/**/_plan_*/
-spark-ai-server/data/pages-config/**/[0-9]*/
-spark-ai-server/data/pages-config/**/[0-9][0-9]*/
-spark-ai-server/data/pages-config/**/[0-9][0-9][0-9]*/
-spark-ai-server/data/pages-config/**/[0-9][0-9][0-9][0-9]*/
-spark-ai-server/data/pages-config/**/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]-[0-9a-f][0-9a-f][0-9a-f][0-9a-f]-[0-9a-f][0-9a-f][0-9a-f][0-9a-f]-[0-9a-f][0-9a-f][0-9a-f][0-9a-f]-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/
 
 # TypeScript incremental build cache
 *.tsbuildinfo

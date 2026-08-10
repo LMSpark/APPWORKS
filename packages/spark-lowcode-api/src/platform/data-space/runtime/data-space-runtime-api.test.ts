@@ -45,15 +45,99 @@ function payrollModel(): DataSpaceFrontendModel {
     name: '薪资前端模型',
     resource: {
       resourceId: 'RESOURCE-1',
+      databaseId: 'DATABASE-1',
       resourceName: 'PayrollSalary',
       resourceType: 'table',
       primaryKeyField: 'rowid',
+      databaseName: 'payroll',
+      fields: [{
+        resourceFieldId: 'RESOURCE-FIELD-ROWID',
+        name: 'rowid',
+        label: '主键',
+        dataType: 'string',
+        dataTypeName: '字符串型',
+        length: '',
+        nullable: false,
+        primaryKey: true,
+        unique: true,
+        system: false,
+        defaultValue: '',
+        description: '',
+        order: 1,
+      }, {
+        resourceFieldId: 'RESOURCE-FIELD-SALARY',
+        name: 'salary',
+        label: '薪资',
+        dataType: 'decimal',
+        dataTypeName: '定点小数',
+        length: '',
+        nullable: true,
+        primaryKey: false,
+        unique: false,
+        system: false,
+        defaultValue: '',
+        description: '',
+        order: 2,
+      }],
     },
     fields: [
-      { fieldId: 'FIELD-ROWID', resourceField: 'rowid' },
-      { fieldId: 'FIELD-SALARY', resourceField: 'salary' },
+      {
+        fieldId: 'FIELD-ROWID',
+        resourceFieldId: 'RESOURCE-FIELD-ROWID',
+        resourceField: 'rowid',
+        alias: '',
+        fieldType: '',
+        output: true,
+        order: 0,
+        orderType: '',
+        group: 0,
+        distinct: false,
+        primaryKey: true,
+        value: '',
+        valueFunction: '',
+        expression: '',
+      }, {
+        fieldId: 'FIELD-SALARY',
+        resourceFieldId: 'RESOURCE-FIELD-SALARY',
+        resourceField: 'salary',
+        alias: '',
+        fieldType: '',
+        output: true,
+        order: 0,
+        orderType: '',
+        group: 0,
+        distinct: false,
+        primaryKey: false,
+        value: '',
+        valueFunction: '',
+        expression: '',
+      },
     ],
     relations: [],
+    query: {
+      outputType: 'Table',
+      filter: JSON.stringify({
+        Type: 'cond',
+        Field: 'status',
+        Operator: 'equal',
+        ValueFun: { Type: 'GetConstValue', Value: 'ACTIVE' },
+      }),
+      distinct: false,
+      businessMain: true,
+      joinType: '',
+      joinFilter: '',
+      parentModelId: '',
+      requestComplete: '',
+      hasChildField: '',
+      parentField: '',
+      foreignKeyFields: '',
+      requestType: '',
+      shortName: '',
+      cacheType: '',
+      items: '',
+      selfType: '',
+      topValue: '',
+    },
   })
 }
 
@@ -64,6 +148,14 @@ describe('DataSpaceRuntimeApi', () => {
     const snapshot = await api.dataSpace.runtime.query({
       formKey: 'FORM-1',
       model: payrollModel(),
+      filter: {
+        Type: 'cond',
+        Field: 'salary',
+        Operator: 'greaterthan',
+        ValueFun: { Type: 'GetConstValue', Value: 0 },
+      },
+      inputParameters: [{ Name: 'period', Value: '2026-08' }],
+      sort: [{ fieldId: 'FIELD-SALARY', direction: 'descending' }],
       pageIndex: 1,
       pageSize: 20,
     })
@@ -74,9 +166,26 @@ describe('DataSpaceRuntimeApi', () => {
       headers: { 'x-FormKey': 'FORM-1' },
       data: {
         Table: [expect.objectContaining({
-          Name: 'PayrollSalary',
+          Name: '薪资前端模型',
+          MetaName: 'PayrollSalary',
           Type: '数据库表',
           PrimaryKeyFields: 'rowid',
+          Filter: {
+            Type: 'and',
+            Filters: [
+              expect.objectContaining({ Field: 'status' }),
+              expect.objectContaining({ Field: 'salary' }),
+            ],
+          },
+          inputParams: [{ Name: 'period', Value: '2026-08' }],
+          Fields: expect.arrayContaining([
+            expect.objectContaining({
+              Name: 'salary',
+              IsOutput: true,
+              Order: 1,
+              OrderType: 'descending',
+            }),
+          ]),
         })],
         PageParam: { index: 1, size: 20 },
       },
@@ -116,11 +225,15 @@ describe('DataSpaceRuntimeApi', () => {
   })
 
   it('rejects duplicate frontend field identities', () => {
+    const snapshot = payrollModel().snapshot()
+    const rowidField = snapshot.fields[0]
+    const salaryField = snapshot.fields[1]
+    if (rowidField === undefined || salaryField === undefined) throw new Error('测试模型字段缺失')
     expect(() => new DataSpaceFrontendModel({
-      ...payrollModel().snapshot(),
+      ...snapshot,
       fields: [
-        { fieldId: 'FIELD-1', resourceField: 'rowid' },
-        { fieldId: 'FIELD-1', resourceField: 'salary' },
+        { ...rowidField, fieldId: 'FIELD-1' },
+        { ...salaryField, fieldId: 'FIELD-1' },
       ],
     })).toThrow('fieldId 不能重复')
   })

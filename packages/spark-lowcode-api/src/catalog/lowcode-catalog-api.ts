@@ -34,6 +34,16 @@ export type LowcodeDatabaseTable = Readonly<{
   multiTenancy: boolean | null
 }>
 
+export type LowcodeDatabaseView = Readonly<{
+  id: string
+  databaseId: string
+  name: string
+  description: string
+  schemaName: string
+  status: number | null
+  objectId: string
+}>
+
 export type LowcodeDatabaseField = Readonly<{
   id: string
   tableId: string
@@ -56,6 +66,7 @@ export type LowcodeDatabaseCatalog = Readonly<{
   servers: readonly LowcodeDatabaseServer[]
   databases: readonly LowcodeDatabase[]
   tables: readonly LowcodeDatabaseTable[]
+  views: readonly LowcodeDatabaseView[]
   fields: readonly LowcodeDatabaseField[]
   sourceErrors: readonly LowcodeCatalogSourceError[]
   sourceDataSpaces: Readonly<Record<string, string>>
@@ -66,7 +77,25 @@ export type LowcodeCatalogSourceError = Readonly<{
   message: string
 }>
 
-type CatalogTable = 'Base_serverInfo' | '_base_dbInfo' | '_Base_TblList' | 'Base_TblField'
+export type LowcodeDatabaseResourceType = 'table' | 'view'
+
+export type LowcodeDatabaseResourceSelector = Readonly<{
+  databaseId: string
+  resourceName: string
+  resourceType: LowcodeDatabaseResourceType
+}>
+
+export type LowcodeDatabaseResource = Readonly<{
+  id: string
+  databaseId: string
+  name: string
+  description: string
+  schemaName: string
+  resourceType: LowcodeDatabaseResourceType
+  fields: readonly LowcodeDatabaseField[]
+}>
+
+type CatalogTable = 'Base_serverInfo' | '_base_dbInfo' | '_Base_TblList' | '_Base_ViewList' | 'Base_TblField'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -150,6 +179,7 @@ export class LowcodeCatalogApi {
       this.readSafe(formKeys, 'Base_serverInfo', ['rowid', 'Type', 'ServerName', 'ip_address', 'Port', 'description']),
       this.readSafe(formKeys, '_base_dbInfo', ['Id', 'serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark']),
       this.readSafe(formKeys, '_Base_TblList', ['rowid', 'dbid', 'tblname', 'tbldesc', 'schemaName', 'status', 'object_id', 'multiTenancy']),
+      this.readSafe(formKeys, '_Base_ViewList', ['rowid', 'dbid', 'vewname', 'vewdesc', 'SchemaName', 'status', 'object_id']),
       this.readSafe(formKeys, 'Base_TblField', [
         'rowid', 'tblid', 'tblname', 'enname', 'cnname', 'DataTypeName', 'DataType', 'DataLen',
         'IsNill', 'IsPKey', 'IsUQ', 'IsSys', 'DefaultValue', 'Memo', 'ordIdx',
@@ -158,7 +188,8 @@ export class LowcodeCatalogApi {
     const servers = sources[0].rows
     const databases = sources[1].rows
     const tables = sources[2].rows
-    const fields = sources[3].rows
+    const views = sources[3].rows
+    const fields = sources[4].rows
     return {
       servers: servers.map((row) => ({
         id: requiredId(row, 'Base_serverInfo'),
@@ -188,6 +219,15 @@ export class LowcodeCatalogApi {
         objectId: nullableNumber(row, ['object_id']),
         multiTenancy: nullableBoolean(row, ['multiTenancy']),
       })),
+      views: views.map((row) => ({
+        id: requiredId(row, '_Base_ViewList'),
+        databaseId: textValue(row, ['dbid']),
+        name: textValue(row, ['vewname']),
+        description: textValue(row, ['vewdesc']),
+        schemaName: textValue(row, ['SchemaName', 'schemaName']),
+        status: nullableNumber(row, ['status']),
+        objectId: textValue(row, ['object_id']),
+      })),
       fields: fields.map((row) => ({
         id: requiredId(row, 'Base_TblField'),
         tableId: textValue(row, ['tblid']),
@@ -211,6 +251,50 @@ export class LowcodeCatalogApi {
       sourceDataSpaces: Object.fromEntries(sources.flatMap((source) => source.formKey === null
         ? []
         : [[source.table, source.formKey]])),
+    }
+  }
+
+  public resolveDatabaseResource(
+    catalog: LowcodeDatabaseCatalog,
+    selector: LowcodeDatabaseResourceSelector,
+  ): LowcodeDatabaseResource {
+    const databaseId = selector.databaseId.trim()
+    const resourceName = selector.resourceName.trim()
+    if (!databaseId) throw new LowcodeApiError(0, '数据库资源 databaseId 不能为空')
+    if (!resourceName) throw new LowcodeApiError(0, '数据库资源 resourceName 不能为空')
+    const source = selector.resourceType === 'table' ? '_Base_TblList' : '_Base_ViewList'
+    const sourceError = catalog.sourceErrors.find((item) => item.source === source)
+    if (sourceError !== undefined) {
+      throw new LowcodeApiError(0, `数据资源目录 ${source} 读取失败: ${sourceError.message}`)
+    }
+    const candidates = (selector.resourceType === 'table' ? catalog.tables : catalog.views)
+      .filter((item) => item.databaseId === databaseId && item.name === resourceName)
+    if (candidates.length === 0) {
+      throw new LowcodeApiError(0, `数据资源未解析: ${databaseId}/${resourceName}`)
+    }
+    if (candidates.length > 1) {
+      throw new LowcodeApiError(0, `数据资源目录存在歧义: ${databaseId}/${resourceName}`)
+    }
+    const resource = candidates[0]
+    if (resource === undefined) throw new LowcodeApiError(0, '数据资源解析失败')
+    const fieldsError = catalog.sourceErrors.find((item) => item.source === 'Base_TblField')
+    if (fieldsError !== undefined) {
+      throw new LowcodeApiError(0, `数据资源字段目录 Base_TblField 读取失败: ${fieldsError.message}`)
+    }
+    const fields = catalog.fields.filter((item) => item.tableId === resource.id)
+    const fieldIds = fields.map((item) => item.id)
+    const fieldNames = fields.map((item) => item.name)
+    if (new Set(fieldIds).size !== fieldIds.length || new Set(fieldNames).size !== fieldNames.length) {
+      throw new LowcodeApiError(0, `数据资源字段目录存在歧义: ${resource.id}`)
+    }
+    return {
+      id: resource.id,
+      databaseId: resource.databaseId,
+      name: resource.name,
+      description: resource.description,
+      schemaName: resource.schemaName,
+      resourceType: selector.resourceType,
+      fields,
     }
   }
 

@@ -52,7 +52,7 @@ function createImmediateView(rows: DataRow[] = [{ id: 1, name: 'Alice' }]) {
 function createMasterDetailStagedDataSet() {
   const ds = SparkData.createDataSet({
     dataSetName: 'MasterDetailDS',
-    tableRelations: [
+    resourceRelations: [
       { parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId' },
     ],
     tables: {

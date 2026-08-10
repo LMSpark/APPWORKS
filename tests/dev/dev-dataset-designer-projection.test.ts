@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { DataSetMetadata } from '@spark-appworks/spark-data'
 import {
+  PAGE_DATA_JSON_SCHEMA,
   buildDataSetMetadataFromDesignerProjection,
   hasDesignerProjectionChanges,
   projectDesignerRelations,
@@ -32,7 +33,7 @@ function createMetadata(partial?: Partial<DataSetMetadata>): DataSetMetadata {
         ],
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         parentTable: 'users',
         childTable: 'orders',
@@ -45,6 +46,18 @@ function createMetadata(partial?: Partial<DataSetMetadata>): DataSetMetadata {
 }
 
 describe('DevDataSetDesigner projection helpers', () => {
+  it('publishes separate resource relation and DataView cascade schema contracts', () => {
+    const schemaText = JSON.stringify(PAGE_DATA_JSON_SCHEMA)
+
+    expect(schemaText).toContain('dataResourceRelationFieldMapping')
+    expect(schemaText).toContain('dataViewCascadeFilterBinding')
+    expect(schemaText).toContain('parentViewId')
+    expect(schemaText).toContain('childViewId')
+    expect(schemaText).toContain('filterBindings')
+    expect(schemaText).not.toContain('tableRelation')
+    expect(schemaText).not.toContain('viewDependency')
+  })
+
   it('keeps existing table and column ids while assigning layout only to new tables', () => {
     const existingTables: DesignerTableProjection[] = [
       {
@@ -181,5 +194,29 @@ describe('DevDataSetDesigner projection helpers', () => {
     expect(hasDesignerProjectionChanges(moved, metadata)).toBe(true)
   })
 
-})
+  it('preserves resource relation identities and composite field mappings through designer projection', () => {
+    const metadata = createMetadata({
+      resourceRelations: [{
+        relationId: 'resource-rel-1',
+        sourceRelationId: 'legacy-rel-1',
+        parentTable: 'users',
+        childTable: 'orders',
+        fieldMappings: [
+          { parentResourceField: 'id', childResourceField: 'userId' },
+        ],
+      }],
+    })
+    let nextId = 0
+    const tables = projectDesignerTables(metadata, {}, () => `generated-${++nextId}`)
 
+    const rebuilt = buildDataSetMetadataFromDesignerProjection({
+      dataSetName: metadata.dataSetName,
+      tables,
+      relations: projectDesignerRelations(metadata),
+    })
+
+    expect(rebuilt.resourceRelations).toEqual(metadata.resourceRelations)
+    expect(hasDesignerProjectionChanges(rebuilt, metadata)).toBe(false)
+  })
+
+})

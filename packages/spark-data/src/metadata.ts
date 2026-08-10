@@ -81,6 +81,40 @@ function normalizeViewMetadata(
   return normalized
 }
 
+function validateViewFieldProjection(
+  tableName: string,
+  columns: TableMetadata['columns'],
+  viewId: string,
+  view: ViewMetadata,
+): void {
+  const projection = view.fieldProjection
+  if (projection === undefined) return
+  const columnNames = new Set(columns.map((column) => column.name))
+  const fieldIds = new Set<string>()
+  const viewFields = new Set<string>()
+  for (const field of projection) {
+    if (!field.fieldId.trim()) throw new Error(`表 ${tableName} 视图 ${viewId} 的 fieldId 不能为空`)
+    if (!field.viewField.trim()) throw new Error(`表 ${tableName} 视图 ${viewId} 的 viewField 不能为空`)
+    if (fieldIds.has(field.fieldId)) throw new Error(`表 ${tableName} 视图 ${viewId} 的 fieldId 重复: ${field.fieldId}`)
+    if (viewFields.has(field.viewField)) throw new Error(`表 ${tableName} 视图 ${viewId} 的 viewField 重复: ${field.viewField}`)
+    fieldIds.add(field.fieldId)
+    viewFields.add(field.viewField)
+    if (field.source === 'resource') {
+      if (!field.resourceFieldId?.trim()) {
+        throw new Error(`表 ${tableName} 视图 ${viewId} 的资源字段 ${field.fieldId} 缺少 resourceFieldId`)
+      }
+      if (!columnNames.has(field.resourceField)) {
+        throw new Error(`表 ${tableName} 视图 ${viewId} 引用了不存在的资源字段: ${field.resourceField}`)
+      }
+      if (field.primaryKey && field.viewField !== field.resourceField) {
+        throw new Error(`表 ${tableName} 视图 ${viewId} 的主键字段不得改名: ${field.resourceField}`)
+      }
+    } else if (field.resourceFieldId !== null) {
+      throw new Error(`表 ${tableName} 视图 ${viewId} 的派生字段 ${field.fieldId} 不得声明 resourceFieldId`)
+    }
+  }
+}
+
 export function normalizeTableMetadata(
   input: TableMetadataLike,
   tableNameFromKey?: string,
@@ -100,6 +134,9 @@ export function normalizeTableMetadata(
   for (const [viewId, view] of Object.entries(input.views)) {
     if (viewId === 'default') continue
     normalizedViews[viewId] = normalizeViewMetadata(view, tableName, viewId)
+  }
+  for (const [viewId, view] of Object.entries(normalizedViews)) {
+    validateViewFieldProjection(tableName, input.columns, viewId, view)
   }
 
   return {
@@ -140,8 +177,8 @@ export function normalizeDataSetMetadata(input: DataSetMetadata): DataSetMetadat
     schemaVersion: input.schemaVersion ?? 2,
     dataSetName: input.dataSetName,
     tables: normalizedTables,
-    ...(input.tableRelations !== undefined ? { tableRelations: input.tableRelations } : {}),
-    ...(input.viewDependencies !== undefined ? { viewDependencies: input.viewDependencies } : {}),
+    ...(input.resourceRelations !== undefined ? { resourceRelations: input.resourceRelations } : {}),
+    ...(input.viewCascades !== undefined ? { viewCascades: input.viewCascades } : {}),
     ...(input.version !== undefined ? { version: input.version } : {}),
     ...(input.pageId !== undefined ? { pageId: input.pageId } : {}),
     ...(input.saveChanges !== undefined ? { saveChanges: input.saveChanges } : {}),

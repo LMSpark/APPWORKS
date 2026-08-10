@@ -3,14 +3,19 @@ import { SparkData } from '@spark-appworks/spark-data'
 import { RequestState } from '../types'
 import type { QueryParams } from '../types'
 
-function viewDependency(
+function viewCascade(
   parent: string,
   child: string,
   state = 'allRows',
+  sourceField = 'id',
+  targetField = 'parentId',
 ) {
   return {
     parentTable: parent,
+    parentViewId: 'default',
     childTable: child,
+    childViewId: 'default',
+    filterBindings: [{ sourceField, targetField }],
     dependencyType: state,
   }
 }
@@ -23,11 +28,11 @@ describe('DataView.requestData orchestration', () => {
         Parents: { tableName: 'Parents', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [] } } },
         Children: { tableName: 'Children', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [] } } }
       },
-      tableRelations: [
+      resourceRelations: [
         { parentTable: 'Parents', childTable: 'Children', childField: 'parentId' }
       ],
-      viewDependencies: [
-        viewDependency('Parents', 'Children')
+      viewCascades: [
+        viewCascade('Parents', 'Children')
       ]
     })
 
@@ -68,11 +73,11 @@ describe('DataView.requestData orchestration', () => {
         Parents: { tableName: 'Parents', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [] } } },
         Children: { tableName: 'Children', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [] } } }
       },
-      tableRelations: [
+      resourceRelations: [
         { parentTable: 'Parents', childTable: 'Children', childField: 'parentId' }
       ],
-      viewDependencies: [
-        viewDependency('Parents', 'Children')
+      viewCascades: [
+        viewCascade('Parents', 'Children')
       ]
     })
 
@@ -104,14 +109,14 @@ describe('DataView.requestData orchestration', () => {
         Parents: { tableName: 'Parents', columns: [{ name: 'uuid', type: 'string', isPrimaryKey: true }], views: { default: { rows: [] } } },
         Children: { tableName: 'Children', columns: [{ name: 'id', type: 'number' }, { name: 'parentUuid', type: 'string' }], views: { default: { rows: [] } } }
       },
-      tableRelations: [
+      resourceRelations: [
         {
           parentTable: 'Parents', childTable: 'Children',
           parentField: 'uuid', childField: 'parentUuid',
         }
       ],
-      viewDependencies: [
-        viewDependency('Parents', 'Children', 'currentRow')
+      viewCascades: [
+        viewCascade('Parents', 'Children', 'currentRow', 'uuid', 'parentUuid')
       ],
     })
 
@@ -172,11 +177,11 @@ describe('DataView.requestData orchestration', () => {
           api: { list: { url: '/test/children/query', method: 'POST' } },
         },
       },
-      tableRelations: [
+      resourceRelations: [
         { parentTable: 'Parents', childTable: 'Children', parentField: 'id', childField: 'parentId' },
       ],
-      viewDependencies: [
-        viewDependency('Parents', 'Children'),
+      viewCascades: [
+        viewCascade('Parents', 'Children'),
       ],
     })
 
@@ -218,13 +223,13 @@ describe('DataView.requestData orchestration', () => {
         B: { tableName: 'B', columns: [{ name: 'id', type: 'number' }, { name: 'aId', type: 'number' }], views: { default: { rows: [] } }, api: { list: { url: '/test/b', method: 'GET' } } },
         C: { tableName: 'C', columns: [{ name: 'id', type: 'number' }, { name: 'bId', type: 'number' }], views: { default: { rows: [] } }, api: { list: { url: '/test/c', method: 'GET' } } }
       },
-      tableRelations: [
+      resourceRelations: [
         { parentTable: 'A', childTable: 'B', childField: 'aId' },
         { parentTable: 'B', childTable: 'C', childField: 'bId' },
       ],
-      viewDependencies: [
-        viewDependency('A', 'B'),
-        viewDependency('B', 'C'),
+      viewCascades: [
+        viewCascade('A', 'B', 'allRows', 'id', 'aId'),
+        viewCascade('B', 'C', 'allRows', 'id', 'bId'),
       ]
     })
 

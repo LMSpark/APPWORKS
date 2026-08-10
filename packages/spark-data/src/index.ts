@@ -156,8 +156,13 @@ export type {
   DataSetMetadata,
   TableMetadata,
   DataColumn,
-  TableRelation,
-  ViewDependency,
+  ColumnType,
+  DataResourceRelation,
+  DataResourceRelationFieldMapping,
+  DataViewCascade,
+  DataViewCascadeFilterBinding,
+  DataViewCascadeSelector,
+  DependencyType,
   TableResourceType,
   TableBusinessCategory,
   TableSemanticMetadata,
@@ -192,6 +197,9 @@ export type {
   DataPermissionSets,
   DataPermissionSnapshot,
   DataPermissionSnapshotInput,
+  DataViewFieldProjection,
+  DataViewQueryContext,
+  DataViewQueryResult,
 } from './types'
 
 // ===== 枚举 & 权限渲染常量 =====

@@ -1,6 +1,6 @@
 {
   "dataSetName": "PageDataSet",
-  "tableRelations": [],
+  "resourceRelations": [],
   "tables": {
     "Pages": {
       "columns": [

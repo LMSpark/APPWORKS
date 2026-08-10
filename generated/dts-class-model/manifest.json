@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 707,
+  "scannedFileCount": 705,
   "files": {
     "packages/spark-ai/src/agent/ag-ui/ag-ui-mapper.ts": {
       "file": "files/packages/spark-ai/src/agent/ag-ui/ag-ui-mapper.ts.json",
@@ -1787,43 +1787,9 @@
         "sourceFile": "packages/spark-app/src/config/index.ts",
         "packageName": "@spark-appworks/spark-app",
         "modulePath": "config/index",
-        "jsdoc": "@module @spark-appworks/spark-app:config/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nConfiguration Manager\n配置管理（环境变量 + 远程配置 + 多租户）",
+        "jsdoc": "@module @spark-appworks/spark-app:config/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\nConfiguration helpers for an explicit application composition root.",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
-      }
-    },
-    "packages/spark-app/src/config/loader.ts": {
-      "file": "files/packages/spark-app/src/config/loader.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-app:config/loader",
-        "sourcePath": "packages/spark-app/src/config/loader.ts",
-        "sourceFile": "packages/spark-app/src/config/loader.ts",
-        "packageName": "@spark-appworks/spark-app",
-        "modulePath": "config/loader",
-        "jsdoc": "@module @spark-appworks/spark-app:config/loader\n职责：提供 spark-app 应用壳中的 loader 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n多租户配置加载器\n功能：\n1. 从 JSON 文件或 API 加载默认配置\n2. 根据租户 ID 加载租户特定配置\n3. 合并配置（深度合并）\n4. 支持环境变量覆盖\n5. 支持远程 API 或本地文件两种模式",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ConfigLoader",
-          "TenantResolver"
-        ]
-      }
-    },
-    "packages/spark-app/src/config/types.ts": {
-      "file": "files/packages/spark-app/src/config/types.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-app:config/types",
-        "sourcePath": "packages/spark-app/src/config/types.ts",
-        "sourceFile": "packages/spark-app/src/config/types.ts",
-        "packageName": "@spark-appworks/spark-app",
-        "modulePath": "config/types",
-        "jsdoc": "@module @spark-appworks/spark-app:config/types\n职责：提供 spark-app 应用壳中的 types 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n应用配置类型定义\n支持多租户配置\nPluginConfigItem 复用本包的定义，不重复声明。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ConfigSourceOptions",
-          "FullTenantInfo",
-          "AppFullConfig",
-          "TenantConfig"
-        ]
       }
     },
     "packages/spark-app/src/constants.ts": {
@@ -13215,10 +13181,6 @@
       "sourcePath": "packages/spark-app/src/types.ts",
       "file": "files/packages/spark-app/src/types.ts.json"
     },
-    "AppFullConfig": {
-      "sourcePath": "packages/spark-app/src/config/types.ts",
-      "file": "files/packages/spark-app/src/config/types.ts.json"
-    },
     "AppLogger": {
       "sourcePath": "packages/spark-app/src/logger/index.ts",
       "file": "files/packages/spark-app/src/logger/index.ts.json"
@@ -13687,17 +13649,9 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json"
     },
-    "ConfigLoader": {
-      "sourcePath": "packages/spark-app/src/config/loader.ts",
-      "file": "files/packages/spark-app/src/config/loader.ts.json"
-    },
     "ConfigPageNode": {
       "sourcePath": "packages/spark-project-model/src/page/config-page.ts",
       "file": "files/packages/spark-project-model/src/page/config-page.ts.json"
-    },
-    "ConfigSourceOptions": {
-      "sourcePath": "packages/spark-app/src/config/types.ts",
-      "file": "files/packages/spark-app/src/config/types.ts.json"
     },
     "ConfirmationInput": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
@@ -14858,10 +14812,6 @@
     "FormItemRule": {
       "sourcePath": "packages/spark-component/src/components/fields/columnFormRules.ts",
       "file": "files/packages/spark-component/src/components/fields/columnFormRules.ts.json"
-    },
-    "FullTenantInfo": {
-      "sourcePath": "packages/spark-app/src/config/types.ts",
-      "file": "files/packages/spark-app/src/config/types.ts.json"
     },
     "HeadlessProjectPlanningEditorScope": {
       "sourcePath": "src/services/project-planning/project-planning-headless.ts",
@@ -17515,10 +17465,6 @@
       "sourcePath": "packages/spark-component/src/components/display/data-components/DisplayTag.props.ts",
       "file": "files/packages/spark-component/src/components/display/data-components/DisplayTag.props.ts.json"
     },
-    "TenantConfig": {
-      "sourcePath": "packages/spark-app/src/config/types.ts",
-      "file": "files/packages/spark-app/src/config/types.ts.json"
-    },
     "TenantInfo": {
       "sourcePath": "packages/spark-app/src/types.ts",
       "file": "files/packages/spark-app/src/types.ts.json"
@@ -17526,10 +17472,6 @@
     "TenantProjectScope": {
       "sourcePath": "src/services/tenant-scope.ts",
       "file": "files/src/services/tenant-scope.ts.json"
-    },
-    "TenantResolver": {
-      "sourcePath": "packages/spark-app/src/config/loader.ts",
-      "file": "files/packages/spark-app/src/config/loader.ts.json"
     },
     "TextLoadOptions": {
       "sourcePath": "packages/spark-utils/src/http/FileLoader.ts",

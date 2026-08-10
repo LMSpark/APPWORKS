@@ -4,7 +4,26 @@
 import { describe, it, expect } from 'vitest'
 import { DataSet } from '../dataset'
 import { DataTable } from '../data-table'
-import type { TableMetadata, ViewMetadata, DataSetMetadata } from '../types'
+import type { DataViewFieldProjection, TableMetadata, ViewMetadata, DataSetMetadata } from '../types'
+
+const salaryProjection: DataViewFieldProjection = {
+  fieldId: 'MODEL-FIELD-1',
+  source: 'resource',
+  resourceFieldId: 'RESOURCE-FIELD-1',
+  resourceField: 'salary',
+  viewField: 'salaryAmount',
+  type: 'decimal',
+  label: '薪资',
+  output: true,
+  sortOrder: 1,
+  sortDirection: 'desc',
+  group: 0,
+  distinct: false,
+  primaryKey: false,
+  value: '',
+  valueFunction: '',
+  expression: '',
+}
 
 // ============================================================
 // Table/View metadata 对齐
@@ -62,6 +81,40 @@ describe('TableMetadata canonical structure', () => {
     expect(roundtrip.resourceType).toBe('database-view')
     expect(roundtrip.resourceId).toBe('vw_order_summary')
     expect(roundtrip.businessCategory).toBe('reference')
+  })
+
+  it('DataView field projection and query context roundtrip and reject missing resource fields', () => {
+    const table = DataTable.fromJson({
+      tableName: 'RESOURCE-1',
+      resourceId: 'RESOURCE-1',
+      columns: [{ name: 'salary', type: 'decimal', label: '薪资' }],
+      views: {
+        default: {},
+        'MODEL-1': {
+          fieldProjection: [salaryProjection],
+          queryContext: { dataSpaceId: 'SPACE-1', modelId: 'MODEL-1' },
+        },
+      },
+    })
+
+    expect(table.toJson().views['MODEL-1']).toMatchObject({
+      fieldProjection: [{
+        fieldId: 'MODEL-FIELD-1',
+        resourceFieldId: 'RESOURCE-FIELD-1',
+        viewField: 'salaryAmount',
+      }],
+      queryContext: { dataSpaceId: 'SPACE-1', modelId: 'MODEL-1' },
+    })
+    expect(() => DataTable.fromJson({
+      tableName: 'RESOURCE-1',
+      columns: [{ name: 'salary', type: 'decimal' }],
+      views: {
+        default: {},
+        'MODEL-1': {
+          fieldProjection: [{ ...salaryProjection, resourceField: 'missing' }],
+        },
+      },
+    })).toThrow('引用了不存在的资源字段')
   })
 
   it('DataTable.fromJson() should read default view from views.default', () => {

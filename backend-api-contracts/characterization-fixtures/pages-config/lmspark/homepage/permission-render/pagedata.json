@@ -1,6 +1,6 @@
 {
   "dataSetName": "PermissionRenderDemo",
-  "tableRelations": [],
+  "resourceRelations": [],
   "tables": {
     "PermissionUsers": {
       "columns": [

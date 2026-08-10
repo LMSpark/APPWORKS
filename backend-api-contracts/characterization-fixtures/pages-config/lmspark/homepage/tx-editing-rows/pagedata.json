@@ -9,7 +9,7 @@
             }
         }
     },
-    "tableRelations": [
+    "resourceRelations": [
         {
             "parentTable": "TxOrders",
             "childTable": "TxItems",
@@ -18,10 +18,18 @@
             "relationName": "TxOrderItems"
         }
     ],
-    "viewDependencies": [
+    "viewCascades": [
         {
             "parentTable": "TxOrders",
+            "parentViewId": "default",
             "childTable": "TxItems",
+            "childViewId": "default",
+            "filterBindings": [
+                {
+                    "sourceField": "id",
+                    "targetField": "orderId"
+                }
+            ],
             "dependencyType": "currentRow",
             "autoLoad": true
         }

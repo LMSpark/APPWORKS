@@ -13,6 +13,73 @@ import {
 
 const docExtensions = new Set(['.md', '.dm'])
 
+const retiredServerTextExtensions = new Set([
+  '',
+  '.cjs',
+  '.css',
+  '.dm',
+  '.example',
+  '.html',
+  '.js',
+  '.json',
+  '.jsx',
+  '.md',
+  '.mjs',
+  '.mts',
+  '.properties',
+  '.ps1',
+  '.scss',
+  '.sh',
+  '.toml',
+  '.ts',
+  '.tsx',
+  '.txt',
+  '.vue',
+  '.xml',
+  '.yaml',
+  '.yml',
+])
+
+const retiredServerExcludedRoots = new Set([
+  '.git',
+  'ai-coding-kit',
+  'artifacts',
+  'backend-api-contracts',
+  'dist',
+  'generated',
+  'node_modules',
+  'notes',
+])
+
+const retiredServerExcludedFiles = new Set(['CHANGELOG.md'])
+
+const retiredServerPaths = [
+  ['spark', 'ai', 'server'].join('-'),
+  ['.env', 'java', 'example'].join('.'),
+  ['dev', 'startup', 'pid.txt'].join('-'),
+  ['public', 'config', 'default.json'].join('/'),
+  ['scripts', 'app-sse-client.mjs'].join('/'),
+  ['scripts', 'build-all.mjs'].join('/'),
+  ['scripts', 'load-java-env.mjs'].join('/'),
+  ['scripts', 'migrate-pages-config-cleanup.d.mts'].join('/'),
+  ['scripts', 'start-dev.mjs'].join('/'),
+  ['scripts', 'verify-ai-direct-turn-class-model.mjs'].join('/'),
+  ['knowledge', 'java-backend.md'].join('/'),
+]
+
+const retiredServerMarkers = [
+  ['spark', 'ai', 'server'].join('-'),
+  ['.env', 'java'].join('.'),
+  ['127.0.0.1', '8180'].join(':'),
+  ['', 'api', 'config', 'default'].join('/'),
+  ['AI', 'BACKEND', 'URL'].join('_'),
+  ['SPARK', 'AI', 'SERVER'].join('_'),
+  ['load', 'Local', 'Java', 'Env'].join(''),
+  ['load', 'App', 'Config'].join(''),
+  ['Tenant', 'Resolver'].join(''),
+  ['App', 'Full', 'Config'].join(''),
+]
+
 const standardMarkdownNames = new Set([
   'AGENTS.md',
   'API.md',
@@ -118,7 +185,39 @@ export function scanDocRules(options = {}) {
   }
 
   checkLegacyAllowlist(root, violations)
+  violations.push(...scanRetiredServerResidue({ root }).violations)
   return { files, violations }
+}
+
+export function scanRetiredServerResidue(options = {}) {
+  const root = options.root ?? process.cwd()
+  const violations = []
+
+  for (const retiredPath of retiredServerPaths) {
+    if (!fs.existsSync(path.resolve(root, retiredPath))) continue
+    violations.push({
+      file: retiredPath,
+      line: 1,
+      message: 'retired embedded Java server path must not exist in the current product tree',
+    })
+  }
+
+  for (const filePath of collectRetiredServerTextFiles(root)) {
+    const file = relativePath(root, filePath)
+    const source = fs.readFileSync(filePath, 'utf8')
+    const normalizedSource = source.toLowerCase()
+    for (const marker of retiredServerMarkers) {
+      const index = normalizedSource.indexOf(marker.toLowerCase())
+      if (index === -1) continue
+      violations.push({
+        file,
+        line: lineForTextIndex(source, index),
+        message: `retired embedded Java server marker is forbidden in the current product tree: ${marker}`,
+      })
+    }
+  }
+
+  return { violations }
 }
 
 export function runDocsCli(argv = process.argv.slice(2)) {
@@ -156,6 +255,21 @@ function collectDocFiles(root) {
   }
   return [...walkFiles(root, { extensions: docExtensions, exclude })]
     .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)))
+}
+
+function collectRetiredServerTextFiles(root) {
+  const exclude = (filePath) => {
+    const rel = relativePath(root, filePath)
+    if (retiredServerExcludedFiles.has(rel)) return true
+    const segments = rel.split('/')
+    return segments.some(segment => retiredServerExcludedRoots.has(segment))
+  }
+  return [...walkFiles(root, { extensions: retiredServerTextExtensions, exclude })]
+    .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)))
+}
+
+function lineForTextIndex(source, index) {
+  return source.slice(0, index).split(/\r?\n/u).length
 }
 
 function checkMarkdownName(file, name, violations) {

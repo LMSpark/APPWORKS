@@ -34,7 +34,7 @@ function createStructureDataSet(): DataSet {
         views: { default: { rows: [] } },
       },
     },
-    tableRelations: [
+    resourceRelations: [
       {
         parentTable: 'Orders',
         childTable: 'Items',
@@ -42,10 +42,13 @@ function createStructureDataSet(): DataSet {
         childField: 'orderId',
       },
     ],
-    viewDependencies: [
+    viewCascades: [
       {
         parentTable: 'Orders',
+        parentViewId: 'default',
         childTable: 'Items',
+        childViewId: 'default',
+        filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
         dependencyType: 'currentRow',
         autoLoad: true,
       },
@@ -72,11 +75,11 @@ describe('DataSet structure CRUD', () => {
     expect(handler.mock.calls[0]?.[0]).toBe('TempUsers')
   })
 
-  it('removeTable should fail-fast when table is still referenced by relation or dependency', () => {
+  it('removeTable should fail-fast when table is still referenced by a resource relation or DataView cascade', () => {
     const ds = createStructureDataSet()
 
-    expect(() => ds.removeTable('Orders')).toThrow(/tableRelation|viewDependency/)
-    expect(() => ds.removeTable('Items')).toThrow(/tableRelation|viewDependency/)
+    expect(() => ds.removeTable('Orders')).toThrow(/resourceRelations|viewCascades/)
+    expect(() => ds.removeTable('Items')).toThrow(/resourceRelations|viewCascades/)
   })
 
   it('removeTable should delete unreferenced table', () => {
@@ -88,10 +91,10 @@ describe('DataSet structure CRUD', () => {
     expect(ds.getView('Drafts', 'default')).toBeUndefined()
   })
 
-  it('updateRelation should rebuild resolved dependency metadata from table relation fields', () => {
+  it('updateResourceRelation should rebuild resource relation metadata without rewriting DataView cascade', () => {
     const ds = createStructureDataSet()
 
-    const updated = ds.updateRelation(
+    const updated = ds.updateResourceRelation(
       { parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId' },
       { parentField: 'code', childField: 'orderCode', relationName: 'order-by-code' },
     )
@@ -100,19 +103,23 @@ describe('DataSet structure CRUD', () => {
     expect(updated.childField).toBe('orderCode')
     expect(updated.relationName).toBe('order-by-code')
 
-    expect(ds.getTableChildRelations('Orders')[0]?.parentField).toBe('code')
-    expect(ds.getTableChildRelations('Orders')[0]?.childField).toBe('orderCode')
+    expect(ds.getResourceChildRelations('Orders')[0]?.parentField).toBe('code')
+    expect(ds.getResourceChildRelations('Orders')[0]?.childField).toBe('orderCode')
 
-    const parentRelations = ds.getParentRelations('Items', 'default')
+    const parentRelations = ds.getParentCascades('Items', 'default')
     expect(parentRelations).toHaveLength(1)
-    expect(parentRelations[0]?.parentField).toBe('code')
-    expect(parentRelations[0]?.childField).toBe('orderCode')
+    expect(parentRelations[0]?.filterBindings).toEqual([{ sourceField: 'id', targetField: 'orderId' }])
   })
 
-  it('updateDependency should rebuild resolved dependency metadata', () => {
+  it('updateCascade should rebuild DataView cascade metadata', () => {
     const ds = createStructureDataSet()
 
-    const updated = ds.updateDependency('Orders', 'Items', {
+    const updated = ds.updateCascade({
+      parentTable: 'Orders',
+      parentViewId: 'default',
+      childTable: 'Items',
+      childViewId: 'default',
+    }, {
       dependencyType: 'selectedRows',
       autoLoad: false,
     })
@@ -120,7 +127,7 @@ describe('DataSet structure CRUD', () => {
     expect(updated.dependencyType).toBe('selectedRows')
     expect(updated.autoLoad).toBe(false)
 
-    const parentRelations = ds.getParentRelations('Items', 'default')
+    const parentRelations = ds.getParentCascades('Items', 'default')
     expect(parentRelations).toHaveLength(1)
     expect(parentRelations[0]?.dependencyType).toBe('selectedRows')
     expect(parentRelations[0]?.autoLoad).toBe(false)

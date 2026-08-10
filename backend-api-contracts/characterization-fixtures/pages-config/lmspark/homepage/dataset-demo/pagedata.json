@@ -1,22 +1,28 @@
 {
   "dataSetName": "UserOrderDataSet",
-  "tableRelations": [
+  "resourceRelations": [
     {
       "parentTable": "Users",
+      "parentViewId": "default",
       "childTable": "Orders",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "userId" }],
       "parentField": "id",
       "childField": "userId",
       "relationName": "UserOrders"
     },
     {
       "parentTable": "Orders",
+      "parentViewId": "default",
       "childTable": "OrderItems",
+      "childViewId": "default",
+      "filterBindings": [{ "sourceField": "id", "targetField": "orderId" }],
       "parentField": "id",
       "childField": "orderId",
       "relationName": "OrderItems"
     }
   ],
-  "viewDependencies": [
+  "viewCascades": [
     {
       "parentTable": "Users",
       "childTable": "Orders",

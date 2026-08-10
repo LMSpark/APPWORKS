@@ -115,7 +115,6 @@ readonly session: ProjectSession
   get isBlueprintEditing(): boolean { return this.session.isBlueprintEditing }
   get blueprintDirty(): boolean { return this.session.blueprintDirty }
 
-    /** 执行 subscribe 操作。 */
 subscribe(listener: ProjectModelEventListener): () => void {
     this.listeners.add(listener)
     return () => {
@@ -135,10 +134,8 @@ getChildNodes(nodeId?: string): TNode[] { return this.design.getChildNodes(nodeI
   get activePage(): ConfigPageNode | null {
     return this.getActivePage()
   }
-    /** 执行 for Each Node 操作。 */
 forEachNode(callback: (node: TNode) => void): void { this.design.forEachNode(callback) }
 
-    /** 执行 replace Project Info 操作。 */
 replaceProjectInfo(project: ProjectInfoInput): ProjectInfo { return this.design.replaceProjectInfo(project) }
 
   /**
@@ -156,11 +153,8 @@ replaceProjectInfo(project: ProjectInfoInput): ProjectInfo { return this.design.
     return root
   }
 
-    /** find Node By Id 标识。 */
 findNodeById(nodeId: string): TNode | null { return this.design.findNodeById(nodeId) }
-    /** 执行 find Node Location 操作。 */
 findNodeLocation(nodeId: string): ProjectBlueprintTreeNodeLocation | null { return this.design.findNodeLocation(nodeId) }
-    /** find Config Page By Page Id 标识。 */
 findConfigPageByPageId(pageId: string): ConfigPageNode | null {
     return this.design.findConfigPageByPageId(pageId)
   }
@@ -171,7 +165,6 @@ findConfigPageByPageId(pageId: string): ConfigPageNode | null {
    * @param pageId 目标配置页 pageId，必须来自输入。
    */
   openPageDesign(pageId: string): ConfigPageNode { return this.design.openPageDesign(pageId) }
-    /** 执行 close Page Design 操作。 */
 closePageDesign(pageId: string): void { this.design.closePageDesign(pageId) }
 
   /**
@@ -300,14 +293,12 @@ closePageDesign(pageId: string): void { this.design.closePageDesign(pageId) }
     return result
   }
 
-    /** 执行 add Root Module 操作。 */
 addRootModule(createId: () => string): ProjectBlueprintTreeNodeData {
     const node = this.design.addRootModule(createId)
     this.session.markBlueprintDirty('root')
     this.emitBlueprintChanged({ scope: 'root', nodeId: node.id })
     return node
   }
-    /** 执行 add Child Page 操作。 */
 addChildPage(createId: () => string, parent?: ProjectBlueprintTreeNodeData | null): ProjectBlueprintTreeNodeData {
     const node = this.design.addChildPage(createId, parent ?? null)
     this.session.markBlueprintDirty('root')
@@ -322,12 +313,9 @@ removeNode(nodeId: string): ProjectBlueprintTreeNodeData | null {
     this.emitBlueprintChanged({ scope: 'root', nodeId })
     return removed
   }
-    /** 执行 refresh Nav Refs 操作。 */
 refreshNavRefs(): void { this.design.refreshNavRefs() }
-    /** 执行 to Tree 操作。 */
 toTree(): ProjectBlueprintTreeNodeData[] { return this.design.toTree() }
 
-    /** 执行 replace Navigation Root 操作。 */
 replaceBlueprintTree(
     root: ProjectBlueprintTreeData,
     options: { selectedNodeId?: string | null; dirty?: boolean } = {},
@@ -348,7 +336,6 @@ replaceBlueprintTree(
     return result
   }
 
-    /** 执行 select Node 操作。 */
 selectNode(nodeId: string | null): void {
     this.session.setSelectedNodeId(nodeId)
     this.session.setBlueprintDraft(null)
@@ -389,25 +376,21 @@ getActivePage(): ConfigPageNode | null {
     return this.design.findConfigPageByPageId(activePageId)
   }
 
-    /** 执行 begin Navigation Draft 操作。 */
 beginBlueprintDraft(): BlueprintNodeDraft {
     const node = this.requireSelectedNode('未选中蓝图节点，无法开始蓝图编辑')
     return this.session.beginBlueprintDraft(createBlueprintNodeDraft(node))
   }
 
-    /** 执行 discard Navigation Draft 操作。 */
 discardBlueprintDraft(): void {
     this.session.discardBlueprintDraft()
     this.emitBlueprintChanged({ scope: 'node' })
   }
 
-    /** 执行 mark Navigation Clean 操作。 */
 markBlueprintClean(scope: 'root' | 'node' = 'node'): void {
     this.session.markBlueprintClean()
     this.emitBlueprintChanged({ scope })
   }
 
-    /** 执行 apply Navigation Node Edit 操作。 */
 applyBlueprintNodeEdit(draft: BlueprintNodeDraft): BlueprintNodeDraftApplyResult {
     const selected = this.requireSelectedNode('未选中蓝图节点，无法编辑蓝图属性')
     if (selected.id !== draft.node.id) {
@@ -425,7 +408,6 @@ applyBlueprintNodeEdit(draft: BlueprintNodeDraft): BlueprintNodeDraftApplyResult
     return result
   }
 
-    /** 执行 apply Node Kind Preset 操作。 */
 applyNodeKindPreset(kind: ProjectBlueprintDeliveryKind): void {
     const node = this.requireSelectedNode('未选中蓝图节点，无法修改运行交付投影')
     const draft = this.session.blueprintDraft ?? createBlueprintNodeDraft(node)
@@ -483,7 +465,6 @@ canRedoPageFile(fileName: PageNodeFileName): boolean {
     return this.getActivePage()?.canRedoFile(fileName) ?? false
   }
 
-    /** 执行 undo Page File 操作。 */
 undoPageFile(fileName: PageNodeFileName): boolean {
     const page = this.getActivePage()
     if (!page) return false
@@ -492,7 +473,6 @@ undoPageFile(fileName: PageNodeFileName): boolean {
     return ok
   }
 
-    /** 执行 redo Page File 操作。 */
 redoPageFile(fileName: PageNodeFileName): boolean {
     const page = this.getActivePage()
     if (!page) return false
@@ -531,12 +511,10 @@ getNodeTree(): SparkNodeTreeModel | null {
     this.emitPageFileChanged(page.pageId, 'rule.json')
   }
 
-    /** 执行 mark Page File Changed 操作。 */
 markPageFileChanged(pageId: string, fileName: PageNodeFileName): void {
     this.emitPageFileChanged(pageId, fileName)
   }
 
-    /** 执行 mark Page Loaded Changed 操作。 */
 markPageLoadedChanged(pageId: string, loaded: boolean): void {
     const page = this.design.findConfigPageByPageId(pageId)
     if (page) {
@@ -576,7 +554,6 @@ markPageLoadedChanged(pageId: string, loaded: boolean): void {
     }
   }
 
-    /** 执行 read Active Page Projection 操作。 */
 readActivePageProjection(): ProjectActivePageProjection {
     const activePage = this.getActivePage()
     const pageId = activePage?.pageId ?? ''
@@ -606,7 +583,6 @@ readActivePageProjection(): ProjectActivePageProjection {
     }
   }
 
-    /** 执行 read Dirty Projection 操作。 */
 readDirtyProjection(): ProjectDirtyProjection {
     const activePage = this.getActivePage()
     const dirtyFiles = new Set<PageNodeFileName>()

@@ -1,3 +1,8 @@
+/**
+ * 低代码平台门面 API：登录/刷新/登出、企业目录与注册、应用选择与导航根解析。
+ * 会话与应用上下文分别委托 {@link LowcodeSessionStore}、{@link LowcodeApplicationStore} 持久化；
+ * 登录成功会清空应用上下文，避免跨企业/跨应用残留导航身份。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
@@ -20,6 +25,7 @@ import {
 } from './lowcode-enterprise.js'
 import type { LowcodeSessionStore } from './lowcode-session-store.js'
 
+/** 当前用户资料；wire 响应字段为 camelCase（如 account、realName、userInfo）。 */
 export type LowcodeCurrentUser = Readonly<{
   account: string | null
   realName: string | null
@@ -33,15 +39,19 @@ export type LowcodeCurrentUser = Readonly<{
   userInfo: Readonly<Record<string, unknown>> | null
 }>
 
+/** 企业域登录凭据；请求体映射为 strUser、strPwd、entName（大小写固定）。 */
 export type LowcodeLoginCredentials = Readonly<{
   enterpriseName: string
   account: string
   password: string
 }>
 
+/** 验证码投递渠道；wire 值必须为 EMAIL 或 MOBILE。 */
 export type LowcodeVerificationChannel = 'EMAIL' | 'MOBILE'
+/** 验证码业务场景；wire 值必须为 REGISTER 或 REGISTER_ENT。 */
 export type LowcodeVerificationScene = 'REGISTER' | 'REGISTER_ENT'
 
+/** 发送验证码请求；wire 字段 ent、type、account、scene。 */
 export type LowcodeVerificationRequest = Readonly<{
   enterpriseName: string
   channel: LowcodeVerificationChannel
@@ -49,6 +59,7 @@ export type LowcodeVerificationRequest = Readonly<{
   scene: LowcodeVerificationScene
 }>
 
+/** 用户注册输入；wire 含 loginName、username、user_types、depId、jobId 等固定键名。 */
 export type LowcodeUserRegistration = Readonly<{
   enterpriseName: string
   account: string
@@ -64,6 +75,7 @@ export type LowcodeUserRegistration = Readonly<{
   jobId?: string
 }>
 
+/** 企业注册输入；ent 子对象 wire 键为 PascalCase（Name、CName、ShortName、ShortCName 等）。 */
 export type LowcodeEnterpriseRegistration = Readonly<{
   englishName: string
   chineseName: string
@@ -78,11 +90,13 @@ export type LowcodeEnterpriseRegistration = Readonly<{
   email: string
 }>
 
+/** 注册操作结果；id 从 rowid/ROWID/userId 等 wire 别名中择优提取。 */
 export type LowcodeRegistrationResult = Readonly<{
   id: string | null
   raw: unknown
 }>
 
+/** 登录后会话身份；由 userinfo 的 ROWID/ID、LoginName、EntId 等 wire 字段归一化。 */
 export type LowcodeIdentity = Readonly<{
   userId: string
   account: string
@@ -93,6 +107,7 @@ export type LowcodeIdentity = Readonly<{
   raw: Readonly<Record<string, unknown>>
 }>
 
+/** 登录后会话企业快照；由 entinfo 的 rowid、Name、CName、ShortName 等 wire 字段归一化。 */
 export type LowcodeEnterprise = Readonly<{
   id: string | null
   name: string | null
@@ -102,11 +117,16 @@ export type LowcodeEnterprise = Readonly<{
   raw: Readonly<Record<string, unknown>>
 }>
 
+/** 平台缓存统计；wire Result.Count 须为非负整数。 */
 export type LowcodeCacheStats = Readonly<{
   dataSetModelCount: number
   developmentFileCount: number
 }>
 
+/**
+ * 完整低代码会话：双 token、过期时间与身份/企业快照。
+ * accessToken/refreshToken 已剥离 Bearer 前缀；刷新时 Authorization 与 X-Authorization 分别携带二者。
+ */
 export type LowcodeSession = Readonly<{
   accessToken: string
   refreshToken: string
@@ -240,6 +260,9 @@ function parseEnterprise(
   }
 }
 
+/**
+ * 低代码平台 HTTP 门面；并发 refreshSession 共享同一 in-flight Promise，避免重复刷新。
+ */
 export class LowcodePlatformApi {
   private readonly client: LowcodeClient
   private refreshPromise: Promise<LowcodeSession> | null = null
@@ -252,6 +275,7 @@ export class LowcodePlatformApi {
     this.client = new LowcodeClient(http)
   }
 
+  /** 企业域登录；响应须含 userinfo、entinfo、token、refreshToken、expire、refreshExpire，成功后清空应用上下文。 */
   public async login(credentials: LowcodeLoginCredentials): Promise<LowcodeSession> {
     const result = await this.client.requestResult({
       path: '/api/LoginAuthority/UserLoginByEnt',
@@ -280,6 +304,7 @@ export class LowcodePlatformApi {
     return session
   }
 
+  /** 拉取公开企业目录；无需已登录会话。 */
   public async listEnterprises(): Promise<readonly LowcodeEnterpriseCatalogItem[]> {
     const result = await this.client.requestResult({
       path: '/api/DataOperation/GetBaseData',
@@ -290,12 +315,14 @@ export class LowcodePlatformApi {
     return normalizeEnterpriseCatalog(result)
   }
 
+  /** 从当前会话 entinfo.raw 归一化企业详情；无会话时 401。 */
   public getEnterpriseInfo(): Promise<LowcodeEnterpriseInfo> {
     const session = this.session.get()
     if (session === null) throw new LowcodeApiError(401, '没有可读取的 lowcode 企业会话')
     return Promise.resolve(normalizeEnterpriseInfo(session.enterprise.raw))
   }
 
+  /** 查询 DATA_SET_MODEL 与 DEV_FILE_UPDATE_TIME 两类缓存条目数；需已认证。 */
   public async getCacheStats(): Promise<LowcodeCacheStats> {
     const readCount = async (prefix: 'DATA_SET_MODEL' | 'DEV_FILE_UPDATE_TIME'): Promise<number> => {
       const result = await this.client.requestResult({
@@ -312,6 +339,7 @@ export class LowcodePlatformApi {
     return { dataSetModelCount, developmentFileCount }
   }
 
+  /** 发送注册/企业注册验证码；公开接口，账号与企业名会先 trim。 */
   public async sendVerificationCode(request: LowcodeVerificationRequest): Promise<void> {
     await this.client.requestResult({
       path: '/api/message/code/send/public',
@@ -326,6 +354,7 @@ export class LowcodePlatformApi {
     })
   }
 
+  /** 注册用户；必填字段缺失时本地 fail-fast，不发起无效请求。 */
   public async registerUser(input: LowcodeUserRegistration): Promise<LowcodeRegistrationResult> {
     const result = await this.client.requestResult({
       path: '/api/LoginAuthority/register',
@@ -349,6 +378,7 @@ export class LowcodePlatformApi {
     return registrationResult(result)
   }
 
+  /** 注册企业；ent 子对象 wire 键大小写必须与平台约定一致。 */
   public async registerEnterprise(input: LowcodeEnterpriseRegistration): Promise<LowcodeRegistrationResult> {
     const result = await this.client.requestResult({
       path: '/api/Ent/AddEnterprise',
@@ -374,6 +404,7 @@ export class LowcodePlatformApi {
     return registrationResult(result)
   }
 
+  /** 刷新 token 对；并发调用合并为单次请求，无会话时 401。 */
   public refreshSession(): Promise<LowcodeSession> {
     this.refreshPromise ??= this.performRefresh().finally(() => {
       this.refreshPromise = null
@@ -406,6 +437,7 @@ export class LowcodePlatformApi {
     return refreshed
   }
 
+  /** 登出；远端失败仍本地清空会话与应用上下文，避免残留凭据。 */
   public async logout(): Promise<void> {
     const session = this.session.get()
     try {
@@ -422,6 +454,7 @@ export class LowcodePlatformApi {
     }
   }
 
+  /** 拉取当前用户；有会话时附带 Authorization Bearer accessToken。 */
   public async getCurrentUser(): Promise<LowcodeCurrentUser> {
     const session = this.session.get()
     const result = await this.client.requestResult({
@@ -447,6 +480,7 @@ export class LowcodePlatformApi {
     }
   }
 
+  /** 列出当前企业可访问应用；请求头 x-FormKey 固定为应用目录表单键。 */
   public async listApplications(): Promise<readonly LowcodeApplication[]> {
     const result = await this.client.requestResult({
       path: '/api/DataOperation/GetData',
@@ -457,6 +491,7 @@ export class LowcodePlatformApi {
     return normalizeApplications(result)
   }
 
+  /** 按应用 systemId 解析唯一导航根 rowid；0 或 多个根节点时抛错。 */
   public async resolveNavigationRootId(systemId: string): Promise<string> {
     const normalizedSystemId = systemId.trim()
     if (!normalizedSystemId) throw new LowcodeApiError(0, 'systemId 不能为空')
@@ -469,6 +504,7 @@ export class LowcodePlatformApi {
     return normalizeNavigationRootId(result)
   }
 
+  /** 选中应用并持久化应用上下文（含 navigationRootId）；返回解析到的导航根 id。 */
   public async selectApplication(application: LowcodeApplication): Promise<string> {
     const navigationRootId = await this.resolveNavigationRootId(application.id)
     this.application.save({ application, navigationRootId })

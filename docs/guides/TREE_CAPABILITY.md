@@ -2,7 +2,11 @@
 
 > 面向当前仓库真实实现的树能力说明。
 >
-> 目标不是介绍一个 demo，而是把 SPARK 现阶段已经落地的树能力，包括前端容器、数据层、后端导航 API、零代码动作、权限和测试矩阵，收口成一份可直接执行的文档。
+> **状态（2026-08）**：原 AppWorks Java `NavigationController` / `ProjectNavigationTreeService` 已退役。
+> 业务树数据仍走 DataSet / DataView / `TreeManager`（`spark-data`）；项目蓝图树读写走 `spark-project-model` + lowcode 文件/数据接口（见 `@spark-appworks/spark-lowcode-api`）。
+> 下文若仍出现旧 Java 服务名，仅作历史分层对照，**不是**当前可调用后端。
+>
+> 目标不是介绍一个 demo，而是把 SPARK 现阶段已经落地的树能力，包括前端容器、数据层、页面配置动作、权限和测试矩阵，收口成一份可直接执行的文档。
 
 ## 1. 设计目标
 
@@ -12,14 +16,14 @@ SPARK 的树能力遵循 5 个原则：
 2. 统一数据入口，树数据必须通过 DataSet 和 DataView 流转。
 3. treeMode 是前后端共同契约，不靠页面脚本猜测结构。
 4. 树操作优先沉到框架能力，而不是散落在 script.js。
-5. 后端以导航节点 CRUD 为主接口，前端通过 DataView 和 RendererTree 编排。
+5. 项目蓝图结构以 `ProjectBlueprintTreeData` 为领域合同；运行菜单只是蓝图的权限投影，不再由本仓 Java 导航服务提供。
 
 当前推荐理解方式：
 
 - DataView 负责“树数据视图”和远程编排。
 - TreeManager 负责“树缓存”和内存树算法。
 - RendererTree 负责“零代码 UI 容器”和节点交互。
-- NavigationController + ProjectNavigationTreeService 负责后端树读写。
+- `ProjectModel` / `ProjectWorkspace` 负责项目蓝图树编辑真源；物理读写经 lowcode API。
 
 ---
 
@@ -39,10 +43,8 @@ RendererTree
 DataView
   ↓ 懒初始化 / 委托
 TreeManager
-  ↓ HTTP
-NavigationController
-  ↓
-ProjectNavigationTreeService
+  ↓（业务表树）HTTP / DataOperation
+  或（项目蓝图）ProjectWorkspace / lowcode API
 ```
 
 职责拆分：
@@ -53,7 +55,7 @@ ProjectNavigationTreeService
 | 渲染层 | RendererTree | 渲染 el-tree、节点动作、选中同步、展开定位、拖拽移动 |
 | 视图层 | DataView | 对外暴露树接口、维护 rows/currentRow/selectedRows、同步远程结果 |
 | 树算法层 | TreeManager | 缓存节点、构建嵌套树、路径补齐、搜索、局部子树、移动节点 |
-| 服务层 | NavigationController / ProjectNavigationTreeService | 提供导航树 CRUD、路径、子树、搜索、移动 |
+| 项目蓝图层 | ProjectModel / ProjectWorkspace | 蓝图树编辑真源；经 lowcode 读写，不再经本仓 Java NavigationController |
 
 ---
 

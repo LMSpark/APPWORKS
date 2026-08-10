@@ -1,3 +1,7 @@
+/**
+ * 项目蓝图 HTTP 门面：读取 Base_NavigationInfo 蓝图树、运行导航投影与文档导出任务。
+ * 文档导出 coverage 固定为 legacy-menu-scope；变更写入须走 governance.mutationPlanner 而非本模块。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeClient } from '../../core/lowcode-client.js'
@@ -12,6 +16,7 @@ import type {
 } from './outputs/document/project-blueprint-document.js'
 import { normalizeProjectBlueprintNodes, projectBlueprintQuery } from './project-blueprint-wire.js'
 
+/** 项目蓝图只读与文档任务提交门面；依赖应用目录 FormKey 访问 GetData。 */
 export class ProjectBlueprintApi {
   readonly #client: LowcodeClient
 
@@ -19,6 +24,7 @@ export class ProjectBlueprintApi {
     this.#client = new LowcodeClient(http)
   }
 
+  /** 按 SysId 拉取蓝图节点并归一化为 `ProjectBlueprint`；projectId 为空时 fail-fast。 */
   public async read(projectId: string): Promise<ProjectBlueprint> {
     const normalizedProjectId = projectId.trim()
     const result = await this.#client.requestResult({
@@ -30,6 +36,7 @@ export class ProjectBlueprintApi {
     return new ProjectBlueprint(normalizedProjectId, normalizeProjectBlueprintNodes(result))
   }
 
+  /** 并行读取蓝图与 GetNavigationMenus 授权证据，投影为运行导航；beginNodeId 为授权树根。 */
   public async readRuntimeNavigation(projectId: string, beginNodeId: string): Promise<RuntimeNavigation> {
     const normalizedProjectId = projectId.trim()
     const normalizedBeginNodeId = beginNodeId.trim()
@@ -46,6 +53,7 @@ export class ProjectBlueprintApi {
     return blueprint.outputs.delivery.runtimeNavigation(normalizeRuntimeNavigationAuthorization(authorization))
   }
 
+  /** 提交 legacy 文档导出任务（SRS/SDD/功能设计）；返回 coverage=legacy-menu-scope 的任务回执，不等待生成完成。 */
   public async submitDocument(
     projectId: string,
     kind: ProjectBlueprintDocumentKind,

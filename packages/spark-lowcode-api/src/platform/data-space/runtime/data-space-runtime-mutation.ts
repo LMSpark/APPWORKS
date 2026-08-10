@@ -1,24 +1,33 @@
+/**
+ * 数据空间运行态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。
+ * 校验 preimage 身份、后端稀疏权限与字段白名单；禁止直接提交 lingma_sys_* 业务字段。
+ */
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
 import type { DataSpaceFrontendModel } from '../data-space.js'
 import type { DataSpaceRuntimeRow, DataSpaceRuntimeSnapshot } from './data-space-runtime-api.js'
 
+/** 新增行变更；须 preimage.allowAdd 且携带 lingma_sys_key。 */
 export type DataSpaceAddedRow = Readonly<Record<string, unknown>>
 
+/** 修改行变更；primaryKey 定位行，values 不得含主键字段名。 */
 export type DataSpaceChangedRow = Readonly<{
   primaryKey: unknown
   values: Readonly<Record<string, unknown>>
 }>
 
+/** 删除行变更；须 preimage 行 lingma_sys_params.d 为 true。 */
 export type DataSpaceDeletedRow = Readonly<{
   primaryKey: unknown
 }>
 
+/** 运行态批量变更；至少一项非空，否则 prepare 拒绝。 */
 export type DataSpaceRuntimeChanges = Readonly<{
   added?: readonly DataSpaceAddedRow[]
   changed?: readonly DataSpaceChangedRow[]
   deleted?: readonly DataSpaceDeletedRow[]
 }>
 
+/** 运行态 mutation 输入；formKey/model/preimage 三者身份须一致。 */
 export type DataSpaceRuntimeMutationInput = Readonly<{
   formKey: string
   model: DataSpaceFrontendModel
@@ -27,6 +36,7 @@ export type DataSpaceRuntimeMutationInput = Readonly<{
   changes: DataSpaceRuntimeChanges
 }>
 
+/** 运行态 mutation 命令；added/changed/deleted 已注入 lingma_sys_key，risk 固定 medium。 */
 export type DataSpaceRuntimeMutationCommand = Readonly<{
   kind: 'data-space-runtime-mutation'
   formKey: string
@@ -135,6 +145,7 @@ function prepareDeleted(input: DataSpaceRuntimeMutationInput): ReadonlyArray<Rea
   })
 }
 
+/** 校验权限与字段白名单后组装运行态 mutation 命令；不发起 HTTP 写入。 */
 export function prepareDataSpaceRuntimeMutation(
   input: DataSpaceRuntimeMutationInput,
 ): DataSpaceRuntimeMutationCommand {

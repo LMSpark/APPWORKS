@@ -1,7 +1,13 @@
+/**
+ * 数据空间领域模型与前端模型实体：设计态快照的类型合同与构造期不变量校验。
+ * {@link DataSpaceFrontendModel} 在实例化时 fail-fast 校验身份、字段唯一性与关系归属，不可绕过。
+ */
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 
+/** 数据资源 wire 类型；仅 table/view 可在设计态解析稳定目录身份。 */
 export type DataSpaceResourceType = 'table' | 'view' | 'dictionary' | 'interface' | 'json' | 'file'
 
+/** 物理资源字段快照；resourceFieldId 与 name 在同一资源内须唯一。 */
 export type DataSpaceResourceField = Readonly<{
   resourceFieldId: string
   name: string
@@ -18,6 +24,7 @@ export type DataSpaceResourceField = Readonly<{
   order: number | null
 }>
 
+/** 前端模型绑定的数据资源引用；primaryKeyField 须能在资源字段或模型字段中解析。 */
 export type DataSpaceResourceReference = Readonly<{
   resourceId: string
   databaseId: string | null
@@ -28,6 +35,7 @@ export type DataSpaceResourceReference = Readonly<{
   fields: readonly DataSpaceResourceField[]
 }>
 
+/** 前端模型输出字段引用；fieldId 在同一模型内须唯一。 */
 export type DataSpaceFieldReference = Readonly<{
   fieldId: string
   resourceFieldId: string | null
@@ -58,6 +66,7 @@ export type LowcodeModelRelationRecord = Readonly<{
   cascadeDelete: boolean
 }>
 
+/** 前端模型查询/联接配置；filter/joinFilter 等字段为序列化 JSON 字符串。 */
 export type DataSpaceFrontendModelQuery = Readonly<{
   outputType: string
   filter: string
@@ -78,6 +87,7 @@ export type DataSpaceFrontendModelQuery = Readonly<{
   topValue: string
 }>
 
+/** {@link DataSpaceFrontendModel} 构造输入；传入前不做不变量校验。 */
 export type DataSpaceFrontendModelSnapshot = Readonly<{
   dataSpaceId: string
   modelId: string
@@ -100,6 +110,10 @@ function assertUnique(values: readonly string[], name: string): void {
   }
 }
 
+/**
+ * 前端模型领域实体：构造期校验 dataSpaceId、字段/关系唯一性与关系归属。
+ * 关系须引用当前 modelId；跨 dataSpaceId 的关系会被拒绝。
+ */
 export class DataSpaceFrontendModel {
   public readonly dataSpaceId: string
   public readonly modelId: string

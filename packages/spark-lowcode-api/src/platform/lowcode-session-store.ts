@@ -1,14 +1,20 @@
+/**
+ * 低代码会话持久化：内存缓存 + 可选 storage 后端。
+ * 持久化 JSON 结构须与 {@link LowcodeSession} 一致；解析失败 fail-fast，不静默降级。
+ */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import type { LowcodeSession } from './lowcode-platform-api.js'
 
 const DEFAULT_SESSION_KEY = 'spark_lowcode_session'
 
+/** 会话 storage 契约；与 Web Storage 键值语义一致。 */
 export type LowcodeSessionStorage = Readonly<{
   getItem(key: string): string | null
   setItem(key: string, value: string): void
   removeItem(key: string): void
 }>
 
+/** 会话 store 配置；未提供 storage 时仅内存持有，刷新页面后丢失。 */
 export type LowcodeSessionStoreOptions = Readonly<{
   storage?: LowcodeSessionStorage
   sessionKey?: string
@@ -72,6 +78,9 @@ function parseSession(value: unknown): LowcodeSession {
   }
 }
 
+/**
+ * 低代码会话读写；get 首次命中 storage 后写入内存，后续读内存副本。
+ */
 export class LowcodeSessionStore {
   private readonly storage: LowcodeSessionStorage | undefined
   private readonly sessionKey: string
@@ -82,6 +91,7 @@ export class LowcodeSessionStore {
     this.sessionKey = options.sessionKey ?? DEFAULT_SESSION_KEY
   }
 
+  /** 读取当前会话；无数据返回 null，JSON 或字段非法时抛 LowcodeApiError。 */
   public get(): LowcodeSession | null {
     if (this.memorySession !== null) return this.memorySession
     const raw = this.storage?.getItem(this.sessionKey)
@@ -96,16 +106,19 @@ export class LowcodeSessionStore {
     return this.memorySession
   }
 
+  /** 保存会话到内存与 storage（若已配置）。 */
   public save(session: LowcodeSession): void {
     this.memorySession = session
     this.storage?.setItem(this.sessionKey, JSON.stringify(session))
   }
 
+  /** 清空内存与 storage 中的会话。 */
   public clear(): void {
     this.memorySession = null
     this.storage?.removeItem(this.sessionKey)
   }
 
+  /** 是否仍视为已认证；以 refreshExpiresAt 为准，access token 过期不单独判定。 */
   public isAuthenticated(now = Date.now()): boolean {
     const session = this.get()
     return session !== null && session.refreshExpiresAt > now

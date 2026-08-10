@@ -1,14 +1,20 @@
+/**
+ * lowcode 实时通道与 AI 门面：SSE 连接、AI chat/turn 与事件解码。
+ * SSE 依赖构造时注入的 fetch 与会话 Bearer；Agent 响应须为 SparkEnvelope v4。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
 import type { LowcodeSessionStore } from '../platform/lowcode-session-store.js'
 
+/** SSE 原始事件；data 经 JSON 解析失败时保留字符串。 */
 export type LowcodeRealtimeEvent = Readonly<{
   event: string
   data: unknown
 }>
 
+/** SparkEnvelope v4 协议壳；ok=false 或 protocolVersion≠4 时解码 fail-fast。 */
 export type LowcodeSparkEnvelope<TData = unknown> = Readonly<{
   protocolVersion: number
   ok: boolean
@@ -18,29 +24,34 @@ export type LowcodeSparkEnvelope<TData = unknown> = Readonly<{
   event?: Readonly<{ channel?: string; name?: string; terminal?: boolean }>
 }>
 
+/** Agent turn 启动输入；sessionId 可空表示由服务端分配新会话。 */
 export type LowcodeAgentTurnInput = Readonly<{
   agentId: string
   sessionId?: string
   message: string
 }>
 
+/** Agent turn 启动回执；后续 SSE 与 append 须使用同一 sessionId/turnId。 */
 export type LowcodeAgentTurnAck = Readonly<{
   sessionId: string
   turnId: string
 }>
 
+/** 单条 Agent 工具执行结果；toolCallId/toolName 提交前 trim 并校验非空。 */
 export type LowcodeAgentToolResult = Readonly<{
   toolCallId: string
   toolName: string
   result: string
 }>
 
+/** Agent 工具结果追加输入；走 /api/ai/sessions/{sessionId}/turn/append，toolResults 不可空。 */
 export type LowcodeAgentToolAppendInput = Readonly<{
   sessionId: string
   turnId: string
   toolResults: readonly LowcodeAgentToolResult[]
 }>
 
+/** 从 AI SSE 解码的结构化 Agent 事件；非 AI messageType 时 decodeAgentEvent 返回 null。 */
 export type LowcodeAgentEvent = Readonly<{
   name: string
   sessionId: string
@@ -51,6 +62,7 @@ export type LowcodeAgentEvent = Readonly<{
   raw: LowcodeSparkEnvelope
 }>
 
+/** SYSTEM_DOWNLOAD SSE 解码结果；filePath/fileName/appType 缺失时抛错。 */
 export type LowcodeSystemDownload = Readonly<{
   title: string
   filePath: string
@@ -58,22 +70,26 @@ export type LowcodeSystemDownload = Readonly<{
   appType: string
 }>
 
+/** SSE 订阅句柄；close 触发 AbortController，closed 在流结束或中断后 resolve。 */
 export type LowcodeRealtimeSubscription = Readonly<{
   closed: Promise<void>
   close(): void
 }>
 
+/** SSE 连接选项；scope 可选，映射 /api/sse/connect?scope= 查询参数。 */
 export type LowcodeRealtimeConnectOptions = Readonly<{
   scope?: string
   onEvent(event: LowcodeRealtimeEvent): void
 }>
 
+/** AI chat 输入；POST /api/ai/chat，taskId 与 query 均须非空。 */
 export type LowcodeAiChatInput = Readonly<{
   taskId: string
   conversationId?: string
   query: string
 }>
 
+/** 浏览器 fetch 注入类型；SSE 连接必须使用支持 ReadableStream 的 fetch 实现。 */
 export type LowcodeFetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
@@ -107,6 +123,7 @@ function dispatchFrame(frame: string, onEvent: (event: LowcodeRealtimeEvent) => 
   if (data.length > 0) onEvent({ event, data: decodeEventData(data.join('\n')) })
 }
 
+/** lowcode SSE 与 AI HTTP 门面；构造时须注入 session 与可选 fetch，否则 connect 不可用。 */
 export class LowcodeRealtimeApi {
   private readonly client: LowcodeClient
 
@@ -118,6 +135,7 @@ export class LowcodeRealtimeApi {
     this.client = new LowcodeClient(http)
   }
 
+  /** 发起 AI chat；POST /api/ai/chat，fire-and-forget，不等待 SSE 回执。 */
   public async chat(input: LowcodeAiChatInput): Promise<void> {
     const taskId = input.taskId.trim()
     const query = input.query.trim()
@@ -133,6 +151,7 @@ export class LowcodeRealtimeApi {
     })
   }
 
+  /** 启动 Agent turn；POST /api/ai/turns，响应须含 sessionId 与 turnId。 */
   public async startAgentTurn(input: LowcodeAgentTurnInput): Promise<LowcodeAgentTurnAck> {
     const agentId = input.agentId.trim()
     const message = input.message.trim()
@@ -156,6 +175,7 @@ export class LowcodeRealtimeApi {
     return { sessionId, turnId }
   }
 
+  /** 追加 Agent 工具结果；POST /api/ai/sessions/{sessionId}/turn/append，响应须为 ok 的 SparkEnvelope v4。 */
   public async appendAgentToolResults(input: LowcodeAgentToolAppendInput): Promise<void> {
     const sessionId = input.sessionId.trim()
     const turnId = input.turnId.trim()
@@ -173,6 +193,7 @@ export class LowcodeRealtimeApi {
     readSparkEnvelope(response)
   }
 
+  /** 解码 AI SSE 事件；messageType≠AI 或 content 非 JSON 时返回 null 或抛错。 */
   public decodeAgentEvent(event: LowcodeRealtimeEvent): LowcodeAgentEvent | null {
     const message = readRecord(event.data)
     if (message === null || readText(message['messageType']) !== 'AI') return null
@@ -206,6 +227,7 @@ export class LowcodeRealtimeApi {
     }
   }
 
+  /** 解码 SYSTEM_DOWNLOAD SSE 事件；非匹配 messageType 时返回 null。 */
   public decodeSystemDownload(event: LowcodeRealtimeEvent): LowcodeSystemDownload | null {
     const message = readRecord(event.data)
     if (message === null || readText(message['messageType']) !== 'SYSTEM_DOWNLOAD') return null
@@ -232,6 +254,7 @@ export class LowcodeRealtimeApi {
     }
   }
 
+  /** 建立 SSE 长连接；GET /api/sse/connect，无 fetch 或无会话时 fail-fast。 */
   public connect(options: LowcodeRealtimeConnectOptions): LowcodeRealtimeSubscription {
     const fetcher = this.fetcher
     if (fetcher === undefined) throw new LowcodeApiError(0, '当前环境没有可用的 fetch，无法建立 lowcode SSE')

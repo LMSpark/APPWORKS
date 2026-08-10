@@ -1,3 +1,7 @@
+/**
+ * 数据库元数据目录只读门面：从设计态 dataSpace（FormKey）拉取服务器/库/表/视图/字段快照。
+ * 多 FormKey 时逐源容错合并；单表读取失败记入 `sourceErrors` 而非整包失败，解析资源前须检查对应 source。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
@@ -62,6 +66,7 @@ export type LowcodeDatabaseField = Readonly<{
   order: number | null
 }>
 
+/** 一次目录聚合结果；`sourceErrors` 非空表示部分底层表未成功读取，下游解析可能缺项或应 fail-fast。 */
 export type LowcodeDatabaseCatalog = Readonly<{
   servers: readonly LowcodeDatabaseServer[]
   databases: readonly LowcodeDatabase[]
@@ -72,6 +77,7 @@ export type LowcodeDatabaseCatalog = Readonly<{
   sourceDataSpaces: Readonly<Record<string, string>>
 }>
 
+/** 单张目录源表读取失败记录；`source` 为内部 CatalogTable 标识，便于与 resolve 报错对齐。 */
 export type LowcodeCatalogSourceError = Readonly<{
   source: string
   message: string
@@ -79,12 +85,14 @@ export type LowcodeCatalogSourceError = Readonly<{
 
 export type LowcodeDatabaseResourceType = 'table' | 'view'
 
+/** 在已加载 catalog 内定位表/视图的键；databaseId 与 resourceName 均须与目录行精确匹配。 */
 export type LowcodeDatabaseResourceSelector = Readonly<{
   databaseId: string
   resourceName: string
   resourceType: LowcodeDatabaseResourceType
 }>
 
+/** 解析后的表/视图资源快照，含去歧义后的字段列表。 */
 export type LowcodeDatabaseResource = Readonly<{
   id: string
   databaseId: string
@@ -163,6 +171,7 @@ function errorMessage(error: unknown): string {
   return error instanceof Error && error.message.trim() !== '' ? error.message : String(error)
 }
 
+/** 数据库设计目录 API；所有读操作经 GetBaseData，依赖 x-FormKey 绑定 dataSpace。 */
 export class LowcodeCatalogApi {
   private readonly client: LowcodeClient
 
@@ -170,6 +179,7 @@ export class LowcodeCatalogApi {
     this.client = new LowcodeClient(http)
   }
 
+  /** 并行拉取五张目录表并归一化；FormKey 去重后逐个尝试，直至某源成功或全部失败。 */
   public async getDatabaseCatalog(dataSpaceIds: string | readonly string[]): Promise<LowcodeDatabaseCatalog> {
     const formKeys = [...new Set((typeof dataSpaceIds === 'string' ? [dataSpaceIds] : dataSpaceIds)
       .map((item) => item.trim())
@@ -254,6 +264,10 @@ export class LowcodeCatalogApi {
     }
   }
 
+  /**
+   * 在内存 catalog 中解析单张表/视图及其字段；要求候选唯一且字段 id/name 无歧义。
+   * 相关 source 曾失败或匹配不唯一时抛 `LowcodeApiError`，避免静默返回不完整资源。
+   */
   public resolveDatabaseResource(
     catalog: LowcodeDatabaseCatalog,
     selector: LowcodeDatabaseResourceSelector,

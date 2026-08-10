@@ -23,7 +23,6 @@ export const PAGE_NODE_FILE_NAMES: readonly ['rule.json', 'pagedata.json', 'scri
   'style.css',
 ]
 
-/** Page Node File Name 的语义模型。 */
 export type PageNodeFileName = typeof PAGE_NODE_FILE_NAMES[number]
 
 /** Page Node Load Options 的调用配置。 */
@@ -62,7 +61,6 @@ fromCache?: boolean
 notModified?: boolean
 }
 
-/** Page Node File Version Summary 的语义模型。 */
 export type PageNodeFileVersionSummary = {
     /** version 字段。 */
 version: number

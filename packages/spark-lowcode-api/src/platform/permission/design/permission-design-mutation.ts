@@ -1,3 +1,7 @@
+/**
+ * 权限设计态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。
+ * 调用方须持 preimage、journal 与 readback 后再由 provision 层执行；remove 能力须 preimage 存在目标。
+ */
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
 import type {
   PermissionDataObjectPolicy,
@@ -12,6 +16,7 @@ type PermissionDesignMutationBase = Readonly<{
   preimage: PermissionDesignSnapshot
 }>
 
+/** 权限设计态 mutation 输入；capability 决定 change 形状与 targetId 解析规则。 */
 export type PermissionDesignMutationInput =
   | (PermissionDesignMutationBase & Readonly<{
       capability: 'upsert-feature-tag'
@@ -31,6 +36,7 @@ export type PermissionDesignMutationInput =
       change: Readonly<{ reason: string }>
     }>)
 
+/** 权限设计态 mutation 命令；risk 固定 high，journal/readback/compensation 均为强制约束。 */
 export type PermissionDesignMutationCommand = Readonly<{
   kind: 'permission-design-mutation'
   formKey: string
@@ -77,6 +83,7 @@ function assertRemoveTarget(input: PermissionDesignMutationInput, targetId: stri
   }
 }
 
+/** 校验 preimage FormKey 与 remove 目标存在性后组装 mutation 命令；不发起 HTTP 写入。 */
 export function preparePermissionDesignMutation(
   input: PermissionDesignMutationInput,
 ): PermissionDesignMutationCommand {

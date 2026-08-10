@@ -1,7 +1,13 @@
+/**
+ * 运行态导航授权归一化：TopMenus/LeftMenus 树与 Relations 上下文。
+ * wire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；vue: 协议须小写。
+ */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
+/** 导航目标类型；由 NavigationUrl/url 解析得出。 */
 export type RuntimeNavigationTargetKind = 'empty' | 'external' | 'route' | 'vue'
 
+/** Relations 上下文；wire 字段 TextParamName、ValParamName、selectValParam 等 PascalCase。 */
 export type RuntimeNavigationAuthorizationContext = Readonly<{
   id: string
   navigationId: string
@@ -16,6 +22,7 @@ export type RuntimeNavigationAuthorizationContext = Readonly<{
   titlePlacement: string
 }>
 
+/** 导航授权树节点；route/vue 目标携带 formKey（conId/conid）。 */
 export type RuntimeNavigationAuthorizationItem = Readonly<{
   id: string
   target: string
@@ -24,6 +31,7 @@ export type RuntimeNavigationAuthorizationItem = Readonly<{
   children: readonly RuntimeNavigationAuthorizationItem[]
 }>
 
+/** 导航授权完整证据：菜单树 + Relations 上下文列表。 */
 export type RuntimeNavigationAuthorizationEvidence = Readonly<{
   items: readonly RuntimeNavigationAuthorizationItem[]
   contexts: readonly RuntimeNavigationAuthorizationContext[]
@@ -117,6 +125,10 @@ function collectIds(items: readonly RuntimeNavigationAuthorizationItem[], ids: S
   }
 }
 
+/**
+ * 归一化运行导航授权响应；合并 TopMenus 与 LeftMenus，校验 id 全局唯一。
+ * Vue 资源须精确小写 vue: 前缀，否则抛错。
+ */
 export function normalizeRuntimeNavigationAuthorization(value: unknown): RuntimeNavigationAuthorizationEvidence {
   const payload = record(value, '运行导航授权 Result')
   const items = [

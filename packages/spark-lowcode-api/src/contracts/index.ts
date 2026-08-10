@@ -1,3 +1,7 @@
+/**
+ * lowcode 后端 wire 合同类型再导出。
+ * 仅供差分、鉴权适配与协议对齐；业务层应使用各门面返回的领域快照，勿直接依赖 wire 形状。
+ */
 export type { LowcodeAjaxResult } from './lowcode-ajax-result.js'
 export type {
   LowcodeLoginWireInput,

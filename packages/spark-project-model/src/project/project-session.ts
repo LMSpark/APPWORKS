@@ -21,7 +21,6 @@ blueprintDirty: boolean
 blueprintDirtyScope: ProjectBlueprintDirtyScope | null
 }
 
-/** Project Session Owner 的语义模型。 */
 type ProjectSessionOwner = {
   /** 按 nodeId 在导航树中查找项目节点；未找到返回 null */
   findNodeById(nodeId: string): ProjectBlueprintNode | null
@@ -42,7 +41,6 @@ export class ProjectSession {
 
   private blueprintDraftValue: BlueprintNodeDraft | null = null
 
-    /** 创建 Project Session 实例。 */
 constructor(private readonly owner: ProjectSessionOwner) {}
 
   get session(): Readonly<ProjectSessionState> {
@@ -66,19 +64,16 @@ setBlueprintDraft(draft: BlueprintNodeDraft | null): void {
     this.blueprintDraftValue = draft
   }
 
-    /** 执行 begin Navigation Draft 操作。 */
 beginBlueprintDraft(draft: BlueprintNodeDraft): BlueprintNodeDraft {
     this.blueprintDraftValue = draft
     return this.blueprintDraftValue
   }
 
-    /** 执行 discard Navigation Draft 操作。 */
 discardBlueprintDraft(): void {
     this.blueprintDraftValue = null
     this.markBlueprintClean()
   }
 
-    /** 执行 mark Navigation Dirty 操作。 */
 markBlueprintDirty(scope: ProjectBlueprintDirtyScope): void {
     this.state.blueprintDirty = true
     this.state.blueprintDirtyScope = scope === 'root'
@@ -86,7 +81,6 @@ markBlueprintDirty(scope: ProjectBlueprintDirtyScope): void {
       : (this.state.blueprintDirtyScope ?? 'node')
   }
 
-    /** 执行 mark Navigation Clean 操作。 */
 markBlueprintClean(): void {
     this.state.blueprintDirty = false
     this.state.blueprintDirtyScope = null
@@ -128,7 +122,6 @@ setActivePageId(pageId: string | null | undefined): void {
     this.state.activePageId = normalized
   }
 
-    /** 执行 sync With Model 操作。 */
 syncWithModel(): void {
     const selectedNodeId = this.state.selectedNodeId
     if (selectedNodeId && !this.owner.findNodeById(selectedNodeId)) {

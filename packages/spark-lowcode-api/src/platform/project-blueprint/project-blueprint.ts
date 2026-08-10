@@ -1,3 +1,7 @@
+/**
+ * 项目蓝图领域模型：节点快照、结构校验、输出分组与按节点 kind 声明的 mutation capability。
+ * 构造时校验 projectId 一致性与循环引用；结构诊断不阻断实例化，由 governance.audit 消费。
+ */
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 import type { RuntimeNavigationAuthorizationEvidence } from '../lowcode-navigation.js'
 import {
@@ -14,6 +18,7 @@ import {
   type ProjectBlueprintPageRuntimeClosure,
 } from './outputs/project-blueprint-output-groups.js'
 
+/** 蓝图节点不可变快照；source 保留 wire 原始行，legacy 字段仅供读回与治理诊断。 */
 export type ProjectBlueprintNodeSnapshot = Readonly<{
   id: string
   parentId: string
@@ -29,6 +34,7 @@ export type ProjectBlueprintNodeSnapshot = Readonly<{
   source: Readonly<Record<string, unknown>>
 }>
 
+/** 蓝图节点语义类型；unresolved 表示 wire 未配置 BlueprintNodeKind 且非根节点。 */
 export type ProjectBlueprintNodeKind =
   | 'project'
   | 'module'
@@ -45,6 +51,7 @@ export type ProjectBlueprintNodeKind =
   | 'permission-management'
   | 'unresolved'
 
+/** 按节点 kind 声明的可变更能力；实际写入须经 mutationPlanner.prepare 生成命令后由治理层执行。 */
 export type ProjectBlueprintMutationCapability =
   | 'update-planning-content'
   | 'move-node'
@@ -69,17 +76,20 @@ function nodeCapabilities(kind: ProjectBlueprintNodeKind): readonly ProjectBluep
   return []
 }
 
+/** 蓝图树节点；缺失父节点时仍作为顶层投影，与 diagnostics 对齐。 */
 export type ProjectBlueprintTreeNode = Readonly<{
   node: ProjectBlueprintNode
   children: readonly ProjectBlueprintTreeNode[]
 }>
 
+/** 蓝图结构输出：扁平列表、层次树与结构诊断。 */
 export type ProjectBlueprintStructure = Readonly<{
   flat: readonly ProjectBlueprintNode[]
   hierarchy: readonly ProjectBlueprintTreeNode[]
   diagnostics: readonly ProjectBlueprintDiagnostic[]
 }>
 
+/** 蓝图结构诊断项；missing-parent 可恢复，循环引用在构造期 fail-fast。 */
 export type ProjectBlueprintDiagnostic = Readonly<{
   code: 'missing-parent' | 'missing-explicit-root'
   nodeId: string
@@ -92,6 +102,7 @@ function nonEmptyText(value: string, name: string): string {
   return normalized
 }
 
+/** 单个蓝图节点实体；id/projectId 构造时 trim 并冻结，capabilities 由 kind 推导。 */
 export class ProjectBlueprintNode {
   readonly #snapshot: ProjectBlueprintNodeSnapshot
 
@@ -125,6 +136,7 @@ export class ProjectBlueprintNode {
   }
 }
 
+/** 蓝图输出分组入口：structure/planning/delivery/document/governance/ai。 */
 export class ProjectBlueprintOutputs {
   public readonly structure: ProjectBlueprintStructureOutputs
   public readonly planning: ProjectBlueprintPlanningOutputs
@@ -147,6 +159,7 @@ export class ProjectBlueprintOutputs {
   }
 }
 
+/** 蓝图结构只读输出；snapshot 含 flat/hierarchy/diagnostics。 */
 export class ProjectBlueprintStructureOutputs {
   public constructor(
     private readonly nodes: readonly ProjectBlueprintNode[],
@@ -162,6 +175,7 @@ export class ProjectBlueprintStructureOutputs {
   }
 }
 
+/** 蓝图交付输出：运行导航投影与页面运行闭包；需外部提供授权/身份证据。 */
 export class ProjectBlueprintDeliveryOutputs {
   public constructor(
     private readonly projectId: string,
@@ -179,6 +193,7 @@ export class ProjectBlueprintDeliveryOutputs {
   }
 }
 
+/** 项目蓝图聚合根；nodes 冻结，outputs 在构造时一次性绑定当前快照。 */
 export class ProjectBlueprint {
   readonly #nodes: readonly ProjectBlueprintNode[]
   public readonly outputs: ProjectBlueprintOutputs

@@ -1,3 +1,7 @@
+/**
+ * 运行导航投影：将蓝图节点与 GetNavigationMenus 授权证据合成为前端可消费的导航树。
+ * 仅包含 runtimeNavigationCandidate 且在授权证据中的节点；Vue 目标格式非法时 fail-fast。
+ */
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
 import type {
   RuntimeNavigationAuthorizationContext,
@@ -7,8 +11,10 @@ import type {
 } from '../../lowcode-navigation.js'
 import type { ProjectBlueprintNode } from '../project-blueprint.js'
 
+/** 运行导航项语义分类；有子节点时为 module，无目标时为 action。 */
 export type RuntimeNavigationItemKind = 'module' | 'page' | 'external' | 'action'
 
+/** 单条运行导航项；children 已按 order/id 排序，disabled 由 status=maintenance 推导。 */
 export type RuntimeNavigationItem = Readonly<{
   id: string
   parentId: string
@@ -25,6 +31,7 @@ export type RuntimeNavigationItem = Readonly<{
   children: readonly RuntimeNavigationItem[]
 }>
 
+/** 运行导航投影结果；contexts 仅保留与输出节点 id 匹配的授权上下文。 */
 export type RuntimeNavigation = Readonly<{
   projectId: string
   items: readonly RuntimeNavigationItem[]
@@ -79,6 +86,7 @@ function projectedTarget(node: ProjectBlueprintNode, authorizedFormKey: string |
   }
 }
 
+/** 将蓝图候选节点与授权证据投影为运行导航树；未授权节点静默排除。 */
 export function projectRuntimeNavigation(
   projectId: string,
   nodes: readonly ProjectBlueprintNode[],

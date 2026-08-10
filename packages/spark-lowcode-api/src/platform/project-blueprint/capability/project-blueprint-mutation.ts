@@ -1,3 +1,7 @@
+/**
+ * 项目蓝图 mutation 命令规划器：仅 prepare 命令，不发起 HTTP 写入。
+ * 写前镜像 preimage 须与当前节点快照一致；命令含 journal/readback/compensation 约束供治理层执行。
+ */
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
 import type {
   ProjectBlueprintMutationCapability,
@@ -11,6 +15,7 @@ type ProjectBlueprintMutationBase = Readonly<{
   preimage: ProjectBlueprintNodeSnapshot
 }>
 
+/** mutation 输入联合；capability 须与目标节点 kind 声明一致，否则 prepare fail-fast。 */
 export type ProjectBlueprintMutationInput =
   | (ProjectBlueprintMutationBase & Readonly<{
       capability: 'update-planning-content'
@@ -42,8 +47,10 @@ export type ProjectBlueprintMutationInput =
       change: Readonly<{ permissionDesignId: string }>
     }>)
 
+/** mutation 风险等级；update-permission-design 为 high，规划/移动为 low。 */
 export type ProjectBlueprintMutationRisk = 'low' | 'medium' | 'high'
 
+/** 待治理层执行的 mutation 命令；本模块不自动 journal、不自动 readback。 */
 export type ProjectBlueprintMutationCommand = Readonly<{
   kind: 'project-blueprint-mutation'
   projectId: string
@@ -73,6 +80,7 @@ function risk(capability: ProjectBlueprintMutationCapability): ProjectBlueprintM
   return 'medium'
 }
 
+/** 基于当前蓝图快照规划 mutation 命令；prepare 校验 capability、idempotencyKey 与 preimage 新鲜度。 */
 export class ProjectBlueprintMutationPlanner {
   private readonly nodesById: ReadonlyMap<string, ProjectBlueprintNode>
 
@@ -83,6 +91,7 @@ export class ProjectBlueprintMutationPlanner {
     this.nodesById = new Map(nodes.map((node) => [node.id, node]))
   }
 
+  /** 生成 mutation 命令但不执行；preimage 过期或 capability 未声明时抛 LowcodeApiError。 */
   public prepare(input: ProjectBlueprintMutationInput): ProjectBlueprintMutationCommand {
     const nodeId = requiredText(input.nodeId, 'nodeId')
     const idempotencyKey = requiredText(input.idempotencyKey, 'idempotencyKey')

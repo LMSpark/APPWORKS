@@ -62,7 +62,6 @@ script: string | undefined
 css: string | undefined
 }
 
-/** Page Node Like 的语义模型。 */
 export type PageNodeLike = {
     /** 页面唯一标识，与配置页存储目录名一致 */
 readonly pageId: string
@@ -167,17 +166,14 @@ isDirty(): boolean {
     }
   }
 
-    /** 执行 mark Loaded 操作。 */
 markLoaded(): void {
     this._isLoaded = true
   }
 
-    /** 执行 mark Unloaded 操作。 */
 markUnloaded(): void {
     this._isLoaded = false
   }
 
-    /** 执行 mark File Saved 操作。 */
 markFileSaved(name: PageNodeFileName): void {
     switch (name) {
       case 'rule.json':
@@ -247,7 +243,6 @@ canRedoFile(name: PageNodeFileName): boolean {
     }
   }
 
-    /** 执行 undo File 操作。 */
 undoFile(name: PageNodeFileName): boolean {
     switch (name) {
       case 'rule.json': return this.rule.undo()
@@ -257,7 +252,6 @@ undoFile(name: PageNodeFileName): boolean {
     }
   }
 
-    /** 执行 redo File 操作。 */
 redoFile(name: PageNodeFileName): boolean {
     switch (name) {
       case 'rule.json': return this.rule.redo()
@@ -335,7 +329,6 @@ toRenderConfig(): PageNodeRenderConfig {
     }
   }
 
-    /** 执行 to Summary 操作。 */
 toSummary(): ProjectPageNodeSummary {
     const node = this.toNodeData()
     return {

@@ -11,14 +11,12 @@ import { getSparkNodeChildren, SparkNodeTree } from '@spark-appworks/spark-data'
 import type { SparkNodeTree as SparkNodeTreeModel, SparkNode } from '@spark-appworks/spark-data'
 import { parseRuleText, serializeRuleTree } from '../page-file'
 
-/** Page Rule File 的语义模型。 */
 export class PageRuleFile {
     /** tree 字段。 */
 tree: SparkNodeTreeModel = SparkNodeTree.fromPageChildren([])
 
   private dirty = false
 
-    /** 创建 Page Rule File 实例。 */
 constructor(
     readonly pageId: string,
   ) {}
@@ -45,7 +43,6 @@ loadText(text: string): void {
     this.dirty = false
   }
 
-    /** 执行 mark Saved 操作。 */
 markSaved(): void {
     this.dirty = false
   }
@@ -55,13 +52,11 @@ getTree(): SparkNodeTreeModel {
     return this.tree
   }
 
-    /** 执行 replace Tree 操作。 */
 replaceTree(tree: SparkNodeTreeModel): void {
     this.tree = tree
     this.dirty = true
   }
 
-    /** 执行 edit Tree 操作。 */
 async editTree(run: (tree: SparkNodeTreeModel) => void | Promise<void>): Promise<void> {
     const beforeText = this.getText()
     const tree = this.getTree()
@@ -70,14 +65,12 @@ async editTree(run: (tree: SparkNodeTreeModel) => void | Promise<void>): Promise
     this.replaceTree(tree)
   }
 
-    /** 执行 undo 操作。 */
 undo(): boolean {
     const ok = this.tree.undo() !== null
     if (ok) this.dirty = true
     return ok
   }
 
-    /** 执行 redo 操作。 */
 redo(): boolean {
     const ok = this.tree.redo() !== null
     if (ok) this.dirty = true

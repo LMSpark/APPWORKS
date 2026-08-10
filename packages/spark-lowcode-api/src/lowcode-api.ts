@@ -1,3 +1,7 @@
+/**
+ * lowcode 客户端根门面：组装各子域 API，并在 HTTP 拦截器层统一注入会话 Bearer。
+ * 构造时会注册 request 拦截器；access 过期且 refresh 仍有效时会自动刷新，失败则按原 session 继续（不静默伪造凭证）。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeCatalogApi } from './catalog/lowcode-catalog-api.js'
@@ -13,6 +17,7 @@ import {
   type LowcodeSessionStorage,
 } from './platform/lowcode-session-store.js'
 
+/** 根门面构造选项；`http` 为唯一必填项，会话与应用存储键可覆盖默认值以支持多租户隔离。 */
 export type LowcodeApiOptions = Readonly<{
   http: HttpClientBase
   sessionStorage?: LowcodeSessionStorage
@@ -21,6 +26,7 @@ export type LowcodeApiOptions = Readonly<{
   fetch?: LowcodeFetch
 }>
 
+/** lowcode 平台统一入口，按子域划分只读/读写能力，共享同一 `HttpClientBase` 与 `LowcodeSessionStore`。 */
 export class LowcodeApi {
   public readonly blueprint: ProjectBlueprintApi
   public readonly catalog: LowcodeCatalogApi

@@ -15,7 +15,6 @@ import type {
 import type { BlueprintNodeDraft } from '../blueprint/project-blueprint-edit'
 import type { PageNodeFileName } from '../page/page-file'
 
-/** Project Blueprint Dirty Scope 的语义模型。 */
 export type ProjectBlueprintDirtyScope = 'node' | 'root'
 
 /** Project Model Event 的事件载荷。 */
@@ -48,7 +47,6 @@ export type ProjectModelEvent =
       pageId?: string
     }
 
-/** Project Model Event Listener 的语义模型。 */
 export type ProjectModelEventListener = (event: ProjectModelEvent) => void
 
 /** Project Page File Write Command 的命令参数。 */
@@ -61,7 +59,6 @@ export type ProjectPageFileWriteCommand = {
   text: string
 }
 
-/** Project Blueprint Projection 的语义模型。 */
 export type ProjectBlueprintProjection = {
     /** 完整项目蓝图。 */
 blueprint: ProjectBlueprintTreeData
@@ -79,7 +76,6 @@ blueprintDraft: BlueprintNodeDraft | null
 pageDeliveries: ProjectPageNodeSummary[]
 }
 
-/** Project Active Page Projection 的语义模型。 */
 export type ProjectActivePageProjection = {
     /** page Id 标识。 */
 pageId: string
@@ -97,7 +93,6 @@ parseErrors: Record<PageNodeFileName, string | null>
 isLoaded: boolean
 }
 
-/** Project Dirty Projection 的语义模型。 */
 export type ProjectDirtyProjection = {
     /** dirty Files 字段。 */
 dirtyFiles: Set<PageNodeFileName>
@@ -157,7 +152,6 @@ export type ProjectPlanningCompletionResult = Readonly<{
   nextStep?: string
 }>
 
-/** Project Info 的语义模型。 */
 export type ProjectInfo = {
   /** 租户 ID；多租户环境下用于隔离项目。 */
   tenantId?: string | undefined

@@ -11,13 +11,11 @@ import { SnapshotHistory } from '@spark-appworks/spark-utils'
 
 const TEXT_HISTORY_LIMIT = 100
 
-/** Page Text File 的语义模型。 */
 export class PageTextFile {
   private _text: string
   private savedText: string
   private readonly history = new SnapshotHistory<string>(TEXT_HISTORY_LIMIT)
 
-    /** 创建 Page Text File 实例。 */
 constructor(
     readonly pageId: string,
     readonly fileName: 'script.js' | 'style.css',
@@ -53,12 +51,10 @@ loadText(text: string): void {
     this.savedText = text
   }
 
-    /** 执行 mark Saved 操作。 */
 markSaved(): void {
     this.savedText = this._text
   }
 
-    /** 执行 undo 操作。 */
 undo(): boolean {
     const prev = this.history.undo()
     if (prev === null) return false
@@ -66,7 +62,6 @@ undo(): boolean {
     return true
   }
 
-    /** 执行 redo 操作。 */
 redo(): boolean {
     const next = this.history.redo()
     if (next === null) return false

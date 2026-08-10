@@ -1,3 +1,7 @@
+/**
+ * `spark-lowcode-api` 公共导出入口。
+ * 聚合平台会话、目录、设计资产、数据空间、蓝图、权限与实时通道等门面；调用方应从此处 import，避免依赖内部路径。
+ */
 export { LowcodeApi } from './lowcode-api.js'
 export type { LowcodeApiOptions } from './lowcode-api.js'
 export { LowcodeApiError } from './core/lowcode-api-error.js'

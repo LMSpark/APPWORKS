@@ -1,3 +1,7 @@
+/**
+ * 项目蓝图 wire 层：GetData 查询体构造与 Base_NavigationInfo 行归一化。
+ * 未知 BlueprintNodeKind fail-fast；缺失 kind 的非根节点降级为 unresolved。
+ */
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 import { ProjectBlueprintNode } from './project-blueprint.js'
 
@@ -49,6 +53,7 @@ function nodeKind(row: Record<string, unknown>, parentId: string): ProjectBluepr
   throw new LowcodeApiError(0, `未知 BlueprintNodeKind: ${configured}`)
 }
 
+/** 构造 Base_NavigationInfo 的 GetData 查询体；SysId 过滤须与 projectId 一致。 */
 export function projectBlueprintQuery(projectId: string): Readonly<Record<string, unknown>> {
   const normalizedProjectId = projectId.trim()
   if (!normalizedProjectId) throw new LowcodeApiError(0, 'projectId 不能为空')
@@ -76,6 +81,7 @@ export function projectBlueprintQuery(projectId: string): Readonly<Record<string
   }
 }
 
+/** 将 GetData Result 归一化为蓝图节点列表；行级字段缺失时以空串/0 兜底，kind 未知则抛错。 */
 export function normalizeProjectBlueprintNodes(value: unknown): readonly ProjectBlueprintNode[] {
   return queryItems(value).map((item, index) => {
     if (!isRecord(item)) throw new LowcodeApiError(0, `项目蓝图第 ${index + 1} 行不是对象`)

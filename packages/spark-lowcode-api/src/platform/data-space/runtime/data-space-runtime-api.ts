@@ -1,3 +1,7 @@
+/**
+ * 数据空间运行态 API：按页面 FormKey 查询业务数据并解析后端稀疏权限。
+ * 与 design 入口分离；变更须走 {@link prepareMutation}，读操作直接调用 GetData。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
@@ -9,15 +13,19 @@ import {
   type DataSpaceRuntimeMutationInput,
 } from './data-space-runtime-mutation.js'
 
+/** 运行态附加过滤；与前端模型 Filter 以 AND 合并。 */
 export type DataSpaceRuntimeFilter = Readonly<Record<string, unknown>>
 
+/** 运行态入参；透传至 GetData Table.inputParams。 */
 export type DataSpaceRuntimeInputParameter = Readonly<Record<string, unknown>>
 
+/** 运行态排序；direction 映射为 wire OrderType。 */
 export type DataSpaceRuntimeSort = Readonly<{
   fieldId: string
   direction: 'ascending' | 'descending'
 }>
 
+/** 运行态查询输入；model 须来自 design 读或已校验的 {@link DataSpaceFrontendModel}。 */
 export type DataSpaceRuntimeQuery = Readonly<{
   formKey: string
   model: DataSpaceFrontendModel
@@ -28,6 +36,7 @@ export type DataSpaceRuntimeQuery = Readonly<{
   pageSize?: number
 }>
 
+/** 后端稀疏行级权限；r/e/h/m 为字段名集合，d 表示可删。缺失 lingma_sys_params 会 fail-fast。 */
 export type DataSpaceSparsePermission = Readonly<{
   r: readonly string[]
   e: readonly string[]
@@ -36,11 +45,13 @@ export type DataSpaceSparsePermission = Readonly<{
   d: boolean
 }>
 
+/** 运行态数据行；强制携带 lingma_sys_params 与 lingma_sys_key。 */
 export type DataSpaceRuntimeRow = Readonly<Record<string, unknown>> & Readonly<{
   lingma_sys_params: DataSpaceSparsePermission
   lingma_sys_key: string
 }>
 
+/** 运行态查询快照；作为 runtime mutation 写前镜像，须与 query 身份一致。 */
 export type DataSpaceRuntimeSnapshot = Readonly<{
   formKey: string
   dataSpaceId: string
@@ -52,6 +63,7 @@ export type DataSpaceRuntimeSnapshot = Readonly<{
   systemKey: string
 }>
 
+/** GetData 请求预组装结果；headers 含页面 FormKey。 */
 export type DataSpaceRuntimePreparedQuery = Readonly<{
   path: '/api/DataOperation/GetData'
   method: 'POST'
@@ -193,6 +205,7 @@ function queryPayload(query: DataSpaceRuntimeQuery): Readonly<Record<string, unk
   return payload
 }
 
+/** 数据空间运行态门面；query 直接读库，mutation 只 prepare 命令。 */
 export class DataSpaceRuntimeApi {
   private readonly client: LowcodeClient
 

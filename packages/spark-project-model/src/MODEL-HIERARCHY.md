@@ -2,7 +2,7 @@
 
 **设计即编辑** · **模型 = class + API（事件）** · 谁 `new` 谁负责生命周期。
 
-`ProjectNodeData` / `ProjectModelData` 等 type 仅用于 API 载荷与落盘映射，**不是**第二套模型。
+`ProjectBlueprintTreeNodeData` / `ProjectBlueprintTreeData` 等 type 仅用于 API 载荷与落盘映射，**不是**第二套模型。
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 层级 | 领域语义 | 主要 nodeKind / 载体 |
 |---|---|---|
-| 项目 | `ProjectModel` 根；L0 元数据 | `ProjectModelData`（`childPlacement`、`homeNodeId` …） |
+| 项目 | `ProjectModel` 根；L0 元数据 | `ProjectBlueprintTreeData`（`childPlacement`、`homeNodeId` …） |
 | 模块 | 策划轴结构单元 | `module`、`system-directory` |
 | 页面 | 策划轴入口 | `page`、`system-page`、`link`、`ref` … |
 | 子页面 | 页面下嵌套入口（无路由） | `page` + `hidden` + 无 `path` |
@@ -37,7 +37,7 @@
 
 - 唯一领域根：`ProjectModel`
 - 唯一设计聚合：`ProjectBlueprintDesign`（`nodesById` + `configPagesByPageId` + `blueprintTree`）
-- `navigation/` 目录 = **节点工具包**（type、tree 纯函数、edit）；不是第二套 PlanningModel。未来可 rename 为 `nodes/`，含义不变。
+- `blueprint/` 目录 = **节点工具包**（type、tree 纯函数、edit）；不是第二套 PlanningModel。
 
 平台策划口径对齐：[PLATFORM_TENANT_ROUTING.md](../../../docs/architecture/PLATFORM_TENANT_ROUTING.md)。
 
@@ -65,8 +65,8 @@ ProjectModel（pageDesign.project）
 |---|---|---|
 | `requirement` | navigation 根节点 `description`；为空时回退 `project.description` | 项目级短需求 |
 | `planningAttachmentRef` | 根节点 `planningAttachmentRef`；为空时回退 `ProjectInfo.planningAttachmentRef` | 项目级详细说明附件 |
-| 节点 `description` | 每个 `ProjectNodeData.description` | 节点短需求 |
-| 节点 `planningAttachmentRef` | 每个 `ProjectNodeData.planningAttachmentRef` | 节点详细说明附件 |
+| 节点 `description` | 每个 `ProjectBlueprintTreeNodeData.description` | 节点短需求 |
+| 节点 `planningAttachmentRef` | 每个 `ProjectBlueprintTreeNodeData.planningAttachmentRef` | 节点详细说明附件 |
 
 `readBlueprintPlanningInputs()` / `readBlueprintNodePlanningInput(nodeId)` 读取全部或单个蓝图节点策划输入。
 
@@ -91,7 +91,7 @@ AI 只消费这里暴露的项目模型入口，不在本包维护独立运行�
 | 配置页四文件 | `ConfigPageNode`（经 `openPageDesign`） |
 | 落盘 | `ProjectWorkspace` |
 
-`domain-model/`（`ProjectRootModel` / 扁平行 / `PageConfigModel`）**已删除**。策划脚本：`this.replaceNavigationChildren({ children })`。
+`domain-model/`（`ProjectRootModel` / 扁平行 / `PageConfigModel`）**已删除**。策划脚本：`this.replaceBlueprintChildren({ children })`。
 
 验收清单：[`docs/guides/model-convergence-acceptance.md`](../../../docs/guides/model-convergence-acceptance.md)
 
@@ -153,7 +153,7 @@ classDiagram
 | `page` | ConfigPageNode | 四文件配置页 |
 | `page`（嵌套） | ConfigPageNode | `isSubPage=true`（hidden + 无 path）；legacy `sub-page` 加载时迁移 |
 
-配置页 kind 由 `page/instantiate-project-node.ts` 实例化；其余 kind 由 `navigation/navigation-kinds.ts` 返回 `ProjectNode`。**navigation 不 import page**。
+配置页 kind 由 `page/instantiate-project-node.ts` 实例化；其余 kind 由 `blueprint/project-blueprint-kinds.ts` 返回 `ProjectBlueprintNode`。**blueprint 不 import page**。
 
 ---
 
@@ -182,11 +182,11 @@ classDiagram
   class ProjectBlueprintDesign {
     nodesById: Map
     +configPagesByPageId: Map
-    +navigationRoot: ProjectModelData
+    +blueprintTree: ProjectBlueprintTreeData
     +findNodeById()
     +findConfigPageByPageId()
     +openPageDesign() / closePageDesign()
-    +replaceNavigationRoot()
+    +replaceBlueprintTree()
     +applyNavigationNodeEdit()
     +readPlanningProjection()
   }
@@ -317,10 +317,10 @@ ProjectWorkspace    → project, navigation, page, io
 | 要改什么 | 看哪里 |
 |---|---|
 | 项目 L0 布局 / 首页 | `applyProjectLayoutEdit`、`saveProjectLayout`；app-list `AppProjectSettingsDialog` |
-| 节点 kind 行为 / family | `navigation/project-node.ts`、`navigation-kinds.ts` |
-| 树纯函数 / pageId 解析 | `navigation/navigation-tree.ts` |
-| nodesById 内存索引 | `navigation/navigation-index.ts` |
-| 节点属性表单 / patch | `navigation/navigation-edit.ts` |
+| 节点 kind 行为 / family | `blueprint/project-blueprint-node.ts`、`project-blueprint-kinds.ts` |
+| 树纯函数 / pageId 解析 | `blueprint/project-blueprint-tree.ts` |
+| nodesById 内存索引 | `blueprint/project-blueprint-index.ts` |
+| 节点属性表单 / patch | `blueprint/project-blueprint-edit.ts` |
 | 导航 nodesById CRUD | `project/project-design.ts` |
 | 项目元数据 + 设计聚合 | `project/project-design.ts` |
 | 四文件内存模型 | `page/content/*`、`page/config-page.ts` |
@@ -384,7 +384,7 @@ sequenceDiagram
 | `dirtyProjection` | `readDirtyProjection()` | 顶栏「未保存」、tab 蓝点 |
 | `navEditDto` reactive | `project.navigationDraft` | 表单 getter/setter 代理 |
 
-**禁止**在 Vue 里缓存 `ProjectNodeData` 副本当编辑真源；读写走 `project.*` API。
+**禁止**在 Vue 里缓存 `ProjectBlueprintTreeNodeData` 副本当编辑真源；读写走 `project.*` API。
 
 ### 9.3 读 / 写分工（内存 vs 落盘）
 

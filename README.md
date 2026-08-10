@@ -71,7 +71,7 @@ packages/
 └── vite-plugin-spark-catalog/   # 组件扫描配置与命名工具
 ```
 
-- 运行时主线：`spark-app` + `spark-component` + `spark-data` + `spark-project-model`
+- 运行时主线：`spark-app` + `spark-component` + `spark-data` + `spark-project-model` + `spark-lowcode-api`
 - AI 主线：`spark-ai` + `generated/dts-class-model`；Agent 在前端运行并通过治理后的 lowcode API 消费平台能力
 - 公共基础：`spark-utils`
 - 目录索引： [packages/README.md](packages/README.md) 、 [scripts/README.md](scripts/README.md) 、 [tools/README.md](tools/README.md)

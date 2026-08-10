@@ -1,3 +1,7 @@
+/**
+ * 权限设计态只读 API：按 formKey 拉取功能标签、数据对象策略与对象授权快照。
+ * 变更须走 {@link prepareMutation}，与 runtime 入口分离；无法解析的 granttype 记入 diagnostics。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import {
@@ -12,6 +16,7 @@ import {
   type PermissionDesignMutationInput,
 } from './permission-design-mutation.js'
 
+/** 功能标签节点；对应 _Base_FunctionNode。 */
 export type PermissionFeatureTag = Readonly<{
   tagId: string
   parentId: string
@@ -21,6 +26,7 @@ export type PermissionFeatureTag = Readonly<{
   order: number
 }>
 
+/** 数据对象字段级策略；对应 Base_FunctionDetail。 */
 export type PermissionDataObjectPolicy = Readonly<{
   policyId: string
   featureTagId: string
@@ -36,13 +42,16 @@ export type PermissionDataObjectPolicy = Readonly<{
   saveFilter: string
 }>
 
+/** 授权主体类型；granttype 0/1/2 映射 role/position/user，其余为 unresolved。 */
 export type PermissionGrantSubjectKind = 'role' | 'position' | 'user' | 'unresolved'
 
+/** 组织范围；fixed-organization 或 business-field-organization 二选一，否则 unscoped。 */
 export type PermissionGrantOrganizationScope =
   | Readonly<{ kind: 'unscoped' }>
   | Readonly<{ kind: 'fixed-organization'; organizationId: string }>
   | Readonly<{ kind: 'business-field-organization'; field: string }>
 
+/** 页面对象授权；对应 FunctionNodeAuth。 */
 export type PermissionObjectGrant = Readonly<{
   grantId: string
   pageId: string
@@ -55,6 +64,7 @@ export type PermissionObjectGrant = Readonly<{
   rawGrantType: number | null
 }>
 
+/** 权限设计态完整快照；作为 mutation 写前镜像与读回验收基准。 */
 export type PermissionDesignSnapshot = Readonly<{
   formKey: string
   featureTags: readonly PermissionFeatureTag[]
@@ -133,6 +143,7 @@ function objectGrant(row: Record<string, unknown>): PermissionObjectGrant {
   }
 }
 
+/** 权限设计态门面；只读拉取与 mutation 命令 prepare，不执行线上写入。 */
 export class PermissionDesignApi {
   private readonly reader: PermissionDesignReader
 

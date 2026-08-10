@@ -1,14 +1,20 @@
+/**
+ * 当前选中应用上下文持久化：应用元数据 + 导航根 rowid。
+ * 默认使用浏览器 localStorage；损坏数据会被清除而非返回半成品上下文。
+ */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import type { LowcodeApplication } from './lowcode-application.js'
 import type { LowcodeSessionStorage } from './lowcode-session-store.js'
 
 const DEFAULT_APPLICATION_KEY = 'spark_lowcode_application'
 
+/** 已选应用及其导航根身份；navigationRootId 来自 Base_NavigationInfo 唯一根节点。 */
 export type LowcodeApplicationContext = Readonly<{
   application: LowcodeApplication
   navigationRootId: string
 }>
 
+/** 应用 store 配置；storage 缺省为 localStorage（非浏览器环境则无持久化）。 */
 export type LowcodeApplicationStoreOptions = Readonly<{
   storage?: LowcodeSessionStorage
   applicationKey?: string
@@ -54,6 +60,7 @@ function parseContext(value: unknown): LowcodeApplicationContext {
   }
 }
 
+/** 当前选中应用的读写；save 会先校验再写入，避免脏数据落盘。 */
 export class LowcodeApplicationStore {
   private readonly storage: LowcodeSessionStorage | undefined
   private readonly applicationKey: string
@@ -63,6 +70,7 @@ export class LowcodeApplicationStore {
     this.applicationKey = options.applicationKey ?? DEFAULT_APPLICATION_KEY
   }
 
+  /** 读取应用上下文；解析失败时清除 storage 并返回 null。 */
   public get(): LowcodeApplicationContext | null {
     const raw = this.storage?.getItem(this.applicationKey)
     if (!raw) return null
@@ -74,11 +82,13 @@ export class LowcodeApplicationStore {
     }
   }
 
+  /** 持久化应用上下文；字段格式非法时抛 LowcodeApiError。 */
   public save(context: LowcodeApplicationContext): void {
     const normalized = parseContext(context)
     this.storage?.setItem(this.applicationKey, JSON.stringify(normalized))
   }
 
+  /** 清除已选应用上下文。 */
   public clear(): void {
     this.storage?.removeItem(this.applicationKey)
   }

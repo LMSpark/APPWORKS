@@ -1,13 +1,10 @@
 /**
  * @module @spark-appworks/spark-project-model:blueprint/project-blueprint-node
- * 职责：提供项目蓝图节点、运行交付投影与页面身份闭包契约。
- * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。
- * AI用途：规划项目蓝图、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 blueprint/project-blueprint-node。
- */
-/**
- * 项目蓝图节点基 class。
+ * 职责：项目蓝图节点、运行交付投影与页面身份闭包契约。
+ * 边界：只表达项目/页面配置领域模型；不渲染组件，不绕过 pageDesign 四文件链路。
+ * AI用途：规划蓝图或理解 ProjectModel/ProjectWorkspace 时定位本模块。
  *
- * 按 nodeKind 选择 ConfigPageNode 等子类；ProjectBlueprintTreeNodeData 仅为序列化形状。
+ * 基 class 按 nodeKind 选择 ConfigPageNode 等子类；ProjectBlueprintTreeNodeData 仅为序列化形状。
  */
 import { deepClone, isRecord } from '@spark-appworks/spark-utils'
 
@@ -54,7 +51,6 @@ export type ProjectBlueprintNodeKind =
 /** 权限未匹配时的展示模式。 */
 export type ProjectBlueprintPermissionMode = 'none' | 'masked' | 'invisible'
 
-/** Project Node Family 的语义模型。 */
 export type ProjectBlueprintNodeFamily = 'module' | 'config-page' | 'system-page' | 'system-action' | 'link' | 'ref'
 
 /** Project Description Context 的运行上下文。 */
@@ -149,7 +145,6 @@ export type ProjectBlueprintTreeNodeData = {
   upstreamContractsSatisfied?: boolean | undefined
 }
 
-/** Project Blueprint Node Patch 的语义模型。 */
 export type ProjectBlueprintNodePatch = {
   /** 新标题。 */
   title: string
@@ -189,7 +184,6 @@ export type ProjectBlueprintNodePatch = {
   upstreamContractsSatisfied?: boolean | undefined
 }
 
-/** Project Node Location 的语义模型。 */
 export type ProjectBlueprintTreeNodeLocation = {
   /** 命中的节点数据。 */
   node: ProjectBlueprintTreeNodeData
@@ -233,7 +227,6 @@ export type ProjectPageSurface =
   | 'ref'
   | 'none'
 
-/** Project Page Node Summary 的语义模型。 */
 export type ProjectPageNodeSummary = Record<string, unknown> & {
   /** 配置页 pageId。 */
   pageId: string
@@ -287,7 +280,6 @@ export class ProjectBlueprintNode {
   #pid: string
   #descriptionContext: ProjectDescriptionContext[]
 
-    /** 创建 Project Node 实例。 */
 constructor(options: ProjectBlueprintNodeModelOptions) {
     this.#node = cloneProjectBlueprintTreeNodeData(options.node)
     this.#pid = normalizePid(options.pid)
@@ -302,7 +294,6 @@ constructor(options: ProjectBlueprintNodeModelOptions) {
     if (this.nodeKind === 'ref') return 'ref'
     return 'module'
   }
-    /** 执行 to Node Data 操作。 */
 toNodeData(): ProjectBlueprintTreeNodeData { return cloneProjectBlueprintTreeNodeData(this.#node) }
 
   /** 蓝图编辑只能通过 class API 提交；DTO 快照不可作为包内可变真源。 */

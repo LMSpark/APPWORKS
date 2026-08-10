@@ -1,8 +1,13 @@
+/**
+ * lowcode 文件服务只读门面：读取设计态文本资产与目录列表。
+ * 写入/替换须走带 journal 的治理通道；本模块不提供 mutating API。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
 
+/** 单文件读取定位；appType/customPath/fileName 组合须与后端文件命名空间一致，跨企业读需显式 `isCrossEnterprise`。 */
 export type LowcodeFileLocator = Readonly<{
   appType: string
   customPath: string
@@ -10,6 +15,7 @@ export type LowcodeFileLocator = Readonly<{
   isCrossEnterprise?: boolean
 }>
 
+/** 目录列表查询键；folderPath 可为空字符串表示根级，appType 必填。 */
 export type LowcodeFileDirectory = Readonly<{
   appType: string
   folderPath: string
@@ -53,7 +59,6 @@ function normalizeFileEntry(value: unknown): LowcodeFileEntry | null {
   }
 }
 
-/** lowcode 文件服务的稳定只读设计资产门面。写入需由具备 journal 的治理通道另行实现。 */
 export class LowcodeDesignApi {
   private readonly client: LowcodeClient
 
@@ -61,6 +66,7 @@ export class LowcodeDesignApi {
     this.client = new LowcodeClient(http)
   }
 
+  /** 读取 UTF-8 文本文件全文；Result 非 string 视为协议错误。 */
   public async readTextFile(locator: LowcodeFileLocator): Promise<string> {
     const result = await this.client.requestResult({
       path: '/api/File/content/text',
@@ -73,6 +79,7 @@ export class LowcodeDesignApi {
     return result
   }
 
+  /** 列出目录下文件；非法条目静默过滤，仅返回 name 非空且结构合法的项。 */
   public async listFiles(directory: LowcodeFileDirectory): Promise<readonly LowcodeFileEntry[]> {
     const result = await this.client.requestResult({
       path: '/api/File/list',

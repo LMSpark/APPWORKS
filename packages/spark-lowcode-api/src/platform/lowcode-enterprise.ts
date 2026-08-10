@@ -1,5 +1,10 @@
+/**
+ * 企业目录与企业详情归一化：GetBaseData / 会话 entinfo 的 wire 字段映射。
+ * 企业 wire 键多为 PascalCase（ShortName、CName、ent_config 等）；目录按 ShortName 去重。
+ */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
+/** 企业目录条目；shortName 为登录 entName 与域标识。 */
 export type LowcodeEnterpriseCatalogItem = Readonly<{
   id: string
   name: string
@@ -7,6 +12,7 @@ export type LowcodeEnterpriseCatalogItem = Readonly<{
   shortCode: string
 }>
 
+/** 企业 ent_config JSON 中的密码与审核策略；wire 键为 snake_case。 */
 export type LowcodeEnterprisePolicy = Readonly<{
   userAudit: boolean | null
   passwordMinLength: number | null
@@ -18,6 +24,7 @@ export type LowcodeEnterprisePolicy = Readonly<{
   verificationCodeLength: number | null
 }>
 
+/** 完整企业信息；domainKey 取自 ShortName，缺失时 fail-fast。 */
 export type LowcodeEnterpriseInfo = Readonly<{
   id: string | null
   englishName: string | null
@@ -100,6 +107,7 @@ function queryItems(value: unknown): readonly unknown[] {
   throw new LowcodeApiError(0, '企业目录 Result.items 不是数组')
 }
 
+/** 构造 Base_Enterprise_Info 企业目录 GetBaseData 查询体。 */
 export function enterpriseCatalogQuery(): Readonly<Record<string, unknown>> {
   return {
     Table: [{
@@ -115,6 +123,7 @@ export function enterpriseCatalogQuery(): Readonly<Record<string, unknown>> {
   }
 }
 
+/** 归一化企业目录；按 ShortName 去重，id 优先 rowid 否则回退 shortName。 */
 export function normalizeEnterpriseCatalog(value: unknown): readonly LowcodeEnterpriseCatalogItem[] {
   const seen = new Set<string>()
   return queryItems(value).flatMap((item) => {
@@ -133,6 +142,7 @@ export function normalizeEnterpriseCatalog(value: unknown): readonly LowcodeEnte
   })
 }
 
+/** 归一化单条企业 entinfo；ent_config 可为 JSON 字符串或对象。 */
 export function normalizeEnterpriseInfo(value: unknown): LowcodeEnterpriseInfo {
   if (!isRecord(value)) throw new LowcodeApiError(0, '企业信息 Result 不是对象')
   const domainKey = firstText(value, ['ShortName'])

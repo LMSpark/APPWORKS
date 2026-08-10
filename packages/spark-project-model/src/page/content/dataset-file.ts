@@ -10,7 +10,6 @@
 import { DataSet, DataSetCrudTool } from '@spark-appworks/spark-data'
 import { parsePageDataText, serializeDataSet } from '../page-file'
 
-/** Page Data Set File 的语义模型。 */
 export class PageDataSetFile {
     /** 当前值。 */
 value: DataSet
@@ -20,7 +19,6 @@ value: DataSet
   private dirty = false
   private toolCache: DataSetCrudTool | null = null
 
-    /** 创建 Page Data Set File 实例。 */
 constructor(
     readonly pageId: string,
   ) {
@@ -51,7 +49,6 @@ loadText(text: string): void {
     this.dirty = false
   }
 
-    /** 执行 mark Saved 操作。 */
 markSaved(): void {
     this.dirty = false
   }
@@ -62,7 +59,6 @@ getTool(): DataSetCrudTool {
     return this.toolCache
   }
 
-    /** 执行 replace Tool 操作。 */
 replaceTool(tool: DataSetCrudTool): void {
     this.pushUndo()
     this.value = DataSet.fromJson(tool.toJson())
@@ -70,7 +66,6 @@ replaceTool(tool: DataSetCrudTool): void {
     this.dirty = true
   }
 
-    /** 执行 edit Tool 操作。 */
 async editTool(run: (tool: DataSetCrudTool) => void | Promise<void>): Promise<void> {
     const beforeText = this.getText()
     const tool = this.getTool()
@@ -84,7 +79,6 @@ async editTool(run: (tool: DataSetCrudTool) => void | Promise<void>): Promise<vo
     this.dirty = true
   }
 
-    /** 执行 undo 操作。 */
 undo(): boolean {
     const text = this.undoStack.pop()
     if (text === undefined) return false
@@ -95,7 +89,6 @@ undo(): boolean {
     return true
   }
 
-    /** 执行 redo 操作。 */
 redo(): boolean {
     const text = this.redoStack.pop()
     if (text === undefined) return false

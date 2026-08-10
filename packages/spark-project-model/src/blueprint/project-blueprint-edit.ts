@@ -1,16 +1,9 @@
 /**
  * @module @spark-appworks/spark-project-model:blueprint/project-blueprint-edit
- * 职责：提供项目蓝图节点编辑草稿、补丁和提交规则。
- * 边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。
- * AI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。
+ * 职责：蓝图节点表单草稿、补丁生成与提交规则。
+ * 边界：只描述配置与项目结构；不渲染 Vue，不直接操作 spark-data 运行态。
+ * AI用途：同步或生成页面配置时，用本模块确认草稿字段与 patch 边界。
  */
-/**
- * 项目蓝图编辑领域模型。
- *
- * 持有蓝图节点表单草稿和 patch 生成规则。
- * 可编辑字段由 ProjectNode class 持有；草稿只在表单读写边界即时生成。
- */
-
 import type {
   ChildPlacement,
   ProjectBlueprintContextConfig,
@@ -23,93 +16,58 @@ import type {
 } from './project-blueprint-node'
 import { isNestedConfigPageNode } from './project-blueprint-tree'
 
-/** Navigation Node Draft Node 的语义模型。 */
+/** 蓝图节点表单草稿字段；可编辑字段由节点 class 持有，草稿仅在表单边界即时生成。 */
 export type BlueprintNodeDraftNode = {
-    /** 唯一标识。 */
-id: string
-    /** 显示标题。 */
-title: string
-    /** 蓝图业务类型；与运行交付投影 nodeKind 相互独立。 */
-blueprintKind: ProjectBlueprintNodeKind
-    /** icon 字段。 */
-icon: string
-    /** node Kind 字段。 */
-nodeKind: ProjectBlueprintDeliveryKind
-    /** divider After 字段。 */
-dividerAfter: boolean
-    /** description 字段。 */
-description: string
-    /** planning Attachment Ref 字段。 */
-planningAttachmentRef: string
-    /** 资源路径。 */
-path: string
-    /** link Target 字段。 */
-linkTarget: NonNullable<ProjectBlueprintTreeNodeData['linkTarget']>
-    /** child Placement 字段。 */
-childPlacement: string
-    /** order 字段。 */
-order: number
-    /** hidden 字段。 */
-hidden: boolean
-    /** 是否禁用。 */
-disabled: boolean
-    /** ref Id 标识。 */
-refId: string
-    /** permission Mode 字段。 */
-permissionMode: ProjectBlueprintPermissionMode
-    /** impl Gate 字段。 */
-implGate?: ProjectBlueprintTreeNodeData['implGate']
-    /** upstream Contracts Satisfied 字段。 */
-upstreamContractsSatisfied?: boolean
+  id: string
+  title: string
+  /** 蓝图业务类型；与运行交付投影 nodeKind 相互独立。 */
+  blueprintKind: ProjectBlueprintNodeKind
+  icon: string
+  nodeKind: ProjectBlueprintDeliveryKind
+  dividerAfter: boolean
+  description: string
+  planningAttachmentRef: string
+  path: string
+  linkTarget: NonNullable<ProjectBlueprintTreeNodeData['linkTarget']>
+  childPlacement: string
+  order: number
+  hidden: boolean
+  disabled: boolean
+  refId: string
+  permissionMode: ProjectBlueprintPermissionMode
+  implGate?: ProjectBlueprintTreeNodeData['implGate']
+  upstreamContractsSatisfied?: boolean
 }
 
-/** Navigation Node Patch 的语义模型。 */
 export type BlueprintNodePatch = Partial<Omit<BlueprintNodeDraftNode, 'id'>> & {
-    /** 运行上下文。 */
-context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig
+  context?: string | ProjectBlueprintContextItem[] | ProjectBlueprintContextConfig
 }
 
-/** Navigation Context Edit Config Dto 的语义模型。 */
 type NavigationContextEditConfigDto = {
-    /** 占位提示文本。 */
-placeholder: string
-    /** default Value 字段。 */
-defaultValue: string
-    /** param Name 名称。 */
-paramName: string
+  placeholder: string
+  defaultValue: string
+  paramName: string
 }
 
-/** Navigation Context Edit Dto 的语义模型。 */
 type NavigationContextEditDto = {
-    /** 是否 has Context。 */
-hasContext: boolean
-    /** items 字段。 */
-items: Array<{ id: string; title: string }>
-    /** 配置对象。 */
-config: NavigationContextEditConfigDto
+  hasContext: boolean
+  items: Array<{ id: string; title: string }>
+  config: NavigationContextEditConfigDto
 }
 
-/** Navigation Node Draft 的语义模型。 */
 export type BlueprintNodeDraft = {
-    /** node 字段。 */
-node: BlueprintNodeDraftNode
-    /** 运行上下文。 */
-context: NavigationContextEditDto
+  node: BlueprintNodeDraftNode
+  context: NavigationContextEditDto
 }
 
-/** Navigation Node Draft Apply Result 的返回结果。 */
 export type BlueprintNodeDraftApplyResult = {
-    /** patch 字段。 */
-patch: BlueprintNodePatch & Pick<ProjectBlueprintTreeNodeData, 'title' | 'nodeKind'>
-    /** warnings 字段。 */
-warnings: string[]
+  patch: BlueprintNodePatch & Pick<ProjectBlueprintTreeNodeData, 'title' | 'nodeKind'>
+  warnings: string[]
 }
 
-/** Navigation Node Patch Target 的语义模型。 */
 type BlueprintNodePatchTarget = {
-    /** 唯一标识。 */
-readonly id: string
-  /** 将蓝图补丁应用到目标节点；修改节点的可编辑字段，但不改变 id 和树结构。 */
+  readonly id: string
+  /** 应用补丁到目标节点；不改 id 与树结构。 */
   applyBlueprintPatch(patch: ProjectBlueprintNodePatch): void
 }
 
@@ -145,7 +103,7 @@ export function defaultNavIconByKind(kind: ProjectBlueprintDeliveryKind): string
   return DEFAULT_NAV_ICON_BY_KIND[kind]
 }
 
-/** 比较蓝图草稿内容是否等价（用于 dirty 判定，不含 UI 会话字段）。 */
+/** 比较蓝图草稿内容是否等价（dirty 判定，不含 UI 会话字段）。 */
 export function blueprintDraftContentKey(draft: BlueprintNodeDraft): string {
   return JSON.stringify(draft)
 }

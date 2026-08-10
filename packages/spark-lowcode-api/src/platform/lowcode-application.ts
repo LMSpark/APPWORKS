@@ -1,7 +1,13 @@
+/**
+ * 低代码应用目录与导航根查询：DataOperation.GetData 请求体构造与响应归一化。
+ * wire 行字段大小写混用（rowid/ROWID、AppName/appName 等），归一化层负责别名兼容。
+ */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
+/** 应用目录 GetData 请求头 x-FormKey 固定值。 */
 export const LOWCODE_APPLICATION_CATALOG_FORM_KEY = '7AB874097A1E8711A42FD845939A6E05'
 
+/** 归一化后的应用条目；id 为 Base_AppSystemList.rowid。 */
 export type LowcodeApplication = Readonly<{
   id: string
   code: string
@@ -34,6 +40,7 @@ function queryItems(value: unknown): readonly unknown[] {
   throw new LowcodeApiError(0, 'DataOperation.GetData Result.items 不是数组')
 }
 
+/** 构造 Base_AppSystemList 应用目录查询体。 */
 export function applicationCatalogQuery(): Readonly<Record<string, unknown>> {
   return {
     Table: [{
@@ -50,6 +57,7 @@ export function applicationCatalogQuery(): Readonly<Record<string, unknown>> {
   }
 }
 
+/** 构造导航根查询体；Filter 固定 SysId + prowId=000000，ValueFun 键 Type 大写。 */
 export function navigationRootQuery(systemId: string): Readonly<Record<string, unknown>> {
   return {
     Table: [{
@@ -84,6 +92,7 @@ export function navigationRootQuery(systemId: string): Readonly<Record<string, u
   }
 }
 
+/** 归一化应用列表；按 rowid 去重，IsSys=1 映射为 isDefault。 */
 export function normalizeApplications(value: unknown): readonly LowcodeApplication[] {
   const seen = new Set<string>()
   return queryItems(value).flatMap((item) => {
@@ -105,6 +114,7 @@ export function normalizeApplications(value: unknown): readonly LowcodeApplicati
   })
 }
 
+/** 从导航查询结果提取唯一根 rowid；非 1 条根节点时 fail-fast。 */
 export function normalizeNavigationRootId(value: unknown): string {
   const roots = queryItems(value).flatMap((item) => {
     if (!isRecord(item)) return []

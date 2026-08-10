@@ -1,3 +1,7 @@
+/**
+ * 数据空间设计态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。
+ * 调用方须持 preimage、journal 与 readback 后再由 provision 层执行；preimage 身份不一致会 fail-fast。
+ */
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
 import type {
   DataSpaceFieldReference,
@@ -12,6 +16,7 @@ type DataSpaceDesignMutationBase = Readonly<{
   preimage: DataSpaceDesignSnapshot
 }>
 
+/** 设计态 mutation 输入；capability 决定 change 形状与 modelId 是否必填。 */
 export type DataSpaceDesignMutationInput =
   | (DataSpaceDesignMutationBase & Readonly<{
       capability: 'update-data-space'
@@ -36,6 +41,7 @@ export type DataSpaceDesignMutationInput =
       change: LowcodeModelRelationRecord
     }>)
 
+/** 设计态 mutation 命令；risk 固定 medium，journal/readback/compensation 均为强制约束。 */
 export type DataSpaceDesignMutationCommand = Readonly<{
   kind: 'data-space-design-mutation'
   dataSpaceId: string
@@ -67,6 +73,7 @@ function inputModelId(input: DataSpaceDesignMutationInput): string | null {
   return null
 }
 
+/** 校验 preimage 与目标身份后组装设计态 mutation 命令；不发起 HTTP 写入。 */
 export function prepareDataSpaceDesignMutation(
   input: DataSpaceDesignMutationInput,
 ): DataSpaceDesignMutationCommand {

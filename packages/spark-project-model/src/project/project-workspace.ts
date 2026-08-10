@@ -53,7 +53,6 @@ export type ProjectPageLoadOptions = {
 forceReload?: boolean
 }
 
-/** Create Page For Selected Node Params 的语义模型。 */
 export type CreatePageForSelectedNodeParams = {
     /** page Id 标识。 */
 pageId: string
@@ -63,7 +62,6 @@ title?: string
 icon?: string
 }
 
-/** Create Mounted Page Params 的语义模型。 */
 type CreateMountedPageParams = {
     /** page Id 标识。 */
 pageId: string
@@ -81,7 +79,6 @@ index?: number
 rollbackPageOnBlueprintFailure?: boolean
 }
 
-/** Create Page Files Params 的语义模型。 */
 type CreatePageFilesParams = PageFileCreateOptions & {
     /** page Id 标识。 */
 pageId: string
@@ -103,7 +100,6 @@ deletedNode: ProjectBlueprintTreeNodeData | null
 deletedFiles: boolean
 }
 
-/** Remove Mounted Page Params 的语义模型。 */
 type RemoveMountedPageParams = {
     /** page Id 标识。 */
 pageId: string
@@ -140,7 +136,6 @@ readonly project: ProjectModel
   private readonly fileApi: PageFileApi
   private readonly getContentLoader: () => PageContentLoader
 
-    /** 创建 Project Workspace 实例。 */
 constructor(options: ProjectWorkspaceOptions) {
     const fileApi = new PageFileApi(options.pageFiles)
     const blueprintClient = new ProjectBlueprintClient(options.blueprint)
@@ -169,7 +164,6 @@ async loadBlueprint(): Promise<ProjectBlueprintTreeData> {
     return this.reloadBlueprint()
   }
 
-    /** 执行 ingest Navigation Root 操作。 */
 ingestBlueprintTree(
     root: ProjectBlueprintTreeData,
     options?: { selectedNodeId?: string | null },
@@ -219,7 +213,6 @@ async saveProjectLayout(options?: { skipReload?: boolean }): Promise<void> {
     await this.reloadBlueprint({ selectedNodeId: this.project.session.session.selectedNodeId })
   }
 
-    /** 保存 Selected Navigation Node。 */
 async saveSelectedBlueprintNode(options?: { skipReload?: boolean }): Promise<void> {
     let nodeId: string
     let patch: BlueprintNodePatch & Pick<ProjectBlueprintTreeNodeData, 'title' | 'nodeKind'>
@@ -245,7 +238,6 @@ async saveSelectedBlueprintNode(options?: { skipReload?: boolean }): Promise<voi
     await this.reloadBlueprint({ selectedNodeId: nodeId })
   }
 
-    /** 执行 ensure Active Page Files Loaded 操作。 */
 async ensureActivePageFilesLoaded(options?: ProjectPageLoadOptions): Promise<void> {
     const page = this.requireActivePage('无活动页面，无法加载页面文件')
     const loadOptions: { forceReload?: boolean } = {}
@@ -283,7 +275,6 @@ async saveAll(): Promise<void> {
     await this.saveBlueprintFromSession()
   }
 
-    /** 执行 add Navigation Node 操作。 */
 async addBlueprintNode(params: { parentId?: string | null; node: ProjectBlueprintTreeNodeData; index?: number }): Promise<ProjectBlueprintTreeNodeData> {
     const node = await this.blueprintClient.addNode(params)
     await this.reloadBlueprint({ selectedNodeId: node.id })
@@ -403,7 +394,6 @@ async removeMountedPage(params: RemoveMountedPageParams): Promise<PageNodeRemove
     return { deletedNode, deletedFiles: shouldDeleteFiles }
   }
 
-    /** 执行 move Mounted Page 操作。 */
 async moveMountedPage(nodeId: string, newParentId: string | null, index: number): Promise<ProjectBlueprintTreeNodeData> {
     if (nodeId.trim().length === 0) {
       throw new Error('nodeId must be a non-empty string')
@@ -413,14 +403,12 @@ async moveMountedPage(nodeId: string, newParentId: string | null, index: number)
     return result
   }
 
-    /** 执行 list Remote Page Versions 操作。 */
 async listRemotePageVersions(filename: PageNodeFileName): Promise<PageNodeFileVersionSummary[]> {
     const page = this.project.getActivePage()
     if (!page) return []
     return this.fileApi.listVersions(page.pageId, filename)
   }
 
-    /** 执行 restore Remote Page Version 操作。 */
 async restoreRemotePageVersion(version: number, filename: PageNodeFileName): Promise<void> {
     const page = this.requireActivePage('无活动页面，无法恢复版本')
     await this.fileApi.restoreVersion(page.pageId, filename, version)
@@ -444,7 +432,6 @@ async deleteRemotePageVersion(version: number, filename: PageNodeFileName): Prom
     await this.fileApi.deleteVersion(page.pageId, filename, version)
   }
 
-    /** 执行 notify Page File Changed 操作。 */
 notifyPageFileChanged(
     pageId: string,
     filename: PageNodeFileName | '__created' | '__deleted' | '__bulk',
@@ -456,19 +443,16 @@ notifyPageFileChanged(
     this.project.markPageFileChanged(pageId, filename)
   }
 
-    /** 执行 probe Link 操作。 */
 async probeLink(url: string): Promise<{ embeddable: boolean; reason: string }> {
     return this.blueprintClient.probeLink(url)
   }
 
-    /** 执行 list Reference Projects 操作。 */
 async listReferenceProjects(): Promise<ProjectSummary[]> {
     return this.requireProjectReferenceClient().listProjects({
       excludeProjectId: this.project.projectId,
     })
   }
 
-    /** 执行 list Reference Project Pages 操作。 */
 async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference[]> {
     return this.requireProjectReferenceClient().listProjectPages(projectId)
   }

@@ -1,3 +1,7 @@
+/**
+ * 权限运行态只读 API：按 formKey 读取当前用户功能权限与资源级 allowAdd。
+ * 与 design 入口分离；本模块不提供 mutation，运行态写回走数据空间 runtime。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
@@ -8,6 +12,7 @@ import {
   requiredPermissionText,
 } from '../permission-wire.js'
 
+/** 运行态功能权限快照；childFun 与 allowAdd 来自 GetFormUserFunction。 */
 export type PermissionRuntimeSnapshot = Readonly<{
   formKey: string
   authorizedFeatureTags: readonly string[]
@@ -27,6 +32,7 @@ function allowAddByResource(value: unknown): Readonly<Record<string, boolean>> {
   return result
 }
 
+/** 权限运行态门面；只读查询，不涉及设计表写入。 */
 export class PermissionRuntimeApi {
   private readonly client: LowcodeClient
 

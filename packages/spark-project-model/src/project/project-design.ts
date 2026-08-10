@@ -63,7 +63,6 @@ export class ProjectBlueprintDesign<TNode extends ProjectBlueprintNode = Project
   private readonly blueprintIndex: ProjectBlueprintIndex<TNode>
   private blueprintTreeCache: ProjectBlueprintTreeData | null = null
 
-    /** 创建 Project Blueprint Design 实例。 */
 constructor(options: ProjectModelInitOptions) {
     const projectId = options.projectId.trim()
     if (!projectId) throw new Error('projectId 不能为空')
@@ -144,7 +143,6 @@ getChildNodes(nodeId = ''): TNode[] {
     return [...this.nodesById.values()]
   }
 
-    /** 执行 for Each Node 操作。 */
 forEachNode(callback: (node: TNode) => void): void {
     for (const node of this.nodesById.values()) callback(node)
   }
@@ -183,7 +181,6 @@ replaceBlueprintTree(root: ProjectBlueprintTreeData): ProjectBlueprintTreeData {
     return this.blueprintTree
   }
 
-    /** 执行 replace Project Info 操作。 */
 replaceProjectInfo(project: ProjectInfoInput): ProjectInfo {
     const projectId = project.projectId?.trim()
     if (projectId !== undefined && projectId !== '' && projectId !== this.projectId) {
@@ -215,17 +212,14 @@ replaceBlueprintChildren(children: ProjectBlueprintTreeNodeData[]): ProjectBluep
     return this.replaceBlueprintTree(buildBlueprintTree(children, this.blueprintTree))
   }
 
-    /** find Node By Id 标识。 */
 findNodeById(nodeId: string): TNode | null {
     return this.nodesById.get(nodeId.trim()) ?? null
   }
 
-    /** 执行 find Node Location 操作。 */
 findNodeLocation(nodeId: string): ProjectBlueprintTreeNodeLocation | null {
     return this.blueprintIndex.findNodeLocation(nodeId)
   }
 
-    /** find Config Page By Page Id 标识。 */
 findConfigPageByPageId(pageId: string): ConfigPageNode | null {
     return this.configPagesByPageId.get(pageId.trim()) ?? null
   }
@@ -242,7 +236,6 @@ applyBlueprintNodeEdit(input: BlueprintNodeDraft): ProjectBlueprintDesignNodeEdi
     return { node: model, result }
   }
 
-    /** 执行 open Page Design 操作。 */
 openPageDesign(pageId: string): ConfigPageNode {
     const normalized = pageId.trim()
     if (!normalized) throw new Error('pageId 不能为空')
@@ -258,7 +251,6 @@ openPageDesign(pageId: string): ConfigPageNode {
     return this.openDetachedConfigPage(node)
   }
 
-    /** 执行 close Page Design 操作。 */
 closePageDesign(pageId: string): void {
     const normalized = pageId.trim()
     if (!normalized) return
@@ -280,7 +272,6 @@ readPlanningProjection(): ProjectPageNodeSummary[] {
     return summaries
   }
 
-    /** 执行 add Root Module 操作。 */
 addRootModule(createId: () => string): ProjectBlueprintTreeNodeData {
     const node: ProjectBlueprintTreeNodeData = {
       id: createId(),
@@ -296,7 +287,6 @@ addRootModule(createId: () => string): ProjectBlueprintTreeNodeData {
     return node
   }
 
-    /** 执行 add Child Page 操作。 */
 addChildPage(createId: () => string, parent: ProjectBlueprintTreeNodeData | null = null): ProjectBlueprintTreeNodeData {
     const id = createId()
     const node: ProjectBlueprintTreeNodeData = {
@@ -331,7 +321,6 @@ refreshNavRefs(): void {
     this.rebindDescriptionContext()
   }
 
-    /** 执行 to Tree 操作。 */
 toTree(): ProjectBlueprintTreeNodeData[] {
     return this.blueprintIndex.buildTree()
   }

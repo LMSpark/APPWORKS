@@ -1,3 +1,7 @@
+/**
+ * 数据空间设计态只读 API：从 QYVirtualPlat 设计表拉取数据空间/模型/字段/关系快照。
+ * 变更须走 {@link prepareMutation}，与 runtime 入口分离；读操作依赖固定 FormKey 与 catalog 目录解析。
+ */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import {
@@ -22,8 +26,10 @@ import {
   type DataSpaceDesignMutationInput,
 } from './data-space-design-mutation.js'
 
+/** 设计态 GetData 固定 FormKey；与权限/目录等设计读共用，变更须全链路回归。 */
 export const DATA_SPACE_DESIGN_FORM_KEY = '8D1AB14DD8277F3E7017CD38F77B09FD'
 
+/** 数据空间入参定义；inputParams JSON 解析失败会 fail-fast。 */
 export type DataSpaceInputParameter = Readonly<{
   parameterId: string
   name: string
@@ -31,6 +37,7 @@ export type DataSpaceInputParameter = Readonly<{
   business: boolean
 }>
 
+/** 数据空间设计态完整快照；作为 mutation 写前镜像（preimage）与读回验收基准。 */
 export type DataSpaceDesignSnapshot = Readonly<{
   dataSpaceId: string
   name: string
@@ -41,6 +48,7 @@ export type DataSpaceDesignSnapshot = Readonly<{
   relations: readonly LowcodeModelRelationRecord[]
 }>
 
+/** 设计态读取输入；catalogFormKeys 用于解析 table/view 资源的稳定目录身份。 */
 export type DataSpaceDesignReadInput = Readonly<{
   dataSpaceId: string
   catalogFormKeys: string | readonly string[]
@@ -356,6 +364,7 @@ function frontendModels(
   return { models, resources: [...resourceById.values()], relations }
 }
 
+/** 数据空间设计态门面；只读拉取与 mutation 命令 prepare，不执行线上写入。 */
 export class DataSpaceDesignApi {
   private readonly client: LowcodeClient
   private readonly catalog: LowcodeCatalogApi

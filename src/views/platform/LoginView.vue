@@ -23,11 +23,12 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             <el-form-item prop="enterpriseName">
               <el-select
                 v-model="loginForm.enterpriseName"
+                aria-label="企业"
                 :loading="enterpriseLoading"
                 filterable
                 allow-create
                 default-first-option
-                placeholder="选择企业"
+                placeholder="选择或输入企业"
                 style="width: 100%"
               >
                 <el-option
@@ -236,10 +237,10 @@ function getUserHomePath(enterpriseName: string): string {
 
 // ── 登录表单 ────────────────────────────────────────────────────────────────
 
-const loginForm = reactive({ enterpriseName: '', account: '', password: '' })
+const loginForm = reactive({ enterpriseName: '领码科技', account: '', password: '' })
 const loginFormRef = ref<FormInstance>()
 const loginRules: FormRules = {
-  enterpriseName: [{ required: true, message: '请输入企业英文简称', trigger: 'blur' }],
+  enterpriseName: [{ required: true, message: '请选择或输入企业', trigger: 'change' }],
   account: [{ required: true, message: '请输入登录账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 }

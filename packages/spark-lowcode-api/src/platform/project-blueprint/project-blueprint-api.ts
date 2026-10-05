@@ -46,6 +46,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function isMutableField(field: string): field is LowcodeProjectBlueprintMutableField {
+  return LOWCODE_PROJECT_BLUEPRINT_MUTABLE_FIELDS.some(candidate => candidate === field)
+}
+
 function editableFields(source: Readonly<Record<string, unknown>>): ReadonlySet<string> {
   const params = source['lingma_sys_params']
   if (!isRecord(params) || !Array.isArray(params['e'])) {
@@ -90,16 +94,18 @@ export class LowcodeProjectBlueprintApi {
   ): Promise<LowcodeProjectBlueprintRecord> {
     const normalizedNodeId = nodeId.trim()
     if (!normalizedNodeId) throw new Error('nodeId 不能为空')
-    const entries = Object.entries(patch) as Array<[LowcodeProjectBlueprintMutableField, string | number]>
+    const entries = Object.entries(patch)
     if (entries.length === 0) throw new Error('导航节点更新字段不能为空')
     const preimage = (await this.readRecords(projectId)).find(record => record.id === normalizedNodeId)
     if (preimage === undefined) throw new Error(`项目中不存在导航节点 ${normalizedNodeId}`)
     const editable = editableFields(preimage.source)
-    for (const [field] of entries) {
-      if (!LOWCODE_PROJECT_BLUEPRINT_MUTABLE_FIELDS.includes(field)) {
+    const writes: Array<[LowcodeProjectBlueprintMutableField, string | number]> = []
+    for (const [field, value] of entries) {
+      if (!isMutableField(field)) {
         throw new Error(`导航字段不属于六阶段写入合同：${field}`)
       }
       if (!editable.has(field)) throw new Error(`后端权限不允许修改导航字段 ${field}`)
+      writes.push([field, value])
     }
     const systemKey = preimage.source['lingma_sys_key']
     if (typeof systemKey !== 'string' || !systemKey.trim()) {
@@ -119,7 +125,7 @@ export class LowcodeProjectBlueprintApi {
     })
     const readback = (await this.readRecords(projectId)).find(record => record.id === normalizedNodeId)
     if (readback === undefined) throw new Error(`导航节点 ${normalizedNodeId} 更新后无法读回`)
-    for (const [field, expected] of entries) {
+    for (const [field, expected] of writes) {
       const actual = readbackValue(readback, field)
       const matches = typeof expected === 'number'
         ? Number(actual ?? 0) === expected

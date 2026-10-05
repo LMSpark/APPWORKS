@@ -97,4 +97,21 @@ describe('LowcodeProjectBlueprintApi', () => {
     await expect(new LowcodeApi({ http }).blueprint.readRecords('P1'))
       .rejects.toEqual(new LowcodeApiError(0, '蓝图节点 PAGE 属于其他项目 P2'))
   })
+
+  it('rejects patch fields outside the six-stage contract before writing', async () => {
+    const writable = {
+      ...row('PAGE', 'ROOT', 1),
+      lingma_sys_key: 'key',
+      lingma_sys_params: { r: [], e: ['memo'], h: [], m: [], d: false },
+    }
+    const http = new FixtureHttpClient({
+      Code: 200,
+      Result: { Items: [row('ROOT', '000000', 1), writable] },
+    })
+    const patch: Record<string, string | number> = { memo: 'x', FunName: 'renamed' }
+
+    await expect(new LowcodeApi({ http }).blueprint.updateNodeFields('P1', 'PAGE', patch))
+      .rejects.toEqual(new Error('导航字段不属于六阶段写入合同：FunName'))
+    expect(http.requestConfig?.url).toBe('/api/DataOperation/GetData')
+  })
 })

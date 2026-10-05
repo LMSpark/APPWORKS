@@ -122,6 +122,7 @@ function mountDevSystem() {
         DevNodeProps: true,
         DevFileEditor: true,
         DevPreviewTab: true,
+        BlueprintWorkspace: true,
         ProjectPlanningDocumentImportDialog: true,
         ElButton: ButtonStub,
         ElEmpty: true,

@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 127,
-  "directUnmatchedCount": 90,
+  "consumerCount": 131,
+  "directUnmatchedCount": 94,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -389,6 +389,18 @@
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/File/uploadFileByStr",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 31,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/uploadFileByStr",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+      "sourceLine": 36,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
       "sourceLine": 40,
@@ -607,31 +619,43 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.test.ts",
-      "sourceLine": 43,
+      "sourceLine": 44,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.test.ts",
+      "sourceLine": 115,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
-      "sourceLine": 36,
+      "sourceLine": 78,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
+      "sourceLine": 115,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/exportSRS",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
-      "sourceLine": 75,
+      "sourceLine": 168,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/exportSDD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
-      "sourceLine": 77,
+      "sourceLine": 170,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/exportDesignDoc",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
-      "sourceLine": 79,
+      "sourceLine": 172,
       "scope": "publishable-lowcode-api"
     },
     {

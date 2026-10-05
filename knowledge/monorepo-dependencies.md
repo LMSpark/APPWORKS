@@ -99,3 +99,17 @@
 - **规则**：删除 `dev-setup.*.log` 等开发进程日志前，必须先确认没有运行中的 dev/setup 长驻进程持有文件句柄。用 `Get-Process node`（PowerShell）排查活跃 node 进程，先停进程再删日志。`Remove-Item -Force` 无法绕过操作系统级文件锁，重试无效。另外：`%SystemDrive%` 在 PowerShell 中是字面量目录名（不会展开环境变量），可直接 `Remove-Item '%SystemDrive%' -Recurse -Force` 删除该误生成目录
 - **违反后果**：`Remove-Item` 报 "文件被另一进程使用"，删除失败；强行 kill 进程可能中断用户正在进行的开发会话
 - **发现来源**：2026-06 深度清理项目垃圾文件时（dev-setup.err.log、dev-setup.out.log 被 node PID 20668/21028/23292 锁定）
+
+### verify:deps 不管 workspace 包声明，verify:docs 不管类名与路径
+
+- **场景**：新增 workspace 包之间的 import，或重命名、删除类和文件后核对文档
+- **规则**：`verify:deps` 只校验第三方运行时依赖的归属，不校验 `@spark-appworks/*` 是否写进 `package.json` 的 `dependencies`；`verify:docs` 只校验文件名、位置、`.dm` 头和退役标记，不校验文档里的类名、函数名、路径是否存在。新增跨包 import 要手动补 `dependencies`（根应用目前 import 了 `spark-ai`、`spark-utils` 却未声明，靠 Vite alias 才能解析）；改名或删除符号后要 grep `docs/` 与各包 README。
+- **违反后果**：未声明的 workspace import 在换解析方式或发布时才失败；文档里留着不存在的类名而门禁全绿（2026-10 时 `docs/` 里仍有 18 处 `ProjectEditor` / `ProjectDesign` 等旧名）。
+- **发现来源**：2026-10-05 架构文档对照源码重写
+
+### verify:lowcode-contracts 依赖盘外 lowcode-jdk17 源码
+
+- **场景**：`verify:lowcode-contracts` 报 `lowcode-endpoint-ledger.json is stale`，但本次没改任何 API 调用
+- **规则**：端点台账由 `tools/lowcode-contracts/generate-ledgers.mjs` 扫描 `LOWCODE_JDK17_ROOT`（默认 `E:\lowcode-jdk17`）下的 `*Controller.java` 生成，`--check` 只读比对。后端源码一变台账就过期，与 AppWorks 代码无关。用 `pnpm run generate:lowcode-contracts` 重新生成后，先对比新增和删除的接口（尤其是前端正在调用的路径），再提交。该目录永久只读，只读取不修改。
+- **违反后果**：误以为是自己的改动引起而到处排查；或盲目重新生成，漏看前端依赖的接口已被后端删除（2026-10-05 `GET /api/LoginAuthority/GetUserInfo` 即如此）。
+- **发现来源**：2026-10-05 `verify:rules` 在干净 HEAD 上同样失败时

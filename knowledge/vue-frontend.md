@@ -194,3 +194,17 @@
 - **规则**：在 `PageNodeOptions.loadRuntimeDataSet` 注入；`DynamicRouter` 注册 config-page 时写入路由 `props`。`spark-component` 不依赖 `spark-lowcode-api` / 宿主 `src/lowcode`；不要在组件包内直连 lowcode，也不要用薄 re-export 包绕开。
 - **违反后果**：包边界污染或漏注入 → 有 binding 的页面加载失败；薄转发层再引入双真源
 - **发现来源**：2026-08 系统结构 SSOT 归并（批次 F）
+
+### 行级权限五集合里 `r` 是"必填"，不是"可读"
+
+- **场景**：读写 `DataRow.lingma_sys_params`（`r` / `e` / `h` / `m` / `d`）或判定字段权限
+- **规则**：以 `PermissionChecker` 为准。`r` 用于 `isFieldRequired`，并与 `e` 共同构成可编辑集合（`isFieldEditable`、`canEdit`、mutation 的可改字段校验都用 `r ∪ e`）；`h` 隐藏、`m` 脱敏、`d` 可删。行上缺 `lingma_sys_params` 时字段一律按隐藏处理（失败关闭）。不要把五个集合压缩成枚举。
+- **违反后果**：把 `r` 当可读，会漏掉必填校验，或把只读字段误判成可改。
+- **发现来源**：2026-10-05 重写 `docs/architecture/PERMISSION_SYSTEM.md` 时读 `PermissionChecker.ts`
+
+### 收窄 `Object.entries(Partial<Record>)` 用类型守卫，不要断言也不要 `!== undefined` 过滤
+
+- **场景**：把 `Object.entries(patch)` 的键收窄到字面量联合（如 `LowcodeProjectBlueprintMutableField`）
+- **规则**：写 `field is X` 类型守卫，并把通过校验的条目收集进带类型的数组。`as Array<[…]>` 会被 `verify:ai-codegen` 拒绝；对值做 `!== undefined` 过滤会被 `@typescript-eslint/no-unnecessary-condition` 拒绝（该类型下 `Object.entries` 的值类型不含 `undefined`）。
+- **违反后果**：`verify:ai-codegen` 或 `lint` 失败。
+- **发现来源**：2026-10-05 修复 `LowcodeProjectBlueprintApi.updateNodeFields`

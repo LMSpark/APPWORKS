@@ -32,14 +32,15 @@ sequenceDiagram
 | DevSystem 面板 | 与手动编辑同一 `editor.project` | `page-design-ai-runner.ts` |
 | Agent Run / E2E | headless `ProjectWorkspace` registry | `page-design-agent-run-provider.ts` |
 
-AI 与手动编辑共用 DevSystem 的 `getAppProjectEditor()`，避免双份 project 状态。
+AI 与手动编辑共用 DevSystem 的编辑宿主 `ProjectWorkspace`（`getAppProjectBlueprintWorkspace(scope)`，由调用方作为 `command.editor` 传入 runner），避免双份 project 状态。
 
 ## 注册与实例解析
 
 ```typescript
 await activatePageDesignAgentWorkflow({
   host: appAiAgent,
-  getPageDesignEditor: ({ moduleInstanceId }) => getAppProjectEditor(/* pageId = moduleInstanceId */),
+  // 返回调用方传入的 ProjectWorkspace；runner 会先校验 moduleInstanceId === pageId
+  getPageDesignEditor: ({ moduleInstanceId }) => editor,
 })
 ```
 

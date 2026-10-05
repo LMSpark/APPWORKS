@@ -37,7 +37,7 @@ const host = createAiAgentHost({
 await activatePageDesignAgentWorkflow({ host, getPageDesignEditor })
 ```
 
-生产 Host 见 `src/services/ai-host.ts`（`appAiAgent`）。
+生产 Host 见 `src/services/ai/ai-turn-bridge.ts`（`appAiAgent`）。
 
 ## 开发
 

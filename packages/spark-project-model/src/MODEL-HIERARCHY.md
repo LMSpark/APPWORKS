@@ -110,7 +110,7 @@ AI 只消费这里暴露的项目模型入口，不在本包维护独立运行�
 ┌────────────────────────────▼────────────────────────────────────┐
 │  ProjectWorkspace（IO 编排，非领域根）                           │
 │  .project : ProjectModel                                         │
-│  NavigationClient / PageFileApi / PageContentLoader / RefClient  │
+│  ProjectBlueprintClient / PageFileApi / PageContentLoader / RefClient  │
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
@@ -129,7 +129,7 @@ AI 只消费这里暴露的项目模型入口，不在本包维护独立运行�
 classDiagram
   direction TB
 
-  class ProjectNode {
+  class ProjectBlueprintNode {
     <<基类>>
     +nodeKind
     +family
@@ -142,14 +142,14 @@ classDiagram
     +四文件子模型
   }
 
-  ProjectNode <|-- ConfigPageNode
+  ProjectBlueprintNode <|-- ConfigPageNode
 
-  note for ProjectNode "非配置页：统一 ProjectNode\n配置页：ConfigPageNode"
+  note for ProjectBlueprintNode "非配置页：统一 ProjectBlueprintNode\n配置页：ConfigPageNode"
 ```
 
 | nodeKind | 实例 class | 说明 |
 |---|---|---|
-| `module` / `system-directory` / `link` / `ref` / `system-page` / `system-action` | ProjectNode | `family` 由 `nodeKind` 派生 |
+| `module` / `system-directory` / `link` / `ref` / `system-page` / `system-action` | ProjectBlueprintNode | `family` 由 `nodeKind` 派生 |
 | `page` | ConfigPageNode | 四文件配置页 |
 | `page`（嵌套） | ConfigPageNode | `isSubPage=true`（`blueprintKind=sub-page`，运行投影为 hidden + 无 path） |
 
@@ -173,8 +173,8 @@ classDiagram
     +readActivePageProjection()
     +readDirtyProjection()
     +selectNode / setActivePage
-    +beginNavigationDraft()
-    +applyNavigationNodeEdit()
+    +beginBlueprintDraft()
+    +applyBlueprintNodeEdit()
     +applyProjectLayoutEdit()
     +writePageFile / editDataSet / editNodeTree
   }
@@ -187,11 +187,11 @@ classDiagram
     +findConfigPageByPageId()
     +openPageDesign() / closePageDesign()
     +replaceBlueprintTree()
-    +applyNavigationNodeEdit()
+    +applyBlueprintNodeEdit()
     +readPlanningProjection()
   }
 
-  class NavigationIndex {
+  class ProjectBlueprintIndex {
     +rebuild()
     +buildTree()
     +findNodeLocation()
@@ -201,7 +201,7 @@ classDiagram
     selectedNodeId
     activePageId
     blueprintDirty 仅显式标记
-    navigationDraft  编辑工作副本
+    blueprintDraft  编辑工作副本
   }
 
   ProjectModel *-- ProjectBlueprintDesign
@@ -230,12 +230,12 @@ page/page-file.ts              路径常量 + parse/serialize 入口
 ```mermaid
 flowchart LR
   subgraph 落盘真源
-    DB[(navigation 表)]
+    DB[(lowcode 蓝图记录)]
     FS[(四文件 rule/pagedata/script/style)]
   end
 
   subgraph IO
-    NC[NavigationClient]
+    NC[ProjectBlueprintClient]
     PFA[PageFileApi]
     PCL[PageContentLoader]
   end
@@ -305,7 +305,7 @@ ProjectWorkspace    → project, navigation, page, io
 
 | 场景 | 四文件加载 | 导航落盘 |
 |---|---|---|
-| **设计态** DevSystem | `ProjectWorkspace.ensureActivePageFilesLoaded` → `PageFileApi` | `NavigationClient.updateNode` |
+| **设计态** DevSystem | `ProjectWorkspace.ensureActivePageFilesLoaded` → `PageFileApi` | `ProjectBlueprintClient.updateNode` |
 | **运行态** spark-app | `createRuntimePageNode` → `PageContentLoader` | 只读 navigation |
 
 两者共用 `ConfigPageNode` + `compile-files` 解析，**不共用** Workspace 实例。
@@ -346,7 +346,7 @@ DevSystem.vue
 
 子组件
 ├── DevSiteTree.vue       state.selectNode / 树 CRUD → editor.*
-├── DevNodeProps.vue      v-model 绑定 state.navEditDto → project.applyNavigationNodeEdit
+├── DevNodeProps.vue      v-model 绑定 state.navEditDto → project.applyBlueprintNodeEdit
 ├── DevFileEditor.vue     useDevFileEditor → 四文件读写在 project，加载/保存在 editor
 ├── DevDataSetDesigner    project.editDataSet / undoPageFile（pagedata 可视化）
 └── DevPreviewTab.vue     createRuntimePageNode 思路的预览（经 state.activePageId）
@@ -382,7 +382,7 @@ sequenceDiagram
 | `blueprintProjection` | `readBlueprintProjection()` | 树、选中节点、pageDeliveries |
 | `activePageProjection` | `readActivePageProjection()` | 四文件文本、parseErrors |
 | `dirtyProjection` | `readDirtyProjection()` | 顶栏「未保存」、tab 蓝点 |
-| `navEditDto` reactive | `project.navigationDraft` | 表单 getter/setter 代理 |
+| `navEditDto` reactive | `project.blueprintDraft` | 表单 getter/setter 代理 |
 
 **禁止**在 Vue 里缓存 `ProjectBlueprintTreeNodeData` 副本当编辑真源；读写走 `project.*` API。
 
@@ -392,8 +392,8 @@ sequenceDiagram
                     ┌─────────────────────────────────────┐
   内存编辑           │  ProjectModel.project               │
                     │  selectNode / setActivePage         │
-                    │  beginNavigationDraft               │
-                    │  applyNavigationNodeEdit            │
+                    │  beginBlueprintDraft               │
+                    │  applyBlueprintNodeEdit            │
                     │  writePageFile / editDataSet        │
                     │  editNodeTree / undoPageFile        │
                     └─────────────────────────────────────┘
@@ -407,14 +407,14 @@ sequenceDiagram
                     └─────────────────────────────────────┘
                                       │
                     ┌─────────────────▼───────────────────┐
-  后端               │  NavigationClient + PageFileApi     │
+  后端               │  ProjectBlueprintClient + PageFileApi     │
                     └─────────────────────────────────────┘
 ```
 
 | 用户动作 | 内存（project） | 落盘（editor） |
 |---|---|---|
-| 左侧选节点 | `selectNode` → `loadNodeToForm` → `beginNavigationDraft` | 配置页：`selectPage` → 懒加载四文件 |
-| 改节点属性 | `navEditDto` setter → `applyNavigationNodeEdit` | autoSave → `saveSelectedNavigationNode` |
+| 左侧选节点 | `selectNode` → `loadNodeToForm` → `beginBlueprintDraft` | 配置页：`selectPage` → 懒加载四文件 |
+| 改节点属性 | `navEditDto` setter → `applyBlueprintNodeEdit` | autoSave → `saveSelectedBlueprintNode` |
 | 改 rule.json | `writePageFile` / `editNodeTree` | `savePageFile` |
 | 改 pagedata | `editDataSet` | `savePageFile` |
 | 顶栏「全部保存」 | — | `saveAll` → dirty 导航 + dirty 四文件 |
@@ -433,7 +433,7 @@ flowchart TD
   F -->|其他| H[clearActivePageContext 或 setActivePage 导航上下文]
   G --> I[loadNodeToForm]
   H --> I
-  I --> J[beginNavigationDraft]
+  I --> J[beginBlueprintDraft]
   J --> K[workTab 联动 → props]
 ```
 

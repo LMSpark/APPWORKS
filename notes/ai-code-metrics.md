@@ -548,3 +548,25 @@
 - **知识沉淀**：无；协议事实以 `project-blueprint-file-version.ts`、`lowcode-design-file-upload.ts` 为准
 - **人工干预**：LIVE 写入由用户单独授权；空脚本/空样式按远程文件服务约束规范化为单个换行符
 - **验证摘要**：LIVE 三文件独立上传与逐文件读回通过，`VersionId=rule=2;script=1;style=1`；已随 `944536a31` 提交
+
+### 2026-10-05 修复 944536a31 引入的 ai-codegen 与 vitest 退出码回归
+
+- **复杂度**：中等（3 个文件：`project-blueprint-api.ts` 去类型断言、其测试补用例、`dev-system-header-save.test.ts` 补 stub）
+- **总耗时**：约 20 分钟（含方案审核等待；研读阶段另计入同日架构研读）
+- **返工次数**：1（去掉 `undefined` 过滤时 `no-unnecessary-condition` lint 暴露冗余过滤，在当前闭环内移除并复验）
+- **审查轮次**：1（方案一次通过；用户同意"忽略 undefined"决策，实施时因类型事实改为保持原行为并记入方案偏差）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：未沉淀；6 条候选用户取消确认，保留在 `notes/plan-fix-blueprint-regressions.md` 备注
+- **人工干预**：用户在方案阶段批准；提醒不要触碰另一会话正在整理的 notes；明确不涉及 `E:\lowcode-jdk17` 的运行
+- **验证摘要**：`verify:ai-codegen` 936 文件通过；根 `vitest` 170 文件/1289 用例退出码 0 且无 Errors；`lint`、根与 `spark-lowcode-api` typecheck 通过；`verify:rules` 其余各项通过，仅 `verify:lowcode-contracts` 因台账过期失败（干净 HEAD 同样失败，非本任务引入）；已随 `333d96b6b` 提交推送
+
+### 2026-10-05 架构文档对照源码重写与 lowcode 台账重新生成
+
+- **复杂度**：复杂（14 个文档文件 + 2 个生成台账；文档不在 7 阶段协议适用范围，但按事实核对流程执行）
+- **总耗时**：约 1 小时（含 6 路并行研读、逐条对源码核实、台账差异分析）
+- **返工次数**：3（子代理结论与源码不符被纠正；总览中 3 处表述经核实后改写；编辑工具把混合行尾统一为 CRLF，基于 HEAD 字节重做）
+- **审查轮次**：0（用户直接确认"1 + 2"，未单独评审文档稿）
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：未沉淀；候选见 `notes/plan-fix-blueprint-regressions.md` 备注，另增 2 条：`verify:docs` 不校验类名/路径存在性；编辑含混合行尾的文件前先用 `git show HEAD:<file>` 核对
+- **人工干预**：用户要求以事实为依据、反复核实；明确不涉及 `E:\lowcode-jdk17` 的运行（重新生成台账只读其 Controller 源码）；另一会话并行编辑 `docs/DOCUMENT-GOVERNANCE.dm` 等，已避开
+- **验证摘要**：`verify:rules` 全绿（退出码 0）；新旧类名 grep 清零；改动文档相对链接 0 断链；反查代码引用路径 0 缺失。台账重新生成后 587 个接口、131 个消费者，后端源码比旧台账多 204 个、少 4 个接口

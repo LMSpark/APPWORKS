@@ -52,8 +52,6 @@ mode?: PageDesignRunMode
 allowedOperations?: PageDesignAllowedOperations
     /** preserve Existing Interactions 字段。 */
 preserveExistingInteractions?: boolean
-  /** 未声明 implGate 时 fail-fast；生产 runner 建议 true。 */
-  strictImplGate?: boolean
 }
 
 /**
@@ -120,9 +118,7 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
   if (summary === undefined) {
     throw new Error(`pageDesign: no planning projection for pageId "${pageId}".`)
   }
-  assertPageDesignRunGateAllowed(summary, command.mode, {
-    strictImplGate: command.strictImplGate === true,
-  })
+  assertPageDesignRunGateAllowed(summary, command.mode)
 
   const pageDesignHost = await activatePageDesignAgentWorkflow({
     host: aiAgentHost,
@@ -268,6 +264,5 @@ function buildPageDesignRunInput(command: BuildPageDesignRunInputCommand): PageD
   if (options.preserveExistingInteractions !== undefined) {
     input.preserveExistingInteractions = options.preserveExistingInteractions
   }
-  if (options.strictImplGate !== undefined) input.strictImplGate = options.strictImplGate
   return input
 }

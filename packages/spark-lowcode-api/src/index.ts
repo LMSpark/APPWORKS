@@ -18,11 +18,16 @@ export type {
   LowcodeCatalogSourceError,
 } from './catalog/lowcode-catalog-api.js'
 export { LowcodeDesignApi } from './design/lowcode-design-api.js'
+export { LowcodeDesignFileUpload } from './design/lowcode-design-file-upload.js'
 export type {
   LowcodeFileDirectory,
   LowcodeFileEntry,
   LowcodeFileLocator,
 } from './design/lowcode-design-api.js'
+export type {
+  LowcodeDesignFileUploadCommand,
+  LowcodeDesignFileUploadResult,
+} from './design/lowcode-design-file-upload.js'
 export { DataSpaceApi } from './platform/data-space/data-space-api.js'
 export { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './platform/data-space/design/data-space-design-api.js'
 export type {
@@ -88,6 +93,19 @@ export {
   validateLowcodeProjectBlueprintRecords,
 } from './platform/project-blueprint/project-blueprint.js'
 export type { LowcodeProjectBlueprintRecord } from './platform/project-blueprint/project-blueprint.js'
+export {
+  LOWCODE_BLUEPRINT_FILE_NAMES,
+  encodeLowcodeBlueprintFileVersions,
+  lowcodeBlueprintFileVersionKey,
+  lowcodeBlueprintVersionedFileName,
+  nextLowcodeBlueprintFileVersions,
+  parseLowcodeBlueprintFileVersions,
+} from './platform/project-blueprint/project-blueprint-file-version.js'
+export type {
+  LowcodeBlueprintFileName,
+  LowcodeBlueprintFileVersionKey,
+  LowcodeBlueprintFileVersions,
+} from './platform/project-blueprint/project-blueprint-file-version.js'
 export type {
   LowcodeNavigationAuthorizationContext,
   LowcodeNavigationAuthorizationEvidence,

@@ -38,10 +38,7 @@
         "description": {
           "type": "string"
         },
-        "legacyContentId": {
-          "type": "string"
-        },
-        "legacyContentType": {
+        "formKey": {
           "type": "string"
         },
         "runtimeTarget": {
@@ -61,18 +58,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:46:57.327Z",
+  "generatedAt": "2026-08-10T13:16:38.820Z",
   "models": {
     "LowcodeProjectBlueprintRecord": {
       "name": "LowcodeProjectBlueprintRecord",
       "jsdoc": "lowcode `Base_NavigationInfo` 归一化记录；不是 AppWorks 项目蓝图领域实体。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    parentId: string;\n    projectId: string;\n    title: string;\n    kind: ProjectBlueprintNodeKind;\n    description: string;\n    legacyContentId: string;\n    legacyContentType: string;\n    runtimeTarget: string;\n    runtimeNavigationCandidate: boolean;\n    order: number;\n    source: Readonly<Record<string, unknown>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    parentId: string;\n    projectId: string;\n    title: string;\n    kind: ProjectBlueprintNodeKind;\n    description: string;\n    formKey: string;\n    runtimeTarget: string;\n    runtimeNavigationCandidate: boolean;\n    order: number;\n    source: Readonly<Record<string, unknown>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    parentId: string;\n    projectId: string;\n    title: string;\n    kind: ProjectBlueprintNodeKind;\n    description: string;\n    legacyContentId: string;\n    legacyContentType: string;\n    runtimeTarget: string;\n    runtimeNavigationCandidate: boolean;\n    order: number;\n    source: Readonly<Record<string, unknown>>;\n}>",
+            "typeText": "Readonly<{\n    id: string;\n    parentId: string;\n    projectId: string;\n    title: string;\n    kind: ProjectBlueprintNodeKind;\n    description: string;\n    formKey: string;\n    runtimeTarget: string;\n    runtimeNavigationCandidate: boolean;\n    order: number;\n    source: Readonly<Record<string, unknown>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -109,12 +106,7 @@
               "writable": false
             },
             {
-              "name": "legacyContentId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "legacyContentType",
+              "name": "formKey",
               "readable": true,
               "writable": false
             },

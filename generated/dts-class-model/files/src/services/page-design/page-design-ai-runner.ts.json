@@ -33,9 +33,6 @@
         },
         "preserveExistingInteractions": {
           "type": "boolean"
-        },
-        "strictImplGate": {
-          "type": "boolean"
         }
       },
       "required": [
@@ -75,9 +72,6 @@
           "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
         },
         "preserveExistingInteractions": {
-          "type": "boolean"
-        },
-        "strictImplGate": {
           "type": "boolean"
         },
         "pageId": {
@@ -170,14 +164,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:26:46.015Z",
+  "generatedAt": "2026-08-10T13:19:33.167Z",
   "models": {
     "PageDesignAiRunOptions": {
       "name": "PageDesignAiRunOptions",
       "jsdoc": "Page Design Ai Run Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** description 字段。 */\n    description: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n    /** 未声明 implGate 时 fail-fast；生产 runner 建议 true。 */\n    strictImplGate?: boolean;\n}",
+        "declarationTypeText": "{\n    /** description 字段。 */\n    description: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -201,12 +195,6 @@
             {
               "name": "preserveExistingInteractions",
               "jsdoc": "preserve Existing Interactions 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "strictImplGate",
-              "jsdoc": "未声明 implGate 时 fail-fast；生产 runner 建议 true。",
               "readable": true,
               "writable": false
             }

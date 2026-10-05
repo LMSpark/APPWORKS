@@ -145,7 +145,7 @@ export type ClassModelAgentCompleteRejected = Readonly<{
   nextStep?: string
 }>
 
-/** agent_complete 领域完成方法的返回结果。 */
+/** agent_complete 领域完成结果：显式通过才完成；false 或非空字符串表示拒绝。 */
 export type ClassModelAgentCompleteActionResult =
   | AiAgentToolResult<JsonValue>
   | ClassModelAgentCompleteAccepted
@@ -471,9 +471,10 @@ class ClassModelAgentToolRuntime<T> implements AiAgentToolRuntime {
     const configuredMethodName = this.adapterOptions.options.agentCompleteMethodName
     const methodName = configuredMethodName ?? findDefaultAgentCompleteMethodName(instance)
     if (methodName === undefined) {
-      return AiAgentToolResult.ok({
-        completed: true,
-        summary: parsed.summary,
+      return rejectAgentComplete({
+        code: 'AGENT_COMPLETE_METHOD_NOT_CONFIGURED',
+        message: 'agent_complete 未绑定领域验收方法，不能确认任务完成。',
+        fix: '由应用配置真实的 agentCompleteAction 或 agentCompleteMethodName；完成摘要不能代替验收。',
       })
     }
     const method = readAgentCompleteMethod(instance, methodName)
@@ -584,66 +585,98 @@ function normalizeAgentCompleteActionResult(
 ): AiAgentToolResult<JsonValue> {
   if (raw instanceof AiAgentToolResult) {
     if (!raw.ok) return AiAgentToolResult.passthroughFailure(raw)
-    return AiAgentToolResult.ok(
-      normalizeAgentCompleteSuccessData(raw.data, fallbackSummary),
-      raw.checks,
-      raw.state,
+    const data: unknown = raw.data
+    const result = normalizeAgentCompleteActionResult(
+      { ok: true, data, checks: raw.checks },
+      fallbackSummary,
+      knowledgeContext,
     )
+    if (result.ok) {
+      const summary = isUnknownRecord(data)
+        ? readStringRecordField(data, 'summary') ?? fallbackSummary
+        : fallbackSummary
+      return AiAgentToolResult.ok(normalizeAgentCompleteSuccessData(data, summary), result.checks, raw.state)
+    }
+    if (raw.state === undefined) return result
+    return new AiAgentToolResult({
+      ok: result.ok,
+      ...(result.data === undefined ? {} : { data: result.data }),
+      ...(result.checks === undefined ? {} : { checks: result.checks }),
+      state: { ...raw.state, ...result.state },
+    })
   }
 
-  if (raw === false) {
+  if (raw === true) {
+    return AiAgentToolResult.ok(normalizeAgentCompleteSuccessData(undefined, fallbackSummary))
+  }
+
+  if (raw === false || (typeof raw === 'string' && raw.trim().length > 0)) {
     return rejectAgentComplete({
       code: 'AGENT_COMPLETE_REJECTED',
-      message: '领域模型拒绝完成。',
+      message: typeof raw === 'string' ? raw.trim() : '领域模型拒绝完成。',
       fix: '读取 agent_complete tool result，补查缺失知识或补执行 model_script 后再次 agent_complete。',
     })
   }
 
   if (isUnknownRecord(raw)) {
-    if (raw['ok'] === false || raw['completed'] === false) {
-      const checks = readAgentCompleteChecks(raw['checks'])
-      const requiredCapabilities = readStringArrayRecordField(raw, 'requiredCapabilities')
-      const missingFacts = readStringArrayRecordField(raw, 'missingFacts')
-      const nextStep = readStringRecordField(raw, 'nextStep')
+    const data = isUnknownRecord(raw['data']) ? raw['data'] : undefined
+    const checks = [
+      ...(readAgentCompleteChecks(raw['checks']) ?? []),
+      ...(readAgentCompleteChecks(data?.['checks']) ?? []),
+    ]
+    const blockingCheck = checks.find(check => check.level === 'error')
+    if (raw['ok'] === false || raw['completed'] === false
+      || data?.['ok'] === false || data?.['completed'] === false || blockingCheck !== undefined) {
+      const feedback = { ...data, ...raw }
+      const requiredCapabilities = readStringArrayRecordField(feedback, 'requiredCapabilities')
+      const missingFacts = readStringArrayRecordField(feedback, 'missingFacts')
+      const nextStep = readStringRecordField(feedback, 'nextStep')
       const knowledgeLookups = collectAgentCompleteKnowledgeLookups({
         context: knowledgeContext,
         ...(requiredCapabilities === undefined ? {} : { requiredCapabilities }),
       })
       return rejectAgentComplete({
-        code: readStringRecordField(raw, 'code') ?? 'AGENT_COMPLETE_REJECTED',
-        message: readStringRecordField(raw, 'msg')
-          ?? readStringRecordField(raw, 'message')
+        code: blockingCheck?.code ?? readStringRecordField(feedback, 'code') ?? 'AGENT_COMPLETE_REJECTED',
+        message: blockingCheck?.message
+          ?? readStringRecordField(feedback, 'msg')
+          ?? readStringRecordField(feedback, 'message')
           ?? '领域模型拒绝完成。',
-        fix: readStringRecordField(raw, 'fix')
-          ?? readStringRecordField(raw, 'nextStep')
+        fix: blockingCheck?.hint
+          ?? readStringRecordField(feedback, 'fix')
+          ?? nextStep
           ?? '读取 agent_complete tool result，补查缺失知识或补执行 model_script 后再次 agent_complete。',
-        ...(checks === undefined ? {} : { checks }),
+        checks,
         ...(requiredCapabilities === undefined ? {} : { requiredCapabilities }),
         ...(missingFacts === undefined ? {} : { missingFacts }),
         ...(nextStep === undefined ? {} : { nextStep }),
         ...(knowledgeLookups.length === 0 ? {} : { knowledgeLookups }),
       })
     }
-    if (raw['ok'] === true) {
+    if (raw['ok'] === true || raw['completed'] === true) {
       const summary = readStringRecordField(raw, 'summary')
         ?? readStringRecordField(raw, 'finalAssistantMessage')
+        ?? (data === undefined ? undefined : readStringRecordField(data, 'summary'))
         ?? fallbackSummary
       return AiAgentToolResult.ok(
         normalizeAgentCompleteSuccessData(raw['data'] ?? raw, summary),
-        readAgentCompleteChecks(raw['checks']),
+        checks,
       )
     }
   }
 
-  return AiAgentToolResult.ok(normalizeAgentCompleteSuccessData(raw, fallbackSummary))
+  return rejectAgentComplete({
+    code: 'AGENT_COMPLETE_INVALID_RESULT',
+    message: '领域验收未返回明确的通过或拒绝结果，不能确认任务完成。',
+    fix: '修正领域验收方法：通过返回 true、ok: true 或 completed: true；拒绝返回 false、非空原因或结构化失败结果。',
+  })
 }
 
 function normalizeAgentCompleteSuccessData(raw: unknown, summary: string): JsonValue {
   if (isUnknownRecord(raw)) {
     return {
+      ...raw,
       completed: true,
       summary,
-      ...raw,
     }
   }
   if (raw === undefined) {

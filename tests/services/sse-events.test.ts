@@ -74,6 +74,53 @@ describe('lowcode SSE bridge', () => {
     }))
   })
 
+  it('delivers current plain business messages without treating them as envelopes', async () => {
+    const sse = await import('@/services/sse-events')
+    const callback = vi.fn()
+    stopSubscription = sse.onNotificationEvent(callback)
+
+    realtime.onEvent?.({
+      event: 'message',
+      data: {
+        messageType: 'BUSINESS',
+        title: 'notification',
+        content: JSON.stringify({
+          title: '任务完成',
+          message: '数据同步完成',
+          timestamp: 1,
+        }),
+      },
+    })
+
+    expect(callback).toHaveBeenCalledWith({
+      title: '任务完成',
+      message: '数据同步完成',
+      timestamp: 1,
+    })
+  })
+
+  it('rejects non-v4 SparkEnvelope messages instead of unwrapping them', async () => {
+    const sse = await import('@/services/sse-events')
+    const callback = vi.fn()
+    stopSubscription = sse.onAnyServerEnvelopeEvent(callback)
+
+    realtime.onEvent?.({
+      event: 'message',
+      data: {
+        messageType: 'AI',
+        title: 'llm-frame',
+        content: JSON.stringify({
+          protocolVersion: 3,
+          ok: true,
+          data: { text: '旧协议' },
+          event: { channel: 'ai', name: 'llm-frame', terminal: false },
+        }),
+      },
+    })
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
   it('closes the lowcode stream when the last subscriber leaves', async () => {
     const sse = await import('@/services/sse-events')
     stopSubscription = sse.onAnyServerEnvelopeEvent(() => undefined)

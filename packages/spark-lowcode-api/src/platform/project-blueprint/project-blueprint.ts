@@ -14,9 +14,20 @@ export type LowcodeProjectBlueprintRecord = Readonly<{
   title: string
   kind: ProjectBlueprintNodeKind
   description: string
-  legacyContentId: string
-  legacyContentType: string
+  planningContent: string
+  prototypeHtml: string
+  formKey: string
+  dataSpaceType: string
   runtimeTarget: string
+  fileVersionId: string
+  difficultyFactor: number
+  manhour: number
+  quantity: number
+  sum: number
+  total: number
+  personInCharge: string
+  status: string
+  navigationType: number
   runtimeNavigationCandidate: boolean
   order: number
   source: Readonly<Record<string, unknown>>

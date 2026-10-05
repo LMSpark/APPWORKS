@@ -37,8 +37,8 @@ export type BlueprintNodeDraftNode = {
   disabled: boolean
   refId: string
   permissionMode: PermissionMode
-  implGate?: ProjectBlueprintTreeNodeData['implGate']
-  upstreamContractsSatisfied?: boolean
+  implGate: NonNullable<ProjectBlueprintTreeNodeData['implGate']>
+  upstreamContractsSatisfied: boolean
 }
 
 export type BlueprintNodePatch = Partial<Omit<BlueprintNodeDraftNode, 'id'>> & {
@@ -122,10 +122,8 @@ export function createBlueprintNodeDraft(navNode: ProjectBlueprintTreeNodeData):
     hidden: navNode.hidden ?? false,
     disabled: navNode.disabled ?? false,
     permissionMode: navNode.permissionMode ?? 'masked',
-    ...(navNode.implGate !== undefined ? { implGate: navNode.implGate } : {}),
-    ...(navNode.upstreamContractsSatisfied !== undefined
-      ? { upstreamContractsSatisfied: navNode.upstreamContractsSatisfied }
-      : {}),
+    implGate: navNode.implGate ?? 'closed',
+    upstreamContractsSatisfied: navNode.upstreamContractsSatisfied ?? false,
   }
 
   if (navNode.context === undefined) {

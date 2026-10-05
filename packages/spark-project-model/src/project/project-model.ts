@@ -480,15 +480,12 @@ redoPageFile(fileName: PageNodeFileName): boolean {
     return ok
   }
 
-    /** 读取 Data Set Tool。 */
-getDataSetTool(): DataSetCrudTool | null {
+  /** 读取 Data Set Tool。 */
+  getDataSetTool(): DataSetCrudTool | null {
     return this.getActivePage()?.getDataSetTool() ?? null
   }
 
-  /**
-   * 通过 DataSetCrudTool 修改当前 active 页的 pagedata.json 内存模型。
-   *
-   */
+  /** 通过 DataSetCrudTool 修改当前 active 页的 pagedata.json 内存模型。 */
   async editDataSet(run: (tool: DataSetCrudTool) => void | Promise<void>): Promise<void> {
     const page = this.requireActivePageDesign()
     await page.editDataSet(run)

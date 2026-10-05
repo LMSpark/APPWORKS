@@ -273,9 +273,7 @@ getDirtyFileNames(): PageNodeFileName[] {
     return this.getNodeTree()
   }
 
-  /**
-   * pagedata.json 数据集 CRUD 工具入口。
-   */
+  /** pagedata.json 数据集 CRUD 工具入口。 */
   get dataSetTool(): DataSetCrudTool {
     return this.getDataSetTool()
   }
@@ -297,19 +295,12 @@ getDirtyFileNames(): PageNodeFileName[] {
     await this.rule.editTree(run)
   }
 
-  /**
-   * 读取 pagedata 数据集工具入口。
-   *
-   */
+  /** 读取 pagedata 数据集工具入口。 */
   getDataSetTool(): DataSetCrudTool {
     return this.dataSet.getTool()
   }
 
-  /**
-   * 修改 pagedata.json 数据集模型。
-   *
-   * @param run 数据集编辑回调；回调参数是当前页面 DataSetCrudTool。
-   */
+  /** 修改 pagedata.json 数据集模型。 */
   async editDataSet(run: (tool: DataSetCrudTool) => void | Promise<void>): Promise<void> {
     await this.dataSet.editTool(run)
   }

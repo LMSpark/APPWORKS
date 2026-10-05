@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '../src/blueprint/project-blueprint-node'
-import type { NavigationRootPlacement, RuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
+import type { NavigationRootPlacement } from '@spark-appworks/spark-utils'
 import { ProjectBlueprintNode } from '../src/blueprint/project-blueprint-node'
 import { ConfigPageNode } from '../src/page/config-page'
 import { resolveProjectPageSurface } from '../src/blueprint/project-blueprint-tree'
@@ -85,9 +85,11 @@ describe('ProjectModel', () => {
       children: [{
         id: 'order-detail',
         title: '订单详情',
-        nodeKind: 'sub-page',
+        blueprintKind: 'sub-page',
+        nodeKind: 'page',
+        hidden: true,
         description: '订单详情功能',
-      } as unknown as ProjectBlueprintTreeNodeData],
+      }],
     }]))
     const page = p.findConfigPageByPageId('orders')
     const sub = p.findConfigPageByPageId('order-detail')
@@ -101,18 +103,6 @@ describe('ProjectModel', () => {
     expect(sub?.isSubPage).toBe(true)
     expect(sub?.toSummary().designSurface).toBe('config-files')
     expect(sub?.toSummary().nodeKind).toBe('page')
-  })
-
-  it('migrates legacy sub-page nodeKind on navigation load', () => {
-    const p = createWorkspace().project
-    p.replaceBlueprintTree(createRoot([{
-      id: 'orders-node', title: '订单页面', nodeKind: 'page', path: '/orders',
-      children: [{ id: 'order-detail', title: '订单详情', nodeKind: 'sub-page' as unknown as RuntimeNavigationItemKind, description: '订单详情功能' }],
-    }]))
-    const sub = p.findConfigPageByPageId('order-detail')
-    expect(sub?.nodeKind).toBe('page')
-    expect(sub?.hidden).toBe(true)
-    expect(sub?.isSubPage).toBe(true)
   })
 
   it('builds tree from flat collection and finds nodes', () => {
@@ -191,21 +181,34 @@ describe('ProjectModel', () => {
     workspace.project.selectNode('orders')
     const dto = workspace.project.beginBlueprintDraft()
     dto.node.implGate = 'open'
-    dto.node.upstreamContractsSatisfied = false
+    dto.node.upstreamContractsSatisfied = true
     workspace.project.applyBlueprintNodeEdit(dto)
 
     const summary = workspace.project.readPlanningProjection().find(item => item.pageId === 'orders')
     expect(summary).toMatchObject({
       implGate: 'open',
-      upstreamContractsSatisfied: false,
+      upstreamContractsSatisfied: true,
     })
     expect(workspace.project.findNodeById('orders')?.toNodeData()).toMatchObject({
       implGate: 'open',
+      upstreamContractsSatisfied: true,
+    })
+  })
+
+  it('initializes missing agent gate fields as fail-closed draft values', () => {
+    const workspace = createWorkspace()
+    workspace.project.replaceBlueprintTree(createRoot([{
+      id: 'orders', title: '订单页面', nodeKind: 'page', path: '/orders',
+    }]))
+    workspace.project.selectNode('orders')
+
+    expect(workspace.project.beginBlueprintDraft().node).toMatchObject({
+      implGate: 'closed',
       upstreamContractsSatisfied: false,
     })
   })
 
-  it('strips legacy planningStatus when loading navigation', () => {
+  it('rejects the removed planningStatus field when loading a blueprint', () => {
     const workspace = createWorkspace()
     const legacyNode = {
       id: 'orders',
@@ -216,8 +219,8 @@ describe('ProjectModel', () => {
       order: 0,
       planningStatus: 'planning_confirmed',
     }
-    workspace.project.replaceBlueprintTree(createRoot([legacyNode as ProjectBlueprintTreeNodeData]))
-    expect(workspace.project.findNodeById('orders')?.toNodeData()).not.toHaveProperty('planningStatus')
+    expect(() => workspace.project.replaceBlueprintTree(createRoot([legacyNode as ProjectBlueprintTreeNodeData])))
+      .toThrow(/已移除字段 planningStatus/u)
   })
 
   it('does not mark navigation dirty when opening draft without edits', () => {
@@ -380,6 +383,8 @@ describe('ProjectModel', () => {
         disabled: false,
         refId: '',
         permissionMode: 'masked',
+        implGate: 'closed',
+        upstreamContractsSatisfied: false,
       },
       context: {
         hasContext: true,

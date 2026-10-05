@@ -36,12 +36,11 @@ describe('readPageDesignGateState', () => {
     expect(readPageDesignGateState(createSummary({ effectiveDescription: '' })).planningReady).toBe(false)
   })
 
-  it('defaults implGate to open when field omitted', () => {
-    expect(readPageDesignGateState(createSummary()).implGate).toBe('open')
-  })
-
-  it('treats missing implGate as closed in strict mode', () => {
-    expect(readPageDesignGateState(createSummary(), { strictImplGate: true }).implGate).toBe('closed')
+  it('fails closed when gate fields are omitted', () => {
+    expect(readPageDesignGateState(createSummary())).toMatchObject({
+      implGate: 'closed',
+      upstreamContractsSatisfied: false,
+    })
   })
 })
 

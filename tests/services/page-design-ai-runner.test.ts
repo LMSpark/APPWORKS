@@ -41,6 +41,7 @@ function createEditor(): ProjectWorkspace {
         path: '/orders',
         description: '订单列表页面',
         implGate: 'open',
+        upstreamContractsSatisfied: true,
       },
     ],
   })

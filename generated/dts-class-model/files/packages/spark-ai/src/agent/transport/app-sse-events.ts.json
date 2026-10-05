@@ -79,7 +79,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:39:41.619Z",
+  "generatedAt": "2026-08-10T13:41:38.869Z",
   "models": {
     "AiAgentAppSseEventName": {
       "name": "AiAgentAppSseEventName",
@@ -121,11 +121,11 @@
       "jsdoc": "APP SSE 事件结构。\n字段说明：\nname            — 事件名（如 llm-frame）\nok              — 事件是否成功（false 表示 error 事件）\ndata            — 已解析的事件数据（泛型 T）\nrawData         — 原始 JSON 字符串\nrawPayload      — 原始解析荷载（未做类型转换）\nprotocolVersion — 可选协议版本号\ncontext         — API 信封上下文（可选）\nevent           — API 信封事件（可选）",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 事件名；标识事件类型，如 llm-frame、page-config 等。 */\n    name: AiAgentAppSseEventName;\n    /** 事件是否成功；false 表示 error 事件，消费方需检查 data 中的错误信息。 */\n    ok: boolean;\n    /** 已解析的事件数据；泛型 T 由消费方按事件名约定提供具体类型。 */\n    data: T;\n    /** 原始 JSON 字符串；保留未解析的载荷，用于调试和日志回放。 */\n    rawData: string;\n    /** 原始解析荷载；JSON.parse 后的原始值，类型转换前的中间态。 */\n    rawPayload: unknown;\n    /** 协议版本号；用于向后兼容检测，缺失时按最新版处理。 */\n    protocolVersion?: number;\n    /** API 信封上下文；携带 requestId、tenantId 等跨层追踪信息。 */\n    context?: ApiEnvelopeContext;\n    /** API 信封事件；标识信封内部的事件类型，与 name 可能不同（如信封复用场景）。 */\n    event?: ApiEnvelopeEvent;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 事件名；标识事件类型，如 llm-frame、page-config 等。 */\n    name: AiAgentAppSseEventName;\n    /** 事件是否成功；false 表示 error 事件，消费方需检查 data 中的错误信息。 */\n    ok: boolean;\n    /** 已解析的事件数据；泛型 T 由消费方按事件名约定提供具体类型。 */\n    data: T;\n    /** 原始 JSON 字符串；保留未解析的载荷，用于调试和日志回放。 */\n    rawData: string;\n    /** 原始解析荷载；JSON.parse 后的原始值，类型转换前的中间态。 */\n    rawPayload: unknown;\n    /** SparkEnvelope 协议版本号；当前 Envelope 必须为 v4，普通业务事件不携带该字段。 */\n    protocolVersion?: number;\n    /** API 信封上下文；携带 requestId、tenantId 等跨层追踪信息。 */\n    context?: ApiEnvelopeContext;\n    /** API 信封事件；标识信封内部的事件类型，与 name 可能不同（如信封复用场景）。 */\n    event?: ApiEnvelopeEvent;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 事件名；标识事件类型，如 llm-frame、page-config 等。 */\n    name: AiAgentAppSseEventName;\n    /** 事件是否成功；false 表示 error 事件，消费方需检查 data 中的错误信息。 */\n    ok: boolean;\n    /** 已解析的事件数据；泛型 T 由消费方按事件名约定提供具体类型。 */\n    data: T;\n    /** 原始 JSON 字符串；保留未解析的载荷，用于调试和日志回放。 */\n    rawData: string;\n    /** 原始解析荷载；JSON.parse 后的原始值，类型转换前的中间态。 */\n    rawPayload: unknown;\n    /** 协议版本号；用于向后兼容检测，缺失时按最新版处理。 */\n    protocolVersion?: number;\n    /** API 信封上下文；携带 requestId、tenantId 等跨层追踪信息。 */\n    context?: ApiEnvelopeContext;\n    /** API 信封事件；标识信封内部的事件类型，与 name 可能不同（如信封复用场景）。 */\n    event?: ApiEnvelopeEvent;\n}>",
+            "typeText": "Readonly<{\n    /** 事件名；标识事件类型，如 llm-frame、page-config 等。 */\n    name: AiAgentAppSseEventName;\n    /** 事件是否成功；false 表示 error 事件，消费方需检查 data 中的错误信息。 */\n    ok: boolean;\n    /** 已解析的事件数据；泛型 T 由消费方按事件名约定提供具体类型。 */\n    data: T;\n    /** 原始 JSON 字符串；保留未解析的载荷，用于调试和日志回放。 */\n    rawData: string;\n    /** 原始解析荷载；JSON.parse 后的原始值，类型转换前的中间态。 */\n    rawPayload: unknown;\n    /** SparkEnvelope 协议版本号；当前 Envelope 必须为 v4，普通业务事件不携带该字段。 */\n    protocolVersion?: number;\n    /** API 信封上下文；携带 requestId、tenantId 等跨层追踪信息。 */\n    context?: ApiEnvelopeContext;\n    /** API 信封事件；标识信封内部的事件类型，与 name 可能不同（如信封复用场景）。 */\n    event?: ApiEnvelopeEvent;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -163,7 +163,7 @@
             },
             {
               "name": "protocolVersion",
-              "jsdoc": "协议版本号；用于向后兼容检测，缺失时按最新版处理。",
+              "jsdoc": "SparkEnvelope 协议版本号；当前 Envelope 必须为 v4，普通业务事件不携带该字段。",
               "readable": true,
               "writable": false
             },

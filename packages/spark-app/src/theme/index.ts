@@ -83,15 +83,6 @@ function readStoredThemeMode(storageKey: string, scopeKey: string | null, fallba
   const scopedStorageKey = getScopedStorageKey(storageKey, scopeKey)
   const scopedValue = safeGetItem(scopedStorageKey)
   if (isThemeMode(scopedValue)) return scopedValue
-
-  if (scopeKey !== null) {
-    const legacyValue = safeGetItem(storageKey)
-    if (isThemeMode(legacyValue)) {
-      safeSetItem(scopedStorageKey, legacyValue)
-      return legacyValue
-    }
-  }
-
   return fallback
 }
 

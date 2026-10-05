@@ -13,11 +13,6 @@ export function getDtsClassModelManifestUrl(origin?: string | URL): string {
   return new URL(DTS_CLASS_MODEL_MANIFEST_PATH, resolveManifestBaseOrigin(origin)).href
 }
 
-/** @deprecated 请使用 {@link getDtsClassModelManifestUrl} */
-export function resolveDtsClassModelManifestUrl(baseUrl?: string | URL): string {
-  return getDtsClassModelManifestUrl(baseUrl)
-}
-
 function resolveManifestBaseOrigin(explicit?: string | URL): string | URL {
   if (explicit !== undefined) return explicit
 

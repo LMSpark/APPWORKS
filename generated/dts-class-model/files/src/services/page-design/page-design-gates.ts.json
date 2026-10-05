@@ -14,7 +14,6 @@
       "PageDesignRunContext",
       "PageDesignRunMode",
       "PageDesignGateState",
-      "ReadPageDesignGateStateOptions",
       "PageDesignGateValidationResult",
       "EvaluatePageDesignMutationToolGateOptions",
       "EvaluatePageDesignScriptOperationGateOptions"
@@ -91,17 +90,6 @@
       },
       "additionalProperties": false
     },
-    "ReadPageDesignGateStateOptions": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ReadPageDesignGateStateOptions",
-      "properties": {
-        "strictImplGate": {
-          "type": "boolean"
-        }
-      },
-      "additionalProperties": false
-    },
     "PageDesignGateValidationResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -136,9 +124,6 @@
         "mode": {
           "$ref": "#/$defs/PageDesignRunMode"
         },
-        "gateOptions": {
-          "$ref": "#/$defs/ReadPageDesignGateStateOptions"
-        },
         "allowedOperations": {
           "$ref": "#/$defs/PageDesignAllowedOperations"
         },
@@ -168,7 +153,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:21:07.686Z",
+  "generatedAt": "2026-08-10T13:19:33.165Z",
   "models": {
     "PageDesignAllowedOperations": {
       "name": "PageDesignAllowedOperations",
@@ -278,11 +263,11 @@
       "jsdoc": "页面设计闸门状态：三重校验（策划就绪 + 实现闸门 + 上游契约），全部通过才允许运行",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */\n    implGate: ProjectBlueprintImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */\n    upstreamContractsSatisfied: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时 fail-closed */\n    implGate: ProjectBlueprintImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时 fail-closed */\n    upstreamContractsSatisfied: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */\n    implGate: ProjectBlueprintImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */\n    upstreamContractsSatisfied: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 页面 ID，对应 ProjectPageNodeSummary.pageId */\n    pageId: string;\n    /** effectiveDescription 非空即视为策划就绪。 */\n    planningReady: boolean;\n    /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时 fail-closed */\n    implGate: ProjectBlueprintImplGate;\n    /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时 fail-closed */\n    upstreamContractsSatisfied: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -302,38 +287,13 @@
             },
             {
               "name": "implGate",
-              "jsdoc": "实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值",
+              "jsdoc": "实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时 fail-closed",
               "readable": true,
               "writable": false
             },
             {
               "name": "upstreamContractsSatisfied",
-              "jsdoc": "上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容）",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "ReadPageDesignGateStateOptions": {
-      "name": "ReadPageDesignGateStateOptions",
-      "jsdoc": "Read Page Design Gate State Options 的调用配置。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 未声明 implGate 时是否视为 closed；默认 false（过渡兼容）。 */\n    strictImplGate?: boolean;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    /** 未声明 implGate 时是否视为 closed；默认 false（过渡兼容）。 */\n    strictImplGate?: boolean;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "strictImplGate",
-              "jsdoc": "未声明 implGate 时是否视为 closed；默认 false（过渡兼容）。",
+              "jsdoc": "上游数据契约（iPaaS / pagedata）是否已就绪；未声明时 fail-closed",
               "readable": true,
               "writable": false
             }
@@ -389,11 +349,11 @@
       "jsdoc": "变更类工具闸门评估参数",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 读取闸门状态时的配置项 */\n    gateOptions?: ReadPageDesignGateStateOptions;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: JsonParams;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: JsonParams;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 读取闸门状态时的配置项 */\n    gateOptions?: ReadPageDesignGateStateOptions;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: JsonParams;\n}>",
+            "typeText": "Readonly<{\n    /** 待评估的工具名（如 model_script / writepagefile / openpagedesign） */\n    toolName: string;\n    /** 页面摘要，用于读取闸门状态 */\n    summary: ProjectPageNodeSummary;\n    /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */\n    mode?: PageDesignRunMode;\n    /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */\n    toolArgs?: JsonParams;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -414,12 +374,6 @@
             {
               "name": "mode",
               "jsdoc": "运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "gateOptions",
-              "jsdoc": "读取闸门状态时的配置项",
               "readable": true,
               "writable": false
             },

@@ -1,6 +1,6 @@
 /**
  * @module @spark-appworks/spark-project-model:page/instantiate-project-node
- * 职责：配置页节点实例化（page / sub-page 统一 ConfigPageNode）。
+ * 职责：按 page 运行投影实例化 ConfigPageNode；子页面由蓝图业务类型和嵌套投影表达。
  * 边界：只根据运行交付 nodeKind 在 ConfigPageNode 与普通蓝图节点之间分流，不加载页面四文件。
  * AI用途：判断项目蓝图节点应实例化为配置页还是普通节点时，用本模块作为统一入口。
  */

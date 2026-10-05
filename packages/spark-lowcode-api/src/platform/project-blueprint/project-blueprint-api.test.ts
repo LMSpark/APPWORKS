@@ -25,7 +25,7 @@ function row(id: string, parentId: string, showAtNavigation: number): Readonly<R
     SysId: 'P1',
     FunName: id,
     conid: `content-${id}`,
-    conType: 'legacy',
+    versionId: id === 'ROOT' ? '' : 'rule=2;script=1;style=3',
     IsShowAtNav: showAtNavigation,
     FunOrderValue: id === 'ROOT' ? 0 : 1,
   }
@@ -47,6 +47,8 @@ describe('LowcodeProjectBlueprintApi', () => {
     })
     expect(JSON.stringify(http.requestConfig?.data)).not.toContain('IsShowAtNav')
     expect(records.map(node => node.id)).toEqual(['ROOT', 'REQUIREMENT'])
+    expect(records.map(node => node.formKey)).toEqual(['content-ROOT', 'content-REQUIREMENT'])
+    expect(records.map(node => node.fileVersionId)).toEqual(['', 'rule=2;script=1;style=3'])
     expect(records.find(node => node.id === 'REQUIREMENT')?.runtimeNavigationCandidate).toBe(false)
   })
 

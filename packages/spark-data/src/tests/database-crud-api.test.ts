@@ -31,4 +31,16 @@ describe('database CrudApi helper', () => {
     expect(postMock).toHaveBeenCalledWith('/data/Orders/records/get', { id: 1 }, { headers: {} })
     expect(getMock).not.toHaveBeenCalled()
   })
+
+  it('uses the HTTP client business entity as the create result', async () => {
+    const api = SparkData.createDatabaseCrudApi('Orders')
+    const mockClient = createRequest()
+    const postMock = vi.spyOn(mockClient, 'post').mockResolvedValue({ id: 2, name: 'Order 2' })
+    const service = new CrudService(api, mockClient)
+
+    const result = await service.create({ name: 'Order 2' })
+
+    expect(result).toEqual({ success: true, data: { id: 2, name: 'Order 2' } })
+    expect(postMock).toHaveBeenCalledWith('/data/Orders/records', { name: 'Order 2' }, { headers: {} })
+  })
 })

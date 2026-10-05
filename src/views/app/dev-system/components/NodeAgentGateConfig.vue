@@ -17,8 +17,6 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
     <el-form-item label="实现闸门" class="fi fi--wide">
       <el-select
         v-model="implGateModel"
-        clearable
-        placeholder="默认开放（过渡期）"
         @change="state.markBlueprintDirty"
       >
         <el-option label="关闭 closed" value="closed" />
@@ -49,9 +47,9 @@ const flags = useNodeKindFlags(props.state)
 const showGateFields = computed(() => flags.isPageNode.value || flags.isSubPageNode.value)
 
 const implGateModel = computed({
-  get: () => props.state.blueprintDraft.implGate ?? '',
-  set: (value: '' | 'closed' | 'open') => {
-    props.state.blueprintDraft.implGate = value === '' ? undefined : value
+  get: () => props.state.blueprintDraft.implGate,
+  set: (value: 'closed' | 'open') => {
+    props.state.blueprintDraft.implGate = value
   },
 })
 </script>

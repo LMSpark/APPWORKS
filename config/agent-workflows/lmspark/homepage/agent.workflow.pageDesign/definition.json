@@ -69,9 +69,6 @@
             },
             "preserveExistingInteractions": {
               "type": "boolean"
-            },
-            "strictImplGate": {
-              "type": "boolean"
             }
           },
           "required": [
@@ -240,14 +237,6 @@
       {
         "name": "preserveExistingInteractions",
         "title": "Preserve Existing Interactions",
-        "required": false,
-        "schema": {
-          "type": "boolean"
-        }
-      },
-      {
-        "name": "strictImplGate",
-        "title": "Strict Implementation Gate",
         "required": false,
         "schema": {
           "type": "boolean"

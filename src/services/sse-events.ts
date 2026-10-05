@@ -7,7 +7,7 @@
 /**
  * APP 公共 SSE 事件总线。
  *
- * 本文件只维护 lowcode `/api/sse/connect` 的单例连接、v4 envelope 解包和按事件名分发。
+ * 本文件只维护 lowcode `/api/sse/connect` 的单例连接、普通业务事件与 v4 SparkEnvelope 分流，以及按事件名分发。
  * 页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。
  */
 
@@ -109,7 +109,6 @@ type EventNormalizer<T> = (data: unknown) => T | null
 const eventSubscribers = new Map<string, Set<(data: unknown) => void>>()
 const envelopeEventSubscribers = new Map<string, Set<(event: AiAgentAppSseEvent) => void>>()
 const allEnvelopeEventSubscribers = new Set<(event: AiAgentAppSseEvent) => void>()
-const legacyProtocolWarnings = new Set<string>()
 
 let sharedSubscription: LowcodeRealtimeSubscription | null = null
 let sharedReadyPromise: Promise<void> | null = null
@@ -358,24 +357,12 @@ function totalSubscribers(): number {
   return count
 }
 
-// Envelope compatibility ----------------------------------------------------
+// Business payload and SparkEnvelope routing -------------------------------
 
 function unwrapServerEventPayload(eventType: string, payload: unknown): unknown {
-  if (!isRecord(payload)) {
-    warnLegacyProtocolOnce(eventType, 'plain')
-    return payload
-  }
+  if (!isRecord(payload) || !isEnvelopeLike(payload)) return payload
 
-  if (!isEnvelopeLike(payload)) {
-    warnLegacyProtocolOnce(eventType, 'plain')
-    return payload
-  }
-
-  const protocolVersion = payload['protocolVersion']
-  if (protocolVersion !== 4) {
-    warnLegacyProtocolOnce(eventType, typeof protocolVersion === 'number' ? `v${protocolVersion}` : 'legacy')
-  }
-
+  assertCurrentEnvelopeProtocol(payload)
   validateEnvelopeEventName(eventType, payload)
 
   if (payload['ok'] === true) {
@@ -410,6 +397,7 @@ function normalizeServerEnvelopeEvent(
     }
   }
 
+  assertCurrentEnvelopeProtocol(payload)
   validateEnvelopeEventName(eventType, payload)
   const protocolVersion = payload['protocolVersion']
   const ok = payload['ok'] === true
@@ -437,6 +425,12 @@ function isEnvelopeLike(payload: Record<string, unknown>): boolean {
   )
 }
 
+function assertCurrentEnvelopeProtocol(payload: Record<string, unknown>): void {
+  if (payload['protocolVersion'] !== 4) {
+    throw new Error(`Unsupported SSE envelope protocol version: ${String(payload['protocolVersion'])}`)
+  }
+}
+
 function validateEnvelopeEventName(eventType: string, payload: Record<string, unknown>): void {
   const event = payload['event']
   if (!isRecord(event)) return
@@ -457,13 +451,6 @@ function readEnvelopeErrorMessage(payload: Record<string, unknown>): string {
   return typeof error?.['message'] === 'string' && error['message'].trim() !== ''
     ? error['message']
     : 'SSE server event failed'
-}
-
-function warnLegacyProtocolOnce(eventType: string, protocol: string): void {
-  const key = `${eventType}:${protocol}`
-  if (legacyProtocolWarnings.has(key)) return
-  legacyProtocolWarnings.add(key)
-  logger.warn('收到旧版 SSE 事件载荷，已走兼容解包路径', { eventType, protocol })
 }
 
 // Typed event normalization -------------------------------------------------

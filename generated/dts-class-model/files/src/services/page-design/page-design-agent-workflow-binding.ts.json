@@ -48,9 +48,6 @@
         },
         "preserveExistingInteractions": {
           "type": "boolean"
-        },
-        "strictImplGate": {
-          "type": "boolean"
         }
       },
       "required": [
@@ -111,14 +108,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:24:32.425Z",
+  "generatedAt": "2026-08-10T13:19:33.169Z",
   "models": {
     "PageDesignRunInput": {
       "name": "PageDesignRunInput",
       "jsdoc": "Page Design Run Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** description 字段。 */\n    description: string;\n    /** readPlanningProjection 的 effectiveDescription；runner 必填。 */\n    effectiveDescription: string;\n    /** 项目根 path 段 id；用于 systemPrompt 给出 concrete /project[id] 示例。 */\n    projectId?: string;\n    /** planning Title 字段。 */\n    planningTitle?: string;\n    /** planning Path 路径。 */\n    planningPath?: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n    /** 未声明 implGate 时 fail-fast；生产 runner 建议 true。 */\n    strictImplGate?: boolean;\n}",
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** description 字段。 */\n    description: string;\n    /** readPlanningProjection 的 effectiveDescription；runner 必填。 */\n    effectiveDescription: string;\n    /** 项目根 path 段 id；用于 systemPrompt 给出 concrete /project[id] 示例。 */\n    projectId?: string;\n    /** planning Title 字段。 */\n    planningTitle?: string;\n    /** planning Path 路径。 */\n    planningPath?: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -172,12 +169,6 @@
             {
               "name": "preserveExistingInteractions",
               "jsdoc": "preserve Existing Interactions 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "strictImplGate",
-              "jsdoc": "未声明 implGate 时 fail-fast；生产 runner 建议 true。",
               "readable": true,
               "writable": false
             }

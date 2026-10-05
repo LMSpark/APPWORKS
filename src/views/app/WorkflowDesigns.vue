@@ -4493,8 +4493,7 @@ function readPrimaryBusinessNodeModel(data: unknown): Record<string, unknown> | 
   if (!isJsonRecord(data)) return null
   const models = data['models']
   if (Array.isArray(models) && isJsonRecord(models[0])) return models[0]
-  const legacyModel = data['model']
-  return isJsonRecord(legacyModel) ? legacyModel : null
+  return null
 }
 
 function ensurePrimaryBusinessNodeModel(data: Record<string, unknown>, nodeId: string): Record<string, unknown> {
@@ -4504,7 +4503,6 @@ function ensurePrimaryBusinessNodeModel(data: Record<string, unknown>, nodeId: s
   if (readTextField(primary, 'sourceRef').length === 0) primary['sourceRef'] = '$'
   models[0] = primary
   data['models'] = models
-  delete data['model']
   return primary
 }
 

@@ -29,20 +29,24 @@ describe('useColorScheme scoped storage', () => {
     expect(scheme.stylePresetIndex.value).toBe(0)
   }, 20000)
 
-  it('copies legacy global color scheme into the first scoped key', async () => {
-    const legacy = { primaryColor: '#14b8a6', navIndex: 6, styleIndex: 3 }
-    localStorage.setItem('spark-color-scheme', JSON.stringify(legacy))
+  it('does not inherit global color scheme into a scoped key', async () => {
+    const globalState = { primaryColor: '#14b8a6', navIndex: 6, styleIndex: 3 }
+    localStorage.setItem('spark-color-scheme', JSON.stringify(globalState))
 
     const { setColorSchemeStorageScope, useColorScheme } = await import('../navigation/useColorScheme')
     const scheme = useColorScheme()
 
     setColorSchemeStorageScope('tenant:lmspark:project:homepage')
 
-    expect(scheme.primaryColor.value).toBe('#14b8a6')
-    expect(scheme.navPresetIndex.value).toBe(6)
-    expect(scheme.stylePresetIndex.value).toBe(3)
-    expect(localStorage.getItem('spark-color-scheme:tenant:lmspark:project:homepage')).toBe(JSON.stringify(legacy))
-    expect(localStorage.getItem('spark-color-scheme')).toBe(JSON.stringify(legacy))
+    expect(scheme.primaryColor.value).toBe('#409eff')
+    expect(scheme.navPresetIndex.value).toBe(0)
+    expect(scheme.stylePresetIndex.value).toBe(0)
+    expect(localStorage.getItem('spark-color-scheme:tenant:lmspark:project:homepage')).toBe(JSON.stringify({
+      primaryColor: '#409eff',
+      navIndex: 0,
+      styleIndex: 0,
+    }))
+    expect(localStorage.getItem('spark-color-scheme')).toBe(JSON.stringify(globalState))
   }, 20000)
 
   it('refreshes CSS variables when switching scopes', async () => {

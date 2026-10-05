@@ -25,7 +25,6 @@ export type { LoadOptions, JsonLoadOptions, TextLoadOptions, TransformLoadOption
 export type {
 	RequestConfig,
 	Method,
-	ApiResponse,
 	ApiEnvelope,
 	ApiEnvelopeError,
 	FileLoadOptions,

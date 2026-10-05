@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Offline verification for project-model convergence (domain-model removal,
- * planningStatus removal, nested sub-page migration).
+ * Offline verification for the current project-model contract and page-design gates.
  */
 
 import { spawnSync } from 'node:child_process'

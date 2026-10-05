@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-project-model/src/page/instantiate-project-node.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "page/instantiate-project-node",
-    "jsdoc": "@module @spark-appworks/spark-project-model:page/instantiate-project-node\n职责：配置页节点实例化（page / sub-page 统一 ConfigPageNode）。\n边界：只根据运行交付 nodeKind 在 ConfigPageNode 与普通蓝图节点之间分流，不加载页面四文件。\nAI用途：判断项目蓝图节点应实例化为配置页还是普通节点时，用本模块作为统一入口。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/instantiate-project-node\n职责：按 page 运行投影实例化 ConfigPageNode；子页面由蓝图业务类型和嵌套投影表达。\n边界：只根据运行交付 nodeKind 在 ConfigPageNode 与普通蓝图节点之间分流，不加载页面四文件。\nAI用途：判断项目蓝图节点应实例化为配置页还是普通节点时，用本模块作为统一入口。",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-09T22:37:59.551Z",
+  "generatedAt": "2026-08-10T13:39:25.518Z",
   "models": {}
 }

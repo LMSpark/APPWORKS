@@ -56,7 +56,6 @@ const pageDesignParamsSchema = {
     mode: { type: 'string', enum: ['create', 'update', 'fix'] },
     allowedOperations: allowedOperationsSchema,
     preserveExistingInteractions: booleanSchema,
-    strictImplGate: booleanSchema,
   },
   required: ['pageId', 'description', 'effectiveDescription'],
   additionalProperties: false,
@@ -420,7 +419,6 @@ function createPageDesignWorkflowDesign() {
       variable('mode', 'Run Mode', false, { type: 'string', enum: ['create', 'update', 'fix'] }),
       variable('allowedOperations', 'Allowed Operations', false, allowedOperationsSchema),
       variable('preserveExistingInteractions', 'Preserve Existing Interactions', false, booleanSchema),
-      variable('strictImplGate', 'Strict Implementation Gate', false, booleanSchema),
     ],
     workflowCapability: {
       id: 'page-design.delivery',

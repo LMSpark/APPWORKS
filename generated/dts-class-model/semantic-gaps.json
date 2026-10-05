@@ -1,5 +1,5 @@
 {
-  "gapCount": 1469,
+  "gapCount": 1468,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -10765,24 +10765,12 @@
     {
       "kind": "attribute",
       "className": "LowcodeProjectBlueprintRecord",
-      "memberName": "legacyContentId",
+      "memberName": "formKey",
       "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeProjectBlueprintRecord.legacyContentId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "LowcodeProjectBlueprintRecord.formKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "declarationLine": 14,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "LowcodeProjectBlueprintRecord",
-      "memberName": "legacyContentType",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeProjectBlueprintRecord.legacyContentType 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
-      "declarationLine": 15,
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "declarationKind": "interface"
     },
@@ -10794,7 +10782,7 @@
       "chainBreak": "LowcodeProjectBlueprintRecord.runtimeTarget 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
-      "declarationLine": 16,
+      "declarationLine": 15,
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "declarationKind": "interface"
     },
@@ -10806,7 +10794,7 @@
       "chainBreak": "LowcodeProjectBlueprintRecord.runtimeNavigationCandidate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
-      "declarationLine": 17,
+      "declarationLine": 16,
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "declarationKind": "interface"
     },
@@ -10818,7 +10806,7 @@
       "chainBreak": "LowcodeProjectBlueprintRecord.order 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
-      "declarationLine": 18,
+      "declarationLine": 17,
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "declarationKind": "interface"
     },
@@ -10830,7 +10818,7 @@
       "chainBreak": "LowcodeProjectBlueprintRecord.source 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
-      "declarationLine": 19,
+      "declarationLine": 18,
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "declarationKind": "interface"
     },

@@ -13,7 +13,6 @@
       "Method",
       "RequestConfig",
       "HttpResponse",
-      "ApiResponse",
       "ApiEnvelope",
       "ApiEnvelopeError",
       "ApiEnvelopeContext",
@@ -140,42 +139,13 @@
       ],
       "additionalProperties": false
     },
-    "ApiResponse": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ApiResponse",
-      "properties": {
-        "code": {
-          "type": "number"
-        },
-        "message": {
-          "type": "string"
-        },
-        "data": {
-          "type": "object",
-          "title": "T"
-        },
-        "timestamp": {
-          "type": "string"
-        },
-        "traceId": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "code",
-        "message",
-        "data"
-      ],
-      "additionalProperties": false
-    },
     "ApiEnvelope": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ApiEnvelope",
       "properties": {
         "protocolVersion": {
-          "type": "number"
+          "const": 4
         },
         "ok": {
           "type": "boolean"
@@ -197,9 +167,6 @@
             }
           ]
         },
-        "requestId": {
-          "type": "string"
-        },
         "context": {
           "$ref": "#/$defs/ApiEnvelopeContext"
         },
@@ -208,6 +175,7 @@
         }
       },
       "required": [
+        "protocolVersion",
         "ok"
       ],
       "additionalProperties": false
@@ -711,7 +679,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.066Z",
+  "generatedAt": "2026-08-10T13:43:18.696Z",
   "models": {
     "Method": {
       "name": "Method",
@@ -894,61 +862,19 @@
         }
       }
     },
-    "ApiResponse": {
-      "name": "ApiResponse",
-      "jsdoc": "旧版标准业务 API 响应（{ code, message, data } 格式）",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 稳定错误码或诊断码。 */\n    code: number;\n    /** 用户可读消息。 */\n    message: string;\n    /** 业务数据载荷。 */\n    data: T;\n    /** 事件时间戳。 */\n    timestamp?: string;\n    /** trace Id 标识。 */\n    traceId?: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "code",
-              "jsdoc": "稳定错误码或诊断码。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "message",
-              "jsdoc": "用户可读消息。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "data",
-              "jsdoc": "业务数据载荷。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "timestamp",
-              "jsdoc": "事件时间戳。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "traceId",
-              "jsdoc": "trace Id 标识。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "ApiEnvelope": {
       "name": "ApiEnvelope",
-      "jsdoc": "SPARK AI Server 统一 API envelope",
+      "jsdoc": "SPARK v4 API envelope。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** protocol Version 字段。 */\n    protocolVersion?: number;\n    /** ok 字段。 */\n    ok: boolean;\n    /** 业务数据载荷。 */\n    data?: T | null;\n    /** 错误对象或错误信息。 */\n    error?: ApiEnvelopeError | null;\n    /** v3 legacy field; v4 uses context.requestId. */\n    requestId?: string;\n    /** 运行上下文。 */\n    context?: ApiEnvelopeContext;\n    /** event 字段。 */\n    event?: ApiEnvelopeEvent;\n}",
+        "declarationTypeText": "{\n    /** protocol Version 字段。 */\n    protocolVersion: 4;\n    /** ok 字段。 */\n    ok: boolean;\n    /** 业务数据载荷。 */\n    data?: T | null;\n    /** 错误对象或错误信息。 */\n    error?: ApiEnvelopeError | null;\n    /** 运行上下文。 */\n    context?: ApiEnvelopeContext;\n    /** event 字段。 */\n    event?: ApiEnvelopeEvent;\n}",
         "members": {
           "attributes": [
             {
               "name": "protocolVersion",
               "jsdoc": "protocol Version 字段。",
               "readable": true,
-              "writable": false
+              "writable": true
             },
             {
               "name": "ok",
@@ -965,12 +891,6 @@
             {
               "name": "error",
               "jsdoc": "错误对象或错误信息。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "requestId",
-              "jsdoc": "v3 legacy field; v4 uses context.requestId.",
               "readable": true,
               "writable": false
             },

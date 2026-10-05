@@ -162,7 +162,7 @@ function runtimeTargetProjection(
       : /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(target)
         ? 'external'
         : 'route'
-  const formKey = (authorizedFormKey ?? record.legacyContentId).trim()
+  const formKey = (authorizedFormKey ?? record.formKey).trim()
   if (targetKind === 'vue') {
     const resource = target.slice(4).replace(/[?#].*$/, '').replace(/^\/+/, '')
     if (!resource || resource.endsWith('.vue') || resource.includes('\\') || resource.includes('//')) {

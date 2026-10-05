@@ -65,7 +65,6 @@ export {
 
 export type {
   ApiEnvelope,
-  ApiResponse,
   ApiEnvelopeContext,
   ApiEnvelopeError,
   ApiEnvelopeEvent,
@@ -149,4 +148,3 @@ export {
   sparkFindNearestProviderByKeys,
   sparkConsumeFromProvider,
 } from './capability/helpers.js'
-

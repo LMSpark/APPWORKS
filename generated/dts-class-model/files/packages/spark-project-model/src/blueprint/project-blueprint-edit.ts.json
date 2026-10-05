@@ -74,7 +74,10 @@
           "type": "object",
           "title": "PermissionMode"
         },
-        "implGate": true,
+        "implGate": {
+          "type": "object",
+          "title": "NonNullable<ProjectBlueprintTreeNodeData['implGate']>"
+        },
         "upstreamContractsSatisfied": {
           "type": "boolean"
         }
@@ -95,7 +98,9 @@
         "hidden",
         "disabled",
         "refId",
-        "permissionMode"
+        "permissionMode",
+        "implGate",
+        "upstreamContractsSatisfied"
       ],
       "additionalProperties": false
     },
@@ -254,14 +259,14 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T12:08:39.009Z",
+  "generatedAt": "2026-08-10T13:19:33.174Z",
   "models": {
     "BlueprintNodeDraftNode": {
       "name": "BlueprintNodeDraftNode",
       "jsdoc": "蓝图节点表单草稿字段；可编辑字段由节点 class 持有，草稿仅在表单边界即时生成。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id: string;\n    title: string;\n    /** 蓝图业务类型；与运行交付投影 nodeKind 相互独立。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    icon: string;\n    nodeKind: RuntimeNavigationItemKind;\n    dividerAfter: boolean;\n    description: string;\n    planningAttachmentRef: string;\n    path: string;\n    linkTarget: NonNullable<ProjectBlueprintTreeNodeData['linkTarget']>;\n    childPlacement: string;\n    order: number;\n    hidden: boolean;\n    disabled: boolean;\n    refId: string;\n    permissionMode: PermissionMode;\n    implGate?: ProjectBlueprintTreeNodeData['implGate'];\n    upstreamContractsSatisfied?: boolean;\n}",
+        "declarationTypeText": "{\n    id: string;\n    title: string;\n    /** 蓝图业务类型；与运行交付投影 nodeKind 相互独立。 */\n    blueprintKind: ProjectBlueprintNodeKind;\n    icon: string;\n    nodeKind: RuntimeNavigationItemKind;\n    dividerAfter: boolean;\n    description: string;\n    planningAttachmentRef: string;\n    path: string;\n    linkTarget: NonNullable<ProjectBlueprintTreeNodeData['linkTarget']>;\n    childPlacement: string;\n    order: number;\n    hidden: boolean;\n    disabled: boolean;\n    refId: string;\n    permissionMode: PermissionMode;\n    implGate: NonNullable<ProjectBlueprintTreeNodeData['implGate']>;\n    upstreamContractsSatisfied: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -348,12 +353,12 @@
             {
               "name": "implGate",
               "readable": true,
-              "writable": false
+              "writable": true
             },
             {
               "name": "upstreamContractsSatisfied",
               "readable": true,
-              "writable": false
+              "writable": true
             }
           ]
         }

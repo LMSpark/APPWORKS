@@ -21,7 +21,7 @@ export function formatProjectDescriptionContext(context: readonly ProjectDescrip
 
 export type ProjectBlueprintNodeFamily = 'module' | 'config-page' | 'system-page' | 'system-action' | 'link' | 'ref'
 
-/** pageDesign 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */
+/** pageDesign 实现放行闸门；缺省为 closed。 */
 export type ProjectBlueprintImplGate = 'closed' | 'open'
 
 /** Project Description Context 的运行上下文。 */
@@ -90,9 +90,9 @@ export type ProjectBlueprintTreeNodeData = {
   refProjectId?: string | undefined
   /** ref 引用是否已失效。 */
   refBroken?: boolean | undefined
-  /** pageDesign 实现放行闸门；缺省过渡期为 open。 */
+  /** pageDesign 实现放行闸门；缺省为 closed。 */
   implGate?: ProjectBlueprintImplGate | undefined
-  /** 上游 iPaaS / 契约就绪；缺省 true。 */
+  /** 上游 iPaaS / 契约就绪；缺省 false。 */
   upstreamContractsSatisfied?: boolean | undefined
 }
 
@@ -199,9 +199,9 @@ export type ProjectPageNodeSummary = Record<string, unknown> & {
   descriptionContext: ProjectDescriptionContext[]
   /** 聚合后的有效描述文本，供 AI 理解页面意图。 */
   effectiveDescription: string
-  /** 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */
+  /** 实现放行闸门；缺省为 closed。 */
   implGate?: ProjectBlueprintImplGate
-  /** 上游 iPaaS / 契约就绪；缺省 true。 */
+  /** 上游 iPaaS / 契约就绪；缺省 false。 */
   upstreamContractsSatisfied?: boolean
   /** 页面图标名。 */
   icon?: string
@@ -281,7 +281,7 @@ toNodeData(): ProjectBlueprintTreeNodeData { return cloneProjectBlueprintTreeNod
     if (!next.dividerAfter) delete next.dividerAfter
     if (next.nodeKind !== 'ref' || !next.refId) delete next.refId
     if (!next.implGate) delete next.implGate
-    if (next.upstreamContractsSatisfied !== false) delete next.upstreamContractsSatisfied
+    if (typeof next.upstreamContractsSatisfied !== 'boolean') delete next.upstreamContractsSatisfied
     this.#node = next
   }
 

@@ -1845,9 +1845,12 @@ function normalizeWorkflowDesignLineEndpoint(
   endpoint: WorkflowDesignLineEndpoint,
 ): WorkflowDesignLineEndpoint {
   const dock = endpoint.dock
+  if (dock !== undefined && (!Number.isInteger(dock) || dock < 0 || dock > 12)) {
+    throw new Error(`Workflow line dock must be an integer between 0 and 12: ${String(dock)}`)
+  }
   return {
     ...endpoint,
-    dock: typeof dock === 'number' && Number.isInteger(dock) && dock >= 0 && dock <= 12 ? dock : 0,
+    dock: dock ?? 0,
   }
 }
 

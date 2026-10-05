@@ -148,7 +148,6 @@ function createPageDesignPromptInput(input: JsonParams): PageDesignRunInput {
   const mode = readOptionalPageDesignRunMode(input, 'mode')
   const allowedOperations = readPageDesignAllowedOperations(input['allowedOperations'])
   const preserveExistingInteractions = readOptionalBooleanInput(input, 'preserveExistingInteractions')
-  const strictImplGate = readOptionalBooleanInput(input, 'strictImplGate')
   if (projectId !== undefined) promptInput.projectId = projectId
   if (planningTitle !== undefined) promptInput.planningTitle = planningTitle
   if (planningPath !== undefined) promptInput.planningPath = planningPath
@@ -157,7 +156,6 @@ function createPageDesignPromptInput(input: JsonParams): PageDesignRunInput {
   if (preserveExistingInteractions !== undefined) {
     promptInput.preserveExistingInteractions = preserveExistingInteractions
   }
-  if (strictImplGate !== undefined) promptInput.strictImplGate = strictImplGate
   return promptInput
 }
 

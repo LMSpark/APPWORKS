@@ -601,7 +601,7 @@ describe('workflow design helpers', () => {
     expect(workflowDesignLineControlPoints(line)).toEqual([{ x: 120, y: 180 }])
   })
 
-  it('normalizes legacy line docks and visual defaults across nested graphs', () => {
+  it('rejects invalid line docks and materializes current optional defaults across nested graphs', () => {
     const design = createDesign()
     const rootLine = design.workflow.graph.lines[0]
     if (rootLine === undefined) throw new Error('missing root line')
@@ -617,6 +617,9 @@ describe('workflow design helpers', () => {
       },
     }
 
+    expect(() => normalizeWorkflowDesignLineState(design)).toThrow(/integer between 0 and 12/u)
+
+    delete rootLine.from.dock
     normalizeWorkflowDesignLineState(design)
 
     expect(rootLine.from.dock).toBe(0)

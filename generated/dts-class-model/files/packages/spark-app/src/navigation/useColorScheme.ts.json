@@ -225,7 +225,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.351Z",
+  "generatedAt": "2026-08-10T13:24:23.505Z",
   "models": {
     "PrimaryPreset": {
       "name": "PrimaryPreset",

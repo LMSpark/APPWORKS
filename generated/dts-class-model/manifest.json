@@ -9857,8 +9857,8 @@
         "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-kinds.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "blueprint/project-blueprint-kinds",
-        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-kinds\n职责：按运行交付 nodeKind 实例化非配置页蓝图节点（统一 `ProjectBlueprintNode`，family 由 nodeKind 派生）。\n边界：不处理 page/sub-page 配置页；配置页由 instantiate-project-node 路由到 ConfigPageNode。\nAI用途：扩展运行交付 nodeKind 或排查非配置页蓝图节点实例化时，用本模块确认默认构造路径。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-kinds\n职责：按运行交付 nodeKind 实例化非配置页蓝图节点（统一 `ProjectBlueprintNode`，family 由 nodeKind 派生）。\n边界：不处理 page 运行投影；配置页由 instantiate-project-node 路由到 ConfigPageNode。\nAI用途：扩展运行交付 nodeKind 或排查非配置页蓝图节点实例化时，用本模块确认默认构造路径。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -9895,8 +9895,8 @@
         "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "blueprint/project-blueprint-tree",
-        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-tree\n职责：蓝图树/扁平转换、pageId 解析与配置页判定纯函数。\n边界：只表达项目/页面配置领域模型；不渲染组件，不绕过 pageDesign 四文件链路。\nAI用途：树操作、页面摘要或 legacy `sub-page` 迁移判定时使用本模块。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-tree\n职责：蓝图树/扁平转换、pageId 解析与配置页判定纯函数。\n边界：只表达项目/页面配置领域模型；不渲染组件，不绕过 pageDesign 四文件链路。\nAI用途：树操作、页面摘要或子页面投影判定时使用本模块。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -10108,7 +10108,7 @@
         "sourceFile": "packages/spark-project-model/src/page/instantiate-project-node.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "page/instantiate-project-node",
-        "jsdoc": "@module @spark-appworks/spark-project-model:page/instantiate-project-node\n职责：配置页节点实例化（page / sub-page 统一 ConfigPageNode）。\n边界：只根据运行交付 nodeKind 在 ConfigPageNode 与普通蓝图节点之间分流，不加载页面四文件。\nAI用途：判断项目蓝图节点应实例化为配置页还是普通节点时，用本模块作为统一入口。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:page/instantiate-project-node\n职责：按 page 运行投影实例化 ConfigPageNode；子页面由蓝图业务类型和嵌套投影表达。\n边界：只根据运行交付 nodeKind 在 ConfigPageNode 与普通蓝图节点之间分流，不加载页面四文件。\nAI用途：判断项目蓝图节点应实例化为配置页还是普通节点时，用本模块作为统一入口。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -10445,7 +10445,6 @@
           "Method",
           "RequestConfig",
           "HttpResponse",
-          "ApiResponse",
           "ApiEnvelope",
           "ApiEnvelopeError",
           "ApiEnvelopeContext",
@@ -11152,7 +11151,6 @@
           "PageDesignRunContext",
           "PageDesignRunMode",
           "PageDesignGateState",
-          "ReadPageDesignGateStateOptions",
           "PageDesignGateValidationResult",
           "EvaluatePageDesignMutationToolGateOptions",
           "EvaluatePageDesignScriptOperationGateOptions"
@@ -11353,7 +11351,7 @@
         "sourceFile": "src/services/sse-events.ts",
         "packageName": "app",
         "modulePath": "services/sse-events",
-        "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、v4 envelope 解包和按事件名分发。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
+        "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、普通业务事件与 v4 SparkEnvelope 分流，以及按事件名分发。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FileChangeEvent",
@@ -12810,10 +12808,6 @@
     "ApiObjectValidationFinding": {
       "sourcePath": "packages/spark-ai/src/class-model/metadata/validate-api-object-metadata.ts",
       "file": "files/packages/spark-ai/src/class-model/metadata/validate-api-object-metadata.ts.json"
-    },
-    "ApiResponse": {
-      "sourcePath": "packages/spark-utils/src/http/types.ts",
-      "file": "files/packages/spark-utils/src/http/types.ts.json"
     },
     "AppConfig": {
       "sourcePath": "packages/spark-app/src/types.ts",
@@ -15654,10 +15648,6 @@
     "RDropdownProps": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/RendererDropdown.props.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/RendererDropdown.props.ts.json"
-    },
-    "ReadPageDesignGateStateOptions": {
-      "sourcePath": "src/services/page-design/page-design-gates.ts",
-      "file": "files/src/services/page-design/page-design-gates.ts.json"
     },
     "ReasoningDisplayItem": {
       "sourcePath": "packages/spark-component/src/ai/types.ts",

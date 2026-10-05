@@ -140,16 +140,10 @@ export type PageDesignGateState = Readonly<{
   pageId: string
   /** effectiveDescription 非空即视为策划就绪。 */
   planningReady: boolean
-  /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时由 strictImplGate 决定默认值 */
+  /** 实现闸门：closed=人工尚未放行 / open=已放行可执行；未声明时 fail-closed */
   implGate: ProjectBlueprintImplGate
-  /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时默认 true（过渡兼容） */
+  /** 上游数据契约（iPaaS / pagedata）是否已就绪；未声明时 fail-closed */
   upstreamContractsSatisfied: boolean
-}>
-
-/** Read Page Design Gate State Options 的调用配置。 */
-export type ReadPageDesignGateStateOptions = Readonly<{
-  /** 未声明 implGate 时是否视为 closed；默认 false（过渡兼容）。 */
-  strictImplGate?: boolean
 }>
 
 /** 闸门校验结果：ok=true 放行，ok=false 附带 code / reason / fix 供诊断 */
@@ -172,10 +166,9 @@ const MUTATION_TOOL_NAMES = new Set([
 
 export function readPageDesignGateState(
   summary: ProjectPageNodeSummary,
-  options: ReadPageDesignGateStateOptions = {},
 ): PageDesignGateState {
   const planningReady = summary.effectiveDescription.trim().length > 0
-  const implGate = readImplGate(summary, options.strictImplGate === true)
+  const implGate = readImplGate(summary)
   const upstreamContractsSatisfied = readUpstreamContractsSatisfied(summary)
 
   return {
@@ -223,9 +216,8 @@ export function validatePageDesignRunGate(
 export function assertPageDesignRunGateAllowed(
   summary: ProjectPageNodeSummary,
   mode: PageDesignRunMode = 'update',
-  options: ReadPageDesignGateStateOptions = {},
 ): void {
-  const state = readPageDesignGateState(summary, options)
+  const state = readPageDesignGateState(summary)
   const result = validatePageDesignRunGate(state, mode)
   if (result.ok) return
   throw new Error(formatPageDesignGateFailure(result))
@@ -251,8 +243,6 @@ export type EvaluatePageDesignMutationToolGateOptions = Readonly<{
   summary: ProjectPageNodeSummary
   /** 运行模式：create=首次创建 / update=迭代更新 / fix=修复，当前仅影响语义标注 */
   mode?: PageDesignRunMode
-  /** 读取闸门状态时的配置项 */
-  gateOptions?: ReadPageDesignGateStateOptions
   /** 操作域白名单，非空时对 model_script 做 marker 硬拦截 */
   allowedOperations?: PageDesignAllowedOperations
   /** 工具调用参数，用于提取 model_script 的 script 体做 marker 扫描 */
@@ -265,7 +255,7 @@ export function evaluatePageDesignMutationToolGate(
   if (!isPageDesignMutationTool(options.toolName)) {
     return { ok: true }
   }
-  const state = readPageDesignGateState(options.summary, options.gateOptions)
+  const state = readPageDesignGateState(options.summary)
   const runGate = validatePageDesignRunGate(state, options.mode ?? 'update')
   if (!runGate.ok) return runGate
   return evaluatePageDesignScriptOperationGate({
@@ -313,17 +303,17 @@ export function isPageDesignMutationTool(toolName: string): boolean {
   return MUTATION_TOOL_NAMES.has(normalizeToolName(toolName))
 }
 
-function readImplGate(summary: ProjectPageNodeSummary, strictImplGate: boolean): ProjectBlueprintImplGate {
+function readImplGate(summary: ProjectPageNodeSummary): ProjectBlueprintImplGate {
   if (summary.implGate === 'closed' || summary.implGate === 'open') {
     return summary.implGate
   }
-  return strictImplGate ? 'closed' : 'open'
+  return 'closed'
 }
 
 function readUpstreamContractsSatisfied(summary: ProjectPageNodeSummary): boolean {
   const value = summary.upstreamContractsSatisfied
   if (typeof value === 'boolean') return value
-  return true
+  return false
 }
 
 function readModelScriptBody(args: JsonParams | undefined): string | undefined {

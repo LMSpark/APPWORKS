@@ -34,7 +34,7 @@ describe('ThemeService scoped storage', () => {
     })
   })
 
-  it('copies legacy global theme mode into the first scoped key', () => {
+  it('does not inherit global theme mode into a scoped key', () => {
     localStorage.setItem('spark-theme-mode', 'dark')
 
     scope.run(() => {
@@ -42,8 +42,8 @@ describe('ThemeService scoped storage', () => {
 
       theme.setStorageScope('tenant:lmspark:project:homepage')
 
-      expect(theme.mode).toBe('dark')
-      expect(localStorage.getItem('spark-theme-mode:tenant:lmspark:project:homepage')).toBe('dark')
+      expect(theme.mode).toBe('light')
+      expect(localStorage.getItem('spark-theme-mode:tenant:lmspark:project:homepage')).toBe('light')
       expect(localStorage.getItem('spark-theme-mode')).toBe('dark')
     })
   })

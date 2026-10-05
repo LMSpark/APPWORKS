@@ -475,14 +475,14 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:44:36.939Z",
+  "generatedAt": "2026-08-10T13:44:17.475Z",
   "models": {
     "TreeManagerOptions": {
       "name": "TreeManagerOptions",
       "jsdoc": "Tree Manager Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 树结构配置：idField / parentIdField / textField / treeMode / lazy 等。 */\n    config: TreeConfig;\n    /** 树 HTTP 接口族配置（children / path / subtree / move / nested / nestedSearch）。 */\n    api?: TreeApi;\n    /** 初始扁平节点数组（直接写入缓存，跳过 HTTP 拉取）。 */\n    initialNodes?: FlatTreeNode[];\n    /** HTTP 客户端（优先使用外部注入实例共享拦截器/认证；否则懒初始化独立实例）。 */\n    httpClient?: HttpClientBase;\n    /** 端点上下文提供者（tenantId / projectId 等），用于 scoped URL 归一化。 */\n    endpointContextProvider?: () => Record<string, unknown>;\n}",
+        "declarationTypeText": "{\n    /** 树结构配置：idField / parentIdField / textField / treeMode / lazy 等。 */\n    config: TreeConfig;\n    /** 树 HTTP 接口族配置（children / path / subtree / move / nested / nestedSearch）。 */\n    api?: TreeApi;\n    /** 初始扁平节点数组（直接写入缓存，跳过 HTTP 拉取）。 */\n    initialNodes?: FlatTreeNode[];\n    /** HTTP 客户端；远端树操作必须注入，以共享 DataTable 的认证、租户与拦截器。 */\n    httpClient?: HttpClientBase;\n    /** 端点上下文提供者（tenantId / projectId 等），用于 scoped URL 归一化。 */\n    endpointContextProvider?: () => Record<string, unknown>;\n}",
         "members": {
           "attributes": [
             {
@@ -505,7 +505,7 @@
             },
             {
               "name": "httpClient",
-              "jsdoc": "HTTP 客户端（优先使用外部注入实例共享拦截器/认证；否则懒初始化独立实例）。",
+              "jsdoc": "HTTP 客户端；远端树操作必须注入，以共享 DataTable 的认证、租户与拦截器。",
               "readable": true,
               "writable": false
             }

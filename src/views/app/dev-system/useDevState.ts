@@ -329,10 +329,10 @@ export function useDevState() {
     set refId(v: string) { const dto = project.blueprintDraft; if (dto) { dto.node.refId = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
     get permissionMode(): 'none' | 'masked' | 'invisible' { return readBlueprintDraft()?.node.permissionMode ?? 'masked' },
     set permissionMode(v: 'none' | 'masked' | 'invisible') { const dto = project.blueprintDraft; if (dto) { dto.node.permissionMode = v; project.applyBlueprintNodeEdit(dto); markBlueprintDirty() } },
-    get implGate(): ProjectModelDomain.ProjectBlueprintImplGate | undefined {
-      return readBlueprintDraft()?.node.implGate
+    get implGate(): ProjectModelDomain.ProjectBlueprintImplGate {
+      return readBlueprintDraft()?.node.implGate ?? 'closed'
     },
-    set implGate(v: ProjectModelDomain.ProjectBlueprintImplGate | undefined) {
+    set implGate(v: ProjectModelDomain.ProjectBlueprintImplGate) {
       const dto = project.blueprintDraft
       if (!dto) return
       dto.node.implGate = v
@@ -340,16 +340,12 @@ export function useDevState() {
       markBlueprintDirty()
     },
     get upstreamContractsSatisfied(): boolean {
-      return readBlueprintDraft()?.node.upstreamContractsSatisfied ?? true
+      return readBlueprintDraft()?.node.upstreamContractsSatisfied ?? false
     },
     set upstreamContractsSatisfied(v: boolean) {
       const dto = project.blueprintDraft
       if (!dto) return
-      if (v) {
-        delete dto.node.upstreamContractsSatisfied
-      } else {
-        dto.node.upstreamContractsSatisfied = false
-      }
+      dto.node.upstreamContractsSatisfied = v
       project.applyBlueprintNodeEdit(dto)
       markBlueprintDirty()
     },

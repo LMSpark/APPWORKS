@@ -2,7 +2,7 @@
  * @module @spark-appworks/spark-project-model:blueprint/project-blueprint-tree
  * 职责：蓝图树/扁平转换、pageId 解析与配置页判定纯函数。
  * 边界：只表达项目/页面配置领域模型；不渲染组件，不绕过 pageDesign 四文件链路。
- * AI用途：树操作、页面摘要或 legacy `sub-page` 迁移判定时使用本模块。
+ * AI用途：树操作、页面摘要或子页面投影判定时使用本模块。
  */
 import {
   deepClone,
@@ -28,17 +28,16 @@ export function normalizePageIdFromPath(path: string | undefined | null): string
   return path ? path.replace(/^\/+/, '').trim() : ''
 }
 
-export function isConfigNodeKind(kind: string | undefined | null): boolean {
+export function isConfigNodeKind(kind: RuntimeNavigationItemKind | undefined | null): boolean {
   const normalized = kind ?? 'page'
-  return normalized === 'page' || normalized === 'sub-page'
+  return normalized === 'page'
 }
 
-/** 嵌套配置页：无独立路由（legacy `sub-page` 在 normalize 时迁移为 page + hidden）。 */
+/** 嵌套配置页：运行投影为 page + hidden，且没有独立路由。 */
 export function isNestedConfigPageNode(
-  node: Pick<ProjectBlueprintTreeNodeData, 'path' | 'hidden'> & Readonly<{ nodeKind?: string | null | undefined }>,
+  node: Pick<ProjectBlueprintTreeNodeData, 'path' | 'hidden' | 'nodeKind'>,
 ): boolean {
   const kind = node.nodeKind ?? 'page'
-  if (isLegacySubPageKind(kind)) return true
   return kind === 'page' && node.hidden === true && normalizePageIdFromPath(node.path) === ''
 }
 
@@ -67,13 +66,11 @@ function inferBlueprintNodeDeliveryKind(node: ProjectBlueprintTreeNodeData, pare
 
 export function normalizeProjectBlueprintTreeNodeData(node: ProjectBlueprintTreeNodeData, parentPlacement?: string): ProjectBlueprintTreeNodeData {
   const cloned = deepClone(node)
+  if (Reflect.has(cloned, 'planningStatus')) {
+    throw new Error(`项目蓝图节点包含已移除字段 planningStatus: ${cloned.id}`)
+  }
   cloned.nodeKind = inferBlueprintNodeDeliveryKind(cloned, parentPlacement)
-  if (isLegacySubPageKind(cloned.nodeKind)) {
-    cloned.nodeKind = 'page'
-    cloned.hidden = true
-    delete cloned.path
-    delete cloned.linkTarget
-  } else if (cloned.nodeKind === 'link') {
+  if (cloned.nodeKind === 'link') {
     if (!isNavigationLinkTarget(cloned.linkTarget)) {
       cloned.linkTarget = 'iframe'
     }
@@ -83,12 +80,7 @@ export function normalizeProjectBlueprintTreeNodeData(node: ProjectBlueprintTree
   if (Array.isArray(cloned.children)) {
     cloned.children = cloned.children.map(child => normalizeProjectBlueprintTreeNodeData(child, cloned.childPlacement))
   }
-  Reflect.deleteProperty(cloned, 'planningStatus')
   return cloned
-}
-
-function isLegacySubPageKind(kind: unknown): boolean {
-  return kind === 'sub-page'
 }
 
 function normalizeRootNavigationPlacement(value: unknown): NavigationRootPlacement {
@@ -195,12 +187,11 @@ export function buildBlueprintTree(children: ProjectBlueprintTreeNodeData[], opt
   })
 }
 
-function isPageLikeKind(kind: RuntimeNavigationItemKind | 'sub-page'): boolean {
+function isPageLikeKind(kind: RuntimeNavigationItemKind): boolean {
   return kind === 'page'
     || kind === 'system-page'
     || kind === 'system-action'
     || kind === 'link'
-    || kind === 'sub-page'
 }
 
 export function findNodeById(nodes: readonly ProjectBlueprintTreeNodeData[], targetId: string): ProjectBlueprintTreeNodeData | null {

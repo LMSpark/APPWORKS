@@ -59,7 +59,7 @@ export type AiAgentAppSseEvent<T = unknown> = Readonly<{
   rawData: string
   /** 原始解析荷载；JSON.parse 后的原始值，类型转换前的中间态。 */
   rawPayload: unknown
-  /** 协议版本号；用于向后兼容检测，缺失时按最新版处理。 */
+  /** SparkEnvelope 协议版本号；当前 Envelope 必须为 v4，普通业务事件不携带该字段。 */
   protocolVersion?: number
   /** API 信封上下文；携带 requestId、tenantId 等跨层追踪信息。 */
   context?: ApiEnvelopeContext

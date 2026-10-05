@@ -100,14 +100,6 @@
         "schema": {
           "type": "boolean"
         }
-      },
-      {
-        "name": "strictImplGate",
-        "title": "Strict Implementation Gate",
-        "required": false,
-        "schema": {
-          "type": "boolean"
-        }
       }
     ],
     "runtimeBinding": {
@@ -170,9 +162,6 @@
               }
             },
             "preserveExistingInteractions": {
-              "type": "boolean"
-            },
-            "strictImplGate": {
               "type": "boolean"
             }
           },

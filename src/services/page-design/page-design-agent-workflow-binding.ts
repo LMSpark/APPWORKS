@@ -87,8 +87,6 @@ mode?: PageDesignRunMode
 allowedOperations?: PageDesignAllowedOperations
     /** preserve Existing Interactions 字段。 */
 preserveExistingInteractions?: boolean
-  /** 未声明 implGate 时 fail-fast；生产 runner 建议 true。 */
-  strictImplGate?: boolean
 }
 
 /** Resolve Page Design Planning Context Options 的调用配置。 */

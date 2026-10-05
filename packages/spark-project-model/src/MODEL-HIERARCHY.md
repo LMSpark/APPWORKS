@@ -151,7 +151,7 @@ classDiagram
 |---|---|---|
 | `module` / `system-directory` / `link` / `ref` / `system-page` / `system-action` | ProjectNode | `family` 由 `nodeKind` 派生 |
 | `page` | ConfigPageNode | 四文件配置页 |
-| `page`（嵌套） | ConfigPageNode | `isSubPage=true`（hidden + 无 path）；legacy `sub-page` 加载时迁移 |
+| `page`（嵌套） | ConfigPageNode | `isSubPage=true`（`blueprintKind=sub-page`，运行投影为 hidden + 无 path） |
 
 配置页 kind 由 `page/instantiate-project-node.ts` 实例化；其余 kind 由 `blueprint/project-blueprint-kinds.ts` 返回 `ProjectBlueprintNode`。**blueprint 不 import page**。
 
@@ -429,7 +429,7 @@ flowchart TD
   C -->|是| D[saveNodeChanges 异步]
   B --> E[project.selectNode]
   E --> F{配置页 kind?}
-  F -->|page/sub-page| G[editor.selectPage + persistActivePageId]
+  F -->|page| G[editor.selectPage + persistActivePageId]
   F -->|其他| H[clearActivePageContext 或 setActivePage 导航上下文]
   G --> I[loadNodeToForm]
   H --> I

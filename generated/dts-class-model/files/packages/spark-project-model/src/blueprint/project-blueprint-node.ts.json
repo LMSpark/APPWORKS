@@ -493,7 +493,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T12:53:25.005Z",
+  "generatedAt": "2026-08-10T13:19:33.173Z",
   "models": {
     "ProjectBlueprintNodeFamily": {
       "name": "ProjectBlueprintNodeFamily",
@@ -532,7 +532,7 @@
     },
     "ProjectBlueprintImplGate": {
       "name": "ProjectBlueprintImplGate",
-      "jsdoc": "pageDesign 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。",
+      "jsdoc": "pageDesign 实现放行闸门；缺省为 closed。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'closed' | 'open'",
@@ -590,7 +590,7 @@
       "jsdoc": "项目树节点的可序列化数据形状。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 项目蓝图节点唯一 ID。 */\n    id: string;\n    /** 项目蓝图节点标题。 */\n    title: string;\n    /** 节点业务描述，供 AI 策划和页面设计理解用途。 */\n    description?: string | undefined;\n    /** 节点策划详细说明附件引用；正文由工作区解析后传给 LLM。 */\n    planningAttachmentRef?: string | undefined;\n    /** 节点版本号或版本标签。 */\n    version?: string | undefined;\n    /** 节点图标名。 */\n    icon?: string | undefined;\n    /** 运行交付投影类型，决定菜单、页面、链接、引用等输出行为。 */\n    nodeKind?: SparkUtils.RuntimeNavigationItemKind | undefined;\n    /** 蓝图业务种类；nodeKind 仅是旧设计器的运行表面投影。 */\n    blueprintKind?: ProjectBlueprintNodeKind | undefined;\n    /** 子节点在应用壳中的布局区域。 */\n    childPlacement?: SparkUtils.NavigationPlacement | undefined;\n    /** 项目蓝图上下文配置或静态上下文选项。 */\n    context?: string | SparkUtils.ContextItem[] | SparkUtils.NavigationContextConfig | undefined;\n    /** 同级排序值，数值越小越靠前。 */\n    order?: number | undefined;\n    /** 输出为运行菜单时是否隐藏。 */\n    hidden?: boolean | undefined;\n    /** 输出为运行菜单时是否禁用。 */\n    disabled?: boolean | undefined;\n    /** 是否在该节点后显示分隔线。 */\n    dividerAfter?: boolean | undefined;\n    /** 权限不匹配时的展示策略。 */\n    permissionMode?: SparkUtils.PermissionMode | undefined;\n    /** 子蓝图节点。 */\n    children?: ProjectBlueprintTreeNodeData[] | undefined;\n    /** 页面路由路径。 */\n    path?: string | undefined;\n    /** 页面消费的数据空间身份；不得由物理表名或 FormKey 推断。 */\n    dataSpaceId?: string | undefined;\n    /** 具体页面载体进入数据空间时使用的后端 FormKey。 */\n    formKey?: string | undefined;\n    /** 页面在数据空间内消费的唯一前端模型身份。 */\n    modelId?: string | undefined;\n    /** link 节点的打开目标。 */\n    linkTarget?: SparkUtils.NavigationLinkTarget | undefined;\n    /** 重定向目标路径。 */\n    redirect?: string | undefined;\n    /** ref 节点引用的目标节点 ID。 */\n    refId?: string | undefined;\n    /** ref 节点解析后的目标路径。 */\n    refPath?: string | undefined;\n    /** ref 节点引用的目标项目 ID。 */\n    refProjectId?: string | undefined;\n    /** ref 引用是否已失效。 */\n    refBroken?: boolean | undefined;\n    /** pageDesign 实现放行闸门；缺省过渡期为 open。 */\n    implGate?: ProjectBlueprintImplGate | undefined;\n    /** 上游 iPaaS / 契约就绪；缺省 true。 */\n    upstreamContractsSatisfied?: boolean | undefined;\n}",
+        "declarationTypeText": "{\n    /** 项目蓝图节点唯一 ID。 */\n    id: string;\n    /** 项目蓝图节点标题。 */\n    title: string;\n    /** 节点业务描述，供 AI 策划和页面设计理解用途。 */\n    description?: string | undefined;\n    /** 节点策划详细说明附件引用；正文由工作区解析后传给 LLM。 */\n    planningAttachmentRef?: string | undefined;\n    /** 节点版本号或版本标签。 */\n    version?: string | undefined;\n    /** 节点图标名。 */\n    icon?: string | undefined;\n    /** 运行交付投影类型，决定菜单、页面、链接、引用等输出行为。 */\n    nodeKind?: SparkUtils.RuntimeNavigationItemKind | undefined;\n    /** 蓝图业务种类；nodeKind 仅是旧设计器的运行表面投影。 */\n    blueprintKind?: ProjectBlueprintNodeKind | undefined;\n    /** 子节点在应用壳中的布局区域。 */\n    childPlacement?: SparkUtils.NavigationPlacement | undefined;\n    /** 项目蓝图上下文配置或静态上下文选项。 */\n    context?: string | SparkUtils.ContextItem[] | SparkUtils.NavigationContextConfig | undefined;\n    /** 同级排序值，数值越小越靠前。 */\n    order?: number | undefined;\n    /** 输出为运行菜单时是否隐藏。 */\n    hidden?: boolean | undefined;\n    /** 输出为运行菜单时是否禁用。 */\n    disabled?: boolean | undefined;\n    /** 是否在该节点后显示分隔线。 */\n    dividerAfter?: boolean | undefined;\n    /** 权限不匹配时的展示策略。 */\n    permissionMode?: SparkUtils.PermissionMode | undefined;\n    /** 子蓝图节点。 */\n    children?: ProjectBlueprintTreeNodeData[] | undefined;\n    /** 页面路由路径。 */\n    path?: string | undefined;\n    /** 页面消费的数据空间身份；不得由物理表名或 FormKey 推断。 */\n    dataSpaceId?: string | undefined;\n    /** 具体页面载体进入数据空间时使用的后端 FormKey。 */\n    formKey?: string | undefined;\n    /** 页面在数据空间内消费的唯一前端模型身份。 */\n    modelId?: string | undefined;\n    /** link 节点的打开目标。 */\n    linkTarget?: SparkUtils.NavigationLinkTarget | undefined;\n    /** 重定向目标路径。 */\n    redirect?: string | undefined;\n    /** ref 节点引用的目标节点 ID。 */\n    refId?: string | undefined;\n    /** ref 节点解析后的目标路径。 */\n    refPath?: string | undefined;\n    /** ref 节点引用的目标项目 ID。 */\n    refProjectId?: string | undefined;\n    /** ref 引用是否已失效。 */\n    refBroken?: boolean | undefined;\n    /** pageDesign 实现放行闸门；缺省为 closed。 */\n    implGate?: ProjectBlueprintImplGate | undefined;\n    /** 上游 iPaaS / 契约就绪；缺省 false。 */\n    upstreamContractsSatisfied?: boolean | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -751,13 +751,13 @@
             },
             {
               "name": "implGate",
-              "jsdoc": "pageDesign 实现放行闸门；缺省过渡期为 open。",
+              "jsdoc": "pageDesign 实现放行闸门；缺省为 closed。",
               "readable": true,
               "writable": false
             },
             {
               "name": "upstreamContractsSatisfied",
-              "jsdoc": "上游 iPaaS / 契约就绪；缺省 true。",
+              "jsdoc": "上游 iPaaS / 契约就绪；缺省 false。",
               "readable": true,
               "writable": false
             }
@@ -1016,7 +1016,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Record<string, unknown> & {\n    /** 配置页 pageId。 */\n    pageId: string;\n    /** 页面路由路径。 */\n    path: string;\n    /** 页面标题。 */\n    title: string;\n    /** 项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 运行交付投影类型。 */\n    nodeKind: SparkUtils.RuntimeNavigationItemKind;\n    /** 模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件 */\n    designSurface: ProjectPageSurface;\n    /** 页面节点自身描述。 */\n    description: string;\n    /** 页面节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 从祖先或上下文节点继承的描述列表。 */\n    descriptionContext: ProjectDescriptionContext[];\n    /** 聚合后的有效描述文本，供 AI 理解页面意图。 */\n    effectiveDescription: string;\n    /** 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */\n    implGate?: ProjectBlueprintImplGate;\n    /** 上游 iPaaS / 契约就绪；缺省 true。 */\n    upstreamContractsSatisfied?: boolean;\n    /** 页面图标名。 */\n    icon?: string;\n}",
+        "declarationTypeText": "Record<string, unknown> & {\n    /** 配置页 pageId。 */\n    pageId: string;\n    /** 页面路由路径。 */\n    path: string;\n    /** 页面标题。 */\n    title: string;\n    /** 项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 运行交付投影类型。 */\n    nodeKind: SparkUtils.RuntimeNavigationItemKind;\n    /** 模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件 */\n    designSurface: ProjectPageSurface;\n    /** 页面节点自身描述。 */\n    description: string;\n    /** 页面节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 从祖先或上下文节点继承的描述列表。 */\n    descriptionContext: ProjectDescriptionContext[];\n    /** 聚合后的有效描述文本，供 AI 理解页面意图。 */\n    effectiveDescription: string;\n    /** 实现放行闸门；缺省为 closed。 */\n    implGate?: ProjectBlueprintImplGate;\n    /** 上游 iPaaS / 契约就绪；缺省 false。 */\n    upstreamContractsSatisfied?: boolean;\n    /** 页面图标名。 */\n    icon?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -1025,7 +1025,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 配置页 pageId。 */\n    pageId: string;\n    /** 页面路由路径。 */\n    path: string;\n    /** 页面标题。 */\n    title: string;\n    /** 项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 运行交付投影类型。 */\n    nodeKind: SparkUtils.RuntimeNavigationItemKind;\n    /** 模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件 */\n    designSurface: ProjectPageSurface;\n    /** 页面节点自身描述。 */\n    description: string;\n    /** 页面节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 从祖先或上下文节点继承的描述列表。 */\n    descriptionContext: ProjectDescriptionContext[];\n    /** 聚合后的有效描述文本，供 AI 理解页面意图。 */\n    effectiveDescription: string;\n    /** 实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。 */\n    implGate?: ProjectBlueprintImplGate;\n    /** 上游 iPaaS / 契约就绪；缺省 true。 */\n    upstreamContractsSatisfied?: boolean;\n    /** 页面图标名。 */\n    icon?: string;\n}"
+            "typeText": "{\n    /** 配置页 pageId。 */\n    pageId: string;\n    /** 页面路由路径。 */\n    path: string;\n    /** 页面标题。 */\n    title: string;\n    /** 项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 运行交付投影类型。 */\n    nodeKind: SparkUtils.RuntimeNavigationItemKind;\n    /** 模型侧编辑表面：config-files=四文件；system-page=系统页；none=不可编辑页面文件 */\n    designSurface: ProjectPageSurface;\n    /** 页面节点自身描述。 */\n    description: string;\n    /** 页面节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 从祖先或上下文节点继承的描述列表。 */\n    descriptionContext: ProjectDescriptionContext[];\n    /** 聚合后的有效描述文本，供 AI 理解页面意图。 */\n    effectiveDescription: string;\n    /** 实现放行闸门；缺省为 closed。 */\n    implGate?: ProjectBlueprintImplGate;\n    /** 上游 iPaaS / 契约就绪；缺省 false。 */\n    upstreamContractsSatisfied?: boolean;\n    /** 页面图标名。 */\n    icon?: string;\n}"
           }
         ],
         "members": {
@@ -1092,13 +1092,13 @@
             },
             {
               "name": "implGate",
-              "jsdoc": "实现放行闸门；缺省过渡期为 open（runner 可 strictImplGate）。",
+              "jsdoc": "实现放行闸门；缺省为 closed。",
               "readable": true,
               "writable": false
             },
             {
               "name": "upstreamContractsSatisfied",
-              "jsdoc": "上游 iPaaS / 契约就绪；缺省 true。",
+              "jsdoc": "上游 iPaaS / 契约就绪；缺省 false。",
               "readable": true,
               "writable": false
             },

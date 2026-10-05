@@ -76,31 +76,16 @@ statusText: string
     /** 请求头集合。 */
 headers: Record<string, string>}
 
-/** 旧版标准业务 API 响应（{ code, message, data } 格式） */
-export type ApiResponse<T = unknown> = {
-    /** 稳定错误码或诊断码。 */
-code: number
-    /** 用户可读消息。 */
-message: string
-    /** 业务数据载荷。 */
-data: T
-    /** 事件时间戳。 */
-timestamp?: string
-    /** trace Id 标识。 */
-traceId?: string}
-
-/** SPARK AI Server 统一 API envelope */
+/** SPARK v4 API envelope。 */
 export type ApiEnvelope<T = unknown> = {
     /** protocol Version 字段。 */
-protocolVersion?: number
+protocolVersion: 4
     /** ok 字段。 */
 ok: boolean
     /** 业务数据载荷。 */
 data?: T | null
     /** 错误对象或错误信息。 */
 error?: ApiEnvelopeError | null
-  /** v3 legacy field; v4 uses context.requestId. */
-  requestId?: string
     /** 运行上下文。 */
 context?: ApiEnvelopeContext
     /** event 字段。 */

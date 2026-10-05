@@ -156,7 +156,7 @@ describe('DataView CRUD bridge', () => {
     expect(view.rows.map(row => row['id'])).toEqual([1])
   })
 
-  it('remote update should unwrap success-node payload and sync local row', async () => {
+  it('remote update should use the direct business entity and sync local row', async () => {
     const dataSet = SparkData.createDataSet({
       dataSetName: 'CrudWrappedUpdateDS',
       tables: {
@@ -181,8 +181,9 @@ describe('DataView CRUD bridge', () => {
 
     const httpClient = createRequest()
     vi.spyOn(httpClient, 'put').mockResolvedValue({
-      success: true,
-      node: { id: 'node-1', title: '新标题', path: '/new' },
+      id: 'node-1',
+      title: '新标题',
+      path: '/new',
     })
     dataSet.setSharedHttpClient(httpClient)
 

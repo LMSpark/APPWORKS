@@ -7,7 +7,7 @@
     "sourceFile": "src/services/sse-events.ts",
     "packageName": "app",
     "modulePath": "services/sse-events",
-    "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、v4 envelope 解包和按事件名分发。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
+    "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、普通业务事件与 v4 SparkEnvelope 分流，以及按事件名分发。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FileChangeEvent",
@@ -152,7 +152,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:28:12.325Z",
+  "generatedAt": "2026-08-10T13:41:38.868Z",
   "models": {
     "FileChangeEvent": {
       "name": "FileChangeEvent",

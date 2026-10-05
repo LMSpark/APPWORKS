@@ -21,6 +21,44 @@ import type {
 } from './outputs/document/project-blueprint-document.js'
 import { normalizeLowcodeProjectBlueprintRecords, lowcodeProjectBlueprintQuery } from './project-blueprint-wire.js'
 
+export const LOWCODE_PROJECT_BLUEPRINT_MUTABLE_FIELDS = [
+  'memo',
+  'htmlDesc',
+  'conid',
+  'conType',
+  'DifficultyFactor',
+  'Manhour',
+  'Number',
+  'Sum',
+  'Total',
+  'personCharge',
+  'status',
+  'NavigationUrl',
+  'VersionId',
+  'IsShowAtNav',
+  'NavigationType',
+] as const
+
+export type LowcodeProjectBlueprintMutableField = typeof LOWCODE_PROJECT_BLUEPRINT_MUTABLE_FIELDS[number]
+export type LowcodeProjectBlueprintPatch = Readonly<Partial<Record<LowcodeProjectBlueprintMutableField, string | number>>>
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function editableFields(source: Readonly<Record<string, unknown>>): ReadonlySet<string> {
+  const params = source['lingma_sys_params']
+  if (!isRecord(params) || !Array.isArray(params['e'])) {
+    throw new Error('导航节点缺少后端字段写权限证据')
+  }
+  return new Set(params['e'].filter((field): field is string => typeof field === 'string'))
+}
+
+function readbackValue(record: LowcodeProjectBlueprintRecord, field: LowcodeProjectBlueprintMutableField): unknown {
+  if (field === 'VersionId') return record.source['VersionId'] ?? record.source['versionId']
+  return record.source[field]
+}
+
 /** 项目蓝图只读与文档任务提交门面；依赖应用目录 FormKey 访问 GetData。 */
 export class LowcodeProjectBlueprintApi {
   readonly #client: LowcodeClient
@@ -42,6 +80,55 @@ export class LowcodeProjectBlueprintApi {
       normalizedProjectId,
       normalizeLowcodeProjectBlueprintRecords(result),
     )
+  }
+
+  /** 只更新一个导航节点的六阶段所属字段，并以正式 GetData 读回确认。 */
+  public async updateNodeFields(
+    projectId: string,
+    nodeId: string,
+    patch: LowcodeProjectBlueprintPatch,
+  ): Promise<LowcodeProjectBlueprintRecord> {
+    const normalizedNodeId = nodeId.trim()
+    if (!normalizedNodeId) throw new Error('nodeId 不能为空')
+    const entries = Object.entries(patch) as Array<[LowcodeProjectBlueprintMutableField, string | number]>
+    if (entries.length === 0) throw new Error('导航节点更新字段不能为空')
+    const preimage = (await this.readRecords(projectId)).find(record => record.id === normalizedNodeId)
+    if (preimage === undefined) throw new Error(`项目中不存在导航节点 ${normalizedNodeId}`)
+    const editable = editableFields(preimage.source)
+    for (const [field] of entries) {
+      if (!LOWCODE_PROJECT_BLUEPRINT_MUTABLE_FIELDS.includes(field)) {
+        throw new Error(`导航字段不属于六阶段写入合同：${field}`)
+      }
+      if (!editable.has(field)) throw new Error(`后端权限不允许修改导航字段 ${field}`)
+    }
+    const systemKey = preimage.source['lingma_sys_key']
+    if (typeof systemKey !== 'string' || !systemKey.trim()) {
+      throw new Error('导航节点缺少 lingma_sys_key')
+    }
+    await this.#client.requestResult({
+      path: '/api/DataOperation/BatchTableOperateRequestByCRUD',
+      method: 'POST',
+      data: [{
+        TableName: 'QYVirtualPlat@Base_NavigationInfo',
+        CrudModel: {
+          Added: [],
+          Changed: [{ rowid: normalizedNodeId, lingma_sys_key: systemKey, ...patch }],
+          Deleted: [],
+        },
+      }],
+    })
+    const readback = (await this.readRecords(projectId)).find(record => record.id === normalizedNodeId)
+    if (readback === undefined) throw new Error(`导航节点 ${normalizedNodeId} 更新后无法读回`)
+    for (const [field, expected] of entries) {
+      const actual = readbackValue(readback, field)
+      const matches = typeof expected === 'number'
+        ? Number(actual ?? 0) === expected
+        : String(actual ?? '') === expected
+      if (!matches) {
+        throw new Error(`导航字段 ${field} 写入后读回不一致`)
+      }
+    }
+    return readback
   }
 
   /** 读取 GetNavigationMenus 的后端授权事实；beginNodeId 为授权树根。 */

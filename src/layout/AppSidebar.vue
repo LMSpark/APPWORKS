@@ -29,38 +29,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       />
     </el-menu>
 
-    <!-- 兜底：无导航模型时读路由表 -->
-    <el-menu
-      v-else
-      :default-active="$route.path"
-      :background-color="'transparent'"
-      text-color="var(--spark-sidebar-text)"
-      active-text-color="var(--el-color-primary)"
-      :collapse="collapsed"
-      router
-    >
-      <el-menu-item
-        v-for="item in fallbackRoutes"
-        :key="item.path"
-        :index="item.path"
-      >
-        <template #default>
-          <span class="app-sidebar__menu-label">
-            <NavIcon :name="routeIcon(item)" class="app-sidebar__menu-icon" />
-            <span v-if="!collapsed" class="app-sidebar__menu-text">{{ routeTitle(item) }}</span>
-          </span>
-        </template>
-      </el-menu-item>
-    </el-menu>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import AppSidebarNode from './AppSidebarNode.vue'
-import NavIcon from '@/components/NavIcon.vue'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -73,7 +49,6 @@ const props = withDefaults(defineProps<{
 })
 
 const route = useRoute()
-const router = useRouter()
 const nav = useNav()
 const safeItems = computed<RuntimeNavigationItem[]>(() => Array.isArray(props.items) ? props.items : [])
 
@@ -88,28 +63,6 @@ const activeIndex = computed(() => {
 
 function menuIndex(item: RuntimeNavigationItem): string {
   return item.path ?? item.id
-}
-
-/* ── 兜底路由（无导航树时使用） ── */
-const isRoutesLoaded = ref(false)
-onMounted(() => { setTimeout(() => { isRoutesLoaded.value = true }, 100) })
-
-const fallbackRoutes = computed(() => {
-  if (safeItems.value.length > 0) return []
-  if (!isRoutesLoaded.value) return []
-  return router.getRoutes()
-    .filter(r => r.meta?.['title'] && r.path !== '/')
-    .sort((a, b) => a.path.localeCompare(b.path))
-})
-
-function routeTitle(item: { meta?: Record<string | number | symbol, unknown> }): string {
-  const title = item.meta?.['title']
-  return typeof title === 'string' ? title : ''
-}
-
-function routeIcon(item: { meta?: Record<string | number | symbol, unknown> }): string | undefined {
-  const icon = item.meta?.['icon']
-  return typeof icon === 'string' ? icon : undefined
 }
 </script>
 

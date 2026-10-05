@@ -1,11 +1,11 @@
 /**
  * 运行态导航授权归一化：TopMenus/LeftMenus 树与 Relations 上下文。
- * wire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；vue: 协议须小写。
+ * wire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；cfg:/vue: 协议须小写。
  */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
 /** 导航目标类型；由 NavigationUrl/url 解析得出。 */
-export type LowcodeNavigationTargetKind = 'empty' | 'external' | 'route' | 'vue'
+export type LowcodeNavigationTargetKind = 'cfg' | 'empty' | 'external' | 'route' | 'vue'
 
 /** Relations 上下文；wire 字段 TextParamName、ValParamName、selectValParam 等 PascalCase。 */
 export type LowcodeNavigationAuthorizationContext = Readonly<{
@@ -22,7 +22,7 @@ export type LowcodeNavigationAuthorizationContext = Readonly<{
   titlePlacement: string
 }>
 
-/** 导航授权树节点；route/vue 目标携带 formKey（conId/conid）。 */
+/** 导航授权树节点；cfg/route/vue 目标携带 formKey（conId/conid）。 */
 export type LowcodeNavigationAuthorizationItem = Readonly<{
   id: string
   target: string
@@ -58,6 +58,7 @@ function text(value: unknown): string {
 
 function targetKind(value: string): LowcodeNavigationTargetKind {
   if (!value) return 'empty'
+  if (value.startsWith('cfg:')) return 'cfg'
   if (value.startsWith('vue:')) return 'vue'
   if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(value)) return 'external'
   return 'route'
@@ -66,12 +67,18 @@ function targetKind(value: string): LowcodeNavigationTargetKind {
 function target(value: unknown): string {
   const normalized = text(value)
   if (!normalized) return ''
+  if (/^cfg:/i.test(normalized) && !normalized.startsWith('cfg:')) {
+    throw new LowcodeApiError(0, '配置页资源协议必须精确使用小写 cfg:')
+  }
   if (/^vue:/i.test(normalized) && !normalized.startsWith('vue:')) {
     throw new LowcodeApiError(0, 'Vue 导航资源协议必须精确使用小写 vue:')
   }
-  if (normalized.startsWith('vue:')) {
+  if (normalized.startsWith('cfg:') || normalized.startsWith('vue:')) {
     const resource = normalized.slice(4).replace(/[?#].*$/, '')
-    if (!resource || resource.endsWith('.vue') || resource.includes('\\') || resource.includes('//')) {
+    if (!resource || resource.includes('\\') || resource.includes('//')) {
+      throw new LowcodeApiError(0, `导航资源目标无效：${normalized}`)
+    }
+    if (normalized.startsWith('vue:') && resource.endsWith('.vue')) {
       throw new LowcodeApiError(0, `Vue 导航资源目标无效：${normalized}`)
     }
   }
@@ -88,7 +95,7 @@ function authorizationItem(value: unknown): LowcodeNavigationAuthorizationItem {
     id,
     target: normalizedTarget,
     targetKind: kind,
-    formKey: kind === 'route' || kind === 'vue'
+    formKey: kind === 'cfg' || kind === 'route' || kind === 'vue'
       ? text(raw['conId'] ?? raw['conid']) || null
       : null,
     children: rows(raw['items'], '运行导航授权项 items').map(authorizationItem),
@@ -127,7 +134,7 @@ function collectIds(items: readonly LowcodeNavigationAuthorizationItem[], ids: S
 
 /**
  * 归一化运行导航授权响应；合并 TopMenus 与 LeftMenus，校验 id 全局唯一。
- * Vue 资源须精确小写 vue: 前缀，否则抛错。
+ * 配置页与 Vue 资源须分别精确使用小写 cfg:/vue: 前缀，否则抛错。
  */
 export function normalizeLowcodeNavigationAuthorization(value: unknown): LowcodeNavigationAuthorizationEvidence {
   const payload = record(value, '运行导航授权 Result')

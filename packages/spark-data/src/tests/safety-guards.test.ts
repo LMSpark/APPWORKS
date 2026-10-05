@@ -87,11 +87,21 @@ describe('S3: TreeManager HTTP client sharing', () => {
     expect(tm.getConfig().idField).toBe('id')
   })
 
-  it('TreeManager without httpClient creates its own (backward compat)', () => {
+  it('TreeManager without httpClient remains available for local tree operations', () => {
+    const tm = new TreeManager({
+      config: { idField: 'id', parentIdField: 'parentId' },
+      initialNodes: [{ id: 'root', parentId: null, name: '根节点' }],
+    })
+    expect(tm.getRoots()).toEqual([{ id: 'root', parentId: null, name: '根节点' }])
+  })
+
+  it('TreeManager remote operations require the owning DataTable HTTP client', async () => {
     const tm = new TreeManager({
       config: { idField: 'id', parentIdField: 'pid' },
+      api: { children: { url: '/tree/children', method: 'GET' } },
     })
-    expect(tm.getConfig().idField).toBe('id')
+
+    await expect(tm.fetchChildren(null)).rejects.toThrow(/必须注入 DataTable HTTP 客户端/u)
   })
 })
 

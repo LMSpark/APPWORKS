@@ -107,6 +107,33 @@ function createNavigationContext(activePath: RuntimeNavigationItem[]): Navigatio
 }
 
 describe('AppSidebar navigation rendering', () => {
+  it('does not expose router records when the authorized navigation tree is empty', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/internal-only', component: { template: '<div />' }, meta: { title: '内部页面' } }],
+    })
+    await router.push('/internal-only')
+    await router.isReady()
+
+    const wrapper = mount(AppSidebar, {
+      props: { items: [] },
+      global: {
+        plugins: [router],
+        provide: { [NAV_KEY]: createNavigationContext([]) },
+        stubs: {
+          ElMenu: ElMenuStub,
+          ElMenuItem: ElMenuItemStub,
+          ElSubMenu: ElSubMenuStub,
+          ElMenuItemGroup: ElMenuItemGroupStub,
+          NavIcon: NavIconStub,
+        },
+      },
+    })
+
+    expect(wrapper.find('.el-menu').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('内部页面')
+  })
+
   it('uses active nav node indexes for platform-prefixed routes and renders one divider', async () => {
     const router = createRouter({
       history: createMemoryHistory(),

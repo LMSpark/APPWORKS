@@ -102,30 +102,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
             @abort="state.abortAiTool"
           />
         </div>
-        <el-tabs v-model="workTab" type="border-card" class="workspace-tabs">
-          <!-- 🔧 节点属性（选中节点时可用） -->
-          <el-tab-pane label="节点属性" name="props" :disabled="!state.selectedNode.value">
-            <template v-if="state.selectedNode.value">
-              <DevNodeProps :state="state" />
-            </template>
-            <el-empty v-else description="在左侧树中选择节点开始编辑" />
-          </el-tab-pane>
-          <el-tab-pane v-for="fname in state.pageFileNames" :key="fname" :name="fname" :disabled="!state.activePageId.value">
-            <template #label>
-              <span :class="{ 'tab-dirty': isWorkspaceTabDirty(fname) }">
-                <NavIcon :name="fileIcon(fname)" :size="13" /> {{ fname }}
-              </span>
-            </template>
-            <DevFileEditor v-if="workTab === fname" :state="state" :active-file="fname" :show-tabs="false" />
-          </el-tab-pane>
-          <!-- 🖼 实时预览 -->
-          <el-tab-pane name="preview" :disabled="!state.activePageId.value">
-            <template #label>
-              <span><NavIcon name="Monitor" :size="13" /> 实时预览</span>
-            </template>
-            <DevPreviewTab v-if="workTab === 'preview'" :state="state" :refresh-token="previewRefreshToken" />
-          </el-tab-pane>
-        </el-tabs>
+        <BlueprintWorkspace :state="state" />
         <div class="workspace-footer">
           <div class="workspace-footer__left">
             <template v-if="state.selectedNode.value">
@@ -138,7 +115,6 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
             <template v-if="state.activePageId.value">
               <span class="footer-info"><NavIcon name="Tickets" :size="13" /> {{ state.activePageId.value }}</span>
               <el-tag v-if="state.hasAnyFileDirty.value" type="warning" size="small">文件已修改</el-tag>
-              <el-tag v-if="currentWorkspaceFile === 'pagedata.json' && state.pageDataError.value" type="danger" size="small">{{ state.pageDataError.value }}</el-tag>
             </template>
           </div>
           <div class="workspace-footer__right">
@@ -183,21 +159,15 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import type { PageNodeFileName } from '@spark-appworks/spark-project-model'
 import { AiToolApprovalPanel } from '@spark-appworks/spark-component'
 import { useDevSystem } from './useDevSystem'
 import ProjectBlueprintTree from './ProjectBlueprintTree.vue'
-import DevNodeProps from './DevNodeProps.vue'
-import DevFileEditor from './DevFileEditor.vue'
-import DevPreviewTab from './DevPreviewTab.vue'
+import BlueprintWorkspace from './blueprint-workspace/BlueprintWorkspace.vue'
 import ProjectPlanningDocumentImportDialog from './ProjectPlanningDocumentImportDialog.vue'
 import NavIcon from '@/components/NavIcon.vue'
 
 const {
   state,
-  workTab,
-  previewRefreshToken,
-  currentWorkspaceFile,
   pageDesignAiPrompt,
   canPreviewCurrentPage,
   canSaveFromHeader,
@@ -207,19 +177,7 @@ const {
   switchToPreview,
   saveAll,
   runPageDesignAi,
-  isWorkspaceTabDirty,
 } = useDevSystem()
-
-const FILE_ICON_MAP: Record<PageNodeFileName, string> = {
-  'rule.json': 'Crop',
-  'pagedata.json': 'Coin',
-  'script.js': 'Lightning',
-  'style.css': 'Brush',
-}
-
-function fileIcon(name: PageNodeFileName): string {
-  return FILE_ICON_MAP[name]
-}
 
 onMounted(() => {
   void state.initialize()

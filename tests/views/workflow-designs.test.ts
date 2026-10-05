@@ -894,7 +894,7 @@ describe('WorkflowDesigns visual editor', () => {
     }))
   })
 
-  it('renders twelve numbered docks and resolves legacy automatic endpoints', async () => {
+  it('renders twelve numbered docks and resolves automatic endpoints', async () => {
     const wrapper = mountWorkflowDesigns()
     await flushPromises()
 

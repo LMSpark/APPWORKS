@@ -21,7 +21,7 @@ import type {
 } from './types'
 import { resolveUrlTemplate } from './core/url-template'
 
-import { Logger, createRequest, isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
+import { Logger, isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 
 function isFlatTreeNode(value: unknown): value is FlatTreeNode {
   const record = isRecord(value) ? value : null
@@ -86,7 +86,7 @@ config: TreeConfig
 api?: TreeApi
     /** 初始扁平节点数组（直接写入缓存，跳过 HTTP 拉取）。 */
 initialNodes?: FlatTreeNode[]
-    /** HTTP 客户端（优先使用外部注入实例共享拦截器/认证；否则懒初始化独立实例）。 */
+    /** HTTP 客户端；远端树操作必须注入，以共享 DataTable 的认证、租户与拦截器。 */
 httpClient?: HttpClientBase
     /** 端点上下文提供者（tenantId / projectId 等），用于 scoped URL 归一化。 */
 endpointContextProvider?: () => Record<string, unknown>}
@@ -122,7 +122,7 @@ export class TreeManager {
   /** 树 HTTP 接口族配置（来自 DataTable.treeApi，可选） */
   private api?: TreeApi
 
-  /** HTTP 客户端（优先使用外部注入的实例，共享拦截器/认证/配置；否则懒初始化独立实例） */
+  /** HTTP 客户端；仅远端树操作需要，且必须由所属 DataTable 注入。 */
   private _http?: HttpClientBase
 
   /** 端点上下文（tenantId/projectId 等），用于内部 scoped URL 归一化 */
@@ -159,7 +159,9 @@ export class TreeManager {
   // ===== HTTP 辅助 =====
 
   private _getHttp(): HttpClientBase {
-    this._http ??= createRequest()
+    if (this._http === undefined) {
+      throw new Error('[TreeManager] 远端树操作必须注入 DataTable HTTP 客户端')
+    }
     return this._http
   }
 

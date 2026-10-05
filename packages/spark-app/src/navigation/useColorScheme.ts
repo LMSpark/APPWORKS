@@ -621,15 +621,6 @@ function loadState(): SchemeState {
   const scopedKey = getScopedStorageKey(_storageScope)
   const scopedState = readStateFromStorage(scopedKey)
   if (scopedState !== null) return scopedState
-
-  if (_storageScope !== null) {
-    const legacyState = readStateFromStorage(STORAGE_KEY)
-    if (legacyState !== null) {
-      writeStateToStorage(scopedKey, legacyState)
-      return legacyState
-    }
-  }
-
   return getDefaultState()
 }
 

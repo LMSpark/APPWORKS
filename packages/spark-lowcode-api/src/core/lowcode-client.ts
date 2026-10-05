@@ -22,6 +22,7 @@ export class LowcodeClient {
       url: command.path,
       method: command.method,
       ...(command.data === undefined ? {} : { data: command.data }),
+      ...(command.params === undefined ? {} : { params: { ...command.params } }),
       ...(command.headers === undefined ? {} : { headers: { ...command.headers } }),
       ...(command.authenticated === false ? { meta: { lowcodeSkipAuth: true } } : {}),
     }
@@ -63,6 +64,7 @@ export type LowcodeClientCommand = Readonly<{
   path: string
   method: Method
   data?: unknown
+  params?: Readonly<Record<string, unknown>>
   headers?: Readonly<Record<string, string>>
   authenticated?: boolean
 }>

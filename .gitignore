@@ -1,7 +1,8 @@
 node_modules
 
-# Local IDE/workspace state
-.cursor/
+# Local IDE/workspace state（.cursor/skills/ 是随项目的 AI 技能，需入库）
+.cursor/*
+!.cursor/skills/
 .vscode/*
 !.vscode/launch.json.example
 .idea/

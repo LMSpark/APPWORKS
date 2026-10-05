@@ -1,9 +1,36 @@
 # SPARKProject 技能转换为 SPARK AppWorks AI 工作流方案
 
-> 状态：方案草案  
-> 研究对象：`C:\Users\lgf22\Documents\SPARKProject\skills`（v5.1.1，13 个技能）  
+> 状态：方案草案（技能层已部分落地，见第 0 节；治理控制平面仍为草案）  
+> 研究对象：`C:\Users\lgf22\Documents\SPARKProject-gitee-target\skills`（13 个技能；原写的 `Documents\SPARKProject\skills` 路径已不存在，本机 Codex 安装快照为 v5.5.0、14 个成员）  
 > 目标仓库：`D:\SPARK_AppWorks`  
 > 目标：复用 SPARKProject 的技能治理思想，把它转换为适合 AppWorks“项目模型 + 页面四文件 + 受约束 AI 运行时”的工作流；不直接复制 QYAPI 专属实现。
+
+## 0. 落地现状（2026-10-05 核实）
+
+本仓 `.cursor/skills/` 已随项目提交 6 个 Markdown 技能。它们是行为约束，不是第 8 节所述的可执行 workflow、registry 或 validator，完成度仍停留在第 37 节的 L1。
+
+| 技能 | 对应本文规划 | 说明 |
+| --- | --- | --- |
+| `appworks-debug-problem` | 第 3 节 `appworks-debug-problem` | 只读诊断；失败域只列已核实的本仓路径 |
+| `appworks-verify-change` | 第 3 节 `appworks-verify-change` | 五态归因；验证矩阵换成本仓 `verify:*` 命令 |
+| `appworks-review-change` | 第 3 节原计划首期不独立的 `appworks-review-change` | 已独立发布，第 23 节第 6 项按此关闭 |
+| `appworks-verify-before-claim` | 本文未规划 | 来自 Superpowers 6.4.2（MIT）的"先验证再宣称"，已按本仓改写 |
+| `appworks-receive-review` | 本文未规划 | 来自 Superpowers 6.4.2 的评审接收规则，加了方案范围关卡 |
+| `appworks-write-tests` | 本文未规划 | 来自 Superpowers 6.4.2 的测试质量规则，加了"方案批准才写测试"门禁 |
+
+尚未落地：`appworks-route-request`、`appworks-plan-project`、`appworks-design-page`、`appworks-build-page`、`appworks-deliver-change`，以及迁移类技能。`appworks-develop-change` 仍由根 `AGENTS.md` 七阶段直接承担。技能目录的登记规则见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm) 的 `ai_skills`。
+
+### 已核实且与旧稿不符的事实（2026-10-05 对照源码）
+
+下列三条已读源码确认。第 12.1 节、第 24 节的文件路径，以及第 17.4、25.4、26、36 节里指向现行代码的标识符，已按源码改正。第 5 节、第 17.3 节第 8 点、第 29.2 节仍是目标设计，行内已标明，不把它们写成现状。
+
+- **文件已改名，不是消失。** 现行路径是 `src/services/page-design/page-design-agent-run-provider.ts` 与 `src/services/project-planning/project-planning-agent-run-provider.ts`。`createPageDesignDeliveryPort`、`saveFileNames` 仍在页面设计 provider 中。文中“Host Run”对应现行代码里的 agent-run。
+- **操作域键是 `blueprint`，不是 `navigation`。** `PageDesignAllowedOperations` 的五个键是 `nodeTree`、`dataSet`、`script`、`style`、`blueprint`（`src/services/page-design/page-design-gates.ts`）。`navigation` 作为操作域键在该类型中不存在。
+- **项目规划保存开关是 `saveBlueprintAfterRun`。** 默认 false，只有显式 `=== true` 才保存；交付物种类是 `project-blueprint`；是否 dirty 看 `editor.project.blueprintDirty`；保存调用 `saveAll()`。源码中没有 `saveNavigationAfterRun`。
+- **页面交付的现状与第 29.2 节的目标算法不同。** Agent Run 交付固定 `mode: 'auto'`、`shouldSave: true`；未给出 `deliverySaveFileNames` 时保存全部 dirty 文件；`saveTargetPageFiles` 用 `Promise.all` 并行调用 `savePageFile`，没有逐文件摘要比对，也没有读回。`rollback` 只返回 `rolledBack` 状态，不把磁盘内容还原。因此“自动运行必须先有明确授权才保存”和“逐文件保存并读回”是目标设计，不是现行行为。
+- 第 7 节的 `pnpm run verify:ai-host-run-transport-sse` 不在当前 `package.json` 脚本中。
+- 第 12.1 节其余源码位置（`packages/spark-ai/src/agent/workflow/`、`src/services/workflow-designs.ts`）仍然存在。`readDirtyProjection`、`openPageDesign`、`planningReady`、`implGate`、`toolLoopNudge`、`gateRules`、`modelProjectionRef` 均能在源码中找到。
+- 本节没有逐段核对的保存、读回描述，实施前仍须重读对应源码，不能凭本节外的段落当作现状。
 
 ## 1. 结论
 
@@ -121,7 +148,7 @@ sequenceDiagram
 - `pageDesign` 只能通过现有 workflow binding 和 editor/model API 修改页面，不允许 AI 直接绕过模型写四文件。
 - `rule.json` 负责结构与动作；`pagedata.json` 负责 DataSet/DataView；`script.js` 只承载最小业务分支；`style.css` 只承载页面样式。
 - 数据绑定统一使用 `dataViewKey + dataMember + dataField`，不得恢复旧的点号路径或 `pageData/$data` 旁路。
-- AI 修改后先标记 dirty；DevSystem 默认由用户显式保存，自动 Host Run 只有拿到明确交付授权才可保存。
+- AI 修改后先标记 dirty；DevSystem 默认由用户显式保存，自动 Host Run 只有拿到明确交付授权才可保存。（此条是目标设计，现状见第 0 节。）
 - 授权必须精确到 `pageId`、文件名集合或导航范围；只授权 `pagedata.json` 时，不得顺带保存其他 dirty 文件。
 - 业务数据提交、审批、通知、支付等副作用不属于页面文件交付授权，必须另行确认。
 
@@ -328,8 +355,8 @@ flowchart TB
 | 工具循环纠偏 | `toolLoopNudge` | 对无工具空转、重复调用等状态给出下一步提示 |
 | 页面设计工作流绑定 | `page-design-agent-workflow-binding.ts` | 页面四文件的模型内编辑 |
 | 项目规划工作流绑定 | `project-planning-agent-workflow-binding.ts` | 项目结构和导航规划 |
-| 页面 Host Run Delivery | `page-design-host-run-provider.ts` | 按 dirty 集合和 `saveFileNames` 保存页面文件 |
-| 项目规划 Delivery | `project-planning-host-run-provider.ts` | 选择保存或仅保留 navigation dirty |
+| 页面 Agent Run Delivery | `src/services/page-design/page-design-agent-run-provider.ts` | 按 dirty 集合和 `saveFileNames` 保存页面文件 |
+| 项目规划 Agent Run Delivery | `src/services/project-planning/project-planning-agent-run-provider.ts` | `saveBlueprintAfterRun===true` 且 `blueprintDirty` 时 `saveAll()`，否则 skipped |
 | 工作流设计文档 | `src/services/workflow-designs.ts` | 设计、发布、dirty/saved 状态与图布局 |
 
 ### 12.2 仍缺失的治理层
@@ -627,14 +654,14 @@ Definition 校验只证明工作流结构可解释；制品校验只证明输入
 5. `beforeFunctionCall` 校验 pageId、批准摘要、允许文件和当前闭环。
 6. 工具调用只修改内存 `ConfigPageNode`，返回 dirty 投影。
 7. `agentComplete` 必须检查蓝图内闭环完成，不执行保存。
-8. Host Run provider 的 Delivery 在独立授权后调用 `savePageFile`。
+8. Host Run provider 的 Delivery 在独立授权后调用 `savePageFile`。（此条是目标设计，现状见第 0 节。）
 
 ### 17.4 projectPlanning 接线
 
 1. projectPlanning 输出页面目录和导航变更提案。
 2. 导航更改先进入内存模型并标 dirty。
-3. `saveNavigationAfterRun=false` 是默认安全策略。
-4. 只有 `delivery-authorization.allowedActions` 包含 `save-navigation` 才可把 provider 参数设为 true。
+3. 现行字段是 `saveBlueprintAfterRun`，默认 false，只有显式 `=== true` 才保存。源码中没有 `saveNavigationAfterRun`。
+4. 只有交付授权允许保存项目蓝图时，才可把 `saveBlueprintAfterRun` 设为 true。
 5. 保存后重新读取导航投影，确认节点 identity、父子层级、排序、path、hidden/page 语义。
 
 ## 18. 页面工作流的四个内部设计面
@@ -809,8 +836,8 @@ changed artifact
 - `docs/SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md`：项目模型、AI 生产线、dirty/save 边界。
 - `docs/architecture/DATAFLOW_ARCHITECTURE.md`：pageDesign 工具写入与显式保存链路。
 - `packages/spark-ai/README.md`：通用 AI runtime 与业务 workflow binding。
-- `src/services/page-design/page-design-host-run-provider.ts`：页面四文件 Delivery 现状。
-- `src/services/project-planning/project-planning-host-run-provider.ts`：项目规划与导航保存策略。
+- `src/services/page-design/page-design-agent-run-provider.ts`：页面四文件 Delivery 现状。
+- `src/services/project-planning/project-planning-agent-run-provider.ts`：项目规划蓝图保存策略（`saveBlueprintAfterRun`）。
 - `package.json`：本仓验证命令事实源。
 
 ## 25. 每个目标技能的节点级规格
@@ -875,12 +902,12 @@ changed artifact
 | 模型根 | 当前实现使用 `ProjectModel`，实例由 pageId 对应的 `ProjectWorkspace` 解析 |
 | 执行节点 | `preflight` → `open-page` → `apply-one-closed-loop` → `read-dirty-projection` → `minimal-verify` → `complete` |
 | 门禁 | planningReady；`implGate=open`；plan digest 匹配；pageId 匹配；当前操作域已放行 |
-| 工具域 | nodeTree、dataSet、script、style、navigation 五域中的批准子集 |
+| 工具域 | nodeTree、dataSet、script、style、blueprint 五域中的批准子集 |
 | 输出 | `implementation-dossier`、dirty projection reference |
 | 完成条件 | 本轮只完成一个 `closedLoopId`；首次实质修改后已有最小验证；无计划偏差 |
 | 明确非动作 | 不保存页面文件、不自动打开新范围、不修改公共代码 |
 
-当前 `PageDesignAllowedOperations` 已提供五域开关：`nodeTree`、`dataSet`、`script`、`style`、`navigation`。新治理层应直接把批准蓝图的 file/operation scope 编译成这组开关，而不是增加另一组同义权限字段。
+当前 `PageDesignAllowedOperations` 已提供五域开关：`nodeTree`、`dataSet`、`script`、`style`、`blueprint`（`src/services/page-design/page-design-gates.ts`）。新治理层应直接把批准蓝图的 file/operation scope 编译成这组开关，而不是增加另一组同义权限字段。
 
 ### 25.5 `appworks-develop-change`
 
@@ -963,7 +990,7 @@ flowchart LR
 | 仅页面业务脚本 | `script=true`，其余 false | `script.js` | 仅 `script.js` |
 | 仅页面样式 | `style=true`，其余 false | `style.css` | 仅 `style.css` |
 | 页面结构与数据绑定闭环 | `nodeTree=true,dataSet=true` | `rule.json`,`pagedata.json` | 验证通过后分别授权 |
-| 页面内部调整需要导航元信息 | 加 `navigation=true` | 页面文件 + navigation | 页面与导航必须是两个授权 action |
+| 页面内部调整需要改项目蓝图 | 加 `blueprint=true` | 页面文件 + 项目蓝图 | 页面与蓝图必须是两个授权 action |
 
 编译器必须遵守：
 
@@ -1060,7 +1087,7 @@ flowchart TD
 
 ### 29.2 执行
 
-页面文件按文件粒度执行，不使用“保存全部”替代精确授权：
+页面文件按文件粒度执行，不使用“保存全部”替代精确授权（此段是目标设计，现状见第 0 节）：
 
 ```mermaid
 flowchart TD
@@ -1345,8 +1372,8 @@ sequenceDiagram
 1. 用户提供需求或 Word 附件引用。
 2. projectPlanning 从附件正文和当前 `ProjectModel` 形成页面目录。
 3. 工具只操作 navigation，禁止 `openPageDesign` 和四文件 API。
-4. 运行完成后 `navigationDirty=true`。
-5. 若 Host Run 参数没有有效的 `save-navigation` 授权，Delivery 返回 dirty/skipped，导航不落盘。
+4. 运行完成后现行状态是 `editor.project.blueprintDirty`，不是 `navigationDirty`。
+5. 现行 Agent Run 只有 `saveBlueprintAfterRun===true` 才调用 `saveAll()`；默认 false，蓝图不落盘。目标设计仍要求单独的交付授权，见第 0 节。
 6. 用户审阅页面目录、父子层级、path、hidden 和 description。
 7. 只读验证通过后，用户单独批准导航保存。
 8. Delivery 调用项目 editor 保存并重新读取导航树。

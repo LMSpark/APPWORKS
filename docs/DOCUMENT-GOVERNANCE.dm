@@ -1,8 +1,8 @@
 dm DocumentGovernance {
   schema: 1
-  ver: "1.1.0"
+  ver: "1.2.0"
   st: active
-  dt: 2026-08-10
+  dt: 2026-10-05
   locale: zh-CN
   owner: "SPARK View"
 
@@ -247,6 +247,8 @@ section DirectoryRules {
       "本地工具状态和外部宿主配置不属于仓库文档治理；需要时只在本机保留。"
     rule:
       "不要提交外部工具按固定路径读取的 agent、prompt、instruction 或发布流程文档。"
+    exception:
+      ".cursor/skills/ 下的项目 AI 技能随项目提交，登记于 DirectoryRegistry 的 ai_skills；.cursor/ 其余内容仍是本地状态，由 .gitignore 排除。"
   }
 
   package_docs {
@@ -290,7 +292,7 @@ section DirectoryRules {
 }
 
 section DirectoryRegistry {
-  reg_ver: "1.1.0"
+  reg_ver: "1.2.0"
   update_rule:
     "新增文档目录前，必须先在本节登记 owner、purpose、index、allowed_files，并同步 tools/verify-docs.mjs 的 registeredDocPrefixes。"
 
@@ -353,6 +355,16 @@ section DirectoryRegistry {
     index: "knowledge/README.md"
     allowed_files: ["README.md", "kebab-case.md"]
     new_file_rule: "只沉淀可复用规则；一次性任务记录放 notes/。"
+  }
+
+  entry ai_skills {
+    path: ".cursor/skills/"
+    owner: "ai"
+    purpose: "随项目提交的 AI 编码技能（Cursor 按固定路径读取），承载可复用的工作方法，不承载产品事实。"
+    index: null
+    allowed_files: ["appworks-<kebab-case>/SKILL.md"]
+    new_file_rule: "description 只写触发条件，不概括流程；不复制上游技能原文；引用的命令和路径必须真实存在；产品事实仍以源码、模型、JSDoc 为准。"
+    tool_gate_note: "tools/verify-docs.mjs 整体跳过 .cursor/，技能文件不参与文档文件名检测，需要人工按本条目审查。"
   }
 
   entry notes {

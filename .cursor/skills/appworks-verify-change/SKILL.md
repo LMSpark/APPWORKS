@@ -39,7 +39,7 @@ description: 当 SPARK AppWorks 的变更已实现，需要决定该跑哪些 ty
 | 影响面 | 最小验证 | 扩展验证 |
 | --- | --- | --- |
 | 单个函数/文件 | 对应 focused 测试 `pnpm exec vitest run <path>` + `pnpm run typecheck` | `pnpm run lint` |
-| 单个包 | `pnpm --filter @spark-appworks/<pkg> run test:run`（及该包 typecheck/lint） | `pnpm run build:packages` |
+| 单个包 | 先看该包 `package.json` 的 scripts。多数包用 `pnpm --filter @spark-appworks/<pkg> run test:run`，再加该包 typecheck/lint。`spark-json-document` 没有 `test`/`test:run`；`vite-plugin-spark-catalog` 没有 `test`/`test:run`/`lint`，这两包只跑它们实际声明的脚本 | `pnpm run build:packages` |
 | 公共包 API / 包导出 | 包级 typecheck + test，消费者冒烟 | `pnpm run verify:arch`、`pnpm run verify:deps` |
 | `packages/spark-ai`（Agent Workflow） | 包级 typecheck/lint/test | `pnpm run verify:class-model`、`pnpm run verify:workflow-designs`、`pnpm run verify:ai-business-boundaries`、`pnpm run verify:ai-model` |
 | ClassModel / 模型 class 字段或 JSDoc | 先 `pnpm run generate:class-model-surface`，再 `pnpm run verify:class-model` | `pnpm run verify:class-model:full` |

@@ -30,6 +30,7 @@ ProjectModel (design + session)
 - [guides/](guides/README.md)：仍然可执行的操作指南。
 - AI 相关文档在 [`packages/spark-ai/docs/`](../packages/spark-ai/docs)：ClassModel 知识体系、传输与会话、Agent Workflow。
 - 包内 README / API / ARCHITECTURE：只说明该包自己的公共面和边界。
+- [`.cursor/skills/`](../.cursor/skills)：随项目提交的 AI 技能（`appworks-*`），登记规则见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm)；技能是工作方法，不是产品事实源。
 
 ## 写作规则
 

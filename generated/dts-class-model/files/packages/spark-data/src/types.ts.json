@@ -19,6 +19,7 @@
       "DataColumn",
       "TableResourceType",
       "TableBusinessCategory",
+      "TableModelBinding",
       "TableSemanticMetadata",
       "FieldVisibility",
       "ComponentLevel",
@@ -470,6 +471,20 @@
         }
       ]
     },
+    "TableModelBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TableModelBinding",
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "TableSemanticMetadata": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -480,6 +495,9 @@
         },
         "resourceId": {
           "type": "string"
+        },
+        "modelBinding": {
+          "$ref": "#/$defs/TableModelBinding"
         },
         "businessCategory": {
           "$ref": "#/$defs/TableBusinessCategory"
@@ -840,6 +858,9 @@
         },
         "resourceId": {
           "type": "string"
+        },
+        "modelBinding": {
+          "$ref": "#/$defs/TableModelBinding"
         },
         "businessCategory": {
           "$ref": "#/$defs/TableBusinessCategory"
@@ -1713,6 +1734,9 @@
           "type": "number"
         },
         "dataSetName": {
+          "type": "string"
+        },
+        "scenarioId": {
           "type": "string"
         },
         "tables": {
@@ -3187,7 +3211,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:20:45.438Z",
+  "generatedAt": "2026-10-05T19:46:04.482Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -3787,12 +3811,41 @@
         "members": {}
       }
     },
+    "TableModelBinding": {
+      "name": "TableModelBinding",
+      "jsdoc": "表绑定的后端模型身份；modelName 是查询用的模型 Name，不是物理资源名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    modelId: string;\n    modelName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    modelId: string;\n    modelName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "TableSemanticMetadata": {
       "name": "TableSemanticMetadata",
       "jsdoc": "表级语义元数据接口，组合资源类型、资源 ID 和业务分类",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 资源类型：决定该表是否允许直接声明静态 rows */\n    resourceType?: TableResourceType;\n    /** 资源 ID：对应外部系统中的稳定标识，如库表名、字典编码、第三方资源编码或静态资源标识 */\n    resourceId?: string;\n    /** 业务分类：标记当前表在业务模型中的角色 */\n    businessCategory?: TableBusinessCategory;\n}",
+        "declarationTypeText": "{\n    /** 资源类型：决定该表是否允许直接声明静态 rows */\n    resourceType?: TableResourceType;\n    /** 资源 ID：对应外部系统中的稳定标识，如库表名、字典编码、第三方资源编码或静态资源标识 */\n    resourceId?: string;\n    /** 模型绑定：该表对应的后端模型；未绑定的本地表不声明 */\n    modelBinding?: TableModelBinding;\n    /** 业务分类：标记当前表在业务模型中的角色 */\n    businessCategory?: TableBusinessCategory;\n}",
         "members": {
           "attributes": [
             {
@@ -3804,6 +3857,12 @@
             {
               "name": "resourceId",
               "jsdoc": "资源 ID：对应外部系统中的稳定标识，如库表名、字典编码、第三方资源编码或静态资源标识",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelBinding",
+              "jsdoc": "模型绑定：该表对应的后端模型；未绑定的本地表不声明",
               "readable": true,
               "writable": false
             },
@@ -5323,7 +5382,7 @@
       "jsdoc": "数据集元数据（对应 DataSet.toJson() 输出）\n顶层只承载数据集自身字段；表的默认视图数据必须继续下沉到 `tables.*.views.default`。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * Schema 格式版本（用于未来迁移兼容）。\n     * 当前 canonical 结构为 2：`tables -> views -> default`。\n     */\n    schemaVersion?: number;\n    /** 数据集名称 */\n    dataSetName: string;\n    /** 表集合（表名 -> 表元数据） */\n    tables: Record<string, TableMetadata>;\n    /** 数据资源关系 — 声明 DataTable 所对应资源间的字段关系 */\n    resourceRelations?: DataResourceRelation[];\n    /** DataView 输入级联 — 显式声明运行时输入图；不从 resourceRelations 自动推导 */\n    viewCascades?: DataViewCascade[];\n    /** 业务数据版本号（乐观锁），与 schemaVersion 含义不同 */\n    version?: number;\n    /** 页面 ID */\n    pageId?: string;\n    /** DataSet.saveChanges 的默认提交策略 */\n    saveChanges?: DataSetSaveChangesConfig;\n    /** 可选的设计器布局信息（如画布坐标） */\n    layout?: DataSetLayoutMetadata;\n}",
+        "declarationTypeText": "{\n    /**\n     * Schema 格式版本（用于未来迁移兼容）。\n     * 当前 canonical 结构为 2：`tables -> views -> default`。\n     */\n    schemaVersion?: number;\n    /** 数据集名称 */\n    dataSetName: string;\n    /** SPARK 场景身份（页面绑定的 formKey）；未绑定场景的本地数据集不声明 */\n    scenarioId?: string;\n    /** 表集合（表名 -> 表元数据） */\n    tables: Record<string, TableMetadata>;\n    /** 数据资源关系 — 声明 DataTable 所对应资源间的字段关系 */\n    resourceRelations?: DataResourceRelation[];\n    /** DataView 输入级联 — 显式声明运行时输入图；不从 resourceRelations 自动推导 */\n    viewCascades?: DataViewCascade[];\n    /** 业务数据版本号（乐观锁），与 schemaVersion 含义不同 */\n    version?: number;\n    /** 页面 ID */\n    pageId?: string;\n    /** DataSet.saveChanges 的默认提交策略 */\n    saveChanges?: DataSetSaveChangesConfig;\n    /** 可选的设计器布局信息（如画布坐标） */\n    layout?: DataSetLayoutMetadata;\n}",
         "members": {
           "attributes": [
             {
@@ -5337,6 +5396,12 @@
               "jsdoc": "数据集名称",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "SPARK 场景身份（页面绑定的 formKey）；未绑定场景的本地数据集不声明",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "tables",

@@ -165,6 +165,7 @@ export type {
   DependencyType,
   TableResourceType,
   TableBusinessCategory,
+  TableModelBinding,
   TableSemanticMetadata,
   CrudApi,
   CrudResult,

@@ -6,9 +6,11 @@ import type {
   ColumnType,
   DataColumn,
   DataViewFieldProjection,
-  DataViewQueryContext,
   TableResourceType,
 } from '@spark-appworks/spark-data'
+
+/** 每个前端模型对应一张 DataTable，该表只有这一个视图。 */
+export const LOWCODE_MODEL_VIEW_ID = 'default'
 
 export type LowcodeDataSpaceAdapterDiagnostic = Readonly<{
   code: string
@@ -29,19 +31,16 @@ export type LowcodeAdaptedResource = Readonly<{
   columns: readonly DataColumn[]
 }>
 
+/** modelId 同时是该模型 DataTable 的 tableName（SSOT，不另存别名）。 */
 export type LowcodeAdaptedFrontendModel = Readonly<{
   dataSpaceId: string
   modelId: string
   modelName: string
-  resourceId: string
-  resourceName: string
-  viewId: string
+  resource: LowcodeAdaptedResource
   fieldProjection: readonly DataViewFieldProjection[]
-  queryContext: DataViewQueryContext
 }>
 
 export type LowcodeFrontendModelAdapterResult = Readonly<{
-  resources: readonly LowcodeAdaptedResource[]
   models: readonly LowcodeAdaptedFrontendModel[]
   diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[]
 }>
@@ -89,20 +88,6 @@ function toResource(resource: DataSpaceResourceReference): LowcodeAdaptedResourc
   }
 }
 
-function resourceFingerprint(resource: LowcodeAdaptedResource): string {
-  return JSON.stringify({
-    resourceName: resource.resourceName,
-    resourceType: resource.resourceType,
-    databaseId: resource.databaseId,
-    primaryKeyField: resource.primaryKeyField,
-    columns: resource.columns.map((column) => ({
-      name: column.name,
-      type: column.type,
-      isPrimaryKey: column.isPrimaryKey === true,
-    })),
-  })
-}
-
 function projection(model: DataSpaceFrontendModel): readonly DataViewFieldProjection[] {
   const resourceFields = new Map(model.resource.fields.map((field) => [field.name, field]))
   return model.fields.map((field) => {
@@ -136,15 +121,8 @@ function toModel(model: DataSpaceFrontendModel): LowcodeAdaptedFrontendModel {
     dataSpaceId: model.dataSpaceId,
     modelId: model.modelId,
     modelName: model.name,
-    resourceId: model.resource.resourceId,
-    resourceName: model.resource.resourceName,
-    viewId: model.modelId,
+    resource: toResource(model.resource),
     fieldProjection: projection(model),
-    queryContext: {
-      kind: 'lowcode-frontend-model',
-      dataSpaceId: model.dataSpaceId,
-      modelId: model.modelId,
-    },
   }
 }
 
@@ -158,18 +136,6 @@ export class LowcodeFrontendModelAdapter {
       if (count > 1) duplicateModelIds.add(modelId)
     }
 
-    const resources = new Map<string, LowcodeAdaptedResource>()
-    const inconsistentResourceIds = new Set<string>()
-    for (const model of models) {
-      const adapted = toResource(model.resource)
-      const current = resources.get(adapted.resourceId)
-      if (current === undefined) {
-        resources.set(adapted.resourceId, adapted)
-      } else if (resourceFingerprint(current) !== resourceFingerprint(adapted)) {
-        inconsistentResourceIds.add(adapted.resourceId)
-      }
-    }
-
     const adaptedModels: LowcodeAdaptedFrontendModel[] = []
     for (const model of models) {
       if (duplicateModelIds.has(model.modelId)) {
@@ -178,16 +144,6 @@ export class LowcodeFrontendModelAdapter {
           message: `前端模型 ID 重复: ${model.modelId}`,
           dataSpaceId: model.dataSpaceId,
           modelId: model.modelId,
-        })
-        continue
-      }
-      if (inconsistentResourceIds.has(model.resource.resourceId)) {
-        diagnostics.push({
-          code: 'resource-readback-mismatch',
-          message: `同一资源 ID 的目录 readback 不一致: ${model.resource.resourceId}`,
-          dataSpaceId: model.dataSpaceId,
-          modelId: model.modelId,
-          resourceId: model.resource.resourceId,
         })
         continue
       }
@@ -206,13 +162,6 @@ export class LowcodeFrontendModelAdapter {
       adaptedModels.push(adapted)
     }
 
-    const activeResourceIds = new Set(adaptedModels.map((model) => model.resourceId))
-    return {
-      resources: [...resources.values()].filter((resource) => (
-        activeResourceIds.has(resource.resourceId) && !inconsistentResourceIds.has(resource.resourceId)
-      )),
-      models: adaptedModels,
-      diagnostics,
-    }
+    return { models: adaptedModels, diagnostics }
   }
 }

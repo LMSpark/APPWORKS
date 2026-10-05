@@ -5,7 +5,7 @@
  * AI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 metadata 的数据语义。
  */
 import { isRecord } from '@spark-appworks/spark-utils'
-import type { DataSetMetadata, TableMetadata, ViewMetadata } from './types'
+import type { DataSetMetadata, TableMetadata, TableModelBinding, ViewMetadata } from './types'
 
 /** Table Metadata Like 的语义模型。 */
 type TableMetadataLike = Omit<TableMetadata, 'tableName'> & {
@@ -88,6 +88,28 @@ function normalizeViewMetadata(
   return normalized
 }
 
+/** modelId 与 modelName 必须同时有效，否则查询时无法唯一定位模型。 */
+export function normalizeModelBinding(
+  binding: unknown,
+  tableName: string,
+): TableModelBinding | undefined {
+  if (binding === undefined) return undefined
+  const modelId = isRecord(binding) ? binding['modelId'] : undefined
+  const modelName = isRecord(binding) ? binding['modelName'] : undefined
+  if (typeof modelId !== 'string' || modelId.trim() === '' || typeof modelName !== 'string' || modelName.trim() === '') {
+    throw new Error(`表 ${tableName} 的 modelBinding 必须同时声明非空的 modelId 与 modelName`)
+  }
+  return { modelId, modelName }
+}
+
+export function normalizeScenarioId(scenarioId: unknown): string | undefined {
+  if (scenarioId === undefined) return undefined
+  if (typeof scenarioId !== 'string' || scenarioId.trim() === '') {
+    throw new Error('DataSet.fromJson: scenarioId 必须是非空字符串')
+  }
+  return scenarioId
+}
+
 function validateViewFieldProjection(command: ViewFieldProjectionValidationCommand): void {
   const { tableName, columns, viewId, view } = command
   const projection = view.fieldProjection
@@ -142,11 +164,13 @@ export function normalizeTableMetadata(
     validateViewFieldProjection({ tableName, columns: input.columns, viewId, view })
   }
 
+  const modelBinding = normalizeModelBinding(input.modelBinding, tableName)
   return {
     tableName,
     columns: input.columns,
     ...(input.resourceType !== undefined ? { resourceType: input.resourceType } : {}),
     ...(input.resourceId !== undefined ? { resourceId: input.resourceId } : {}),
+    ...(modelBinding !== undefined ? { modelBinding } : {}),
     ...(input.businessCategory !== undefined ? { businessCategory: input.businessCategory } : {}),
     ...(input.api !== undefined ? { api: input.api } : {}),
     ...(input.crudConfig !== undefined ? { crudConfig: input.crudConfig } : {}),
@@ -179,6 +203,7 @@ export function normalizeDataSetMetadata(input: DataSetMetadata): DataSetMetadat
   return {
     schemaVersion: input.schemaVersion ?? 2,
     dataSetName: input.dataSetName,
+    ...(input.scenarioId !== undefined ? { scenarioId: input.scenarioId } : {}),
     tables: normalizedTables,
     ...(input.resourceRelations !== undefined ? { resourceRelations: input.resourceRelations } : {}),
     ...(input.viewCascades !== undefined ? { viewCascades: input.viewCascades } : {}),

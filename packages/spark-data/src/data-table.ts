@@ -14,6 +14,7 @@ import type {
   CrudOperationConfig,
   TableResourceType,
   TableBusinessCategory,
+  TableModelBinding,
   DataPermissionSnapshotInput,
 } from './types'
 import type { DataSet } from './dataset'
@@ -72,6 +73,12 @@ export class DataTable {
    * - 字典：`common.order-status`
    */
   resourceId?: string
+
+  /**
+   * 模型绑定：该表对应的后端模型身份（模型 ID 与查询用 Name）。
+   * 页面内 tableName 保持稳定，后端模型改名只更新这里，不重命名 tableName。
+   */
+  modelBinding?: TableModelBinding
 
   /**
    * 业务分类：描述该表在当前业务模型中的角色。
@@ -313,6 +320,7 @@ export class DataTable {
       views: viewsData,
       ...(this.resourceType !== undefined ? { resourceType: this.resourceType } : {}),
       ...(this.resourceId !== undefined ? { resourceId: this.resourceId } : {}),
+      ...(this.modelBinding !== undefined ? { modelBinding: this.modelBinding } : {}),
       ...(this.businessCategory !== undefined ? { businessCategory: this.businessCategory } : {}),
       ...(this.api !== undefined ? { api: this.api } : {}),
       ...(this.crudConfig !== undefined ? { crudConfig: this.crudConfig } : {}),
@@ -468,6 +476,7 @@ export class DataTable {
     }
     if (normalized.resourceType !== undefined) t.resourceType = normalized.resourceType
     if (normalized.resourceId !== undefined) t.resourceId = normalized.resourceId
+    if (normalized.modelBinding !== undefined) t.modelBinding = normalized.modelBinding
     if (normalized.businessCategory !== undefined) t.businessCategory = normalized.businessCategory
     if (normalized.crudConfig !== undefined) t.crudConfig = normalized.crudConfig
 

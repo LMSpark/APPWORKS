@@ -38,18 +38,19 @@ describe('DataTable responsibilities (refactor verification)', () => {
     expect(typeof def.events.on).toBe('function')
   })
 
-  it('一个稳定数据资源由一个 DataTable 承载，并可拥有多个 modelId DataView', () => {
+  it('一个后端模型由一个 DataTable 承载（modelBinding），多个视图只是同一模型的不同字段投影', () => {
     const table = DataTable.fromJson({
-      tableName: 'RESOURCE-1',
+      tableName: 'MODEL-1',
       resourceId: 'RESOURCE-1',
       resourceType: 'database-table',
+      modelBinding: { modelId: 'MODEL-1', modelName: '薪资模型' },
       columns: [
         { name: 'rowid', type: 'string', label: '主键', isPrimaryKey: true },
         { name: 'salary', type: 'decimal', label: '薪资' },
       ],
       views: {
         default: {},
-        'MODEL-1': {
+        keyOnly: {
           fieldProjection: [{
             fieldId: 'FIELD-1',
             source: 'resource',
@@ -68,9 +69,8 @@ describe('DataTable responsibilities (refactor verification)', () => {
             valueFunction: '',
             expression: '',
           }],
-          queryContext: { dataSpaceId: 'SPACE-1', modelId: 'MODEL-1' },
         },
-        'MODEL-2': {
+        salaryOnly: {
           fieldProjection: [{
             fieldId: 'FIELD-2',
             source: 'resource',
@@ -89,16 +89,15 @@ describe('DataTable responsibilities (refactor verification)', () => {
             valueFunction: '',
             expression: '',
           }],
-          queryContext: { dataSpaceId: 'SPACE-1', modelId: 'MODEL-2' },
         },
       },
     })
 
-    expect(table.resourceId).toBe('RESOURCE-1')
-    expect(table.getView('MODEL-1')?.viewId).toBe('MODEL-1')
-    expect(table.getView('MODEL-2')?.viewId).toBe('MODEL-2')
-    expect(table.getView('MODEL-1')?.columns.map((column) => column.name)).toContain('rowid')
-    expect(table.getView('MODEL-2')?.columns.map((column) => column.name)).toContain('salaryAmount')
+    expect(table.modelBinding).toEqual({ modelId: 'MODEL-1', modelName: '薪资模型' })
+    expect(table.getView('keyOnly')?.viewId).toBe('keyOnly')
+    expect(table.getView('salaryOnly')?.viewId).toBe('salaryOnly')
+    expect(table.getView('keyOnly')?.columns.map((column) => column.name)).toContain('rowid')
+    expect(table.getView('salaryOnly')?.columns.map((column) => column.name)).toContain('salaryAmount')
   })
 
   it('DataView 的订阅可被 UI 与子视图使用（语义一致）', () => {

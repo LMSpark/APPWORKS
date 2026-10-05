@@ -171,7 +171,7 @@ class RuntimeFixtureHttpClient extends HttpClientBase {
 }
 
 describe('lowcode data-space DataView runtime', () => {
-  it('assembles resource tables, model views, relations and backend permission snapshots', async () => {
+  it('assembles one table per model, model-bound identity, relations and backend permission snapshots', async () => {
     const http = new RuntimeFixtureHttpClient()
     const assembler = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi(http), http)
     const assembly = assembler.assemble({
@@ -185,20 +185,26 @@ describe('lowcode data-space DataView runtime', () => {
     })
 
     expect(assembly.diagnostics).toEqual([])
+    expect(assembly.dataSet.scenarioId).toBe('FORM-1')
+    expect(assembly.dataSet.getTable('MODEL-CHILD')?.modelBinding).toEqual({
+      modelId: 'MODEL-CHILD',
+      modelName: '员工模型',
+    })
+    expect(assembly.dataSet.getTable('RESOURCE-CHILD')).toBeUndefined()
     expect(assembly.dataSet.resourceRelations?.[0]).toMatchObject({
       sourceRelationId: 'RELATION-1',
-      parentTable: 'RESOURCE-PARENT',
-      childTable: 'RESOURCE-CHILD',
+      parentTable: 'MODEL-PARENT',
+      childTable: 'MODEL-CHILD',
       fieldMappings: [{ parentResourceField: 'id', childResourceField: 'departmentId' }],
     })
     expect(assembly.dataSet.viewCascades?.[0]).toMatchObject({
       sourceRelationId: 'RELATION-1',
-      parentViewId: 'MODEL-PARENT',
-      childViewId: 'MODEL-CHILD',
+      parentViewId: 'default',
+      childViewId: 'default',
       filterBindings: [{ sourceField: 'id', targetField: 'departmentId' }],
     })
 
-    const childView = assembly.dataSet.getView('RESOURCE-CHILD', 'MODEL-CHILD')
+    const childView = assembly.dataSet.getView('MODEL-CHILD', 'default')
     expect(childView).toBeDefined()
     await childView?.requestData()
 
@@ -213,5 +219,38 @@ describe('lowcode data-space DataView runtime', () => {
       allowAdd: true,
       authorizedFeatureTags: ['employee.read'],
     })
+  })
+
+  it('builds independent tables for two models over the same resource', async () => {
+    const http = new RuntimeFixtureHttpClient()
+    const sharedFields = [{ id: 'FIELD-ID', name: 'id', primaryKey: true }]
+    const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi(http), http).assemble({
+      design: {
+        dataSpaceId: 'SPACE-1',
+        name: '组织场景',
+        description: '',
+        inputParameters: [],
+        resources: [],
+        models: [
+          model({ modelId: 'MODEL-A', name: '部门模型', resourceId: 'RESOURCE-SHARED', resourceName: 'Department', fields: sharedFields, relations: [] }),
+          model({ modelId: 'MODEL-B', name: '员工模型', resourceId: 'RESOURCE-SHARED', resourceName: 'Department', fields: sharedFields, relations: [] }),
+        ],
+        relations: [],
+      },
+      formKey: 'FORM-1',
+      permission: { formKey: 'FORM-1', authorizedFeatureTags: [], allowAddByResource: {} },
+    })
+
+    expect(assembly.diagnostics).toEqual([])
+    expect(assembly.dataSet.getTable('RESOURCE-SHARED')).toBeUndefined()
+    expect(assembly.dataSet.getTable('MODEL-A')?.modelBinding).toEqual({ modelId: 'MODEL-A', modelName: '部门模型' })
+    expect(assembly.dataSet.getTable('MODEL-B')?.modelBinding).toEqual({ modelId: 'MODEL-B', modelName: '员工模型' })
+    expect(assembly.dataSet.getView('MODEL-A', 'default')).not.toBe(assembly.dataSet.getView('MODEL-B', 'default'))
+
+    await assembly.dataSet.getView('MODEL-B', 'default')?.requestData()
+    expect(http.requests).toHaveLength(1)
+    const sent = isRecord(http.requests[0]?.data) ? http.requests[0].data : {}
+    const tables = Array.isArray(sent['Table']) ? sent['Table'] : []
+    expect(isRecord(tables[0]) ? tables[0]['Name'] : undefined).toBe('员工模型')
   })
 })

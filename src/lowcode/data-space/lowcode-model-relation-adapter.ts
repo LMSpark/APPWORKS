@@ -12,6 +12,7 @@ import type {
   LowcodeDataSpaceAdapterDiagnostic,
   LowcodeFrontendModelAdapterResult,
 } from './lowcode-frontend-model-adapter'
+import { LOWCODE_MODEL_VIEW_ID } from './lowcode-frontend-model-adapter'
 
 type RelationFieldPair = Readonly<{
   parentResourceField: string
@@ -130,7 +131,6 @@ export class LowcodeModelRelationAdapter {
     const resourceRelations: DataResourceRelation[] = []
     const viewCascades: DataViewCascade[] = []
     const modelsById = new Map(models.models.map(model => [model.modelId, model]))
-    const resourcesById = new Map(models.resources.map(resource => [resource.resourceId, resource]))
     const relationCounts = new Map<string, number>()
     for (const relation of relations) {
       relationCounts.set(
@@ -162,15 +162,9 @@ export class LowcodeModelRelationAdapter {
         diagnostics.push(diagnostic(relation, 'cross-data-space-relation', '模型关系跨越数据空间'))
         continue
       }
-      if (parentModel.resourceName !== relation.parentResourceName
-        || childModel.resourceName !== relation.childResourceName) {
+      if (parentModel.resource.resourceName !== relation.parentResourceName
+        || childModel.resource.resourceName !== relation.childResourceName) {
         diagnostics.push(diagnostic(relation, 'relation-resource-readback-mismatch', '关系资源名称与模型目录 readback 不一致'))
-        continue
-      }
-      const parentResource = resourcesById.get(parentModel.resourceId)
-      const childResource = resourcesById.get(childModel.resourceId)
-      if (parentResource === undefined || childResource === undefined) {
-        diagnostics.push(diagnostic(relation, 'relation-resource-unresolved', '关系资源身份未解析'))
         continue
       }
       const pairs = parseFieldPairs(relation)
@@ -178,8 +172,8 @@ export class LowcodeModelRelationAdapter {
         diagnostics.push(diagnostic(relation, 'unsupported-relation-filter', '关系 filter 不是受支持的 GetTableField 等值条件树'))
         continue
       }
-      const parentFields = resourceFields(parentResource)
-      const childFields = resourceFields(childResource)
+      const parentFields = resourceFields(parentModel.resource)
+      const childFields = resourceFields(childModel.resource)
       if (pairs.some(pair => (
         !parentFields.has(pair.parentResourceField) || !childFields.has(pair.childResourceField)
       ))) {
@@ -209,8 +203,8 @@ export class LowcodeModelRelationAdapter {
       resourceRelations.push({
         relationId: `resource-relation:${relation.sourceRelationId}`,
         sourceRelationId: relation.sourceRelationId,
-        parentTable: parentModel.resourceId,
-        childTable: childModel.resourceId,
+        parentTable: parentModel.modelId,
+        childTable: childModel.modelId,
         fieldMappings: fieldMappings.map(mapping => ({ ...mapping })),
         ...(singleMapping === undefined ? {} : {
           parentField: singleMapping.parentResourceField,
@@ -221,10 +215,10 @@ export class LowcodeModelRelationAdapter {
       viewCascades.push({
         cascadeId: `view-cascade:${relation.sourceRelationId}`,
         sourceRelationId: relation.sourceRelationId,
-        parentTable: parentModel.resourceId,
-        parentViewId: parentModel.viewId,
-        childTable: childModel.resourceId,
-        childViewId: childModel.viewId,
+        parentTable: parentModel.modelId,
+        parentViewId: LOWCODE_MODEL_VIEW_ID,
+        childTable: childModel.modelId,
+        childViewId: LOWCODE_MODEL_VIEW_ID,
         filterBindings: filterBindings.map(binding => ({
           sourceField: binding?.sourceField ?? '',
           targetField: binding?.targetField ?? '',

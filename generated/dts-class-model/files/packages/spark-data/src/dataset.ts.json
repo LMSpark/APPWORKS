@@ -22,6 +22,9 @@
         "dataSetName": {
           "type": "string"
         },
+        "scenarioId": {
+          "type": "string"
+        },
         "tables": {
           "type": "object",
           "title": "Record<string, TableMetadata>"
@@ -84,6 +87,9 @@
         },
         "schemaVersion": {
           "type": "number"
+        },
+        "scenarioId": {
+          "type": "string"
         },
         "version": {
           "type": "number"
@@ -163,6 +169,7 @@
         "resourceRelations",
         "viewCascades",
         "schemaVersion",
+        "scenarioId",
         "version",
         "pageId",
         "saveChangesConfig",
@@ -690,14 +697,14 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T05:54:02.608Z",
+  "generatedAt": "2026-10-05T19:46:26.751Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
       "jsdoc": "Data Set Config 的配置结构。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** data Set Name 名称。 */\n    dataSetName: string;\n    /** tables 字段。 */\n    tables: Record<string, TableMetadata>;\n    /** schema Version 字段。 */\n    schemaVersion?: number | undefined;\n    /** table Relations 字段。 */\n    resourceRelations?: DataResourceRelation[] | undefined;\n    /** view Dependencies 字段。 */\n    viewCascades?: DataViewCascade[] | undefined;\n    /** version 字段。 */\n    version?: number | undefined;\n    /** page Id 标识。 */\n    pageId?: string | undefined;\n    /** save Changes 字段。 */\n    saveChanges?: DataSetSaveChangesConfig | undefined;\n    /** layout 字段。 */\n    layout?: DataSetMetadata['layout'] | undefined;\n}",
+        "declarationTypeText": "{\n    /** data Set Name 名称。 */\n    dataSetName: string;\n    /** SPARK 场景身份。 */\n    scenarioId?: string | undefined;\n    /** tables 字段。 */\n    tables: Record<string, TableMetadata>;\n    /** schema Version 字段。 */\n    schemaVersion?: number | undefined;\n    /** table Relations 字段。 */\n    resourceRelations?: DataResourceRelation[] | undefined;\n    /** view Dependencies 字段。 */\n    viewCascades?: DataViewCascade[] | undefined;\n    /** version 字段。 */\n    version?: number | undefined;\n    /** page Id 标识。 */\n    pageId?: string | undefined;\n    /** save Changes 字段。 */\n    saveChanges?: DataSetSaveChangesConfig | undefined;\n    /** layout 字段。 */\n    layout?: DataSetMetadata['layout'] | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -705,6 +712,12 @@
               "jsdoc": "data Set Name 名称。",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "SPARK 场景身份。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "tables",
@@ -818,6 +831,12 @@
             {
               "name": "schemaVersion",
               "jsdoc": "Schema 格式版本（默认 1）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "SPARK 场景身份（页面绑定的 formKey）；未绑定场景的本地数据集为 undefined。",
               "readable": true,
               "writable": true
             },

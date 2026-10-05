@@ -296,12 +296,20 @@ export const TABLE_BUSINESS_CATEGORY_RECOMMENDED_VALUES: readonly TableBusinessC
   'reference',
 ]
 
+/** 表绑定的后端模型身份；modelName 是查询用的模型 Name，不是物理资源名。 */
+export type TableModelBinding = Readonly<{
+  modelId: string
+  modelName: string
+}>
+
 /** 表级语义元数据接口，组合资源类型、资源 ID 和业务分类 */
 export type TableSemanticMetadata = {
   /** 资源类型：决定该表是否允许直接声明静态 rows */
   resourceType?: TableResourceType
   /** 资源 ID：对应外部系统中的稳定标识，如库表名、字典编码、第三方资源编码或静态资源标识 */
   resourceId?: string
+  /** 模型绑定：该表对应的后端模型；未绑定的本地表不声明 */
+  modelBinding?: TableModelBinding
   /** 业务分类：标记当前表在业务模型中的角色 */
   businessCategory?: TableBusinessCategory}
 
@@ -1046,6 +1054,8 @@ export type DataSetMetadata = {
   schemaVersion?: number
   /** 数据集名称 */
   dataSetName: string
+  /** SPARK 场景身份（页面绑定的 formKey）；未绑定场景的本地数据集不声明 */
+  scenarioId?: string
   /** 表集合（表名 -> 表元数据） */
   tables: Record<string, TableMetadata>
 

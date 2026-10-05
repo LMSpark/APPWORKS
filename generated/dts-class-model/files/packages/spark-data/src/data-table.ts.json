@@ -62,6 +62,9 @@
         "resourceId": {
           "type": "string"
         },
+        "modelBinding": {
+          "$ref": "types.ts.json#/$defs/TableModelBinding"
+        },
         "businessCategory": {
           "$ref": "types.ts.json#/$defs/TableBusinessCategory"
         },
@@ -323,7 +326,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T05:52:40.504Z",
+  "generatedAt": "2026-10-05T19:46:26.686Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
@@ -410,6 +413,12 @@
             {
               "name": "resourceId",
               "jsdoc": "资源 ID：描述该表在外部资源系统中的稳定标识。\n示例：\n- 数据库表：`crm.customer`\n- 数据库视图：`vw_order_summary`\n- 第三方 API：`sap.business-partner`\n- 字典：`common.order-status`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelBinding",
+              "jsdoc": "模型绑定：该表对应的后端模型身份（模型 ID 与查询用 Name）。\n页面内 tableName 保持稳定，后端模型改名只更新这里，不重命名 tableName。",
               "readable": true,
               "writable": false
             },

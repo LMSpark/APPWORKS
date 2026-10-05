@@ -1,58 +1,58 @@
 import type { LowcodeModelRelationRecord } from '@spark-appworks/spark-lowcode-api'
 import { describe, expect, it } from 'vitest'
 
-import type { LowcodeFrontendModelAdapterResult } from '../../../src/lowcode/data-space/lowcode-frontend-model-adapter'
+import type {
+  LowcodeAdaptedResource,
+  LowcodeFrontendModelAdapterResult,
+} from '../../../src/lowcode/data-space/lowcode-frontend-model-adapter'
 import { LowcodeModelRelationAdapter } from '../../../src/lowcode/data-space/lowcode-model-relation-adapter'
 
+const parentResource: LowcodeAdaptedResource = {
+  resourceId: 'RESOURCE-PARENT',
+  resourceName: 'ParentTable',
+  resourceType: 'database-table',
+  databaseId: 'DATABASE-1',
+  databaseName: 'business',
+  primaryKeyField: 'id',
+  columns: [
+    { name: 'id', type: 'integer', isPrimaryKey: true },
+    { name: 'tenantId', type: 'string' },
+  ],
+}
+
+const childResource: LowcodeAdaptedResource = {
+  resourceId: 'RESOURCE-CHILD',
+  resourceName: 'ChildTable',
+  resourceType: 'database-table',
+  databaseId: 'DATABASE-1',
+  databaseName: 'business',
+  primaryKeyField: 'id',
+  columns: [
+    { name: 'id', type: 'integer', isPrimaryKey: true },
+    { name: 'parentId', type: 'integer' },
+    { name: 'tenantKey', type: 'string' },
+  ],
+}
+
 const models: LowcodeFrontendModelAdapterResult = {
-  resources: [{
-    resourceId: 'RESOURCE-PARENT',
-    resourceName: 'ParentTable',
-    resourceType: 'database-table',
-    databaseId: 'DATABASE-1',
-    databaseName: 'business',
-    primaryKeyField: 'id',
-    columns: [
-      { name: 'id', type: 'integer', isPrimaryKey: true },
-      { name: 'tenantId', type: 'string' },
-    ],
-  }, {
-    resourceId: 'RESOURCE-CHILD',
-    resourceName: 'ChildTable',
-    resourceType: 'database-table',
-    databaseId: 'DATABASE-1',
-    databaseName: 'business',
-    primaryKeyField: 'id',
-    columns: [
-      { name: 'id', type: 'integer', isPrimaryKey: true },
-      { name: 'parentId', type: 'integer' },
-      { name: 'tenantKey', type: 'string' },
-    ],
-  }],
   models: [{
     dataSpaceId: 'SPACE-1',
     modelId: 'MODEL-PARENT',
     modelName: '父模型',
-    resourceId: 'RESOURCE-PARENT',
-    resourceName: 'ParentTable',
-    viewId: 'MODEL-PARENT',
+    resource: parentResource,
     fieldProjection: [
       { fieldId: 'P-ID', source: 'resource', resourceFieldId: 'R-P-ID', resourceField: 'id', viewField: 'parentKey', type: 'integer', label: 'ID', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: true, value: '', valueFunction: '', expression: '' },
       { fieldId: 'P-TENANT', source: 'resource', resourceFieldId: 'R-P-TENANT', resourceField: 'tenantId', viewField: 'tenant', type: 'string', label: '租户', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false, value: '', valueFunction: '', expression: '' },
     ],
-    queryContext: { kind: 'lowcode-frontend-model', dataSpaceId: 'SPACE-1', modelId: 'MODEL-PARENT' },
   }, {
     dataSpaceId: 'SPACE-1',
     modelId: 'MODEL-CHILD',
     modelName: '子模型',
-    resourceId: 'RESOURCE-CHILD',
-    resourceName: 'ChildTable',
-    viewId: 'MODEL-CHILD',
+    resource: childResource,
     fieldProjection: [
       { fieldId: 'C-PARENT', source: 'resource', resourceFieldId: 'R-C-PARENT', resourceField: 'parentId', viewField: 'parentRef', type: 'integer', label: '父级', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false, value: '', valueFunction: '', expression: '' },
       { fieldId: 'C-TENANT', source: 'resource', resourceFieldId: 'R-C-TENANT', resourceField: 'tenantKey', viewField: 'tenantRef', type: 'string', label: '租户', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false, value: '', valueFunction: '', expression: '' },
     ],
-    queryContext: { kind: 'lowcode-frontend-model', dataSpaceId: 'SPACE-1', modelId: 'MODEL-CHILD' },
   }],
   diagnostics: [],
 }
@@ -87,8 +87,8 @@ describe('LowcodeModelRelationAdapter', () => {
     expect(result.diagnostics).toEqual([])
     expect(result.resourceRelations).toMatchObject([{
       sourceRelationId: 'RELATION-1',
-      parentTable: 'RESOURCE-PARENT',
-      childTable: 'RESOURCE-CHILD',
+      parentTable: 'MODEL-PARENT',
+      childTable: 'MODEL-CHILD',
       cascadeDelete: true,
       fieldMappings: [
         { parentResourceField: 'id', childResourceField: 'parentId' },
@@ -97,8 +97,8 @@ describe('LowcodeModelRelationAdapter', () => {
     }])
     expect(result.viewCascades).toMatchObject([{
       sourceRelationId: 'RELATION-1',
-      parentViewId: 'MODEL-PARENT',
-      childViewId: 'MODEL-CHILD',
+      parentViewId: 'default',
+      childViewId: 'default',
       dependencyType: 'selectedRows',
       filterBindings: [
         { sourceField: 'parentKey', targetField: 'parentRef' },

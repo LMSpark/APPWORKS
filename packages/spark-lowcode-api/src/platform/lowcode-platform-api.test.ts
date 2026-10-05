@@ -43,41 +43,6 @@ class FixtureStorage {
 }
 
 describe('LowcodePlatformApi', () => {
-  it('reads and normalizes the source-faithful current user response', async () => {
-    const http = new FixtureHttpClient({
-      Code: 200,
-      Message: '操作成功',
-      Result: {
-        account: 'admin',
-        realName: '管理员',
-        avatar: null,
-        address: null,
-        signature: null,
-        orgId: 0,
-        buttons: null,
-        userInfo: { ROWID: 'U1' },
-      },
-      Type: 'success',
-    })
-
-    const currentUser = await new LowcodeApi({ http }).platform.getCurrentUser()
-
-    expect(http.requestConfig?.url).toBe('/api/LoginAuthority/GetUserInfo')
-    expect(http.requestConfig?.method).toBe('GET')
-    expect(currentUser).toEqual({
-      account: 'admin',
-      realName: '管理员',
-      avatar: null,
-      address: null,
-      signature: null,
-      orgId: 0,
-      orgName: null,
-      posName: null,
-      buttons: null,
-      userInfo: { ROWID: 'U1' },
-    })
-  })
-
   it('maps semantic login credentials and normalizes the login session', async () => {
     const http = new FixtureHttpClient({
       Code: 200,
@@ -346,7 +311,7 @@ describe('LowcodePlatformApi', () => {
   it('injects the stored access token into authenticated platform requests', async () => {
     const http = new FixtureHttpClient({
       Code: 200,
-      Result: { account: 'admin', realName: '管理员', userInfo: {} },
+      Result: 'x',
     })
     const api = new LowcodeApi({ http })
     api.session.save({
@@ -373,7 +338,7 @@ describe('LowcodePlatformApi', () => {
       },
     })
 
-    await api.platform.getCurrentUser()
+    await api.design.readTextFile({ appType: 'vue', customPath: '', fileName: 'page.json' })
 
     expect(http.requestConfig?.headers).toMatchObject({ Authorization: 'Bearer access-token' })
   })
@@ -391,7 +356,7 @@ describe('LowcodePlatformApi', () => {
       },
       {
         Code: 200,
-        Result: { account: 'admin', realName: '管理员', userInfo: {} },
+        Result: 'x',
       },
     ])
     const api = new LowcodeApi({ http })
@@ -419,7 +384,7 @@ describe('LowcodePlatformApi', () => {
       },
     })
 
-    await api.platform.getCurrentUser()
+    await api.design.readTextFile({ appType: 'vue', customPath: '', fileName: 'page.json' })
 
     expect(http.requestConfigs).toHaveLength(2)
     expect(http.requestConfigs[0]).toMatchObject({
@@ -430,7 +395,7 @@ describe('LowcodePlatformApi', () => {
       },
     })
     expect(http.requestConfigs[1]).toMatchObject({
-      url: '/api/LoginAuthority/GetUserInfo',
+      url: '/api/File/content/text',
       headers: { Authorization: 'Bearer new-access' },
     })
   })
@@ -465,7 +430,11 @@ describe('LowcodePlatformApi', () => {
       Type: 'error',
     })
 
-    const action = new LowcodeApi({ http }).platform.getCurrentUser()
+    const action = new LowcodeApi({ http }).design.readTextFile({
+      appType: 'vue',
+      customPath: '',
+      fileName: 'page.json',
+    })
 
     await expect(action).rejects.toEqual(new LowcodeApiError(401, '令牌不能为空'))
   })
@@ -473,7 +442,11 @@ describe('LowcodePlatformApi', () => {
   it('fails closed when the response is not an AjaxResult', async () => {
     const http = new FixtureHttpClient({ result: { account: 'admin' } })
 
-    const action = new LowcodeApi({ http }).platform.getCurrentUser()
+    const action = new LowcodeApi({ http }).design.readTextFile({
+      appType: 'vue',
+      customPath: '',
+      fileName: 'page.json',
+    })
 
     await expect(action).rejects.toEqual(new LowcodeApiError(0, 'lowcode 响应缺少数字 Code'))
   })

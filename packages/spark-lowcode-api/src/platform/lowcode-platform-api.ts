@@ -26,20 +26,6 @@ import {
 import type { LowcodeSessionStore } from './lowcode-session-store.js'
 import type { SendCodeType, SendCodeScene } from '../contracts/lowcode-send-code.js'
 
-/** 当前用户资料；wire 响应字段为 camelCase（如 account、realName、userInfo）。 */
-export type LowcodeCurrentUser = Readonly<{
-  account: string | null
-  realName: string | null
-  avatar: string | null
-  address: string | null
-  signature: string | null
-  orgId: number | null
-  orgName: string | null
-  posName: string | null
-  buttons: readonly string[] | null
-  userInfo: Readonly<Record<string, unknown>> | null
-}>
-
 /** 企业域登录凭据；请求体映射为 strUser、strPwd、entName（大小写固定）。 */
 export type LowcodeLoginCredentials = Readonly<{
   enterpriseName: string
@@ -137,37 +123,6 @@ export type LowcodeSession = Readonly<{
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function readNullableString(record: Record<string, unknown>, key: string): string | null {
-  const value = record[key]
-  if (value === undefined || value === null) return null
-  if (typeof value === 'string') return value
-  throw new LowcodeApiError(0, `当前用户字段 ${key} 不是字符串`)
-}
-
-function readNullableNumber(record: Record<string, unknown>, key: string): number | null {
-  const value = record[key]
-  if (value === undefined || value === null) return null
-  if (typeof value === 'number') return value
-  throw new LowcodeApiError(0, `当前用户字段 ${key} 不是数字`)
-}
-
-function readNullableStrings(record: Record<string, unknown>, key: string): readonly string[] | null {
-  const value = record[key]
-  if (value === undefined || value === null) return null
-  if (Array.isArray(value) && value.every((item) => typeof item === 'string')) return value
-  throw new LowcodeApiError(0, `当前用户字段 ${key} 不是字符串数组`)
-}
-
-function readNullableRecord(
-  record: Record<string, unknown>,
-  key: string,
-): Readonly<Record<string, unknown>> | null {
-  const value = record[key]
-  if (value === undefined || value === null) return null
-  if (isRecord(value)) return value
-  throw new LowcodeApiError(0, `当前用户字段 ${key} 不是对象`)
 }
 
 function readRequiredString(record: Record<string, unknown>, key: string, context: string): string {
@@ -450,32 +405,6 @@ export class LowcodePlatformApi {
     } finally {
       this.application.clear()
       this.session.clear()
-    }
-  }
-
-  /** 拉取当前用户；有会话时附带 Authorization Bearer accessToken。 */
-  public async getCurrentUser(): Promise<LowcodeCurrentUser> {
-    const session = this.session.get()
-    const result = await this.client.requestResult({
-      path: '/api/LoginAuthority/GetUserInfo',
-      method: 'GET',
-      ...(session === null ? {} : { headers: { Authorization: bearer(session.accessToken) } }),
-    })
-    if (!isRecord(result)) {
-      throw new LowcodeApiError(0, '当前用户 Result 不是对象')
-    }
-
-    return {
-      account: readNullableString(result, 'account'),
-      realName: readNullableString(result, 'realName'),
-      avatar: readNullableString(result, 'avatar'),
-      address: readNullableString(result, 'address'),
-      signature: readNullableString(result, 'signature'),
-      orgId: readNullableNumber(result, 'orgId'),
-      orgName: readNullableString(result, 'orgName'),
-      posName: readNullableString(result, 'posName'),
-      buttons: readNullableStrings(result, 'buttons'),
-      userInfo: readNullableRecord(result, 'userInfo'),
     }
   }
 

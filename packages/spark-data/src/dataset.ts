@@ -34,7 +34,7 @@ import type {
 } from './dataset-history'
 import { DataTable } from './data-table'
 import { createCrudService } from './crud-service'
-import { normalizeDataSetMetadata } from './metadata'
+import { normalizeDataSetMetadata, normalizeScenarioId } from './metadata'
 import { assertNoSeparator, getParentRows } from './core/utils'
 
 /** @internal 从未知值推断列类型 */
@@ -126,6 +126,8 @@ type DataSetTransactionViewPlan = {
 type DataSetConfig = {
     /** data Set Name 名称。 */
 dataSetName: string
+    /** SPARK 场景身份。 */
+scenarioId?: string | undefined
     /** tables 字段。 */
 tables: Record<string, TableMetadata>
     /** schema Version 字段。 */
@@ -308,6 +310,9 @@ function buildCanonicalDataSetConfig(rawJson: Record<string, unknown>): DataSetC
     tables: normalizeTableMap(rawJson['tables']),
   }
 
+  const scenarioId = normalizeScenarioId(rawJson['scenarioId'])
+  if (scenarioId !== undefined) config.scenarioId = scenarioId
+
   const resourceRelations = readResourceRelations(rawJson['resourceRelations'])
   if (resourceRelations !== undefined) config.resourceRelations = resourceRelations
 
@@ -371,6 +376,9 @@ export class DataSet extends SparkAIModel implements DataSetContract {
 
   /** Schema 格式版本（默认 1） */
   schemaVersion = 2
+
+  /** SPARK 场景身份（页面绑定的 formKey）；未绑定场景的本地数据集为 undefined。 */
+  scenarioId: string | undefined
 
   /** 业务数据版本号（乐观锁） */
   version: number | undefined
@@ -446,6 +454,7 @@ export class DataSet extends SparkAIModel implements DataSetContract {
       dataSetName: config.dataSetName,
       tables: config.tables,
       schemaVersion: config.schemaVersion ?? 2,
+      ...(config.scenarioId !== undefined ? { scenarioId: config.scenarioId } : {}),
       ...(config.resourceRelations !== undefined ? { resourceRelations: config.resourceRelations } : {}),
       ...(config.viewCascades !== undefined ? { viewCascades: config.viewCascades } : {}),
       ...(config.version !== undefined ? { version: config.version } : {}),
@@ -858,6 +867,7 @@ getRequestTemplateParams(): Record<string, unknown> {
   private _applyNormalizedMetadata(normalized: DataSetMetadata): void {
     this.dataSetName = normalized.dataSetName
     this.schemaVersion = normalized.schemaVersion ?? 2
+    this.scenarioId = normalized.scenarioId
     this.resourceRelations = normalized.resourceRelations
     this.viewCascades = normalized.viewCascades
     this.version = normalized.version
@@ -1759,6 +1769,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       dataSetName: this.dataSetName,
       tables,
     }
+    if (this.scenarioId !== undefined) result.scenarioId = this.scenarioId
     if (this.resourceRelations !== undefined) result.resourceRelations = this.resourceRelations
     if (this.viewCascades !== undefined) result.viewCascades = this.viewCascades
     if (this.version !== undefined) result.version = this.version

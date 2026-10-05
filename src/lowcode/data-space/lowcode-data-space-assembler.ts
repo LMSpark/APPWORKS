@@ -20,6 +20,7 @@ import {
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import {
+  LOWCODE_MODEL_VIEW_ID,
   LowcodeFrontendModelAdapter,
   type LowcodeAdaptedFrontendModel,
   type LowcodeDataSpaceAdapterDiagnostic,
@@ -43,12 +44,8 @@ type ModelRuntimeBinding = Readonly<{
   model: DataSpaceFrontendModel
 }>
 
-type AdaptedDataResource = ReturnType<LowcodeFrontendModelAdapter['adapt']>['resources'][number]
-
 type ModelTableCommand = Readonly<{
-  resourceId: string
-  resource: AdaptedDataResource
-  bindings: readonly ModelRuntimeBinding[]
+  binding: ModelRuntimeBinding
   runtime: DataSpaceRuntimeApi
   formKey: string
   permission: PermissionRuntimeSnapshot
@@ -73,15 +70,6 @@ function unwrapLowcodeResult(value: unknown): unknown {
     throw new Error(typeof envelope['Message'] === 'string' ? envelope['Message'] : 'lowcode 请求失败')
   }
   return envelope['Result']
-}
-
-function queryContext(params: QueryParams): Readonly<{ dataSpaceId: string; modelId: string }> {
-  const context = requireRecord(params.context, 'DataView.queryContext')
-  if (context['kind'] !== 'lowcode-frontend-model') throw new Error('DataView.queryContext.kind 无效')
-  const dataSpaceId = typeof context['dataSpaceId'] === 'string' ? context['dataSpaceId'].trim() : ''
-  const modelId = typeof context['modelId'] === 'string' ? context['modelId'].trim() : ''
-  if (!dataSpaceId || !modelId) throw new Error('DataView.queryContext 缺少 dataSpaceId/modelId')
-  return { dataSpaceId, modelId }
 }
 
 const DATAVIEW_TO_WIRE_FILTER_OPERATOR_ENTRIES = [
@@ -204,34 +192,14 @@ function toQueryResult(
 }
 
 function modelTable(command: ModelTableCommand): TableMetadata {
-  const { resourceId, resource, bindings, runtime, formKey, permission } = command
-  const byModelId = new Map(bindings.map(binding => [binding.adapted.modelId, binding]))
-  const resolveBinding = (request: unknown): ModelRuntimeBinding => {
-    const params = requireQueryParams(request)
-    const context = queryContext(params)
-    const binding = byModelId.get(context.modelId)
-    if (binding === undefined) {
-      throw new Error(`DataView 模型上下文未解析: ${context.dataSpaceId}/${context.modelId}`)
-    }
-    if (context.dataSpaceId !== binding.adapted.dataSpaceId) {
-      throw new Error(`DataView 模型上下文未解析: ${context.dataSpaceId}/${context.modelId}`)
-    }
-    return binding
-  }
-  const views: TableMetadata['views'] = { default: {} }
-  for (const binding of bindings) {
-    views[binding.adapted.viewId] = {
-      fieldProjection: binding.adapted.fieldProjection,
-      queryContext: binding.adapted.queryContext,
-      page: 0,
-      pageSize: 20,
-    }
-  }
+  const { binding, runtime, formKey, permission } = command
+  const { adapted } = binding
   return {
-    tableName: resourceId,
-    resourceId,
-    resourceType: resource.resourceType,
-    columns: resource.columns.map(column => ({ ...column })),
+    tableName: adapted.modelId,
+    resourceId: adapted.resource.resourceId,
+    resourceType: adapted.resource.resourceType,
+    modelBinding: { modelId: adapted.modelId, modelName: adapted.modelName },
+    columns: adapted.resource.columns.map(column => ({ ...column })),
     api: {
       list: {
         url: '/api/DataOperation/GetData',
@@ -241,17 +209,21 @@ function modelTable(command: ModelTableCommand): TableMetadata {
     },
     crudConfig: {
       transformRequest: (request) => {
-        const params = requireQueryParams(request)
-        return runtime.prepareQuery(runtimeQuery(params, resolveBinding(params), formKey)).data
+        return runtime.prepareQuery(runtimeQuery(requireQueryParams(request), binding, formKey)).data
       },
       transformResponse: (response, request) => {
-        const params = requireQueryParams(request)
-        const query = runtimeQuery(params, resolveBinding(params), formKey)
+        const query = runtimeQuery(requireQueryParams(request), binding, formKey)
         const snapshot = runtime.parseQueryResult(query, unwrapLowcodeResult(response))
-        return toQueryResult(snapshot, permission, resourceId)
+        return toQueryResult(snapshot, permission, adapted.resource.resourceId)
       },
     },
-    views,
+    views: {
+      [LOWCODE_MODEL_VIEW_ID]: {
+        fieldProjection: adapted.fieldProjection,
+        page: 0,
+        pageSize: 20,
+      },
+    },
   }
 }
 
@@ -274,18 +246,11 @@ export class LowcodeDataSpaceAssembler {
     const adaptedRelations = this.relationAdapter.adapt(input.design.relations, adaptedModels)
     const rawModels = new Map(input.design.models.map(model => [model.modelId, model]))
     const tables: Record<string, TableMetadata> = {}
-    for (const resource of adaptedModels.resources) {
-      const bindings = adaptedModels.models
-        .filter(model => model.resourceId === resource.resourceId)
-        .map((adapted): ModelRuntimeBinding | null => {
-          const model = rawModels.get(adapted.modelId)
-          return model === undefined ? null : { adapted, model }
-        })
-        .filter((binding): binding is ModelRuntimeBinding => binding !== null)
-      tables[resource.resourceId] = modelTable({
-        resourceId: resource.resourceId,
-        resource,
-        bindings,
+    for (const adapted of adaptedModels.models) {
+      const model = rawModels.get(adapted.modelId)
+      if (model === undefined) throw new Error(`模型定义缺失: ${adapted.modelId}`)
+      tables[adapted.modelId] = modelTable({
+        binding: { adapted, model },
         runtime: this.runtime,
         formKey,
         permission: input.permission,
@@ -294,6 +259,7 @@ export class LowcodeDataSpaceAssembler {
     const metadata: DataSetMetadata = {
       schemaVersion: 2,
       dataSetName: input.design.dataSpaceId,
+      scenarioId: formKey,
       tables,
       resourceRelations: [...adaptedRelations.resourceRelations],
       viewCascades: [...adaptedRelations.viewCascades],

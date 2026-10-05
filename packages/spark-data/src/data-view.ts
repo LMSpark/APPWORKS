@@ -121,6 +121,12 @@ function dataRowFromPartial(record: Partial<DataRow>): DataRow {
   return { ...record }
 }
 
+/** 行权限线协议字段属于单次查询的运行态，不得进入配置序列化。 */
+function withoutPermissionWireFields(record: Partial<DataRow>): Partial<DataRow> {
+  const { lingma_sys_params: _permissionSets, lingma_sys_key: _permissionToken, ...rest } = record
+  return rest
+}
+
 function dataRowsFromUnknown(value: unknown, context: string): DataRow[] {
   if (!Array.isArray(value)) {
     throw new Error(`${context}: rows 必须是数组`)
@@ -459,6 +465,13 @@ sortExpression?: SortExpression
     const table = this._dataTable
     if (!table) return false
     return table.resourceType === 'static-data' || (table.api?.list === undefined && this.rows.length > 0)
+  }
+
+  /** 远端数据来源的行是查询结果，不属于配置，序列化时不写出。 */
+  private _holdsRemoteRows(): boolean {
+    const table = this._dataTable
+    if (table === null || table.resourceType === 'static-data') return false
+    return table.resourceType !== undefined || table.api?.list !== undefined
   }
 
   private _getStaticLocalFilterSourceRows(): DataRow[] {
@@ -2346,7 +2359,9 @@ setTreeConfig(treeConfig: TreeConfig): void {
 
     /** 执行 to Json 操作。 */
 toJson(): ViewMetadata {
-    const serializedRows = this.rows.map((row) => dataRowFromPartial(this.stripComputedColumns(row)))
+    const serializedRows = this._holdsRemoteRows()
+      ? []
+      : this.rows.map((row) => dataRowFromPartial(withoutPermissionWireFields(this.stripComputedColumns(row))))
 
     const result: ViewMetadata = {
       tableName: this.tableName,
@@ -2357,9 +2372,9 @@ toJson(): ViewMetadata {
     }
     if (this.filterExpression !== undefined) result.filterExpression = this.filterExpression
     if (this.sortExpression !== undefined) result.sortExpression = this.sortExpression
-    // 只在非默认值时序列化（减少 JSON 体积）
-    if (this.autoCurrentFirst) result.autoCurrentFirst = this.autoCurrentFirst
-    if (this.autoSelectFirst) result.autoSelectFirst = this.autoSelectFirst
+    // 布尔必须显式写出：省略 false 会在重新加载后回到默认 true
+    result.autoCurrentFirst = this.autoCurrentFirst
+    result.autoSelectFirst = this.autoSelectFirst
     if (this.treeConfig !== undefined) result.treeConfig = this.treeConfig
     if (this.autoLoad !== false) result.autoLoad = this.autoLoad
     if (this.commitMode !== 'immediate') result.commitMode = this.commitMode

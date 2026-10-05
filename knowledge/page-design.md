@@ -42,3 +42,10 @@
 - **规则**：运行态 DataSet 只经宿主 `loadBoundDataSpaceDataSet`（DataSpace 设计 + `PermissionRuntimeSnapshot` → `LowcodeDataSpaceAssembler`）装载。`pagedata.json` 仅属设计/AI 轴与无绑定预览；`SparkPageRenderer` 在 binding 存在时必须调用注入的 `loadRuntimeDataSet`，禁止再用四文件 hydrate 当运行数据。
 - **违反后果**：设计器草稿与平台权限/模型双真源并行 → UI 授权与查询结果和平台不一致；缺装载器时 fail-closed 抛错
 - **发现来源**：2026-08 系统结构 SSOT 归并（批次 F）
+
+### 绑定页面的 DataSet 身份：一个模型一张表，场景与模型绑定是唯一身份来源
+
+- **场景**：读写由 `LowcodeDataSpaceAssembler` 装配出的 DataSet，或编写引用它的页面规则/脚本
+- **规则**：`DataSet.scenarioId` 存绑定的 `formKey`（对应请求头 `x-FormKey`）；每个前端模型对应一张 `DataTable`，`tableName` 即 `modelId`，`DataTable.modelBinding{modelId,modelName}` 是模型身份的唯一来源（`modelName` 用于查询，后端改名只改它，不改 `tableName`）；表内只有一个 `default` 视图（常量 `LOWCODE_MODEL_VIEW_ID`）。同一物理资源的多个模型是多张互相独立的表，不合并。`resourceId` 仅描述资源，不是表身份；查询路由不再依赖视图 `queryContext`。没有按资源建表、以 `modelId` 作 `viewId` 的旧写法，也没有兼容层，旧页面规则只能经迁移预览一次性改写。
+- **违反后果**：把 `resourceId` 当 `tableName` 或把 `modelId` 当 `viewId` 引用 → `getTable/getView` 取不到；同资源多模型被合并 → 视图、权限与查询串用
+- **发现来源**：2026-10 DataSet 整合 SPARK 数据空间（P2）

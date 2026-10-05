@@ -1,5 +1,9 @@
 # 业务工厂通用 gate 原语设计 — 研读锚点
 
+> 状态：未立项，待启动（2026-10-05 核对）。runtime 目录里仍没有通用谓词原语；应用层仍用 `PAGE_DESIGN_GATE_RULE_KINDS`（`agent-workflow-bindings.ts:49`、`page-design-agent-workflow-binding.ts:186`）按 kind 分发。本轮不改设计内容。
+>
+> 行号：正文里 2026-06-21 的行号已漂移，不当作现行位置。现行位置以文末「2026-10-05 行号核对」为准。
+
 > 研读锚点。基于 2026-06-21 全仓代码研读，针对 agent-workflow 运行时去业务化目标，设计**业务无关的通用 gate 原语集**，替代当前实现里内置业务名词的 `gateRules[].kind` 枚举。本文件不改任何代码，只读代码 + 产出设计。
 >
 > 涉及产品事实时以对应源码、模型 class、JSDoc 和产品层文档为准。
@@ -633,7 +637,9 @@ reason/fix 模板里的 `{{attributeName}}` / `{{moduleInstanceId}}` 需要运�
 
 ## 附：研读源码行号索引
 
-| 源码位置 | 关键符号 | 行号 |
+上表是 2026-06-21 的记录，行号已过期，保留作对照。现行位置见下一节。
+
+| 源码位置 | 关键符号 | 行号（2026-06-21，已过期） |
 |---|---|---|
 | `packages/spark-data/src/types.ts` | `FilterOperator` / `FilterValueExpression` / `FilterFieldValueReference` / `FilterExpression` | `:543-626` |
 | `packages/spark-data/src/data-view.ts` | `_matchesFilterCondition` / `_matchesFilterExpression` / `_resolveFilterValueExpression` | `:569-652` |
@@ -650,3 +656,25 @@ reason/fix 模板里的 `{{attributeName}}` / `{{moduleInstanceId}}` 需要运�
 | `packages/spark-project-model/src/navigation/project-node.ts` | `ProjectPageNodeSummary`（editorState 读取目标）| `:250-277` |
 | `packages/spark-ai/src/agent/business/lifecycle-types.ts` | `AiAgentBeforeFunctionCallOptions` | `:53-58` |
 | `packages/spark-ai/src/agent/business/scope-types.ts` | `AiAgentRuntimeContext`（moduleInstanceId 等）| `:86-93` |
+
+## 2026-10-05 行号核对
+
+符号仍在，行号和两处路径已变。`spark-ai-server/` 已不在本仓；definition 现位于 `config/agent-workflows/`。`ProjectPageNodeSummary` 现位于蓝图节点，不再位于 `navigation/project-node.ts`。
+
+| 源码位置 | 关键符号 | 现行行号 |
+|---|---|---|
+| `packages/spark-data/src/types.ts` | `FilterOperator` / `FilterValueExpression` / `FilterExpression` | `:503-508` / `:517` / `:582-586` |
+| `packages/spark-data/src/data-view.ts` | `_resolveFilterValueExpression` / `_matchesFilterCondition` / `_matchesFilterExpression` | `:593` / `:603` / `:657` |
+| `packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts` | `AgentWorkflowNodeGateRule` / `BeforeFunctionCall` / `ResolveInstance` | `:169` / `:174` / `:178` |
+| `packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts` | `GateCommand` / `Bindings` / `createBeforeFunctionCall` / `interpolateRuntimeTemplate` | `:41` / `:54` / `:189` / `:236` |
+| `packages/spark-ai/src/agent/workflow/agent-workflow-validation.ts` | `validateOptionalConditionalHints` / `validateOptionalBeforeFunctionCall` | `:804` / `:864` |
+| `src/services/ai/agent-workflow-bindings.ts` | `PAGE_DESIGN_GATE_RULE_KINDS` / `PROJECT_PLANNING_GATE_RULE_KINDS` / `executeAgentWorkflowGate` / `assertKnownGateRules` | `:49` / `:55` / `:268` / `:288` |
+| `src/services/page-design/page-design-agent-workflow-binding.ts` | `PAGE_DESIGN_GATE_RULE_KINDS` / `evaluatePageDesignBeforeFunctionCall` / `executePageDesignGate` | `:186` / `:215` / `:272` |
+| `src/services/page-design/page-design-gates.ts` | `pageDesignRunContexts` / `validatePageDesignRunGate` / `OPERATION_FALSE_SCRIPT_MARKERS` / `evaluatePageDesignMutationToolGate` / `evaluatePageDesignScriptOperationGate` | `:59` / `:182` / `:226` / `:252` / `:278` |
+| `src/services/project-planning/project-planning-agent-workflow-binding.ts` | `evaluateProjectPlanningBeforeFunctionCall` / `FORBIDDEN_SCRIPT_MARKERS` / `PROJECT_ACTION_NAMES` / `PROJECT_PARAM_TYPE_NAMES` / `evaluateProjectPlanningToolGate` / `evaluateProjectActionLookupGate` | `:303` / `:327` / `:338` / `:344` / `:348` / `:400` |
+| `config/agent-workflows/lmspark/homepage/agent.workflow.pageDesign/definition.json` | `beforeFunctionCall.gateRules` | `:118-134` |
+| `config/agent-workflows/lmspark/homepage/agent.workflow.projectPlanning/definition.json` | `beforeFunctionCall.gateRules` | `:111-128` |
+| `tools/generate-workflow-design-data.mjs` | pageDesign / projectPlanning `gateRules` 生成 | `:463` / `:598` |
+| `packages/spark-project-model/src/blueprint/project-blueprint-node.ts` | `ProjectPageNodeSummary` | `:181` |
+| `packages/spark-ai/src/agent/business/lifecycle-types.ts` | `AiAgentBeforeFunctionCallOptions` | `:53` |
+| `packages/spark-ai/src/agent/business/scope-types.ts` | `moduleInstanceId` | `:90` |

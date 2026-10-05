@@ -526,3 +526,25 @@
 - **知识沉淀**：未改 knowledge；完整事实、边界和验证证据写入 `notes/research-runtime-compatibility-removal.md`
 - **人工干预**：用户要求不做一问一答，断开旧入口、删除旧实现并循环至零回归
 - **验证摘要**：旧符号 0 残留；根 170 文件/1258 项测试、包 814 项测试通过；完整 verify 与 build 通过；lowcode 385 端点/127 消费者账本一致；ClassModel 702 分片/1262 公共索引
+
+### 2026-07-20 工作流连线线型、接线点与控制点
+
+- **复杂度**：复杂（服务数据模型、Vue 设计页、测试与 verify 脚本）
+- **总耗时**：未记录（2026-10-05 清理 notes 时补录）
+- **返工次数**：未记录
+- **审查轮次**：方案审核阶段新增“中间控制点”，替代原 `plan-workflow-edge-routing-and-status`
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：无；线型/dock/controlPoints 事实以 `src/services/workflow-designs.ts` 为准，研读 `notes/research-workflow-edge-line-types.md` 保留
+- **人工干预**：用户在审核阶段追加控制点能力
+- **验证摘要**：实施留档显示 typecheck、lint 通过，聚焦测试 41 项通过；设计视觉元数据不进入 `definition.json`
+
+### 2026-08-29 项目蓝图导航文件版本与 cfg 设计文件上传
+
+- **复杂度**：复杂（lowcode API 导航协议、蓝图 wire、文件上传、DevSystem 六页签）
+- **总耗时**：未记录（2026-10-05 清理 notes 时补录）
+- **返工次数**：未记录（远程文件服务一度不可用，08-29 恢复后继续）
+- **审查轮次**：未记录
+- **30天存活**：（30天后回填）待回填
+- **知识沉淀**：无；协议事实以 `project-blueprint-file-version.ts`、`lowcode-design-file-upload.ts` 为准
+- **人工干预**：LIVE 写入由用户单独授权；空脚本/空样式按远程文件服务约束规范化为单个换行符
+- **验证摘要**：LIVE 三文件独立上传与逐文件读回通过，`VersionId=rule=2;script=1;style=1`；已随 `944536a31` 提交

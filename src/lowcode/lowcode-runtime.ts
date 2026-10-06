@@ -1,12 +1,10 @@
-import {
-  LowcodeApi,
-  type LowcodeApplication,
-  type LowcodeEnterprise,
-  type LowcodeProjectBlueprintRecord,
-  type LowcodeNavigationAuthorizationEvidence,
-  type LowcodeNavigationAuthorizationItem,
-  type LowcodeNavigationTargetKind,
-} from '@spark-appworks/spark-lowcode-api'
+/**
+ * @module app:lowcode/lowcode-runtime
+ * 职责：将真实请求身份、导航记录与文件 IO 接入应用宿主。
+ * 边界：应用 ID 来自请求 scope，租户目录由后端裁决；文件确认不等于发布。
+ * AI用途：装配工具、场景与蓝图网关并核对实际读取目标。
+ */
+import * as LowcodePlatform from '@spark-appworks/spark-lowcode-api'
 import type {
   RuntimeNavigation,
   RuntimeNavigationItem,
@@ -18,10 +16,13 @@ import type {
   ProjectReferenceGateway,
   ProjectBlueprintTreeData,
   ProjectBlueprintTreeNodeData,
+  ProjectWorkspaceOptions,
 } from '@spark-appworks/spark-project-model'
+import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
 
+/** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
   userId: string
   username: string
@@ -32,9 +33,14 @@ export type LowcodePrincipal = Readonly<{
 }>
 
 export const lowcodeHttp = createRequest({ timeout: 30_000 })
-export const lowcodeApi = new LowcodeApi({
+export const lowcodeApi = new LowcodePlatform.LowcodeApi({
   http: lowcodeHttp,
   ...(typeof window === 'undefined' ? {} : { sessionStorage: window.sessionStorage }),
+})
+
+const scenarioFileUpload = new LowcodePlatform.LowcodeDesignFileUpload({
+  http: lowcodeHttp,
+  readScope: () => lowcodeApi.readRequestScope(),
 })
 
 lowcodeHttp.interceptors.response.use({
@@ -63,7 +69,7 @@ export function readLowcodePrincipal(): LowcodePrincipal | null {
   }
 }
 
-export function lowcodeEnterpriseDisplayName(enterprise: LowcodeEnterprise): string {
+export function lowcodeEnterpriseDisplayName(enterprise: LowcodePlatform.LowcodeEnterprise): string {
   return enterprise.shortCode
     ?? enterprise.code
     ?? enterprise.name
@@ -84,10 +90,14 @@ export function lowcodeRequestHeaders(): Record<string, string> {
 }
 
 export async function readLowcodePageFile(command: PageFileReadCommand): Promise<string> {
+  const versions = command.versionId === undefined ? undefined : LowcodePlatform.parseLowcodeBlueprintFileVersions(command.versionId)
+  const key = command.fileName === 'rule.json' ? 'rule' : command.fileName === 'script.js' ? 'script' : 'style'
+  const version = versions?.[key]
+  if (versions !== undefined && (version === undefined || version === null)) throw new Error(`发布指针缺少 ${command.fileName}`)
   return lowcodeApi.design.readTextFile({
     appType: 'designfile',
-    customPath: `${command.projectId}/${command.pageId}`,
-    fileName: command.fileName,
+    customPath: toolFilePath(command.projectId, command.pageId),
+    fileName: versions === undefined ? command.fileName : LowcodePlatform.lowcodeBlueprintVersionedFileName(command.fileName, versions),
   })
 }
 
@@ -109,18 +119,18 @@ export function lowcodeApplicationCatalogNavigation(): RuntimeNavigation {
   }
 }
 
+/** 正式蓝图记录和后端授权证据，按节点身份投影宿主导航。 */
 export type LowcodeRuntimeNavigationAssemblyInput = Readonly<{
   applicationName: string
   projectId: string
   navigationRootId: string
-  records: readonly LowcodeProjectBlueprintRecord[]
-  authorization: LowcodeNavigationAuthorizationEvidence
+  records: readonly LowcodePlatform.LowcodeProjectBlueprintRecord[]
+  authorization: LowcodePlatform.LowcodeNavigationAuthorizationEvidence
 }>
 
 type RuntimeTargetProjection = Readonly<{
-  targetKind: LowcodeNavigationTargetKind
+  targetKind: LowcodePlatform.LowcodeNavigationTargetKind
   path?: string
-  formKey?: string
   linkTarget?: 'new-tab'
 }>
 
@@ -128,13 +138,13 @@ function isRootBlueprintParent(parentId: string): boolean {
   return parentId === '' || parentId === '0' || parentId === '000000'
 }
 
-function sortBlueprintRecords(records: readonly LowcodeProjectBlueprintRecord[]): LowcodeProjectBlueprintRecord[] {
-  return [...records].sort((left, right) => left.order - right.order || left.id.localeCompare(right.id))
+function sortBlueprintRecords(records: readonly LowcodePlatform.LowcodeProjectBlueprintRecord[]): LowcodePlatform.LowcodeProjectBlueprintRecord[] {
+  return [...records].sort((left, right) => (left.navigation?.order ?? 0) - (right.navigation?.order ?? 0) || left.nodeId.localeCompare(right.nodeId))
 }
 
 function flattenAuthorizationItems(
-  items: readonly LowcodeNavigationAuthorizationItem[],
-  target: Map<string, LowcodeNavigationAuthorizationItem>,
+  items: readonly LowcodePlatform.LowcodeNavigationAuthorizationItem[],
+  target: Map<string, LowcodePlatform.LowcodeNavigationAuthorizationItem>,
 ): void {
   for (const item of items) {
     target.set(item.id, item)
@@ -142,44 +152,39 @@ function flattenAuthorizationItems(
   }
 }
 
-function recordText(source: Readonly<Record<string, unknown>>, keys: readonly string[]): string {
-  for (const key of keys) {
-    const value = source[key]
-    if (value !== undefined && value !== null && String(value).trim()) return String(value).trim()
-  }
-  return ''
-}
-
 function runtimeTargetProjection(
-  record: LowcodeProjectBlueprintRecord,
-  authorizedFormKey: string | null,
+  record: LowcodePlatform.LowcodeProjectBlueprintRecord,
 ): RuntimeTargetProjection {
-  const target = record.runtimeTarget
-  const targetKind: LowcodeNavigationTargetKind = !target
+  const target = (record.navigation?.target ?? '')
+  if (target.startsWith('cfg:')) {
+    const query = new URLSearchParams()
+    if (record.dataSpace?.scenarioId) query.set('scenarioId', record.dataSpace.scenarioId)
+    const parameters = query.toString()
+    return { targetKind: 'route', path: `/__page/${encodeURIComponent(record.nodeId)}${parameters ? `?${parameters}` : ''}` }
+  }
+  const targetKind: LowcodePlatform.LowcodeNavigationTargetKind = !target
     ? 'empty'
     : target.startsWith('vue:')
       ? 'vue'
       : /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(target)
         ? 'external'
         : 'route'
-  const formKey = (authorizedFormKey ?? record.formKey).trim()
   if (targetKind === 'vue') {
-    const resource = target.slice(4).replace(/[?#].*$/, '').replace(/^\/+/, '')
+    const routeTarget = target.slice(4).replace(/^\/+/, '')
+    const resource = routeTarget.replace(/[?#].*$/, '')
     if (!resource || resource.endsWith('.vue') || resource.includes('\\') || resource.includes('//')) {
-      throw new Error(`蓝图节点 ${record.id} 的 Vue 目标无效：${target}`)
+      throw new Error(`蓝图节点 ${record.nodeId} 的 Vue 目标无效：${target}`)
     }
     return {
       targetKind,
-      path: `/${resource}`,
-      ...(formKey ? { formKey } : {}),
+      path: `/${routeTarget}`,
     }
   }
   if (targetKind === 'route') {
-    const path = target.replace(/[?#].*$/, '')
+    const path = target
     return {
       targetKind,
       path: path.startsWith('/') ? path : `/${path}`,
-      ...(formKey ? { formKey } : {}),
     }
   }
   if (targetKind === 'external') return { targetKind, path: target, linkTarget: 'new-tab' }
@@ -187,13 +192,13 @@ function runtimeTargetProjection(
 }
 
 function buildRuntimeNavigationItem(
-  record: LowcodeProjectBlueprintRecord,
-  childrenByParent: ReadonlyMap<string, readonly LowcodeProjectBlueprintRecord[]>,
-  authorizationById: ReadonlyMap<string, LowcodeNavigationAuthorizationItem>,
+  record: LowcodePlatform.LowcodeProjectBlueprintRecord,
+  childrenByParent: ReadonlyMap<string, readonly LowcodePlatform.LowcodeProjectBlueprintRecord[]>,
+  authorizationById: ReadonlyMap<string, LowcodePlatform.LowcodeNavigationAuthorizationItem>,
 ): RuntimeNavigationItem {
-  const children = sortBlueprintRecords(childrenByParent.get(record.id) ?? [])
+  const children = sortBlueprintRecords(childrenByParent.get(record.nodeId) ?? [])
     .map(child => buildRuntimeNavigationItem(child, childrenByParent, authorizationById))
-  const target = runtimeTargetProjection(record, authorizationById.get(record.id)?.formKey ?? null)
+  const target = runtimeTargetProjection(record)
   const itemKind: RuntimeNavigationItem['itemKind'] = children.length > 0
     ? 'module'
     : target.targetKind === 'vue'
@@ -204,16 +209,19 @@ function buildRuntimeNavigationItem(
           ? 'system-action'
           : 'page'
   return {
-    id: record.id,
-    title: record.title,
-    description: record.description,
+    id: record.nodeId,
+    title: (record.navigation?.title ?? record.capability.name),
+    description: (record.capability.description ?? ''),
     itemKind,
     ...(target.path === undefined ? {} : { path: target.path }),
-    ...(target.formKey === undefined ? {} : { formKey: target.formKey }),
+    ...(record.navigation?.target?.startsWith('cfg:') === true ? { tool: {
+      projectId: record.projectId, pageId: record.navigation.target.slice(4),
+      ...(typeof record.source['VersionId'] === 'string' && record.source['VersionId'].trim() ? { versionId: record.source['VersionId'] } : {}),
+    } } : {}),
     ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),
-    icon: recordText(record.source, ['iconCss', 'IconCss', 'icon']),
-    order: record.order,
-    disabled: recordText(record.source, ['status', 'Status']).toLowerCase() === 'maintenance',
+    ...(record.navigation?.icon === undefined ? {} : { icon: record.navigation.icon }),
+    order: (record.navigation?.order ?? 0),
+    disabled: (record.capability.deliveryStatus ?? '').toLowerCase() === 'maintenance',
     children,
   }
 }
@@ -263,20 +271,20 @@ function withShellSystemTools(businessChildren: readonly RuntimeNavigationItem[]
 export function assembleLowcodeRuntimeNavigation(
   input: LowcodeRuntimeNavigationAssemblyInput,
 ): RuntimeNavigation {
-  const authorizationById = new Map<string, LowcodeNavigationAuthorizationItem>()
+  const authorizationById = new Map<string, LowcodePlatform.LowcodeNavigationAuthorizationItem>()
   flattenAuthorizationItems(input.authorization.items, authorizationById)
   const candidates = input.records.filter(record => (
-    record.runtimeNavigationCandidate && authorizationById.has(record.id)
+    record.navigation?.publishInMenu && authorizationById.has(record.nodeId)
   ))
-  const candidateIds = new Set(candidates.map(record => record.id))
-  const childrenByParent = new Map<string, LowcodeProjectBlueprintRecord[]>()
+  const candidateIds = new Set(candidates.map(record => record.nodeId))
+  const childrenByParent = new Map<string, LowcodePlatform.LowcodeProjectBlueprintRecord[]>()
   for (const record of candidates) {
-    const siblings = childrenByParent.get(record.parentId) ?? []
+    const siblings = childrenByParent.get(record.parentNodeId) ?? []
     siblings.push(record)
-    childrenByParent.set(record.parentId, siblings)
+    childrenByParent.set(record.parentNodeId, siblings)
   }
   const businessChildren = sortBlueprintRecords(
-    candidates.filter(record => !candidateIds.has(record.parentId)),
+    candidates.filter(record => !candidateIds.has(record.parentNodeId)),
   ).map(record => buildRuntimeNavigationItem(record, childrenByParent, authorizationById))
   const homePath = firstRuntimePagePath(businessChildren)
   return {
@@ -293,7 +301,7 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
   const explicitProjectId = projectId?.trim()
   const activeContext = lowcodeApi.application.get()
   if (!explicitProjectId && activeContext === null) return lowcodeApplicationCatalogNavigation()
-  let application: LowcodeApplication
+  let application: LowcodePlatform.LowcodeApplication
   let navigationRootId: string
   if (explicitProjectId && activeContext?.application.id !== explicitProjectId) {
     const applications = await lowcodeApi.platform.listApplications()
@@ -321,78 +329,237 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
 }
 
 function projectBlueprintRecordNode(
-  record: LowcodeProjectBlueprintRecord,
-  childrenByParent: ReadonlyMap<string, readonly LowcodeProjectBlueprintRecord[]>,
+  record: LowcodePlatform.LowcodeProjectBlueprintRecord,
+  childrenByParent: ReadonlyMap<string, readonly LowcodePlatform.LowcodeProjectBlueprintRecord[]>,
 ): ProjectBlueprintTreeNodeData {
-  const children = sortBlueprintRecords(childrenByParent.get(record.id) ?? [])
+  const children = sortBlueprintRecords(childrenByParent.get(record.nodeId) ?? [])
     .map(child => projectBlueprintRecordNode(child, childrenByParent))
-  const target = runtimeTargetProjection(record, null)
-  const nodeKind: ProjectBlueprintTreeNodeData['nodeKind'] = record.kind === 'page' || record.kind === 'sub-page'
-    ? target.targetKind === 'vue' ? 'system-page' : 'page'
-    : record.kind === 'external'
-      ? 'link'
-      : record.kind === 'action'
-        ? 'system-action'
-        : 'module'
   return {
-    id: record.id,
-    title: record.title,
-    description: record.description,
-    blueprintKind: record.kind,
-    nodeKind,
-    ...(target.path === undefined ? {} : { path: target.path }),
-    ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),
-    icon: recordText(record.source, ['iconCss', 'IconCss', 'icon']),
-    order: record.order,
+    nodeId: record.nodeId,
+    parentNodeId: record.parentNodeId,
+    projectId: record.projectId,
+    kind: record.kind,
+    capability: { ...record.capability },
+    ...(record.navigation === undefined ? {} : { navigation: { ...record.navigation } }),
+    ...(record.dataSpace === undefined ? {} : { dataSpace: { ...record.dataSpace, models: record.dataSpace.models.map(model => ({ ...model })) } }),
+    ...(record.prototype === undefined ? {} : { prototype: { ...record.prototype } }),
+    source: { ...record.source },
     children,
   }
 }
 
 async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise<ProjectBlueprintTreeData> {
   const records = await lowcodeApi.blueprint.readRecords(projectId)
-  const recordIds = new Set(records.map(record => record.id))
-  const childrenByParent = new Map<string, LowcodeProjectBlueprintRecord[]>()
+  const recordIds = new Set(records.map(record => record.nodeId))
+  const childrenByParent = new Map<string, LowcodePlatform.LowcodeProjectBlueprintRecord[]>()
   for (const record of records) {
-    const siblings = childrenByParent.get(record.parentId) ?? []
+    const siblings = childrenByParent.get(record.parentNodeId) ?? []
     siblings.push(record)
-    childrenByParent.set(record.parentId, siblings)
+    childrenByParent.set(record.parentNodeId, siblings)
   }
   const roots = sortBlueprintRecords(records.filter(record => (
-    isRootBlueprintParent(record.parentId) || !recordIds.has(record.parentId)
+    isRootBlueprintParent(record.parentNodeId) || !recordIds.has(record.parentNodeId)
   ))).map(record => projectBlueprintRecordNode(record, childrenByParent))
   const root = roots[0]
   if (root === undefined) throw new Error(`项目蓝图缺少顶层节点：${projectId}`)
   if (roots.length > 1) {
     const activeApplication = lowcodeApi.application.get()?.application
     return {
-      id: `project-blueprint:${projectId}`,
-      title: activeApplication?.id === projectId ? activeApplication.name : projectId,
-      blueprintKind: 'project',
-      childPlacement: 'header',
+      nodeId: `project-blueprint:${projectId}`,
+      parentNodeId: '',
+      projectId,
+      kind: 'module',
+      capability: { name: activeApplication?.id === projectId ? activeApplication.name : projectId },
+      source: {},
       children: roots,
     }
   }
   return {
-    id: root.id,
-    title: root.title,
-    description: root.description,
-    childPlacement: 'header',
+    ...root,
     children: root.children ?? [],
   }
 }
 
+/** 固定应用工作区的工具、场景、蓝图与引用 IO；运行时仍核对当前请求 scope。 */
 export type LowcodeProjectGateways = Readonly<{
   pageFiles: ProjectPageFileGateway
   blueprint: ProjectBlueprintGateway
   projectReferences: ProjectReferenceGateway
+  scenarioViews: NonNullable<ProjectWorkspaceOptions['scenarioViews']>
 }>
+
+function scenarioViewPath(applicationId: string, scenarioId: string): string {
+  if (/[/\\]/.test(applicationId) || applicationId === '.' || applicationId === '..') {
+    throw new Error('applicationId 不是合法路径段')
+  }
+  const id = scenarioId.trim()
+  if (!id || /[/\\]/.test(id) || id === '.' || id === '..') throw new Error('scenarioId 不是合法路径段')
+  if (lowcodeApi.readRequestScope().headers['X-AppId'] !== applicationId) {
+    throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工作区所属应用与当前请求应用不一致')
+  }
+  return `${applicationId}/SysForm/${id}`
+}
+
+function toolFilePath(applicationId: string, pageId: string): string {
+  const id = pageId.trim()
+  for (const segment of [applicationId, id]) {
+    if (!segment || /[/\\]/.test(segment) || segment === '.' || segment === '..') {
+      throw new Error('工具文件路径不是合法路径段')
+    }
+  }
+  if (lowcodeApi.readRequestScope().headers['X-AppId'] !== applicationId) {
+    throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工作区所属应用与当前请求应用不一致')
+  }
+  return `${applicationId}/${id}`
+}
 
 export function createLowcodeProjectGateways(projectId: string): LowcodeProjectGateways {
   const normalizedProjectId = projectId.trim()
   if (!normalizedProjectId) throw new Error('projectId 不能为空')
   return {
-    pageFiles: { readPageFile: readLowcodePageFile },
-    blueprint: { loadRoot: () => readLowcodeProjectBlueprintEditorTree(normalizedProjectId) },
+    pageFiles: {
+      readPageFile: async command => {
+        if (command.projectId !== normalizedProjectId) {
+          throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工具文件读取不属于当前工作区')
+        }
+        return lowcodeApi.design.readTextFile({
+          appType: 'designfile', customPath: toolFilePath(normalizedProjectId, command.pageId), fileName: command.fileName,
+        })
+      },
+      saveFileContent: async (pageId, fileName, text) => {
+        if (!LowcodePlatform.LOWCODE_BLUEPRINT_FILE_NAMES.some(name => name === fileName)) {
+          throw new Error('pagedata.json 必须通过场景文件保存')
+        }
+        await scenarioFileUpload.uploadWorkingText({
+          customPath: toolFilePath(normalizedProjectId, pageId), fileName, text,
+        })
+      },
+      listVersions: async (pageId, fileName) => [...await lowcodeApi.design.listFileVersions({
+        appType: 'designfile', customPath: toolFilePath(normalizedProjectId, pageId), fileName,
+      })],
+      createVersion: async (pageId, fileName) => {
+        const customPath = toolFilePath(normalizedProjectId, pageId)
+        const scope = lowcodeApi.readRequestScope().token
+        const versions = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName })
+        const version = Math.max(0, ...versions.map(item => item.version)) + 1
+        if (!Number.isSafeInteger(version)) throw new Error('快照编号超出安全范围')
+        const text = await lowcodeApi.design.readTextFile({ appType: 'designfile', customPath, fileName })
+        if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 创建版本所属应用已失效')
+        await scenarioFileUpload.uploadTextVersion({ customPath, fileName: `${version}__${fileName}`, text })
+      },
+      deleteVersion: async (pageId, fileName, version) => {
+        if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
+        await lowcodeApi.design.removeFile({ appType: 'designfile', customPath: toolFilePath(normalizedProjectId, pageId),
+          fileName: `${version}__${fileName}` })
+      },
+      restoreVersion: async (pageId, fileName, version) => {
+        if (!LowcodePlatform.LOWCODE_BLUEPRINT_FILE_NAMES.some(name => name === fileName)) {
+          throw new Error('pagedata.json 不属于工具文件版本')
+        }
+        if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
+        const customPath = toolFilePath(normalizedProjectId, pageId)
+        const bytes = await lowcodeApi.design.readFileBytes({
+          appType: 'designfile', customPath, fileName: `${version}__${fileName}`,
+        })
+        const text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
+        await scenarioFileUpload.uploadWorkingText({
+          customPath: toolFilePath(normalizedProjectId, pageId), fileName, text,
+        })
+      },
+    },
+    scenarioViews: {
+      readScope: () => lowcodeApi.readRequestScope().token,
+      readText: async scenarioId => {
+        const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
+        const scope = lowcodeApi.readRequestScope().token
+        try {
+          return await lowcodeApi.design.readTextFile({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+        } catch (error) {
+          if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景文件读取身份已失效')
+          if (error instanceof LowcodePlatform.LowcodeApiError && error.code === 404) return null
+          throw error
+        }
+      },
+      writeText: async (scenarioId, text) => {
+        await scenarioFileUpload.uploadWorkingText({
+          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json', text,
+        })
+      },
+      listVersions: async scenarioId => [...await lowcodeApi.design.listFileVersions({
+        appType: 'designfile', customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json',
+      })],
+      readVersion: async (scenarioId, version) => {
+        if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
+        const bytes = await lowcodeApi.design.readFileBytes({ appType: 'designfile',
+          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: `${version}__pagedata.json` })
+        return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
+      },
+      createVersion: async (scenarioId, text) => {
+        new ScenarioViewConfig(scenarioId, text)
+        const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
+        const scope = lowcodeApi.readRequestScope().token
+        const versions = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+        const version = Math.max(0, ...versions.map(item => item.version)) + 1
+        if (!Number.isSafeInteger(version)) throw new Error('快照编号超出安全范围')
+        const working = await lowcodeApi.design.readTextFile({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+        if (working !== text) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
+        if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 创建场景版本所属应用已失效')
+        const fileName = `${version}__pagedata.json`
+        await scenarioFileUpload.uploadTextVersion({ customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName, text })
+        const actual = await lowcodeApi.design.listFileVersions({ appType: 'designfile',
+          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json' })
+        const summary = actual.find(item => item.fileName === fileName && item.version === version)
+        if (summary === undefined) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 已上传快照未出现在实际列表')
+        return summary
+      },
+      restoreVersion: async (scenarioId, version) => {
+        if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
+        const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
+        const bytes = await lowcodeApi.design.readFileBytes({ appType: 'designfile', customPath, fileName: `${version}__pagedata.json` })
+        const text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
+        new ScenarioViewConfig(scenarioId, text)
+        await scenarioFileUpload.uploadWorkingText({
+          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json', text,
+        })
+      },
+    },
+    blueprint: {
+      loadRoot: () => readLowcodeProjectBlueprintEditorTree(normalizedProjectId),
+      addNode: async params => {
+        toolFilePath(normalizedProjectId, params.node.nodeId)
+        const record = await lowcodeApi.blueprint.createNode(normalizedProjectId, {
+          ...params.node, parentNodeId: params.parentId ?? '',
+        })
+        return projectBlueprintRecordNode(record, new Map())
+      },
+      updateNode: async (id, patch) => {
+        toolFilePath(normalizedProjectId, id)
+        const records = await lowcodeApi.blueprint.readRecords(normalizedProjectId)
+        const before = records.find(record => record.nodeId === id)
+        if (!before) throw new Error('蓝图节点不存在')
+        const record = await lowcodeApi.blueprint.updateNode(normalizedProjectId, { ...before, ...patch })
+        return projectBlueprintRecordNode(record, new Map())
+      },
+      deleteNode: async id => {
+        toolFilePath(normalizedProjectId, id)
+        return projectBlueprintRecordNode(await lowcodeApi.blueprint.deleteNode(normalizedProjectId, id), new Map())
+      },
+      moveNode: async (id, parentId, index) => {
+        toolFilePath(normalizedProjectId, id)
+        if (!Number.isSafeInteger(index) || index < 0) throw new Error('蓝图位置必须为非负整数')
+        const records = await lowcodeApi.blueprint.readRecords(normalizedProjectId)
+        if (!records.some(record => record.nodeId === id)) throw new Error('移动节点不存在')
+        if (parentId && !records.some(record => record.nodeId === parentId)) throw new Error('移动目标父节点不存在')
+        const byId = new Map(records.map(record => [record.nodeId, record]))
+        let ancestor = parentId
+        while (ancestor) {
+          if (ancestor === id) throw new Error('不能将节点移到自身子树')
+          ancestor = byId.get(ancestor)?.parentNodeId ?? null
+        }
+        const moved = await lowcodeApi.blueprint.updateNodeFields(normalizedProjectId, id, { prowid: parentId ?? '000000', FunOrderValue: index })
+        return projectBlueprintRecordNode(moved, new Map())
+      },
+    },
     projectReferences: {
       listProjects: async () => (await lowcodeApi.platform.listApplications()).map((application) => ({
         projectId: application.id,
@@ -405,7 +572,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
   }
 }
 
-export async function activateLowcodeApplication(applicationId: string): Promise<LowcodeApplication> {
+export async function activateLowcodeApplication(applicationId: string): Promise<LowcodePlatform.LowcodeApplication> {
   const normalizedId = applicationId.trim()
   if (!normalizedId) throw new Error('应用 ID 不能为空')
   const applications = await lowcodeApi.platform.listApplications()

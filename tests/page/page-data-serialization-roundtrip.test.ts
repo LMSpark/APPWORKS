@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parsePageData } from '@spark-appworks/spark-project-model'
 import { DataSet } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 
@@ -30,7 +29,7 @@ function isRemoteTable(table: Record<string, unknown>): boolean {
 
 function parseOrNull(raw: string): DataSet | null {
   try {
-    return parsePageData(raw)
+    return DataSet.fromJson(JSON.parse(raw))
   } catch {
     return null
   }

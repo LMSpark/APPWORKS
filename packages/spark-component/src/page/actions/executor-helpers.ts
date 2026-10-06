@@ -23,7 +23,6 @@
 
 import {
   isDataRow,
-  resolveDataViewKey,
   nodeInputProps,
   type DataView,
   type DataRow,
@@ -39,7 +38,6 @@ import type {
 } from './action-types'
 import { Logger } from '@spark-appworks/spark-utils'
 import { copyOwnEnumerableProperties } from '@spark-appworks/spark-utils/internal'
-import { canCreate, canDelete, canEdit, isFieldEditable } from '../../permission/PermissionChecker'
 
 const _notifierLogger = Logger('action-executor')
 
@@ -358,7 +356,7 @@ export function resolveActionDataCapabilities(
   const empty: ResolvedActionDataCapabilities = { dataSource: null, currentRow: null, selectedRows: [] }
   const scopedView = ctx.getDataSource?.() ?? null
 
-  if (!dataViewKey) {
+  if (dataViewKey === undefined) {
     if (!scopedView) return empty
     return {
       dataSource: scopedView,
@@ -367,10 +365,7 @@ export function resolveActionDataCapabilities(
     }
   }
 
-  const ds = ctx.getDataSet()
-  if (!ds) return empty
-
-  const dataSource = resolveDataViewKey(dataViewKey, ds)
+  const dataSource = ctx.resolveView(dataViewKey)
   if (!dataSource) return empty
 
   return {
@@ -496,8 +491,9 @@ function _patchFields(descriptor: Extract<ActionDescriptor, { action: 'patch' }>
   return [...fields]
 }
 
-function _canEditFields(row: DataRow, fields: readonly string[]): boolean {
-  return canEdit(row) && fields.every(field => isFieldEditable(field, row))
+function _canEditFields(view: DataView, row: DataRow, fields: readonly string[]): boolean {
+  return view.editActionState(row) === 'enabled'
+    && fields.every(field => view.fieldAccess(row, field).write === 'allowed')
 }
 
 export type DataViewSavePermissionInput = Readonly<{
@@ -518,8 +514,8 @@ export function createDataViewSavePermissionInput(
 }
 
 /**
- * 按 DataView 实际待提交的新增、编辑和删除集合校验后端最终权限。
- * 所有目标操作必须同时获准；任何缺失行权限、字段权限或 allowAdd 都会失败关闭。
+ * 按 DataView 同次查询的集中权限入口呈现实际待提交操作的可用状态。
+ * 所有目标操作必须同时可用；不读取公开行权限或旧快照，真正接纳仍由后端验证。
  */
 export function isDataViewSavePermitted(input: DataViewSavePermissionInput): boolean {
   const { view } = input
@@ -531,25 +527,25 @@ export function isDataViewSavePermitted(input: DataViewSavePermissionInput): boo
       const id = view.getPkKey(row)
       if (id === undefined || !includesId(id)) continue
       const patch = view.getEditingPatch(id)
-      if (!patch || !_canEditFields(row, Object.keys(patch))) return false
+      if (!patch || !_canEditFields(view, row, Object.keys(patch))) return false
     }
   }
 
   for (const id of view.dirtyTracking.pendingCreateIds) {
-    if (includesId(id) && !canCreate(view.permissionSnapshot)) return false
+    if (includesId(id) && view.addActionState() !== 'enabled') return false
   }
 
   for (const id of view.dirtyTracking.dirtyRowIds) {
     if (!includesId(id)) continue
     const row = view.rows.find(candidate => view.getPkKey(candidate) === id)
     const fields = Object.keys(view.getDirtyChanges(id))
-    if (!row || fields.length === 0 || !_canEditFields(row, fields)) return false
+    if (!row || fields.length === 0 || !_canEditFields(view, row, fields)) return false
   }
 
   for (const id of view.dirtyTracking.pendingDeleteIds) {
     if (!includesId(id)) continue
     const row = view.dirtyTracking.getPendingDeleteSnapshot(id)
-    if (!row || !canDelete(row)) return false
+    if (!row || view.deleteActionState(row) !== 'enabled') return false
   }
 
   return true
@@ -575,36 +571,36 @@ export function isActionDescriptorPermitted(
       return true
     case 'set-field': {
       const row = view?.currentRow
-      return row !== null && row !== undefined && isFieldEditable(descriptor.field, row)
+      return row !== null && row !== undefined && view?.fieldAccess(row, descriptor.field).write === 'allowed'
     }
     case 'append-row':
-      return view !== null && view !== undefined && canCreate(view.permissionSnapshot)
+      return view?.addActionState() === 'enabled'
     case 'delete': {
       if (!view) return false
       const rows = _targetRows(descriptor, view, scope)
-      return rows.length > 0 && rows.every(row => canDelete(row))
+      return rows.length > 0 && rows.every(row => view.deleteActionState(row) === 'enabled')
     }
     case 'patch': {
       if (!view) return false
       const rows = _targetRows(descriptor, view, scope)
       const fields = _patchFields(descriptor)
-      return rows.length > 0 && fields.length > 0 && rows.every(row => _canEditFields(row, fields))
+      return rows.length > 0 && fields.length > 0 && rows.every(row => _canEditFields(view, row, fields))
     }
     case 'move': {
       if (!view) return false
       const rows = _targetRows(descriptor, view, scope)
-      return rows.length > 0 && rows.every(row => canEdit(row))
+      return rows.length > 0 && rows.every(row => view.editActionState(row) === 'enabled')
     }
     case 'clear-rows':
       return view !== null && view !== undefined
         && view.rows.length > 0
-        && view.rows.every(row => canDelete(row))
+        && view.rows.every(row => view.deleteActionState(row) === 'enabled')
     case 'submit-current-form': {
       if (!view) return false
       const row = scope?.formApi?.getCurrentRow() ?? view.currentRow
       if (!row) return false
       const draft = scope?.formApi?.getFormData()
-      const idField = descriptor.idField ?? 'id'
+      const idField = descriptor.idField ?? view.primaryKey
       const fields = draft
         ? Object.entries(draft)
           .filter(([field, value]) => (
@@ -615,7 +611,7 @@ export function isActionDescriptorPermitted(
           ))
           .map(([field]) => field)
         : []
-      return fields.length > 0 && _canEditFields(row, fields)
+      return fields.length > 0 && _canEditFields(view, row, fields)
     }
     case 'save-dataset':
       return view !== null && view !== undefined && isDataViewSavePermitted(

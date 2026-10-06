@@ -118,13 +118,7 @@ function resolveNavigateRow(
   const scopedView = ctx.getDataSource?.() ?? null
   if (isRowLike(scopedView?.currentRow)) return scopedView.currentRow
 
-  const dataSet = ctx.getDataSet()
-  if (!dataSet) return null
-  for (const table of Object.values(dataSet.tables)) {
-    for (const view of Object.values(table.views)) {
-      if (isRowLike(view.currentRow)) return view.currentRow
-    }
-  }
+
   return null
 }
 
@@ -212,6 +206,7 @@ export async function executeActionDescriptor(
   const control = options.control ?? extractActionExecutionControl(eventArgs)
   const effectiveScope = options.scope
 
+  try {
   if (!isActionExecutionPermitted(descriptor, ctx, effectiveScope)) {
     if (control) control.cancel = true
     ctx.getPageService()?.showMessage(`后端权限不允许执行 ${descriptor.action}`, 'warning')
@@ -222,7 +217,6 @@ export async function executeActionDescriptor(
     control.cancel = true
   }
 
-  try {
     await dispatchAction({ descriptor, ctx, scope: effectiveScope, eventArgs, control })
   } catch (error) {
     handleTopLevelError(descriptor, ctx, error)
@@ -285,7 +279,8 @@ function isDataSetSavePermitted(
   descriptor: Extract<ActionDescriptor, { action: 'save-dataset' }>,
   ctx: ActionExecutionContext,
 ): boolean {
-  const dataSet = ctx.getDataSet()
+  if (!descriptor.scenarioId.trim()) throw new Error('save-dataset 必须指定场景 scenarioId')
+  const dataSet = ctx.getDataSet(descriptor.scenarioId)
   if (!dataSet) return false
 
   if (descriptor.views === undefined) {
@@ -296,10 +291,12 @@ function isDataSetSavePermitted(
     )))
   }
 
+  if (descriptor.views.length === 0) throw new Error('save-dataset views 不能是空集合')
   for (const selector of descriptor.views) {
     const table = dataSet.tables[selector.tableName]
     if (!table) return false
-    const views = selector.viewId ? [table.views[selector.viewId]].filter(Boolean) : Object.values(table.views)
+    if (selector.viewId !== undefined && !selector.viewId.trim()) throw new Error('save-dataset viewId 必须非空')
+    const views = selector.viewId !== undefined ? [table.views[selector.viewId]] : Object.values(table.views)
     if (views.length === 0) return false
     for (const view of views) {
       if (!view || !isDataViewSavePermitted(

@@ -7,60 +7,15 @@
     "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "blueprint/project-blueprint-tree",
-    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-tree\n职责：蓝图树/扁平转换、pageId 解析与配置页判定纯函数。\n边界：只表达项目/页面配置领域模型；不渲染组件，不绕过 pageDesign 四文件链路。\nAI用途：树操作、页面摘要或子页面投影判定时使用本模块。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-tree\n职责：正式节点树定位、校验与交付投影。\n边界：不按URL猜业务种类，不装载页面文件。\nAI用途：从节点树解析明确cfg工具与位置。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {
-    "NormalizeNavRootInput": {
+    "SummaryOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "NormalizeNavRootInput",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "title": {
-          "type": "string"
-        },
-        "childPlacement": {
-          "type": "string"
-        },
-        "children": {
-          "type": "array",
-          "items": {
-            "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
-          }
-        },
-        "icon": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "planningAttachmentRef": {
-          "type": "string"
-        },
-        "version": {
-          "type": "string"
-        },
-        "nodeKind": {
-          "enum": [
-            "module",
-            "system-directory"
-          ]
-        },
-        "blueprintKind": true,
-        "homePath": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "BuildProjectPageSummariesOptions": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "BuildProjectPageSummariesOptions",
+      "title": "SummaryOptions",
       "properties": {
         "descriptionContext": {
           "type": "array",
@@ -96,97 +51,18 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T13:40:21.281Z",
+  "generatedAt": "2026-10-06T20:49:03.289Z",
   "models": {
-    "NormalizeNavRootInput": {
-      "name": "NormalizeNavRootInput",
-      "jsdoc": "Normalize Nav Root Input 的输入数据。",
+    "SummaryOptions": {
+      "name": "SummaryOptions",
+      "jsdoc": "页面摘要的祖先策划说明上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 唯一标识。 */\n    id?: string | undefined;\n    /** 显示标题。 */\n    title?: string | undefined;\n    /** child Placement 字段。 */\n    childPlacement?: string | undefined;\n    /** 子节点集合。 */\n    children?: ProjectBlueprintTreeNodeData[] | undefined;\n    /** icon 字段。 */\n    icon?: string | undefined;\n    /** description 字段。 */\n    description?: string | undefined;\n    /** planning Attachment Ref 字段。 */\n    planningAttachmentRef?: string | undefined;\n    /** version 字段。 */\n    version?: string | undefined;\n    /** node Kind 字段。 */\n    nodeKind?: 'module' | 'system-directory' | undefined;\n    /** 项目根蓝图业务类型。 */\n    blueprintKind?: ProjectBlueprintTreeData['blueprintKind'];\n    /** home Path 路径。 */\n    homePath?: string | undefined;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "id",
-              "jsdoc": "唯一标识。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "title",
-              "jsdoc": "显示标题。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "childPlacement",
-              "jsdoc": "child Placement 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "children",
-              "jsdoc": "子节点集合。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "icon",
-              "jsdoc": "icon 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "description",
-              "jsdoc": "description 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "planningAttachmentRef",
-              "jsdoc": "planning Attachment Ref 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "version",
-              "jsdoc": "version 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "nodeKind",
-              "jsdoc": "node Kind 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "blueprintKind",
-              "jsdoc": "项目根蓝图业务类型。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "homePath",
-              "jsdoc": "home Path 路径。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "BuildProjectPageSummariesOptions": {
-      "name": "BuildProjectPageSummariesOptions",
-      "jsdoc": "Build Project Page Summaries Options 的调用配置。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** description Context 字段。 */\n    descriptionContext?: readonly ProjectDescriptionContext[];\n}",
+        "declarationTypeText": "{\n    descriptionContext?: readonly ProjectDescriptionContext[];\n}",
         "members": {
           "attributes": [
             {
               "name": "descriptionContext",
-              "jsdoc": "description Context 字段。",
               "readable": true,
               "writable": false
             }
@@ -196,21 +72,19 @@
     },
     "TreeNodeLike": {
       "name": "TreeNodeLike",
-      "jsdoc": "树节点最小接口——避免循环依赖",
+      "jsdoc": "内存树重建所需节点身份、父身份与正式数据出口。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 唯一标识。 */\n    readonly id: string;\n    /** pid 字段。 */\n    readonly pid: string;\n    /** 将索引节点转回完整 ProjectBlueprintTreeNodeData；用于从扁平索引重建树结构或输出持久化格式 */\n    toNodeData(): ProjectBlueprintTreeNodeData;\n}",
+        "declarationTypeText": "{\n    readonly id: string;\n    readonly pid: string;\n    toNodeData(): ProjectBlueprintTreeNodeData;\n}",
         "members": {
           "attributes": [
             {
               "name": "id",
-              "jsdoc": "唯一标识。",
               "readable": true,
               "writable": false
             },
             {
               "name": "pid",
-              "jsdoc": "pid 字段。",
               "readable": true,
               "writable": false
             }
@@ -218,7 +92,6 @@
           "methods": [
             {
               "name": "toNodeData",
-              "jsdoc": "将索引节点转回完整 ProjectBlueprintTreeNodeData；用于从扁平索引重建树结构或输出持久化格式",
               "parameters": [],
               "type": {
                 "type": "reference",

@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/dev-system/components/NodeTargetConfig.vue",
     "packageName": "app",
     "modulePath": "views/app/dev-system/components/NodeTargetConfig",
-    "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：提供 DevSystem 的 NodeTargetConfig 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/components/NodeTargetConfig。",
+    "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：编辑导航目标和打开方式，按明确cfg目标创建工具。\n边界：正式kind与交付表面分离；工具创建走Workspace真实三文件能力。\nAI用途：选择原生页面、配置工具或外部链接并检查嵌入能力。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-09T22:20:20.743Z",
+  "generatedAt": "2026-10-06T21:12:48.636Z",
   "models": {}
 }

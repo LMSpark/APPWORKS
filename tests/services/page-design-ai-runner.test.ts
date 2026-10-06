@@ -25,25 +25,14 @@ function createEditor(): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId: 'demo',
     pageFiles: { readPageFile: async () => '' },
-    blueprint: { loadRoot: async () => ({ children: [] }) },
+    blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) },
   })
   editor.project.replaceBlueprintTree({
-    id: 'root',
-    title: 'Root',
-    nodeKind: 'module',
-    childPlacement: 'header',
-    description: '项目需求',
-    children: [
-      {
-        id: 'orders',
-        title: '订单',
-        nodeKind: 'page',
-        path: '/orders',
-        description: '订单列表页面',
-        implGate: 'open',
-        upstreamContractsSatisfied: true,
-      },
-    ],
+    nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '项目需求' }, source: {},
+    children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page',
+      capability: { name: '订单', description: '订单列表页面' },
+      navigation: { title: '订单', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false },
+      source: { implGate: 'open', upstreamContractsSatisfied: true } }],
   })
   editor.project.openPageDesign('orders')
   editor.project.setActivePage('orders')

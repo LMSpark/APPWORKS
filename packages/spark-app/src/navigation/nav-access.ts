@@ -15,13 +15,9 @@
  * - useNavigation：响应式 Vue composable、用于组件树内 UI 渲染和导航操作
  */
 import type { RuntimeNavigation } from './runtime-navigation'
+import type { DynamicRouter } from '../router/dynamic'
 
 /** DynamicRouter 公共 API 子集（仅导航相关） */
-type DynamicRouterAccess = {
-  /** 清除路由缓存并重新注册，返回刷新后的导航树；DynamicRouter 未注入时由调用方处理 */
-  refreshRoutes(): Promise<RuntimeNavigation | null>
-  /** 同步读取当前已加载的导航树（不发 HTTP），未加载或未注入时返回 null */
-  getNavTree(): RuntimeNavigation | null}
 
 /** 初始化选项 */
 type NavAccessOptions = {
@@ -29,16 +25,18 @@ type NavAccessOptions = {
   defaultHomePath?: string}
 
 /** DynamicRouter 实例引用，由 start.ts 通过 setDynamicRouter 注入 */
-let _dynamicRouter: DynamicRouterAccess | null = null
+let _dynamicRouter: DynamicRouter | null = null
 let _defaultHomePath = '/dashboard'
 
 /** 注册 DynamicRouter 实例（start.ts 中调用） */
-export function setDynamicRouter(router: DynamicRouterAccess, options?: NavAccessOptions): void {
+export function setDynamicRouter(router: DynamicRouter, options?: NavAccessOptions): void {
   _dynamicRouter = router
   if (options?.defaultHomePath !== undefined) {
     _defaultHomePath = options.defaultHomePath
   }
 }
+
+export function getDynamicRouter(): DynamicRouter | null { return _dynamicRouter }
 
 /** 刷新动态路由（清缓存 + 重新注册），返回加载后的导航树 */
 export async function refreshRoutes(): Promise<RuntimeNavigation | null> {

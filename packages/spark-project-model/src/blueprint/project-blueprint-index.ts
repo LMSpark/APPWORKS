@@ -27,6 +27,7 @@ export class ProjectBlueprintIndex<TNode extends ProjectBlueprintTreeNodeLike> {
   private readonly nodesById: Map<string, TNode>
   private childrenByPid = new Map<string, TNode[]>()
   private treeCache: ProjectBlueprintTreeNodeData[] | null = null
+  /** 持有现有节点集合的索引引用，重建仅更新内存查询和树投影。 */
 
   constructor(nodesById: Map<string, TNode>) {
     this.nodesById = nodesById

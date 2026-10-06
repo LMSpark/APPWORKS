@@ -1,0 +1,1131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/filter/data-view-filter-contract",
+    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts",
+    "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-contract.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/filter/data-view-filter-contract",
+    "jsdoc": "@module @spark-appworks/spark-data:query/filter/data-view-filter-contract\n职责：声明公开过滤树与值函数编辑契约。\n边界：树数据不含后端协议字段，编辑目录不授权函数执行。\nAI用途：生成字段条件、逻辑组和编辑校验上下文。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewFilterOperator",
+      "DataViewFilterJsonValue",
+      "DataViewFilterJsonObject",
+      "DataViewFilterCondition",
+      "DataViewFilterGroup",
+      "DataViewFilterTree",
+      "DataViewFilterIssue",
+      "DataViewFilterField",
+      "DataViewFilterValidationContext",
+      "DataViewFilterValueFunction",
+      "DataViewFilterValueOption",
+      "DataViewFilterFunctionTableField",
+      "DataViewFilterFunctionTable",
+      "DataViewFilterFlowNodeOptions",
+      "DataViewFilterFunctionCapability",
+      "DataViewFilterFunctionContext",
+      "DataViewFilterFunctionOptions",
+      "DataViewFilterFunctionPredicate",
+      "DataViewFilterFunctionField",
+      "DataViewFilterFunctionDefinition"
+    ]
+  },
+  "$defs": {
+    "DataViewFilterJsonValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewFilterJsonValue",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewFilterJsonValue"
+          }
+        },
+        {
+          "type": "object",
+          "title": "DataViewFilterJsonObject"
+        }
+      ]
+    },
+    "DataViewFilterJsonObject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterJsonObject",
+      "additionalProperties": false
+    },
+    "DataViewFilterCondition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterCondition",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "object",
+          "title": "DataViewFilterOperator"
+        },
+        "value": {
+          "$ref": "#/$defs/DataViewFilterJsonValue"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterGroup": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterGroup",
+      "properties": {
+        "logic": {
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterTree"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterTree": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewFilterTree",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "DataViewFilterCondition"
+        },
+        {
+          "type": "object",
+          "title": "DataViewFilterGroup"
+        }
+      ]
+    },
+    "DataViewFilterIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterIssue",
+      "properties": {
+        "code": {
+          "enum": [
+            "invalid-json",
+            "invalid-node",
+            "invalid-operator",
+            "field-required",
+            "value-required",
+            "invalid-value-function",
+            "invalid-value",
+            "cycle",
+            "unknown-field",
+            "operator-not-allowed",
+            "max-depth",
+            "max-rules"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "number",
+            "boolean",
+            "date",
+            "datetime",
+            "select"
+          ]
+        },
+        "operators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewFilterOperator"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterValidationContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterValidationContext",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterField"
+          }
+        },
+        "maxDepth": {
+          "type": "number"
+        },
+        "maxRules": {
+          "type": "number"
+        },
+        "valueFunctions": {
+          "$ref": "#/$defs/DataViewFilterFunctionContext"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterValueFunction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterValueFunction",
+      "properties": {
+        "Type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterValueOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterValueOption",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "disabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterFunctionTableField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterFunctionTableField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterFunctionTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterFunctionTable",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterFunctionTableField"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterFunctionCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewFilterFunctionCapability",
+      "enum": [
+        "huoshan",
+        "api-account",
+        "coze-auth"
+      ]
+    },
+    "DataViewFilterFunctionContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterFunctionContext",
+      "properties": {
+        "tables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterFunctionTable"
+          }
+        },
+        "relatedFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "systemParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "groupValueTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "apiPublicParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "apiAccounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "roleClassItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterFunctionCapability"
+          }
+        },
+        "flowModelOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterValueOption"
+          }
+        },
+        "flowNodeOptionsByModelId": {
+          "type": "object",
+          "title": "DataViewFilterFlowNodeOptions"
+        },
+        "definitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterFunctionDefinition"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterFunctionOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewFilterFunctionOptions",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewFilterValueOption"
+          }
+        },
+        {
+          "type": "object",
+          "title": "(value: DataViewFilterValueFunction, context: DataViewFilterFunctionContext) => readonly DataViewFilterValueOption[]"
+        }
+      ]
+    },
+    "DataViewFilterFunctionField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterFunctionField",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "control": {
+          "enum": [
+            "text",
+            "password",
+            "textarea",
+            "select",
+            "checkbox"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "options": {
+          "$ref": "#/$defs/DataViewFilterFunctionOptions"
+        },
+        "visible": {
+          "type": "object",
+          "title": "DataViewFilterFunctionPredicate"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewFilterFunctionDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterFunctionDefinition",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterFunctionField"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.enabled.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/DataViewFilterFunctionContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.enabled.return": {
+          "type": "boolean"
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/DataViewFilterValueFunction"
+            },
+            "context": {
+              "$ref": "#/$defs/DataViewFilterFunctionContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:59:40.837Z",
+  "models": {
+    "DataViewFilterOperator": {
+      "name": "DataViewFilterOperator",
+      "jsdoc": "公开过滤树的运算符；取自统一目录，不使用后端协议缩写。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof DATA_VIEW_FILTER_OPERATORS[number]",
+        "members": {}
+      }
+    },
+    "DataViewFilterJsonValue": {
+      "name": "DataViewFilterJsonValue",
+      "jsdoc": "过滤值的递归 JSON 数据；解析拒绝非有限数、循环与数组空洞。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "null | boolean | number | string | readonly DataViewFilterJsonValue[] | DataViewFilterJsonObject",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "null"
+          },
+          {
+            "kind": "union",
+            "typeText": "boolean"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          },
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "readonly DataViewFilterJsonValue[]"
+          },
+          {
+            "kind": "union",
+            "typeText": "DataViewFilterJsonObject",
+            "targetName": "DataViewFilterJsonObject"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFilterJsonObject": {
+      "name": "DataViewFilterJsonObject",
+      "jsdoc": "过滤值对象；保留值函数扩展字段的原始 JSON 值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly [key: string]: DataViewFilterJsonValue;\n}",
+        "members": {}
+      }
+    },
+    "DataViewFilterCondition": {
+      "name": "DataViewFilterCondition",
+      "jsdoc": "字段条件；一元运算省略 value，其余运算要求显式值并保留空值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    field: string;\n    operator: DataViewFilterOperator;\n    value?: DataViewFilterJsonValue;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    field: string;\n    operator: DataViewFilterOperator;\n    value?: DataViewFilterJsonValue;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operator",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterGroup": {
+      "name": "DataViewFilterGroup",
+      "jsdoc": "and/or 条件组；子项继续使用同一公开过滤树，空组仍是合法结构。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    logic: 'and' | 'or';\n    filters: readonly DataViewFilterTree[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    logic: 'and' | 'or';\n    filters: readonly DataViewFilterTree[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "logic",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filters",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterTree": {
+      "name": "DataViewFilterTree",
+      "jsdoc": "公开过滤树只由字段条件或逻辑组组成，不混入协议 Type/Filters。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataViewFilterCondition | DataViewFilterGroup",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "DataViewFilterCondition",
+            "targetName": "DataViewFilterCondition"
+          },
+          {
+            "kind": "union",
+            "typeText": "DataViewFilterGroup",
+            "targetName": "DataViewFilterGroup"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFilterIssue": {
+      "name": "DataViewFilterIssue",
+      "jsdoc": "过滤解析或编辑校验的问题；path 指向原树中的出错位置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    code: 'invalid-json' | 'invalid-node' | 'invalid-operator' | 'field-required' | 'value-required' | 'invalid-value-function' | 'invalid-value' | 'cycle' | 'unknown-field' | 'operator-not-allowed' | 'max-depth' | 'max-rules';\n    path: string;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    code: 'invalid-json' | 'invalid-node' | 'invalid-operator' | 'field-required' | 'value-required' | 'invalid-value-function' | 'invalid-value' | 'cycle' | 'unknown-field' | 'operator-not-allowed' | 'max-depth' | 'max-rules';\n    path: string;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterField": {
+      "name": "DataViewFilterField",
+      "jsdoc": "编辑校验使用的字段类型与运算符集合；显式空集合不采用默认目录。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'select';\n    operators?: readonly DataViewFilterOperator[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    type: 'text' | 'number' | 'boolean' | 'date' | 'datetime' | 'select';\n    operators?: readonly DataViewFilterOperator[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operators",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterValidationContext": {
+      "name": "DataViewFilterValidationContext",
+      "jsdoc": "已有过滤树的编辑校验边界，提供字段与深度、条件数限制。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fields: readonly DataViewFilterField[];\n    maxDepth?: number;\n    maxRules?: number;\n    /** 仅编辑校验使用；未提供时不把编辑器目录当作后端函数白名单。 */\n    valueFunctions?: DataViewFilterFunctionContext;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fields: readonly DataViewFilterField[];\n    maxDepth?: number;\n    maxRules?: number;\n    /** 仅编辑校验使用；未提供时不把编辑器目录当作后端函数白名单。 */\n    valueFunctions?: DataViewFilterFunctionContext;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxDepth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRules",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFunctions",
+              "jsdoc": "仅编辑校验使用；未提供时不把编辑器目录当作后端函数白名单。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterValueFunction": {
+      "name": "DataViewFilterValueFunction",
+      "jsdoc": "以 Type 标识的值函数数据；函数实际求值由执行端负责。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataViewFilterJsonObject & Readonly<{\n    Type: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataViewFilterJsonObject",
+            "targetName": "DataViewFilterJsonObject"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    Type: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterValueOption": {
+      "name": "DataViewFilterValueOption",
+      "jsdoc": "值函数编辑器的可选值及禁用状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    label: string;\n    value: string | number | boolean;\n    disabled?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    label: string;\n    value: string | number | boolean;\n    disabled?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterFunctionTableField": {
+      "name": "DataViewFilterFunctionTableField",
+      "jsdoc": "值函数编辑器可引用的表字段名称及显示标签。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    label?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    label?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterFunctionTable": {
+      "name": "DataViewFilterFunctionTable",
+      "jsdoc": "值函数编辑器的表与字段目录，不代表查询结果或物理表绑定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    label?: string;\n    fields?: readonly DataViewFilterFunctionTableField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    label?: string;\n    fields?: readonly DataViewFilterFunctionTableField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterFlowNodeOptions": {
+      "name": "DataViewFilterFlowNodeOptions",
+      "jsdoc": "按流程模型 ID 分组的节点选项，供值函数字段选择。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, readonly DataViewFilterValueOption[]>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, readonly DataViewFilterValueOption[]>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFilterFunctionCapability": {
+      "name": "DataViewFilterFunctionCapability",
+      "jsdoc": "控制扩展值函数编辑入口的能力标识，不授予后端执行权限。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'huoshan' | 'api-account' | 'coze-auth'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'huoshan'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'api-account'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'coze-auth'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFilterFunctionContext": {
+      "name": "DataViewFilterFunctionContext",
+      "jsdoc": "值函数编辑目录与扩展定义；不作为后端函数白名单。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tables?: readonly DataViewFilterFunctionTable[];\n    relatedFields?: readonly DataViewFilterValueOption[];\n    systemParams?: readonly DataViewFilterValueOption[];\n    groupValueTypes?: readonly DataViewFilterValueOption[];\n    apiPublicParams?: readonly DataViewFilterValueOption[];\n    inputParams?: readonly DataViewFilterValueOption[];\n    apiAccounts?: readonly DataViewFilterValueOption[];\n    roleClassItems?: readonly DataViewFilterValueOption[];\n    capabilities?: readonly DataViewFilterFunctionCapability[];\n    flowModelOptions?: readonly DataViewFilterValueOption[];\n    flowNodeOptionsByModelId?: DataViewFilterFlowNodeOptions;\n    definitions?: readonly DataViewFilterFunctionDefinition[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tables?: readonly DataViewFilterFunctionTable[];\n    relatedFields?: readonly DataViewFilterValueOption[];\n    systemParams?: readonly DataViewFilterValueOption[];\n    groupValueTypes?: readonly DataViewFilterValueOption[];\n    apiPublicParams?: readonly DataViewFilterValueOption[];\n    inputParams?: readonly DataViewFilterValueOption[];\n    apiAccounts?: readonly DataViewFilterValueOption[];\n    roleClassItems?: readonly DataViewFilterValueOption[];\n    capabilities?: readonly DataViewFilterFunctionCapability[];\n    flowModelOptions?: readonly DataViewFilterValueOption[];\n    flowNodeOptionsByModelId?: DataViewFilterFlowNodeOptions;\n    definitions?: readonly DataViewFilterFunctionDefinition[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tables",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relatedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemParams",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "groupValueTypes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "apiPublicParams",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "apiAccounts",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "roleClassItems",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capabilities",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowModelOptions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowNodeOptionsByModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitions",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterFunctionOptions": {
+      "name": "DataViewFilterFunctionOptions",
+      "jsdoc": "值函数字段的静态选项或依当前函数值计算的选项。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "readonly DataViewFilterValueOption[] | ((value: DataViewFilterValueFunction, context: DataViewFilterFunctionContext) => readonly DataViewFilterValueOption[])",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "readonly DataViewFilterValueOption[]"
+          },
+          {
+            "kind": "union",
+            "typeText": "((value: DataViewFilterValueFunction, context: DataViewFilterFunctionContext) => readonly DataViewFilterValueOption[])"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFilterFunctionPredicate": {
+      "name": "DataViewFilterFunctionPredicate",
+      "jsdoc": "根据函数值和编辑上下文判定字段可见性的条件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(value: DataViewFilterValueFunction, context: DataViewFilterFunctionContext) => boolean",
+        "members": {}
+      }
+    },
+    "DataViewFilterFunctionField": {
+      "name": "DataViewFilterFunctionField",
+      "jsdoc": "值函数编辑字段的控件、必填、选项与可见性声明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    key: string;\n    label: string;\n    control?: 'text' | 'password' | 'textarea' | 'select' | 'checkbox';\n    required?: boolean;\n    multiple?: boolean;\n    options?: DataViewFilterFunctionOptions;\n    visible?: DataViewFilterFunctionPredicate;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    key: string;\n    label: string;\n    control?: 'text' | 'password' | 'textarea' | 'select' | 'checkbox';\n    required?: boolean;\n    multiple?: boolean;\n    options?: DataViewFilterFunctionOptions;\n    visible?: DataViewFilterFunctionPredicate;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "control",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "visible",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewFilterFunctionDefinition": {
+      "name": "DataViewFilterFunctionDefinition",
+      "jsdoc": "值函数编辑定义与校验器；只校验数据，不执行后端函数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    type: string;\n    label: string;\n    fields: readonly DataViewFilterFunctionField[];\n    enabled?: (context: DataViewFilterFunctionContext) => boolean;\n    validate?: (value: DataViewFilterValueFunction, context: DataViewFilterFunctionContext) => string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    type: string;\n    label: string;\n    fields: readonly DataViewFilterFunctionField[];\n    enabled?: (context: DataViewFilterFunctionContext) => boolean;\n    validate?: (value: DataViewFilterValueFunction, context: DataViewFilterFunctionContext) => string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "enabled",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "validate",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterValueFunction",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                },
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

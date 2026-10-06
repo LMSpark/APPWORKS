@@ -1,258 +1,173 @@
 /**
- * 数据空间运行态 API：按页面 FormKey 查询业务数据并解析后端稀疏权限。
- * 与 design 入口分离；变更须走 {@link prepareMutation}，读操作直接调用 GetData。
+ * @module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-api
+ * 职责：拥有模型查询与统一保存的运行入口。
+ * 边界：只接受当前 scope 中本 owner 登记的原查询基线。
+ * AI用途：把 DataView 查询与同场景模型保存接入实际运行 owner。
  */
+/** 数据空间运行态 API；按场景与模型 Name 拥有原查询、权限基线和统一保存。 */
+import { DataViewFilter, type DataViewFilterTree, type DataView, type QueryParams } from '@spark-appworks/spark-data'
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope } from './data-space-runtime-contract.js'
+import { DataSpaceQueryCache } from './query/data-space-query-cache.js'
+import { DataSpaceRequest } from './protocol/data-space-request.js'
+import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
+import { captureDataSpaceViewQuery } from './query/data-space-query-options.js'
+import type { DataSpaceDesignApi } from '../design/data-space-design-api.js'
+import type { DataSpaceQueryContext } from './query/data-space-query-context.js'
 
-import type { OrderType } from '../../../contracts/lowcode-wire-query.js'
-import { LowcodeApiError } from '../../../core/lowcode-api-error.js'
-import { LowcodeClient } from '../../../core/lowcode-client.js'
-import type { DataSpaceFrontendModel } from '../data-space.js'
-import { encodeDataSpaceResourceType } from '../data-space-resource-type-wire.js'
-import {
-  prepareDataSpaceRuntimeMutation,
-  type DataSpaceRuntimeMutationCommand,
-  type DataSpaceRuntimeMutationInput,
-} from './data-space-runtime-mutation.js'
-
-/** 运行态附加过滤；与前端模型 Filter 以 AND 合并。 */
-export type DataSpaceRuntimeFilter = Readonly<Record<string, unknown>>
-
-/** 运行态入参；透传至 GetData Table.inputParams。 */
-export type DataSpaceRuntimeInputParameter = Readonly<Record<string, unknown>>
-
-/** 运行态排序；direction 即 wire OrderType。 */
-export type DataSpaceRuntimeSort = Readonly<{
-  fieldId: string
-  direction: OrderType
+/** 运行 owner 的 HTTP 通道和请求身份读取器；scope 变更使旧基线失效。 */
+type DataSpaceRuntimeApiOptions = Readonly<{
+  http: HttpClientBase
+  readScope: () => DataSpaceRequestScope
 }>
+/** 统一保存命令；每个目标携带本 owner 的原查询上下文与候选变更。 */
+type DataSpaceRuntimeSaveCommand = Parameters<DataSpaceRequest['save']>[0]
+/** 实际保存回执和推进后的独立上下文；失败不产生确认结果。 */
+type DataSpaceRuntimeSaveResult = Awaited<ReturnType<DataSpaceRequest['save']>>
+type DataSpaceRuntimeQueryFlight = Promise<DataSpaceQueryContext>
+type DataSpaceRuntimeQueryFlights = Set<DataSpaceRuntimeQueryFlight>
 
-/** 运行态查询输入；model 须来自 design 读或已校验的 {@link DataSpaceFrontendModel}。 */
-export type DataSpaceRuntimeQuery = Readonly<{
-  formKey: string
-  model: DataSpaceFrontendModel
-  filter?: DataSpaceRuntimeFilter | null
-  inputParameters?: readonly DataSpaceRuntimeInputParameter[]
-  sort?: readonly DataSpaceRuntimeSort[]
-  pageIndex?: number
-  pageSize?: number
-}>
-
-/** 后端稀疏行级权限；r/e/h/m 为字段名集合，d 表示可删。缺失 lingma_sys_params 会 fail-fast。 */
-export type DataSpaceSparsePermission = Readonly<{
-  r: readonly string[]
-  e: readonly string[]
-  h: readonly string[]
-  m: readonly string[]
-  d: boolean
-}>
-
-/** 运行态数据行；强制携带 lingma_sys_params 与 lingma_sys_key。 */
-export type DataSpaceRuntimeRow = Readonly<Record<string, unknown>> & Readonly<{
-  lingma_sys_params: DataSpaceSparsePermission
-  lingma_sys_key: string
-}>
-
-/** 运行态查询快照；作为 runtime mutation 写前镜像，须与 query 身份一致。 */
-export type DataSpaceRuntimeSnapshot = Readonly<{
-  formKey: string
-  dataSpaceId: string
-  modelId: string
-  rows: readonly DataSpaceRuntimeRow[]
-  originalRows: ReadonlyArray<Readonly<Record<string, unknown>>>
-  total: number
-  allowAdd: boolean
-  systemKey: string
-}>
-
-/** GetData 请求预组装结果；headers 含页面 FormKey。 */
-export type DataSpaceRuntimePreparedQuery = Readonly<{
-  path: '/api/DataOperation/GetData'
-  method: 'POST'
-  headers: Readonly<Record<string, string>>
-  data: Readonly<Record<string, unknown>>
-}>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function requiredText(value: string, name: string): string {
-  const normalized = value.trim()
-  if (!normalized) throw new LowcodeApiError(0, `${name} 不能为空`)
-  return normalized
-}
-
-function optionalText(value: string | undefined): string | undefined {
-  const normalized = value?.trim()
-  return normalized === '' ? undefined : normalized
-}
-
-function structuredText(value: string, name: string): unknown {
-  const normalized = value.trim()
-  if (!normalized) return null
-  try {
-    return JSON.parse(normalized)
-  } catch {
-    throw new LowcodeApiError(0, `${name} 不是有效 JSON`)
-  }
-}
-
-function queryFilter(query: DataSpaceRuntimeQuery): unknown {
-  const modelFilter = structuredText(query.model.query.filter, '前端模型 Filter')
-  const runtimeFilter = query.filter ?? null
-  if (modelFilter === null) return runtimeFilter
-  if (runtimeFilter === null) return modelFilter
-  return { Type: 'and', Filters: [modelFilter, runtimeFilter] }
-}
-
-function fieldSort(query: DataSpaceRuntimeQuery, fieldId: string): Readonly<{
-  order: number
-  orderType: OrderType | null
-}> | null {
-  if (query.sort === undefined) return null
-  const index = query.sort.findIndex((item) => item.fieldId === fieldId)
-  if (index < 0) return { order: 0, orderType: null }
-  const item = query.sort[index]
-  if (item === undefined) return null
-  return { order: query.sort.length - index, orderType: item.direction }
-}
-
-function stringArray(value: unknown): readonly string[] {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
-}
-
-function resultData(result: unknown): Record<string, unknown> {
-  if (!isRecord(result)) throw new LowcodeApiError(0, '数据空间运行响应不是对象')
-  const data = result['data'] ?? result['Data']
-  if (!isRecord(data)) throw new LowcodeApiError(0, '数据空间运行响应缺少 data')
-  return data
-}
-
-function resultRows(data: Record<string, unknown>): ReadonlyArray<Record<string, unknown>> {
-  const items = data['Items'] ?? data['items'] ?? data['Result'] ?? data['result']
-  if (!Array.isArray(items)) throw new LowcodeApiError(0, '数据空间运行响应 Items 不是数组')
-  if (!items.every(isRecord)) throw new LowcodeApiError(0, '数据空间运行响应包含非对象行')
-  return items
-}
-
-function rowPermission(row: Record<string, unknown>): DataSpaceSparsePermission {
-  const raw = row['lingma_sys_params']
-  if (!isRecord(raw)) throw new LowcodeApiError(0, '运行数据行缺少后端权限 lingma_sys_params')
-  return {
-    r: stringArray(raw['r']),
-    e: stringArray(raw['e']),
-    h: stringArray(raw['h']),
-    m: stringArray(raw['m']),
-    d: raw['d'] === true,
-  }
-}
-
-function rowSystemKey(row: Record<string, unknown>): string {
-  const value = row['lingma_sys_key']
-  return typeof value === 'string' ? value : ''
-}
-
-function queryPayload(query: DataSpaceRuntimeQuery): Readonly<Record<string, unknown>> {
-  const resource = query.model.resource
-  const table: Record<string, unknown> = {
-    Name: query.model.name,
-    MetaName: resource.resourceName,
-    PrimaryKeyFields: resource.primaryKeyField,
-    Type: encodeDataSpaceResourceType(resource.resourceType),
-    OutputType: query.model.query.outputType || 'Table',
-    Filter: queryFilter(query),
-    inputParams: query.inputParameters ?? [],
-    DISTINCT: query.model.query.distinct,
-    IsBusinessMain: query.model.query.businessMain ? 1 : 0,
-    RelationFilterType: 'and',
-    Fields: query.model.fields.map((field) => {
-      const sort = fieldSort(query, field.fieldId)
-      const valueFunction = structuredText(field.valueFunction, `模型字段 ${field.fieldId} ValueFun`)
-      return {
-        Name: field.resourceField,
-        AsName: optionalText(field.alias) ?? field.resourceField,
-        FieldType: optionalText(field.fieldType),
-        IsOutput: field.output,
-        Order: sort?.order ?? field.order,
-        OrderType: sort?.orderType ?? optionalText(field.orderType) ?? null,
-        Group: field.group,
-        DISTINCT: field.distinct,
-        IsPKey: field.primaryKey,
-        Value: field.value,
-        ValueFun: valueFunction,
-        Expression: field.expression,
-      }
-    }),
-  }
-  const databaseName = resource.databaseName.trim()
-  if (databaseName) table['DbName'] = databaseName
-  if (query.model.query.shortName) table['ShortName'] = query.model.query.shortName
-  if (query.model.query.foreignKeyFields) table['ForeignKeyFields'] = query.model.query.foreignKeyFields
-  const payload: Record<string, unknown> = { Table: [table] }
-  if ((query.pageSize ?? 0) > 0) {
-    payload['PageParam'] = { index: query.pageIndex ?? 0, size: query.pageSize }
-  }
-  return payload
-}
-
-/** 数据空间运行态门面；query 直接读库，mutation 只 prepare 命令。 */
+/** 拥有原查询缓存、保存基线归属和同模型读写串行化；DataView 与 DataSet 消费同一实际保存 owner。 */
 export class DataSpaceRuntimeApi {
-  private readonly client: LowcodeClient
+  private readonly queryCache: DataSpaceQueryCache
+  readonly #saveRequest: DataSpaceRequest
+  readonly #readScope: DataSpaceRuntimeApiOptions['readScope']
+  readonly #contexts = new WeakMap<DataSpaceQueryContext, string>()
+  readonly #mutationFlights = new Map<string, Promise<void>>()
+  readonly #modelViews = new WeakMap<DataView, Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>()
+  readonly #queryFlights = new Map<string, DataSpaceRuntimeQueryFlights>()
 
-  public constructor(http: HttpClientBase) {
-    this.client = new LowcodeClient(http)
+  /** 建立共享查询缓存与保存请求 owner，使用同一个请求 scope 读取器。 */
+  public constructor(options: DataSpaceRuntimeApiOptions) {
+    this.queryCache = new DataSpaceQueryCache(options)
+    this.#saveRequest = new DataSpaceRequest(options)
+    this.#readScope = options.readScope
   }
 
-  public async query(query: DataSpaceRuntimeQuery): Promise<DataSpaceRuntimeSnapshot> {
-    const prepared = this.prepareQuery(query)
-    const result = await this.client.requestResult({
-      path: prepared.path,
-      method: prepared.method,
-      data: prepared.data,
-      headers: prepared.headers,
+  /** 查询后端注册模型；原结果上下文只供 DataView 的执行边界持有。 */
+  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {}): Promise<DataSpaceQueryContext> {
+    const scope = this.currentScope()
+    const normalized = new DataSpaceQueryTable(identity).identity
+    const key = this.resourceKey(scope, normalized)
+    const mutation = this.#mutationFlights.get(key)
+    if (mutation !== undefined) await mutation
+    this.assertScope(scope)
+    const flight = this.queryCache.query(normalized, options)
+    let flights = this.#queryFlights.get(key)
+    if (flights === undefined) {
+      flights = new Set()
+      this.#queryFlights.set(key, flights)
+    }
+    flights.add(flight)
+    try {
+      const context = await flight
+      this.assertScope(scope)
+      this.#contexts.set(context, key)
+      return context
+    } finally {
+      flights.delete(flight)
+      if (flights.size === 0 && this.#queryFlights.get(key) === flights) this.#queryFlights.delete(key)
+      this.assertScope(scope)
+    }
+  }
+
+  public bindModelView(view: DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>): void {
+    if (view.dataTable?.modelBinding?.modelId !== model.id || view.dataTable.modelBinding.modelName !== model.metaName) {
+      throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图与正式模型身份不一致')
+    }
+    this.#modelViews.set(view, model)
+    view.bindQueryExecutor(this)
+  }
+
+  public async executeQuery(view: DataView, params: QueryParams): Promise<DataSpaceQueryContext> {
+    const command = captureDataSpaceViewQuery(view, params)
+    const model = this.#modelViews.get(view)
+    if (model === undefined) return this.query(command.identity, command.options)
+    const requestField = (output: string): string => {
+      const matches = model.fields.filter(field => field.canonicalName === output && field.output)
+      const field = matches[0]
+      if (!field || matches.length !== 1) throw new Error(`SPARK_MODEL_FIELD_UNRESOLVED: ${output}`)
+      return field.name
+    }
+    const filterTree = (tree: DataViewFilterTree): DataViewFilterTree => 'logic' in tree
+      ? {...tree, filters: tree.filters.map(filterTree)} : {...tree, field: requestField(tree.field)}
+    const toFilter = (tree: DataViewFilterTree): DataViewFilter => 'logic' in tree ? DataViewFilter.group(tree) : DataViewFilter.condition(tree)
+    const options = command.options
+    for (const field of options.fields ?? []) {
+      if (typeof field !== 'string' && (field.expression || field.valueFun || (field.group ?? 0) !== 0
+        || (field.alias !== undefined && field.alias !== field.name))) {
+        throw new Error('SPARK_MODEL_PROJECTION: 查询视图不能重定义正式模型输出')
+      }
+    }
+    const context = await this.query(command.identity, {...options,
+      ...(options.fields === undefined ? {} : {fields: options.fields.map(field => typeof field === 'string'
+        ? {name: requestField(field), alias: field} : {...field, name: requestField(field.alias ?? field.name), alias: field.alias ?? field.name})}),
+      ...(options.sort === undefined ? {} : {sort: options.sort.map(sort => ({...sort, field: requestField(sort.field)}))}),
+      ...(options.filter ? {filter: toFilter(filterTree(options.filter.toJSON()))} : {}),
+      ...(options.tree === undefined ? {} : {tree: {...options.tree, keyField: requestField(options.tree.keyField),
+        parentField: requestField(options.tree.parentField),
+        ...(options.tree.hasChildrenField === undefined ? {} : {hasChildrenField: requestField(options.tree.hasChildrenField)})}}),
     })
-    return this.parseQueryResult(query, result)
+    context.bindFormalModel(model)
+    return context
   }
 
-  public prepareQuery(query: DataSpaceRuntimeQuery): DataSpaceRuntimePreparedQuery {
-    const formKey = requiredText(query.formKey, 'formKey')
-    return {
-      path: '/api/DataOperation/GetData',
-      method: 'POST',
-      data: queryPayload(query),
-      headers: { 'x-FormKey': formKey },
-    }
+  public async save(command: DataSpaceRuntimeSaveCommand): Promise<DataSpaceRuntimeSaveResult> {
+    const scope = this.currentScope()
+    const signal = command.signal
+    signal?.throwIfAborted()
+    const changes = command.changes.map(change => ({ ...change,
+      identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes) }))
+    const keys = [...new Set(changes.map(change => this.resourceKey(scope, change.identity)))].sort()
+    changes.forEach(change => this.assertContextOwner(scope, change))
+    const previous = keys.map(key => this.#mutationFlights.get(key) ?? Promise.resolve())
+    const run = Promise.all(previous.map(flight => flight.catch(() => undefined))).then(async () => {
+      this.assertScope(scope)
+      signal?.throwIfAborted()
+      await Promise.all(keys.map(async key => {
+        const flights = this.#queryFlights.get(key)
+        if (flights !== undefined) await Promise.allSettled([...flights])
+      }))
+      this.assertScope(scope)
+      changes.forEach(change => this.assertContextOwner(scope, change))
+      const receipts = await this.#saveRequest.save({ changes, ...(signal === undefined ? {} : { signal }) })
+      this.assertScope(scope)
+      receipts.forEach((receipt, index) => {
+        const change = changes[index]
+        if (change === undefined) throw new Error('SPARK 保存缺少基线目标')
+        this.#contexts.delete(change.context)
+        this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
+      })
+      return receipts
+    }).finally(() => this.assertScope(scope))
+    const tail = run.then(() => undefined, () => undefined)
+    keys.forEach(key => this.#mutationFlights.set(key, tail))
+    return run.finally(() => {
+      keys.forEach(key => {
+        if (this.#mutationFlights.get(key) === tail) this.#mutationFlights.delete(key)
+      })
+    })
   }
 
-  public parseQueryResult(query: DataSpaceRuntimeQuery, result: unknown): DataSpaceRuntimeSnapshot {
-    const formKey = requiredText(query.formKey, 'formKey')
-    if (!isRecord(result)) throw new LowcodeApiError(0, '数据空间运行响应不是对象')
-    if (typeof result['allowAdd'] !== 'boolean') {
-      throw new LowcodeApiError(0, '数据空间运行响应缺少后端 allowAdd')
+  private assertContextOwner(scope: string, change: DataSpaceRuntimeSaveCommand['changes'][number]): void {
+    if (this.#contexts.get(change.context) !== this.resourceKey(scope, change.identity)) {
+      throw new Error('SPARK_SAVE_CONTEXT_OWNER: 保存基线不属于当前运行 owner 或已被成功提交')
     }
-    const data = resultData(result)
-    const rawRows = resultRows(data)
-    const rawTotal = data['Count'] ?? data['count']
-    const total = typeof rawTotal === 'number' && Number.isFinite(rawTotal) ? rawTotal : rawRows.length
-    const systemKey = result['lingma_sys_key']
-    return {
-      formKey,
-      dataSpaceId: query.model.dataSpaceId,
-      modelId: query.model.modelId,
-      rows: rawRows.map((row) => ({
-        ...row,
-        lingma_sys_params: rowPermission(row),
-        lingma_sys_key: rowSystemKey(row),
-      })),
-      originalRows: rawRows.map((row) => ({ ...row })),
-      total,
-      allowAdd: result['allowAdd'],
-      systemKey: typeof systemKey === 'string' ? systemKey : '',
-    }
+    change.context.assertIdentity(change.identity)
   }
 
-  public prepareMutation(input: DataSpaceRuntimeMutationInput): DataSpaceRuntimeMutationCommand {
-    return prepareDataSpaceRuntimeMutation(input)
+  private resourceKey(scope: string, identity: DataSpaceQueryIdentity): string {
+    return JSON.stringify([scope, identity.scenarioId, identity.metaName])
   }
+
+  private currentScope(): string {
+    const token = this.#readScope().token
+    if (!token.trim()) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 请求层未提供有效 scope token')
+    return token
+  }
+
+  private assertScope(scope: string): void {
+    if (this.currentScope() !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 运行 owner 所属请求范围已失效')
+  }
+
 }

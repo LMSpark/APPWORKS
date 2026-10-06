@@ -1,7 +1,7 @@
 import { config as testUtilsConfig, flushPromises, mount } from '@vue/test-utils'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { defineComponent, h, type App, type Component } from 'vue'
+import { defineComponent, h, markRaw, ref, type App, type Component } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { describe, expect, it, vi } from 'vitest'
 import { Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
@@ -10,7 +10,8 @@ import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import {
   compileRule,
 } from '@spark-appworks/spark-project-model'
-import type { PageNodeLike, PageNodeRenderConfig } from '@spark-appworks/spark-project-model'
+import { PageRuntime, PageTool } from '@spark-appworks/spark-project-model'
+import type { PageRoute } from '../../packages/spark-component/src/runtime/script-context-types'
 import { buildPageChildren } from '../../packages/spark-component/src/page/binding'
 import type { ActionExecutionContext } from '../../packages/spark-component/src/page/actions'
 
@@ -22,31 +23,24 @@ type TestPageContentConfig = {
   css?: string
 }
 
-type TestPageNodeOptions = {
+type TestPageRuntimeOptions = {
   pageId?: string
   load?: () => Promise<void>
   httpClient?: HttpClientBase
 }
 
-function createPageNode(config: TestPageContentConfig, options?: TestPageNodeOptions): PageNodeLike {
-  const pageId = options?.pageId ?? config.pageId ?? 'test-page'
-  const state: PageNodeRenderConfig = {
-    pageId,
-    blueprintNode: null,
-    dataSpaceBinding: null,
-    rule: config.rule,
-    data: config.data,
-    css: config.css ?? '',
-    script: config.script ?? '',
-  }
-  const pageNode: PageNodeLike & { getHttpClient(): HttpClientBase | undefined } = {
-    pageId,
-    get isLoaded() { return true },
-    load: options?.load ?? vi.fn(async () => undefined),
-    toRenderConfig: () => state,
-    getHttpClient: () => options?.httpClient,
-  }
-  return pageNode
+const routeSnapshot: PageRoute = { path: '/pages/test', fullPath: '/pages/test', name: 'test', params: {}, query: {}, hash: '' }
+
+function createPageRuntime(config: TestPageContentConfig, options?: TestPageRuntimeOptions): PageRuntime {
+  const tool = markRaw(new PageTool({ pageId: options?.pageId ?? config.pageId ?? 'test-page' }))
+  tool.hydrateFileText('rule.json', JSON.stringify(config.rule))
+  tool.hydrateFileText('script.js', config.script ?? '')
+  tool.hydrateFileText('style.css', config.css ?? '')
+  tool.markLoaded()
+  return markRaw(new PageRuntime({ tool, scenarioIds: ['test-scene'], mainScenarioId: 'test-scene',
+    loadScenario: async scenarioId => SparkData.createDataSet({ ...config.data.toJson(), scenarioId }),
+    ...(options?.load === undefined ? {} : { loadTool: async () => { await options.load?.(); return tool } }),
+  }))
 }
 
 function requireRecord(value: unknown, message: string): Record<string, unknown> {
@@ -125,6 +119,7 @@ describe('SparkPageRenderer root props aggregation', () => {
   function createActionContext(): ActionExecutionContext {
     return {
       getDataSet: () => null,
+      resolveView: () => null,
       getPageService: () => null,
       getRouter: () => null,
     }
@@ -186,7 +181,8 @@ describe('SparkPageRenderer root props aggregation', () => {
 
     const wrapper = mount(SparkPageRenderer, {
       props: {
-        pageNode: createPageNode(pageContent),
+        routeSnapshot,
+        pageRuntime: createPageRuntime(pageContent),
       },
       global: {
         plugins: [Spark.createPlugin(), router],
@@ -204,7 +200,7 @@ describe('SparkPageRenderer root props aggregation', () => {
     const props = requireRecord(firstChild['props'], 'Expected first rendered child props')
 
     expect(Array.isArray(children)).toBe(true)
-    expect(props['dataViewKey']).toBe('Users@default')
+    expect(props['dataViewKey']).toBe('#test-scene@Users@default')
     expect(props['label']).toBe('用户列表')
     expect(firstChild['dataViewKey']).toBeUndefined()
     expect(firstChild['label']).toBeUndefined()
@@ -229,7 +225,8 @@ describe('SparkPageRenderer root props aggregation', () => {
 
     const wrapper = mount(SparkPageRenderer, {
       props: {
-        pageNode: createPageNode(createPageContentConfig('初始标题')),
+        routeSnapshot,
+        pageRuntime: createPageRuntime(createPageContentConfig('初始标题')),
       },
       global: {
         plugins: [Spark.createPlugin(), router],
@@ -250,7 +247,8 @@ describe('SparkPageRenderer root props aggregation', () => {
     expect(readLabel()).toBe('初始标题')
 
     await wrapper.setProps({
-      pageNode: createPageNode(createPageContentConfig('更新后标题')),
+      routeSnapshot,
+      pageRuntime: createPageRuntime(createPageContentConfig('更新后标题')),
     })
     await flushPromises()
 
@@ -275,7 +273,8 @@ describe('SparkPageRenderer root props aggregation', () => {
 
     mount(SparkPageRenderer, {
       props: {
-        pageNode: createPageNode({
+        routeSnapshot,
+        pageRuntime: createPageRuntime({
           ...createPageContentConfig('初始化'),
           script: "async function __init__() { throw new Error('ASYNC_INIT_FAIL') }",
         }),
@@ -318,7 +317,8 @@ describe('SparkPageRenderer root props aggregation', () => {
 
     mount(SparkPageRenderer, {
       props: {
-        pageNode: createPageNode({
+        routeSnapshot,
+        pageRuntime: createPageRuntime({
           ...createPageContentConfig('点击'),
           rule: [
             {
@@ -387,7 +387,7 @@ describe('SparkPageRenderer root props aggregation', () => {
     expect(refreshButtonProps['onClick']).toBeUndefined()
   })
 
-  it('uses the PageNode pageId on cross-project-ref routes', async () => {
+  it('uses the PageRuntime pageId on cross-project-ref routes', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [
@@ -402,16 +402,17 @@ describe('SparkPageRenderer root props aggregation', () => {
         },
       ],
     })
-    const loadPageNode = vi.fn(async () => undefined)
+    const loadPageRuntime = vi.fn(async () => undefined)
 
     await router.push('/t/lmspark/homepage/__ref/ref-node')
     await router.isReady()
 
     mount(SparkPageRenderer, {
       props: {
-        pageNode: createPageNode(createPageContentConfig('跨项目目标'), {
+        routeSnapshot,
+        pageRuntime: createPageRuntime(createPageContentConfig('跨项目目标'), {
           pageId: 'project-list',
-          load: loadPageNode,
+          load: loadPageRuntime,
         }),
       },
       global: {
@@ -421,7 +422,7 @@ describe('SparkPageRenderer root props aggregation', () => {
 
     await flushPromises()
 
-    expect(loadPageNode).toHaveBeenCalledTimes(1)
+    expect(loadPageRuntime).toHaveBeenCalledTimes(1)
   })
 
   it('loads explicit target pageId inside cross-project-ref routes', async () => {
@@ -439,17 +440,17 @@ describe('SparkPageRenderer root props aggregation', () => {
         },
       ],
     })
-    const loadPageNode = vi.fn(async () => undefined)
+    const loadPageRuntime = vi.fn(async () => undefined)
 
     await router.push('/t/lmspark/homepage/__ref/ref-node')
     await router.isReady()
 
     mount(SparkPageRenderer, {
       props: {
-        pageId: 'project-list',
-        pageNode: createPageNode(createPageContentConfig('跨项目目标'), {
+        routeSnapshot,
+        pageRuntime: createPageRuntime(createPageContentConfig('跨项目目标'), {
           pageId: 'project-list',
-          load: loadPageNode,
+          load: loadPageRuntime,
         }),
       },
       global: {
@@ -462,7 +463,7 @@ describe('SparkPageRenderer root props aggregation', () => {
 
     await flushPromises()
 
-    expect(loadPageNode).toHaveBeenCalledTimes(1)
+    expect(loadPageRuntime).toHaveBeenCalledTimes(1)
   })
 
   it('does not reload an explicit pageId when the global route changes', async () => {
@@ -483,17 +484,17 @@ describe('SparkPageRenderer root props aggregation', () => {
         },
       ],
     })
-    const loadPageNode = vi.fn(async () => undefined)
+    const loadPageRuntime = vi.fn(async () => undefined)
 
     await router.push('/pages/old')
     await router.isReady()
 
     mount(SparkPageRenderer, {
       props: {
-        pageId: 'old-page',
-        pageNode: createPageNode(createPageContentConfig('old-page'), {
+        routeSnapshot,
+        pageRuntime: createPageRuntime(createPageContentConfig('old-page'), {
           pageId: 'old-page',
-          load: loadPageNode,
+          load: loadPageRuntime,
         }),
       },
       global: {
@@ -502,13 +503,13 @@ describe('SparkPageRenderer root props aggregation', () => {
     })
 
     await flushPromises()
-    expect(loadPageNode).toHaveBeenCalledTimes(1)
+    expect(loadPageRuntime).toHaveBeenCalledTimes(1)
 
     await router.push('/pages/new')
     await router.isReady()
     await flushPromises()
 
-    expect(loadPageNode).toHaveBeenCalledTimes(1)
+    expect(loadPageRuntime).toHaveBeenCalledTimes(1)
   })
 
   it('rejects props.id in page rules', () => {
@@ -583,7 +584,8 @@ describe('SparkPageRenderer root props aggregation', () => {
     try {
       const wrapper = mount(SparkPageRenderer, {
         props: {
-          pageNode: createPageNode({
+          routeSnapshot,
+        pageRuntime: createPageRuntime({
             ...createPageContentConfig('render-init'),
             pageId: 'render-init',
             rule: [{ type: 'RenderInitProbe' }],
@@ -629,7 +631,8 @@ describe('SparkPageRenderer root props aggregation', () => {
     try {
       const wrapper = mount(SparkPageRenderer, {
         props: {
-          pageNode: createPageNode({
+          routeSnapshot,
+        pageRuntime: createPageRuntime({
             ...createPageContentConfig('render-click'),
             pageId: 'render-click',
             rule: [{ type: 'RenderClickProbe' }, { type: 'RenderMirrorProbe' }],
@@ -673,6 +676,45 @@ describe('SparkPageRenderer root props aggregation', () => {
     }
   })
 
+  it('isolates two calls of the same tool and same Render name without app-global registration', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/pages/shared', component: defineComponent({ render: () => h('div') }) }] })
+    await router.push('/pages/shared')
+    await router.isReady()
+    const a = createPageRuntime({ ...createPageContentConfig('shared'), pageId: 'shared', rule: [{ type: 'RenderActions' }],
+      script: `let count = 0; function RenderActions() { return h('button', { class: 'shared-render', onClick: function() { count++ } }, $route.query.owner + ':' + count) }`,
+    })
+    const b = markRaw(new PageRuntime({ tool: a.tool, scenarioIds: [], loadScenario: async () => { throw new Error('no scene expected') } }))
+    const showA = ref(true)
+    const registrations: Record<string, number> = {}
+    const restore = disableSparkComponentRendererStub()
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      const Parent = defineComponent({ render: () => h('div', [
+        ...(showA.value ? [h('section', { class: 'call-a', key: a.instanceId }, [h(SparkPageRenderer, { pageRuntime: a, routeSnapshot: { ...routeSnapshot, query: { owner: 'A' } } })])] : []),
+        h('section', { class: 'call-b', key: b.instanceId }, [h(SparkPageRenderer, { pageRuntime: b, routeSnapshot: { ...routeSnapshot, query: { owner: 'B' } } })]),
+      ]) })
+      wrapper = mount(Parent, { global: { plugins: [Spark.createPlugin(), createComponentRegistrationProbe(registrations), router] } })
+      await flushPromises()
+      expect(wrapper.find('.call-a .shared-render').exists(), wrapper.html()).toBe(true)
+      expect(wrapper.find('.call-a .shared-render').text()).toBe('A:0')
+      expect(wrapper.find('.call-b .shared-render').text()).toBe('B:0')
+      await wrapper.find('.call-a .shared-render').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('.call-a .shared-render').text()).toBe('A:1')
+      expect(wrapper.find('.call-b .shared-render').text()).toBe('B:0')
+      expect(wrapper.find('.call-a [data-page]').attributes('data-page')).not.toBe(wrapper.find('.call-b [data-page]').attributes('data-page'))
+      showA.value = false
+      await flushPromises()
+      expect(a.destroyed).toBe(true)
+      expect(b.destroyed).toBe(false)
+      await wrapper.find('.call-b .shared-render').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('.call-b .shared-render').text()).toBe('B:1')
+      expect(registrations).toEqual({})
+    } finally { wrapper?.unmount(); restore() }
+    expect(b.destroyed).toBe(true)
+  })
+
   it('updates in-memory Render script components without duplicate app registration', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
@@ -693,7 +735,8 @@ describe('SparkPageRenderer root props aggregation', () => {
       const baseConfig = createPageContentConfig('render-actions')
       const wrapper = mount(SparkPageRenderer, {
         props: {
-          pageNode: createPageNode({
+          routeSnapshot,
+        pageRuntime: createPageRuntime({
             ...baseConfig,
             pageId: 'render-actions',
             rule: [{ type: 'RenderActions' }],
@@ -713,7 +756,8 @@ describe('SparkPageRenderer root props aggregation', () => {
       expect(wrapper.find('.actions-probe').text()).toBe('one')
 
       await wrapper.setProps({
-        pageNode: createPageNode({
+        routeSnapshot,
+        pageRuntime: createPageRuntime({
           ...baseConfig,
           pageId: 'render-actions',
           rule: [{ type: 'RenderActions' }],
@@ -727,8 +771,8 @@ describe('SparkPageRenderer root props aggregation', () => {
       await flushPromises()
 
       expect(wrapper.find('.actions-probe').text()).toBe('two')
-      expect(registrationCounts['RenderActions']).toBe(1)
-      expect(registrationCounts['renderActions']).toBe(1)
+      expect(registrationCounts['RenderActions'] ?? 0).toBe(0)
+      expect(registrationCounts['renderActions'] ?? 0).toBe(0)
     } finally {
       restoreSparkRendererStub()
     }

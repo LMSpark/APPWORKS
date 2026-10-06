@@ -14,7 +14,7 @@
 
 import { parseViewMetadataInput } from './metadata'
 import type {
-  DataRow, ViewMetadata, FilterExpression, FilterOperator, FilterValueExpression, SortExpression,
+  DataRow, ViewMetadata, SortExpression,
   QueryParams, DataColumn, DataViewCascade,
   CrudResult, CrudOperationConfig,
   DataSource,
@@ -24,14 +24,12 @@ import type {
   CommitMode, RetrieveRecordOptions,
   SparkEventEmitter,
   DataViewEditingFieldChangeEvent, DataViewApplyEditingRowsResult,
-  DataPermissionSnapshot, DataPermissionSnapshotInput,
   DataViewFieldProjection, DataViewQueryContext,
 } from './types'
 
-/** 过滤值字段引用形状（与 types.ts 中 FilterValueExpression 的内联形状一致） */
-type FilterFieldRefShape = {
-  kind: 'field'
-  field: string}
+import { DataViewFilter } from './query/filter/data-view-filter'
+import { DataViewFilterLocal } from './query/filter/data-view-filter-local'
+import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
 import { RequestState } from './types'
 import { TreeManager } from './tree-manager'
 import type { DataTable } from './data-table'
@@ -107,11 +105,84 @@ export type DataViewServerRowsPayload = {
   pageSize?: number
 }
 
+/** 原查询绑定的场景与正式模型 Name；结果和保存上下文必须匹配此身份。 */
+type DataViewQueryIdentity = Readonly<{ scenarioId: string; metaName: string }>
+/** 查询 owner 提供的只读业务行；视图复制后编辑，原行保留为私有保存基线。 */
+type DataViewQueryRow = Readonly<Record<string, unknown>>
+/** 后端权限与当前可用状态共同决定的动作呈现，不等价于保存授权。 */
+type DataViewActionState = 'hidden' | 'disabled' | 'enabled'
+/** 字段读取、写入和组件呈现的独立通道；必填事实与写白名单由查询 owner 提供。 */
+type DataViewFieldAccess = Readonly<{
+  read: 'invisible' | 'masked' | 'visible'
+  write: 'denied' | 'allowed'
+  component: 'hidden' | 'readonly' | 'editable'
+  required: boolean
+  writeMode: 'required' | 'editable' | 'readonly'
+}>
+/** 单次查询的私有结果能力；持有原行身份、权限呈现与新增身份准备，不公开签名快照。 */
+type DataViewQueryResult = Readonly<{
+  rows: readonly DataViewQueryRow[]
+  total: number
+  assertIdentity(identity: DataViewQueryIdentity): void
+  rowKey(row: DataViewQueryRow): unknown
+  prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>
+  fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess
+  addActionState(available?: boolean): DataViewActionState
+  editActionState(rowKey: unknown, available?: boolean): DataViewActionState
+  deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState
+  createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState
+  viewActionState(rowKey: unknown, available?: boolean): DataViewActionState
+}>
+/** 一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。 */
+type DataViewQueryExecutor = Readonly<{
+  executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>
+  save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>
+}>
+/** 按新增、更新、删除分组的待保存业务行，捕获时已经剥离前端计算字段。 */
+type DataViewQuerySaveChanges = Readonly<{
+  added?: readonly DataViewQueryRow[]
+  changed?: readonly DataViewQueryRow[]
+  deleted?: readonly DataViewQueryRow[]
+}>
+/** 单模型保存输入，明确绑定原查询身份、私有上下文与当前变更。 */
+type DataViewQuerySaveChange = Readonly<{
+  identity: DataViewQueryIdentity
+  context: DataViewQueryResult
+  changes: DataViewQuerySaveChanges
+}>
+/** 同场景不同模型的一次保存命令；同模型多脏视图被拒绝，不承诺事务。 */
+type DataViewQuerySaveCommand = Readonly<{
+  changes: readonly DataViewQuerySaveChange[]
+}>
+/** 模型保存回执；真实接受行、逐行更新字段和新上下文用于接纳结果并保留在途新编辑。 */
+type DataViewQuerySaveReceipt = Readonly<{
+  metaName: string
+  added: readonly DataViewQueryRow[]
+  changed: readonly DataViewQueryRow[]
+  deleted: readonly DataViewQueryRow[]
+  changedFields: ReadonlyArray<readonly string[]>
+  context: DataViewQueryResult
+}>
+type DataViewQuerySaveRow = Readonly<{ id: string | number; row: DataRow }>
+/** 保存目标视图及可选本地行定位集合；省略 ids 时捕获全部待提交变更。 */
+type DataViewQuerySaveTarget = Readonly<{ view: DataView; ids?: Array<string | number> }>
+type DataViewQuerySaveCapture = Readonly<{
+  executor: DataViewQueryExecutor
+  identity: DataViewQueryIdentity
+  context: DataViewQueryResult
+  added: readonly DataViewQuerySaveRow[]
+  changed: readonly DataViewQuerySaveRow[]
+  deleted: readonly DataViewQuerySaveRow[]
+}>
+type DataViewQuerySaveAcceptance = DataViewQuerySaveCapture & Readonly<{
+  receipt: DataViewQuerySaveReceipt
+}>
+
+const DENIED_FIELD_ACCESS: DataViewFieldAccess = Object.freeze({ read: 'invisible', write: 'denied',
+  component: 'hidden', required: false, writeMode: 'readonly' })
+
 /** rowsChanged 事件按微任务合并，保证同一同步批次只通知一次，同时让 Vue nextTick 可观测。 */
 const REQUEST_SUPERSEDED_MESSAGE = 'Request superseded'
-
-const LEGACY_FILTER_PLACEHOLDER_TOKEN_RE = /\\?\$\[/
-const LEGACY_PARENT_FILTER_PLACEHOLDER_TOKEN_RE = /\\?\$parent\[/
 
 function dataRowFromRecord(record: Record<string, unknown>): DataRow {
   return { ...record }
@@ -157,69 +228,13 @@ function normalizeServerRowsData(
   return normalized
 }
 
-function isFilterFieldRef(value: unknown): value is FilterFieldRefShape {
-  return isRecord(value)
-    && value['kind'] === 'field'
-    && typeof value['field'] === 'string'
-}
-
-function resolveFilterFieldRef(fieldName: string, row: DataRow): unknown {
-  if (!(fieldName in row)) {
-    throw new Error(`过滤值表达式引用了不存在的字段 "${fieldName}"`)
-  }
-  return row[fieldName]
-}
-
-function assertNoLegacyFilterPlaceholderString(value: string): void {
-  if (LEGACY_PARENT_FILTER_PLACEHOLDER_TOKEN_RE.test(value)) {
-    throw new Error('过滤值中的 "$parent[...]" 协议已移除，请使用 DataViewCascade.filterBindings')
-  }
-  if (LEGACY_FILTER_PLACEHOLDER_TOKEN_RE.test(value)) {
-    throw new Error('过滤值占位字符串协议已移除，请改用结构化字段引用 { kind: "field", field: "..." }')
-  }
-}
-
-function compareFilterScalar(left: unknown, right: unknown): number {
-  if (typeof left === 'number' && typeof right === 'number') return left - right
-  return String(left ?? '').localeCompare(String(right ?? ''))
-}
-
-function includesFilterValue(container: unknown, needle: unknown): boolean {
-  if (Array.isArray(container)) return container.includes(needle)
-  return String(container ?? '').includes(String(needle ?? ''))
-}
-
-function startsWithFilterValue(container: unknown, needle: unknown): boolean {
-  return String(container ?? '').startsWith(String(needle ?? ''))
-}
-
-function endsWithFilterValue(container: unknown, needle: unknown): boolean {
-  return String(container ?? '').endsWith(String(needle ?? ''))
-}
-
-function getArrayFilterValue(value: unknown): unknown[] | null {
-  return Array.isArray(value) ? value : null
-}
-
-function isDataPermissionSnapshotInput(value: unknown): value is DataPermissionSnapshotInput {
-  if (!isRecord(value)) return false
-  return typeof value['formKey'] === 'string'
-    && typeof value['dataSpaceId'] === 'string'
-    && typeof value['modelId'] === 'string'
-    && Array.isArray(value['rows'])
-    && Array.isArray(value['originalRows'])
-    && typeof value['total'] === 'number'
-    && typeof value['allowAdd'] === 'boolean'
-    && typeof value['systemKey'] === 'string'
-    && Array.isArray(value['authorizedFeatureTags'])
-}
-
 // ─────────────────────────────────────────────
 // DataView 类
 // ─────────────────────────────────────────────
 
 /**
  * DataView - 单个表视图的数据操作子模块。
+ * 查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。
  *
  */
 export class DataView implements DataSource {
@@ -261,14 +276,80 @@ viewId: string
   /** 当前模型视图对 DataTable 资源字段的稳定投影。 */
   fieldProjection: readonly DataViewFieldProjection[] = []
 
-  /** 随每次查询提交给 DataTable.crudService 的后端无关上下文。 */
+  /** 每次查询的输入参数；与私有的结果权限上下文分离。 */
   queryContext: DataViewQueryContext = {}
 
     /** 行数据集合。 */
 rows: DataRow[] = []
 
   /** 与当前 rows 同一次查询登记的后端最终权限事实。 */
-  permissionSnapshot: DataPermissionSnapshot | null = null
+
+  #queryExecutor: DataViewQueryExecutor | undefined
+  #queryResult: DataViewQueryResult | undefined
+
+  /** 一次运行只绑定一个查询 owner；改变绑定必须重新装配，数据层不依赖 API 包。 */
+  bindQueryExecutor(executor: DataViewQueryExecutor): void {
+    this.checkDestroyed()
+    if (this.#queryExecutor === executor) return
+    if (this.#queryExecutor !== undefined || this.currentLoadRequestId !== 0) {
+      throw new Error('DATA_VIEW_QUERY_IDENTITY: 查询 owner 不可改绑，请重新装配运行 DataSet')
+    }
+    this.assertResultReplacementAllowed()
+    this.queryIdentity()
+    this.#queryExecutor = executor
+  }
+
+  /** 返回字段双通道呈现；查询失败暂停写入，不公开原权限或保存凭据。 */
+  fieldAccess(row: DataRow | null, field: string): DataViewFieldAccess {
+    const context = this.currentQueryResult()
+    if (!context || !row) return DENIED_FIELD_ACCESS
+    const access = context.fieldAccess(context.rowKey(row), field)
+    if (!this._resultStale) return access
+    return { ...access, write: 'denied', writeMode: 'readonly',
+      component: access.read === 'invisible' ? 'hidden' : 'readonly' }
+  }
+
+  /** 新增呈现来自原查询模型权限，旧结果期间只保留展示。 */
+  addActionState(available = true): DataViewActionState {
+    return this.currentQueryResult()?.addActionState(available && !this._resultStale) ?? 'hidden'
+  }
+
+  /** 行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。 */
+  editActionState(row: DataRow | null, available = true): DataViewActionState {
+    const context = this.currentQueryResult()
+    return context && row ? context.editActionState(context.rowKey(row), available && !this._resultStale) : 'disabled'
+  }
+
+  /** 删除呈现消费后端行权限。 */
+  deleteActionState(row: DataRow | null, available = true): DataViewActionState {
+    const context = this.currentQueryResult()
+    return context && row ? context.deleteActionState(context.rowKey(row), available && !this._resultStale) : 'disabled'
+  }
+
+  /** 树行新增子行呈现消费后端 c，不由模型新增权限推测。 */
+  createChildActionState(row: DataRow | null, available = true): DataViewActionState {
+    const context = this.currentQueryResult()
+    return context && row ? context.createChildActionState(context.rowKey(row), available && !this._resultStale) : 'disabled'
+  }
+
+  /** 查看只消费已登记返回行的身份。 */
+  viewActionState(row: DataRow | null, available = true): DataViewActionState {
+    const context = this.currentQueryResult()
+    return context && row ? context.viewActionState(context.rowKey(row), available) : 'disabled'
+  }
+
+  private queryIdentity(): DataViewQueryIdentity {
+    const scenarioId = this.dataSet?.scenarioId
+    const metaName = this._dataTable?.modelBinding?.modelName
+    if (!scenarioId || !metaName) throw new Error('DATA_VIEW_QUERY_IDENTITY: 查询必须绑定明确场景与模型')
+    return { scenarioId, metaName }
+  }
+
+  private currentQueryResult(): DataViewQueryResult | undefined {
+    this.checkDestroyed()
+    this.#queryResult?.assertIdentity(this.queryIdentity())
+    return this.#queryResult
+  }
 
   // ─────────────────────────────────────────────
   // 主键（全部委托给 _primaryKeyDelegate）
@@ -445,8 +526,21 @@ loadingError: Error | null = null
   // 视图配置
   // ─────────────────────────────────────────────
 
-    /** filter Expression 字段。 */
-filterExpression?: FilterExpression
+  private appliedFilter: DataViewFilter | undefined
+
+  /** SPARK 公开过滤树；所有入口解析为私有不可变快照，修改前保护未保存数据。 */
+  get filterExpression(): DataViewFilterTree | undefined { return this.appliedFilter?.toJSON() }
+  set filterExpression(input: DataViewFilterTree | undefined) {
+    const next = input === undefined ? undefined : this._parseFilter(input)
+    if (this.appliedFilter?.serialize() === next?.serialize()) return
+    this.assertResultReplacementAllowed()
+    const localRows = this._shouldApplyStaticLocalFilter() ? this._filteredLocalRows(next) : undefined
+    if (next !== undefined && localRows === undefined) this._validateRemoteFilterFields(next.toJSON())
+    this.appliedFilter = next
+    this.page = 1
+    if (localRows !== undefined) this._replaceLocalFilterRows(localRows)
+    this.emitConfigChanged()
+  }
     /** sort Expression 字段。 */
 sortExpression?: SortExpression
   /** 请求成功后是否自动 currentRow = rows[0]（默认 true） */
@@ -464,12 +558,14 @@ sortExpression?: SortExpression
   private _shouldApplyStaticLocalFilter(): boolean {
     const table = this._dataTable
     if (!table) return false
+    if (this.#queryExecutor !== undefined) return false
     return table.resourceType === 'static-data' || (table.api?.list === undefined && this.rows.length > 0)
   }
 
   /** 远端数据来源的行是查询结果，不属于配置，序列化时不写出。 */
   private _holdsRemoteRows(): boolean {
     const table = this._dataTable
+    if (this.#queryExecutor !== undefined) return true
     if (table === null || table.resourceType === 'static-data') return false
     return table.resourceType !== undefined || table.api?.list !== undefined
   }
@@ -502,204 +598,49 @@ sortExpression?: SortExpression
     throw new Error(`过滤表达式引用了不存在的字段 "${fieldName}"`)
   }
 
-  private _validateFilterValueExpression(
-    value: FilterValueExpression,
-    availableFields?: ReadonlySet<string>,
-  ): void {
-    if (typeof value === 'string') {
-      assertNoLegacyFilterPlaceholderString(value)
-      return
-    }
-
-    if (Array.isArray(value)) {
-      value.forEach(item => this._validateFilterValueExpression(item, availableFields))
-      return
-    }
-
-    if (isFilterFieldRef(value)) {
-      const fieldName = value.field.trim()
-      if (fieldName === '') {
-        throw new Error(`过滤字段引用不能为空 [${this.tableName}@${this.viewId}]`)
-      }
-      if (availableFields !== undefined && availableFields.size > 0 && !availableFields.has(fieldName)) {
-        throw new Error(`过滤值表达式引用了不存在的字段 "${fieldName}"`)
-      }
-      if (availableFields === undefined) {
-        this._assertKnownFilterFieldExists(fieldName)
-      }
-      return
-    }
-
-    if (value === null || typeof value === 'number' || typeof value === 'boolean') return
-
-    throw new Error(`非法过滤值表达式 [${this.tableName}@${this.viewId}]`)
+  private _parseFilter(input: unknown): DataViewFilter {
+    const result = DataViewFilter.parse(input)
+    if (!result.ok) throw new Error(result.issues.map(issue => `${issue.path}: ${issue.message}`).join('\n'))
+    return result.value
   }
 
-  private _validateFilterExpressionNode(
-    expr: FilterExpression,
-    availableFields?: ReadonlySet<string>,
-  ): void {
-    if ('type' in expr) {
-      switch (expr.type) {
-        case 'and':
-        case 'or':
-        case '!and':
-        case '!or':
-          expr.children.forEach(child => this._validateFilterExpressionNode(child, availableFields))
-          return
-        case '!condition':
-          if (expr.field.trim() === '') {
-            throw new Error(`过滤条件字段不能为空 [${this.tableName}@${this.viewId}]`)
-          }
-          this._validateFilterValueExpression(expr.value, availableFields)
-          return
-        default:
-          throw new Error(`非法过滤表达式类型 [${this.tableName}@${this.viewId}]`)
-      }
-    }
-
-    if (expr.field.trim() === '') {
-      throw new Error(`过滤条件字段不能为空 [${this.tableName}@${this.viewId}]`)
-    }
-    if (availableFields !== undefined && availableFields.size > 0 && !availableFields.has(expr.field)) {
-      throw new Error(`过滤条件字段不存在 "${expr.field}" [${this.tableName}@${this.viewId}]`)
-    }
-    if (availableFields === undefined) {
-      this._assertKnownFilterFieldExists(expr.field)
-    }
-    this._validateFilterValueExpression(expr.value, availableFields)
+  private _validateRemoteFilterFields(tree: DataViewFilterTree): void {
+    if ('logic' in tree) tree.filters.forEach(child => this._validateRemoteFilterFields(child))
+    else this._assertKnownFilterFieldExists(tree.field)
   }
 
-  private _validateFilterExpression(expr: FilterExpression): void {
-    const availableFields = this._shouldApplyStaticLocalFilter()
-      ? this._getAvailableLocalFilterFields()
-      : undefined
-
-    this._validateFilterExpressionNode(expr, availableFields)
-  }
-
-  private _isSameFilterExpression(
-    left: FilterExpression | undefined,
-    right: FilterExpression | undefined,
-  ): boolean {
-    if (left === right) return true
-    if (!left || !right) return false
-    return JSON.stringify(left) === JSON.stringify(right)
+  private _isSameFilterExpression(left: DataViewFilterTree | undefined, right: DataViewFilterTree | undefined): boolean {
+    return left === right || JSON.stringify(left) === JSON.stringify(right)
   }
 
   private _createRequestSupersededResult<T = unknown>(): CrudResult<T> {
     return { success: false, message: REQUEST_SUPERSEDED_MESSAGE }
   }
 
-  private _mergeRemoteFilters(
-    cascadeFilter: FilterExpression | undefined,
-    userFilter: FilterExpression | undefined,
-  ): FilterExpression | undefined {
+  private _mergeRemoteFilters(cascadeFilter: DataViewFilterTree | undefined, userFilter: DataViewFilterTree | undefined): DataViewFilterTree | undefined {
     if (!cascadeFilter) return userFilter
     if (!userFilter) return cascadeFilter
-    return {
-      type: 'and',
-      children: [cascadeFilter, userFilter],
-    }
+    return DataViewFilter.group({ logic: 'and', filters: [cascadeFilter, userFilter] }).toJSON()
   }
 
-  private _resolveFilterValueExpression(value: FilterValueExpression, row: DataRow): unknown {
-    if (typeof value === 'string') {
-      assertNoLegacyFilterPlaceholderString(value)
-      return value
-    }
-    if (Array.isArray(value)) return value.map(item => this._resolveFilterValueExpression(item, row))
-    if (isFilterFieldRef(value)) return resolveFilterFieldRef(value.field, row)
-    return value
+  private _filteredLocalRows(filter: DataViewFilter | undefined): DataRow[] {
+    const sourceRows = this._getStaticLocalFilterSourceRows()
+    if (filter === undefined) return sourceRows
+    const local = new DataViewFilterLocal(filter)
+    local.validateFields(this._getAvailableLocalFilterFields())
+    return sourceRows.filter(row => local.matches(row))
   }
 
-  private _matchesFilterCondition(
-    row: DataRow,
-    expr: Extract<FilterExpression, { field: string; op: FilterOperator }>,
-  ): boolean {
-    const rowValue = row[expr.field]
-    const resolvedValue = this._resolveFilterValueExpression(expr.value, row)
-    const arrayValue = getArrayFilterValue(resolvedValue)
-
-    switch (expr.op) {
-      case '==': return rowValue === resolvedValue
-      case '!=': return rowValue !== resolvedValue
-      case '>': return compareFilterScalar(rowValue, resolvedValue) > 0
-      case '>=': return compareFilterScalar(rowValue, resolvedValue) >= 0
-      case '<': return compareFilterScalar(rowValue, resolvedValue) < 0
-      case '<=': return compareFilterScalar(rowValue, resolvedValue) <= 0
-      case 'in':
-        return arrayValue !== null
-          ? (Array.isArray(rowValue)
-            ? rowValue.some(item => arrayValue.includes(item))
-            : arrayValue.includes(rowValue))
-          : false
-      case 'not in':
-        return arrayValue !== null
-          ? (Array.isArray(rowValue)
-            ? rowValue.every(item => !arrayValue.includes(item))
-            : !arrayValue.includes(rowValue))
-          : true
-      case 'like':
-      case 'contains':
-        return includesFilterValue(rowValue, resolvedValue)
-      case 'not like':
-        return !includesFilterValue(rowValue, resolvedValue)
-      case 'startsWith':
-        return startsWithFilterValue(rowValue, resolvedValue)
-      case 'endsWith':
-        return endsWithFilterValue(rowValue, resolvedValue)
-      case 'is null':
-        return rowValue === null || rowValue === undefined || rowValue === ''
-      case 'is not null':
-        return rowValue !== null && rowValue !== undefined && rowValue !== ''
-      case 'between':
-        return arrayValue !== null
-          && arrayValue.length >= 2
-          && compareFilterScalar(rowValue, arrayValue[0]) >= 0
-          && compareFilterScalar(rowValue, arrayValue[1]) <= 0
-      case 'not between':
-        return arrayValue !== null
-          && arrayValue.length >= 2
-          && (compareFilterScalar(rowValue, arrayValue[0]) < 0 || compareFilterScalar(rowValue, arrayValue[1]) > 0)
-      default:
-        throw new Error(`未知过滤操作符 "${String(expr.op)}" [${this.tableName}@${this.viewId}]`)
-    }
-  }
-
-  private _matchesFilterExpression(row: DataRow, expr: FilterExpression): boolean {
-    if ('type' in expr) {
-      switch (expr.type) {
-        case '!condition':
-          return !this._matchesFilterCondition(row, expr)
-        case 'and':
-          return expr.children.every(child => this._matchesFilterExpression(row, child))
-        case 'or':
-          return expr.children.some(child => this._matchesFilterExpression(row, child))
-        case '!and':
-          return !expr.children.every(child => this._matchesFilterExpression(row, child))
-        case '!or':
-          return !expr.children.some(child => this._matchesFilterExpression(row, child))
-        default:
-          throw new Error(`未知过滤表达式节点 [${this.tableName}@${this.viewId}]`)
-      }
-    }
-
-    return this._matchesFilterCondition(row, expr)
+  private _replaceLocalFilterRows(rows: DataRow[]): void {
+    this.localMutationDelegate.replaceRows(rows)
+    this.syncTreeManagerFromRows()
+    this.total = rows.length
   }
 
   private _syncStaticLocalFilterRows(): void {
     if (!this._shouldApplyStaticLocalFilter()) return
-
-    const sourceRows = this._getStaticLocalFilterSourceRows()
-    const filterExpression = this.filterExpression
-    const nextRows = filterExpression === undefined
-      ? sourceRows
-      : sourceRows.filter(row => this._matchesFilterExpression(row, filterExpression))
-
-    this.localMutationDelegate.replaceRows(nextRows)
-    this.syncTreeManagerFromRows()
-    this.total = nextRows.length
+    this.assertResultReplacementAllowed()
+    this._replaceLocalFilterRows(this._filteredLocalRows(this.appliedFilter))
   }
 
   /**
@@ -763,6 +704,7 @@ sortExpression?: SortExpression
   }
 
   private shouldDirectCommitCrud(operation: 'create' | 'update' | 'delete'): boolean {
+    if (this.#queryExecutor !== undefined) return false
     if (this.commitMode === 'staged') return false
     const api = this.getCrudApiConfig()
     if (!api) return false
@@ -922,6 +864,8 @@ treeManager?: TreeManager | undefined
   private _mutatingCount = 0
   /** 销毁状态标记 */
   private _isDestroyed = false
+  /** 失败后保留的结果基线在重试期间也不可写；只有成功登记新结果才恢复。 */
+  private _resultStale = false
   /** requestData() 进行中的 Promise（用于并发调用复用，避免丢弃后续请求） */
   private _pendingRequestData: Promise<void> | null = null
   /** 行索引缓存（用于加速 updateRowById 行对象替换）——由 LocalMutationDelegate 管理，内部状态勿直接操作 */
@@ -945,6 +889,8 @@ treeManager?: TreeManager | undefined
 
   private setRequestState(nextState: RequestState): void {
     const previousState = this.requestState
+    if (nextState === RequestState.Failed) this._resultStale = true
+    else if (nextState === RequestState.Loaded) this._resultStale = false
     this.requestState = nextState
     if (previousState !== nextState) {
       this.events.emit('requestStateChanged', this.requestState)
@@ -1271,6 +1217,7 @@ protected logger = Logger('DataView')
    * 视图级加载编排器（幂等：requestState≠Idle 时直接返回）。外部应使用 refresh() 或 loadFromServer()。
    */
   async requestData(): Promise<void> {
+    this.assertResultReplacementAllowed()
     if (this.requestState !== RequestState.Idle) {
       if (this._pendingRequestData) return this._pendingRequestData
       this.logger.debug(`requestData 跳过（当前状态: ${this.requestState}），请使用 refresh() 强制刷新`)
@@ -1292,9 +1239,10 @@ protected logger = Logger('DataView')
       const ds = this.dataSet
       const parents = ds ? ds.getParentCascades(this.tableName, this.viewId) : []
 
-      const cascadeFilters: FilterExpression[] = []
+      const cascadeFilters: DataViewFilterTree[] = []
       for (const rel of parents) {
         await this.requestIdleCascadeSource(rel)
+        if (this._isDestroyed) return
         const cascadeFilter = ds?.resolveCascadeFilter(rel)
         if (cascadeFilter === null) {
           this.setRequestState(RequestState.Failed)
@@ -1308,7 +1256,7 @@ protected logger = Logger('DataView')
         ? undefined
         : cascadeFilters.length === 1
           ? cascadeFilters[0]
-          : { type: 'and', children: cascadeFilters } satisfies FilterExpression
+          : DataViewFilter.group({ logic: 'and', filters: cascadeFilters }).toJSON()
       const mergedFilter = this._mergeRemoteFilters(cascadeFilter, this.filterExpression)
       if (mergedFilter !== undefined) params.filter = mergedFilter
 
@@ -1356,7 +1304,7 @@ protected logger = Logger('DataView')
    * @param params 查询参数；省略时由当前视图配置生成。
    */
   async loadFromServer(params?: QueryParams): Promise<CrudResult> {
-    this.checkDestroyed()
+    this.assertResultReplacementAllowed()
     if (this.requestState === RequestState.Loading) return { success: false, message: 'Already loading' }
 
     this.loadingError = null
@@ -1366,7 +1314,7 @@ protected logger = Logger('DataView')
 
     try {
       const loadParams = this.buildTreeModeParams(params)
-      const hasModelQuery = this.fieldProjection.length > 0 || Object.keys(this.queryContext).length > 0
+      const hasModelQuery = this.#queryExecutor !== undefined || this.fieldProjection.length > 0 || Object.keys(this.queryContext).length > 0
       if (hasModelQuery) {
         loadParams.viewId ??= this.viewId
         loadParams.viewConfig ??= this._buildRemoteViewConfig()
@@ -1378,7 +1326,14 @@ protected logger = Logger('DataView')
           loadParams.sort = this._serializeSort(this.sortExpression)
         }
       }
-      const result = await this.crudDelegate.list(loadParams)
+      let queryResult: DataViewQueryResult | undefined
+      let result: CrudResult
+      if (this.#queryExecutor !== undefined) {
+        queryResult = await this.#queryExecutor.executeQuery(this, loadParams)
+        result = { success: true, data: { rows: queryResult.rows, total: queryResult.total } }
+      } else {
+        result = await this.crudDelegate.list(loadParams)
+      }
 
       if (requestId !== this.currentLoadRequestId) {
         this.logger.debug(`loadFromServer 请求 ${requestId} 被更新的请求 ${this.currentLoadRequestId} 替代，忽略响应`)
@@ -1386,8 +1341,8 @@ protected logger = Logger('DataView')
       }
 
       if (result.success && result.data !== undefined) {
-        if (isDataPermissionSnapshotInput(result.data)) {
-          this.ingestPermissionSnapshot(result.data)
+        if (queryResult !== undefined) {
+          this.ingestQueryResult(queryResult)
         } else {
           this.updateFromServer(normalizeServerRowsData(result.data, `DataView.loadFromServer ${this.tableName}@${this.viewId}`))
         }
@@ -1407,6 +1362,25 @@ protected logger = Logger('DataView')
 
       this.loadingError = toError(error)
       this.setRequestState(RequestState.Failed)
+      throw error
+    }
+  }
+
+  private ingestQueryResult(context: DataViewQueryResult): void {
+    context.assertIdentity(this.queryIdentity())
+    this.assertResultReplacementAllowed()
+    const rows = context.rows.map(row => structuredClone(row))
+    const total = context.total
+    const previousContext = this.#queryResult
+    const previousRows = this.rows
+    const previousTotal = this.total
+    try {
+      this.#queryResult = context
+      this.updateFromServer({ rows, total })
+    } catch (error) {
+      this.#queryResult = previousContext
+      this.rows = previousRows
+      this.total = previousTotal
       throw error
     }
   }
@@ -1460,9 +1434,9 @@ protected logger = Logger('DataView')
     }
   }
 
-    /** 加载 Tree Nested。 */
+    /** 无未保存修改时加载嵌套树；拒绝发生在请求前，不改变原查询状态。 */
 async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]>> {
-    this.checkDestroyed()
+    this.assertResultReplacementAllowed()
     if (this.requestState === RequestState.Loading) return { success: false, message: 'Already loading' }
 
     this.loadingError = null
@@ -1497,11 +1471,26 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
   }
 
-  /** 强制刷新：先置 Idle 再 requestData()；远程表重拉，静态/无 API 表走本地同步。清除 staged 模式的脏追踪状态。 */
+  /** 拒绝覆盖未保存变更；通过检查后置 Idle 并按当前视图输入重新查询。 */
   async refresh(): Promise<void> {
-    this._dirtyTrackingDelegate?.clearAll()
+    this.assertResultReplacementAllowed()
     this.setRequestState(RequestState.Idle)
     return this.requestData()
+  }
+
+  private assertResultReplacementAllowed(): void {
+    this.checkDestroyed()
+    if (this._dirtyTrackingDelegate?.hasPendingChanges() || this.hasEditingChanges()) {
+      throw new Error(`DATA_VIEW_UNSAVED_CHANGES: ${this.tableName}@${this.viewId} 必须先保存或明确放弃修改`)
+    }
+  }
+
+  private assertResultWritable(): void {
+    this.checkDestroyed()
+    this.#queryResult?.assertIdentity(this.queryIdentity())
+    if (this._resultStale) {
+      throw new Error(`DATA_VIEW_RESULT_STALE: ${this.tableName}@${this.viewId} 查询结果已过期，重新查询成功后才能修改`)
+    }
   }
 
   /**
@@ -1519,7 +1508,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (cascadeFilter === null) {
       filteredRows = []
     } else if (cascadeFilter !== undefined) {
-      filteredRows = srcRows.filter((row: DataRow) => this._matchesFilterExpression(row, cascadeFilter))
+      const local = new DataViewFilterLocal(this._parseFilter(cascadeFilter))
+      local.validateFields(this._getAvailableLocalFilterFields())
+      filteredRows = srcRows.filter(row => local.matches(row))
     }
 
     this.updateFromServer(filteredRows)
@@ -1538,6 +1529,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param data 服务端返回的行数组或行数据响应载荷。
    */
   updateFromServer(data: DataViewServerRowsPayload | DataRow[]): void {
+    this.assertResultReplacementAllowed()
     this.localMutationDelegate.updateFromServer(data)
     this.syncTreeManagerFromRows()
     this.emitRowsChanged()
@@ -1549,6 +1541,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param row 要追加的行。
    */
   appendRow(row: DataRow): void {
+    this.assertResultWritable()
     this.localMutationDelegate.appendRow(row)
     this.syncTreeManagerFromRows()
   }
@@ -1560,6 +1553,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param data 要合并到目标行上的字段更新。
    */
   updateRowById(id: string | number, data: Partial<DataRow>): boolean {
+    this.assertResultWritable()
     const updated = this.localMutationDelegate.updateRowById(id, data)
     if (updated) this.syncTreeManagerFromRows()
     return updated
@@ -1571,6 +1565,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param id 目标行主键值。
    */
   deleteRowById(id: string | number): boolean {
+    this.assertResultWritable()
     const deleted = this.localMutationDelegate.deleteRowById(id)
     if (deleted) {
       this.syncTreeManagerFromRows()
@@ -1579,49 +1574,14 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   /**
-   * 本地整批替换所有行，清理无效选中引用，清除 staged 模式的脏追踪状态。
+   * 无未保存变更时整批替换行，并清理无效选中引用。
    *
    * @param rows 新的完整行列表。
    */
   replaceRows(rows: DataRow[]): void {
-    this._dirtyTrackingDelegate?.clearAll()
-    this.clearEditingState()
+    this.assertResultReplacementAllowed()
     this.localMutationDelegate.replaceRows(rows)
     this.syncTreeManagerFromRows()
-  }
-
-  /**
-   * 原子登记一次后端运行查询：数据、原始行、总数、五集合权限和系统键共享同一基线。
-   */
-  ingestPermissionSnapshot(input: DataPermissionSnapshotInput): void {
-    const rows = input.rows.map((row, index) => {
-      if (row.lingma_sys_params === undefined) {
-        throw new Error(`权限快照 rows[${index}] 缺少 lingma_sys_params`)
-      }
-      return { ...row, lingma_sys_params: { ...row.lingma_sys_params } }
-    })
-    const nextSnapshot: DataPermissionSnapshot = {
-      formKey: input.formKey,
-      dataSpaceId: input.dataSpaceId,
-      modelId: input.modelId,
-      allowAdd: input.allowAdd,
-      systemKey: input.systemKey,
-      originalRows: input.originalRows.map((row) => ({ ...row })),
-      authorizedFeatureTags: [...input.authorizedFeatureTags],
-    }
-    const previousRows = this.rows
-    const previousTotal = this.total
-    const previousSnapshot = this.permissionSnapshot
-    try {
-      this.replaceRows(rows)
-      this.total = input.total
-      this.permissionSnapshot = nextSnapshot
-    } catch (error) {
-      this.rows = previousRows
-      this.total = previousTotal
-      this.permissionSnapshot = previousSnapshot
-      throw error
-    }
   }
 
   // ─────────────────────────────────────────────
@@ -1671,7 +1631,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param value 新字段值。
    */
   updateEditingValue(id: string | number, field: string, value: unknown): DataRow {
-    this.checkDestroyed()
+    this.assertResultWritable()
     const normalizedField = field.trim()
     if (normalizedField.length === 0) {
       throw new Error(`updateEditingValue: field 不能为空 [${this.tableName}@${this.viewId}]`)
@@ -1752,7 +1712,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param ids 可选行主键值列表；省略时应用全部编辑态变更。
    */
   async applyEditingRows(ids?: Array<string | number>): Promise<CrudResult<DataViewApplyEditingRowsResult>> {
-    this.checkDestroyed()
+    this.assertResultWritable()
     const targets = ids ?? [...this._editingPatches.keys()]
     let appliedCount = 0
     const failedIds: Array<string | number> = []
@@ -1798,8 +1758,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param data 新行数据。
    */
   async addRow(data: Partial<DataRow>): Promise<DataRow | CrudResult<DataRow>> {
-    this.checkDestroyed()
-    const row = this._primaryKeyDelegate.ensurePrimaryKey(data)
+    this.assertResultWritable()
+    let row: DataRow
+    if (this.#queryExecutor !== undefined) {
+      const context = this.#queryResult
+      if (context?.prepareNewRow === undefined) throw new Error('DATA_VIEW_NEW_ROW_OWNER: 新增缺少原查询身份准备能力')
+      row = context.prepareNewRow(data)
+    } else row = this._primaryKeyDelegate.ensurePrimaryKey(data)
     if (this.shouldDirectCommitCrud('create')) {
       return this.crudDelegate.createRecord(row)
     }
@@ -1818,7 +1783,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param id 目标行主键值。
    */
   async removeRow(id: string | number): Promise<boolean | CrudResult<boolean>> {
-    this.checkDestroyed()
+    this.assertResultWritable()
     if (this.shouldDirectCommitCrud('delete')) {
       return this.crudDelegate.deleteRecord(id)
     }
@@ -1843,7 +1808,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     id: string | number,
     data: Partial<DataRow>,
   ): Promise<boolean | CrudResult<DataRow>> {
-    this.checkDestroyed()
+    this.assertResultWritable()
     if (this.shouldDirectCommitCrud('update')) {
       return this.crudDelegate.updateRecord(id, data)
     }
@@ -1884,13 +1849,194 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   /**
-   * 将待提交变更（新增→更新→删除）逐条保存到服务端。单行失败不中断后续行。
+   * 原查询视图由统一 owner 保存并按真实字段回执接纳；本地 CRUD 视图沿用逐行提交。
    *
    * @param ids 可选行主键值列表；省略时保存全部脏行。
    */
   async saveChanges(ids?: Array<string | number>): Promise<CrudResult<SaveChangesData>> {
-    this.checkDestroyed()
+    this.assertResultWritable()
+    if (this.#queryExecutor !== undefined) {
+      const results = await DataView.saveQueryViews([{ view: this, ...(ids === undefined ? {} : { ids }) }])
+      const result = results[0]
+      if (result === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 缺少视图保存结果')
+      return result
+    }
     return this.dirtyTrackingDelegate.executeChanges(this, this.crudDelegate, ids)
+  }
+
+  /** 同一场景的视图在 class 内捕获私有基线，由同一 owner 一次保存并接纳真实回执。 */
+  static async saveQueryViews(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>> {
+    const captures = targets.map(target => ({ view: target.view, capture: target.view.captureQuerySave(target.ids) }))
+    const active = captures.filter(({ capture }) => capture.added.length + capture.changed.length + capture.deleted.length > 0)
+    const first = active[0]
+    if (first === undefined) return captures.map(() => ({ success: true, message: '没有待提交的变更',
+      data: { createdCount: 0, savedCount: 0, deletedCount: 0, failedCount: 0, failedIds: [], failedErrors: {} } }))
+    const executor = first.capture.executor
+    const save = executor.save
+    if (save === undefined) throw new Error('DATA_VIEW_SAVE_OWNER: 保存需要统一 owner')
+    const models = new Set<string>()
+    for (const { capture } of active) {
+      if (capture.executor !== executor || capture.identity.scenarioId !== first.capture.identity.scenarioId) {
+        throw new Error('DATA_VIEW_SAVE_OWNER: 批量保存必须属于同一场景和查询 owner')
+      }
+      if (models.has(capture.identity.metaName)) throw new Error('DATA_VIEW_SAVE_MODEL_CONFLICT: 同批保存不允许重复模型')
+      models.add(capture.identity.metaName)
+    }
+    active.forEach(({ view }) => view._trackMutating(1))
+    let failure: Error | null = null
+    try {
+      const receipts = await save.call(executor, { changes: active.map(({ capture }) => ({ identity: capture.identity,
+        context: capture.context, changes: { added: capture.added.map(item => item.row),
+          changed: capture.changed.map(item => item.row), deleted: capture.deleted.map(item => item.row) } })) })
+      if (receipts.length !== active.length) throw new Error('DATA_VIEW_SAVE_RECEIPT: 模型回执不完整')
+      const acceptances = active.map(({ view, capture }, index) => {
+        view.assertResultWritable()
+        if (view.#queryResult !== capture.context || view.#queryExecutor !== capture.executor) {
+          throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
+        }
+        const receipt = receipts[index]
+        if (receipt?.metaName !== capture.identity.metaName) throw new Error('DATA_VIEW_SAVE_RECEIPT: 缺少唯一模型回执')
+        const command = { ...capture, receipt }
+        view.validateQuerySaveReceipt(command)
+        return { view, command }
+      })
+      const results = new Map(acceptances.map(({ view, command }) => [view, view.acceptQuerySaveReceipt(command)]))
+      return captures.map(({ view }) => results.get(view) ?? { success: true, message: '没有待提交的变更',
+        data: { createdCount: 0, savedCount: 0, deletedCount: 0, failedCount: 0, failedIds: [], failedErrors: {} } })
+    } catch (error) {
+      failure = toError(error)
+      throw error
+    } finally {
+      active.forEach(({ view }) => view._trackMutating(-1, failure))
+    }
+  }
+
+  private captureQuerySave(ids?: Array<string | number>): DataViewQuerySaveCapture {
+    this.assertResultWritable()
+    const executor = this.#queryExecutor
+    const context = this.currentQueryResult()
+    if (executor?.save === undefined || context === undefined) throw new Error('DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 owner')
+    const selected = ids === undefined ? undefined : new Set(ids)
+    const capture = (rowIds: ReadonlySet<string | number>, deleted = false): DataViewQuerySaveRow[] =>
+      [...rowIds].filter(id => selected === undefined || selected.has(id)).map(id => {
+        const row = deleted ? this.dirtyTrackingDelegate.getPendingDeleteSnapshot(id) : this.getRowById(id)
+        if (row === null || row === undefined) throw new Error(`DATA_VIEW_SAVE_ROW: 未找到待提交行 ${String(id)}`)
+        return { id, row: dataRowFromPartial(this.stripComputedColumns(structuredClone(row))) }
+      })
+    const added = capture(this.dirtyTrackingDelegate.pendingCreateIds)
+    const changed = capture(this.dirtyTrackingDelegate.dirtyRowIds).filter(item => {
+      const originals = context.rows.filter(row => this.querySaveKey(context, row) === this.querySaveKey(context, item.row))
+      const original = originals[0]
+      if (originals.length !== 1 || original === undefined || this.querySaveHasChanges(item.row, original)) return true
+      this.rebaseQuerySaveDirty(item.id, original)
+      return false
+    })
+    const deleted = capture(this.dirtyTrackingDelegate.pendingDeleteIds, true)
+    return { executor, identity: this.queryIdentity(), context, added, changed, deleted }
+  }
+
+  private validateQuerySaveReceipt(command: DataViewQuerySaveAcceptance): void {
+    const { identity, context, added, changed, deleted, receipt } = command
+    receipt.context.assertIdentity(identity)
+    if (receipt.added.length !== added.length || receipt.changed.length !== changed.length
+      || receipt.deleted.length !== deleted.length || receipt.changedFields.length !== changed.length) {
+      throw new Error('DATA_VIEW_SAVE_RECEIPT: 动作回执不完整')
+    }
+    for (const [rows, submitted] of [[receipt.changed, changed], [receipt.deleted, deleted]] as const) {
+      if (rows.some(row => !submitted.some(item => this.querySaveKey(context, item.row) === this.querySaveKey(context, row)))) {
+        throw new Error('DATA_VIEW_SAVE_RECEIPT: 行身份不属于提交')
+      }
+    }
+    for (const accepted of receipt.added) {
+      const row = dataRowFromRecord(structuredClone(accepted))
+      this._applyComputedColumns([row])
+      if (this.getPkKey(row) === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执缺少本地可定位的正式主键')
+    }
+  }
+
+  private acceptQuerySaveReceipt(command: DataViewQuerySaveAcceptance): CrudResult<SaveChangesData> {
+    const { context, added, changed, deleted, receipt } = command
+    this.#queryResult = receipt.context
+    receipt.changed.forEach((accepted, index) => {
+      const submitted = changed.find(item => this.querySaveKey(context, item.row) === this.querySaveKey(context, accepted))
+      if (submitted === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 更新身份不属于提交行')
+      const current = this.getRowById(submitted.id)
+      if (current === null) return
+      const patch: DataRow = {}
+      for (const field of receipt.changedFields[index] ?? []) {
+        if (field === '_pk' || this.computedColumnNames.has(field) || this.effectivePkFields.includes(field)) continue
+        if (this.sameQuerySaveValue(current[field], submitted.row[field])) patch[field] = accepted[field]
+      }
+      this.updateRowById(submitted.id, structuredClone(patch))
+      this.rebaseQuerySaveDirty(submitted.id, accepted)
+    })
+    receipt.deleted.forEach(accepted => {
+      const submitted = deleted.find(item => this.querySaveKey(context, item.row) === this.querySaveKey(context, accepted))
+      if (submitted === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 删除身份不属于提交行')
+      this.dirtyTrackingDelegate.cancelDelete(submitted.id)
+      const restored = this.getRowById(submitted.id)
+      if (restored !== null) this.dirtyTrackingDelegate.trackCreate(submitted.id, restored)
+    })
+    receipt.added.forEach((accepted, index) => {
+      const submitted = added[index]
+      if (submitted === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增行未对应提交')
+      const current = this.getRowById(submitted.id)
+      const row = dataRowFromRecord(structuredClone(accepted))
+      this._applyComputedColumns([row])
+      const nextId = this.getPkKey(row)
+      if (nextId === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执缺少本地可定位的正式主键')
+      this.dirtyTrackingDelegate.cancelCreate(submitted.id)
+      if (current === null) {
+        this.dirtyTrackingDelegate.trackDelete(nextId, row)
+        return
+      }
+      for (const [field, value] of Object.entries(this.stripComputedColumns(current))) {
+        if (!this.effectivePkFields.includes(field) && !this.sameQuerySaveValue(value, submitted.row[field])) row[field] = value
+      }
+      const currentId = this._currentRowId
+      const selectedIds = [...this._selectedRowIds]
+      this.deleteRowById(submitted.id)
+      this.appendRow(row)
+      if (currentId === submitted.id) this._currentRowId = nextId
+      this._selectedRowIds = selectedIds.map(id => id === submitted.id ? nextId : id)
+      const editing = this._editingPatches.get(submitted.id)
+      if (editing !== undefined) {
+        this._editingPatches.delete(submitted.id)
+        this._editingPatches.set(nextId, editing)
+        this._editingOriginalRows.delete(submitted.id)
+        this._editingOriginalRows.set(nextId, structuredClone(accepted))
+      }
+      this.rebaseQuerySaveDirty(nextId, accepted)
+    })
+    this.total = receipt.context.total
+    this.emitRowsChanged()
+    const data: SaveChangesData = { createdCount: receipt.added.length, savedCount: receipt.changed.length,
+      deletedCount: receipt.deleted.length, failedCount: 0, failedIds: [], failedErrors: {} }
+    return { success: true, message: this.dirtyTrackingDelegate.hasPendingChanges() || this.hasEditingChanges()
+      ? '已接纳保存回执，仍有未保存变更' : '已接纳保存回执', data }
+  }
+
+  private querySaveKey(context: DataViewQueryResult, row: DataViewQueryRow): string {
+    const value = context.rowKey(row)
+    return value === undefined || value === null ? '' : String(value).trim()
+  }
+
+  private sameQuerySaveValue(left: unknown, right: unknown): boolean {
+    if (Object.is(left, right)) return true
+    try { return JSON.stringify(left) === JSON.stringify(right) } catch { return false }
+  }
+
+  private rebaseQuerySaveDirty(id: string | number, baseline: DataViewQueryRow): void {
+    const row = this.getRowById(id)
+    if (row === null) return
+    this.dirtyTrackingDelegate.clearDirty(id)
+    if (this.querySaveHasChanges(row, baseline)) this.dirtyTrackingDelegate.markDirty(id, structuredClone(baseline))
+  }
+
+  private querySaveHasChanges(row: DataViewQueryRow, baseline: DataViewQueryRow): boolean {
+    return Object.entries(this.stripComputedColumns(row)).some(([field, value]) =>
+      !field.startsWith('lingma_sys_') && value !== undefined && !this.effectivePkFields.includes(field)
+      && !this.sameQuerySaveValue(value, baseline[field]))
   }
 
 
@@ -1898,8 +2044,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   // 状态重置
   // ─────────────────────────────────────────────
 
-  /** 清空所有状态并发射 cleared 事件（通知 UI 和子视图） */
+  /** 无未保存变更时清空状态并发射 cleared 事件。 */
   clearAll(): void {
+    this.assertResultReplacementAllowed()
     const had = this.rows.length > 0
       || this.currentRow !== null
       || this.selectedRows.length > 0
@@ -1913,14 +2060,16 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   /**
    * 重置行数据和选中状态，并将 requestState 重置为 Idle。
-   * 同时清除脏追踪状态（staged 模式下的未提交变更）。
+   * 有未保存变更时拒绝重置；显式保存或放弃由调用方先行处理。
    * 通过领域事件通知订阅者刷新 rows / selection / request / aggregate / editing。
    */
   resetState(): void {
+    this.assertResultReplacementAllowed()
     this.resetStateInternal({ emitEvents: true })
   }
 
   private resetStateInternal(options: { emitEvents: boolean }): void {
+    this.#queryResult = undefined
     const selectionChanged = this._currentRowId !== null || this._selectedRowIds.length > 0
     this.rows = []
     this._rowsVersion++
@@ -2000,7 +2149,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   // 内部树缓存写入入口；当前 ClassModel action 面不暴露该方法，避免和 SparkNodeTree.moveNode 混淆。
     /** 执行 move Tree Node 操作。 */
-moveTreeNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null> {
+async moveTreeNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null> {
+    this.assertResultWritable()
     return this._ensureTreeManager().moveNode(nodeId, newParentId, index).then(() => {
       this.syncRowsFromTreeManager()
       return this.getRowById(nodeId)
@@ -2104,6 +2254,7 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
    * @param page 新页码。
    */
   async setPage(page: number): Promise<void> {
+    this.assertResultReplacementAllowed()
     this.page = page
     this.emitConfigChanged()
     if (!this._shouldApplyStaticLocalFilter()) await this.refresh()
@@ -2115,6 +2266,7 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
    * @param pageSize 新每页行数。
    */
   async setPageSize(pageSize: number): Promise<void> {
+    this.assertResultReplacementAllowed()
     this.pageSize = pageSize
     this.page = 1
     this.emitConfigChanged()
@@ -2127,6 +2279,7 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
    * @param sort 新排序表达式；undefined 表示清除排序。
    */
   async setSort(sort: SortExpression | undefined): Promise<void> {
+    this.assertResultReplacementAllowed()
     if (sort === undefined) {
       delete this.sortExpression
     } else {
@@ -2141,22 +2294,10 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
    *
    * @param filter 新过滤表达式；undefined 表示清除过滤。
    */
-  async setFilter(filter: FilterExpression | undefined): Promise<void> {
+  async setFilter(filter: DataViewFilterTree | undefined): Promise<void> {
     if (this._isSameFilterExpression(this.filterExpression, filter)) return
-
-    if (filter === undefined) {
-      delete this.filterExpression
-    } else {
-      this._validateFilterExpression(filter)
-      this.filterExpression = filter
-    }
-    this.page = 1
-    this.emitConfigChanged()
-    if (this._shouldApplyStaticLocalFilter()) {
-      this._syncStaticLocalFilterRows()
-      return
-    }
-    await this.refresh()
+    this.filterExpression = filter
+    if (!this._shouldApplyStaticLocalFilter()) await this.refresh()
   }
 
   /**
@@ -2164,7 +2305,7 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
    *
    * @param filter 要执行的过滤表达式；undefined 表示清除过滤。
    */
-  async executeFilter(filter: FilterExpression | undefined): Promise<void> {
+  async executeFilter(filter: DataViewFilterTree | undefined): Promise<void> {
     const unchanged = this._isSameFilterExpression(this.filterExpression, filter)
     if (!unchanged) {
       await this.setFilter(filter)
@@ -2194,6 +2335,8 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
    */
   destroy(): void {
     if (this._isDestroyed) return
+    this.currentLoadRequestId++
+    this.#queryExecutor = undefined
 
     this.logger.debug(`销毁 DataView: ${this.tableName}:${this.viewId}`)
 
@@ -2213,7 +2356,7 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
     this.events.removeAllListeners()
 
     // 5. 清空数据
-    this.resetState()
+    this.resetStateInternal({ emitEvents: true })
 
     // 6. 清除计算列委托（内部清理跨表订阅 + 缓存 + 上下文）
     this._computedDelegate.destroy()
@@ -2261,6 +2404,7 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
 
   /** CrudDelegate 回调：追踪并发 CRUD 请求数，维护 mutating / mutatingError */
   private _trackMutating(delta: 1 | -1, error?: Error | null): void {
+    if (delta === 1) this.assertResultWritable()
     this._mutatingCount = Math.max(0, this._mutatingCount + delta)
     this.mutating = this._mutatingCount > 0
     if (delta === 1) {
@@ -2282,8 +2426,8 @@ moveTreeNode(nodeId: string | number, newParentId: string | number | null, index
    * @param vc 要应用的视图配置片段。
    */
   applyViewConfig(vc: Partial<ViewMetadata>): void {
+    this.assertResultReplacementAllowed()
     if (vc.filterExpression !== undefined) {
-      this._validateFilterExpression(vc.filterExpression)
       this.filterExpression = vc.filterExpression
     }
     if (vc.sortExpression !== undefined) this.sortExpression = vc.sortExpression

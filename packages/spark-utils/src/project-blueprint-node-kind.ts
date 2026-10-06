@@ -2,25 +2,16 @@
  * @module @spark-appworks/spark-utils:project-blueprint-node-kind
  * 职责：项目蓝图节点业务种类（ProjectBlueprintNodeKind）的唯一字面量 SSOT。
  * 边界：只放跨包共享的 kind 契约；不含编辑树、平台 wire 或运行导航投影。
- * AI用途：新增/修改蓝图节点种类时只改本文件，再跑 verify:blueprint-kind-parity。
+ * AI用途：校验五种正式业务kind；未知值返回false，明确unknown仅用于读入草稿诊断。
  */
 
 /** 项目蓝图节点业务种类字面量表；与运行导航 itemKind 严格分离。 */
 export const PROJECT_BLUEPRINT_NODE_KINDS = [
-  'project',
   'module',
-  'requirement',
-  'prototype',
-  'data-space',
   'page',
-  'sub-page',
-  'report',
-  'workflow',
-  'integration',
-  'action',
-  'external',
-  'permission-management',
-  'unresolved',
+  'embedded',
+  'service',
+  'content',
 ] as const
 
 /** 项目蓝图节点的业务种类。 */

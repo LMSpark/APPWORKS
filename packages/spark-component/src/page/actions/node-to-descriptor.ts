@@ -116,23 +116,25 @@ function pickDataViewKey(props: Record<string, unknown>): string | undefined {
 }
 
 function readSaveDataSetViews(value: unknown): SaveDataSetAction['views'] | undefined {
-  if (!Array.isArray(value)) return undefined
-  const views: NonNullable<SaveDataSetAction['views']> = []
-  for (const item of value) {
+  if (value === undefined) return undefined
+  if (!Array.isArray(value) || value.length === 0) throw new Error('save-dataset views 必须为非空数组')
+  return value.map(item => {
     const record = asRecord(item)
-    if (!record) continue
-    const tableName = readString(record['tableName'])
-    if (!tableName) continue
-    const view: NonNullable<SaveDataSetAction['views']>[number] = { tableName }
-    const viewId = readString(record['viewId'])
-    if (viewId) view.viewId = viewId
-    if (Array.isArray(record['ids'])) {
-      const ids = record['ids'].filter((id): id is string | number => typeof id === 'string' || typeof id === 'number')
-      if (ids.length > 0) view.ids = ids
+    const tableName = readString(record?.['tableName'])
+    if (!record || !tableName) throw new Error('save-dataset views 包含无效表选择')
+    const view: NonNullable<SaveDataSetAction['views']>[number] = {tableName}
+    if ('viewId' in record) {
+      const viewId = readString(record['viewId'])
+      if (!viewId) throw new Error('save-dataset viewId 必须非空')
+      view.viewId = viewId
     }
-    views.push(view)
-  }
-  return views.length > 0 ? views : undefined
+    if ('ids' in record) {
+      const ids = record['ids']
+      if (!Array.isArray(ids) || !ids.every((id): id is string | number => typeof id === 'string' || typeof id === 'number')) throw new Error('save-dataset ids 必须为身份数组')
+      view.ids = [...ids]
+    }
+    return view
+  })
 }
 
 function readNestedActionDescriptor(value: unknown): ActionDescriptor | undefined {
@@ -236,7 +238,7 @@ function mapBuiltinAction(name: BuiltinActionName, props: Record<string, unknown
     }
 
     case 'save-dataset': {
-      const desc: SaveDataSetAction = { action: 'save-dataset', ...decorator }
+      const desc: SaveDataSetAction = { action: 'save-dataset', scenarioId: readString(props['scenarioId']) ?? '', ...decorator }
       const mode = readString(props['mode'])
       if (mode === 'perView' || mode === 'transaction') desc.mode = mode
       const requestId = readString(props['requestId'])

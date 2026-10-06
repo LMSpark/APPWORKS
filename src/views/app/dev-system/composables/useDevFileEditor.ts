@@ -6,10 +6,10 @@
  */
 import { computed, watch, type Ref } from 'vue'
 import type { DevState } from '../useDevState'
-import type { PageNodeFileName } from '@spark-appworks/spark-project-model'
+import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 
-/** 页面内容页签绑定 — 内存读写经 ProjectModel，加载/保存经 ProjectWorkspace。 */
-export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageNodeFileName>>) {
+/** 页面内容页签绑定 — 内存读写经 ProjectBlueprint，加载/保存经 ProjectWorkspace。 */
+export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageToolFileName>>) {
   const editor = state.editor
   const project = state.project
 
@@ -49,7 +49,7 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageN
     await editor.ensureActivePageFilesLoaded(loadOptions)
   }
 
-  function isFileDirty(name: PageNodeFileName): boolean {
+  function isFileDirty(name: PageToolFileName): boolean {
     void state.projectRevision.value
     return project.readDirtyProjection().dirtyFiles.has(name)
   }

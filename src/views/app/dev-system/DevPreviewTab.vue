@@ -44,10 +44,10 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           </el-alert>
         </div>
       </template>
-      <template v-else-if="previewPageNode">
+      <template v-else-if="previewRuntime">
         <SparkPageRenderer
-          :pageNode="previewPageNode"
-          :pageNodeRevision="props.state.projectRevision.value"
+          :page-runtime="previewRuntime"
+          :route-snapshot="routeSnapshot"
         />
       </template>
       <template v-else>
@@ -60,7 +60,11 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 <script setup lang="ts">
 import { ref, shallowRef, watch, onMounted, onBeforeUnmount } from 'vue'
 import { SparkPageRenderer } from '@spark-appworks/spark-component'
-import type { PageNodeLike } from '@spark-appworks/spark-project-model'
+import { PageRuntime, PageTool } from '@spark-appworks/spark-project-model'
+import type { PageRoute } from '@spark-appworks/spark-component/runtime'
+import { loadScenarioDataSet } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { isRecord } from '@spark-appworks/spark-utils'
 import type { DevState } from './useDevState'
 import NavIcon from '@/components/NavIcon.vue'
 import { Loading } from '@element-plus/icons-vue'
@@ -75,38 +79,51 @@ const autoRefresh = ref(true)
 const livePreview = ref(true)
 const loading = ref(false)
 const parseError = ref<string | null>(null)
-const previewPageNode = shallowRef<PageNodeLike | null>(null)
-
-function requireActivePageNodeLoaded(): PageNodeLike {
-  const pageId = props.state.activePageId.value
-  const activePage = props.state.project.getActivePage()
-  if (!pageId || activePage === null) {
-    throw new Error('请先选择一个已加载的配置页面')
-  }
-  if (activePage.pageId !== pageId) {
-    throw new Error(`预览页面节点不一致: 当前页面 ${pageId}, 节点 ${activePage.pageId}`)
-  }
-  if (!activePage.isLoaded) {
-    throw new Error(`页面节点 ${pageId} 尚未加载完成，无法预览`)
-  }
-  const renderPageNode = props.state.editor.getActivePageRenderNode()
-  if (renderPageNode === null) {
-    throw new Error(`页面节点 ${pageId} 尚未打开，无法预览`)
-  }
-  return renderPageNode
-}
-
-function refresh() {
+const previewRuntime = shallowRef<PageRuntime | null>(null)
+const routeSnapshot = shallowRef<PageRoute>({path:'',fullPath:'',name:null,params:{},query:{},hash:''})
+let generation = 0
+async function refresh():Promise<void> {
+  if(previewRuntime.value?.isDirty){previewRuntime.value.markConfigPending();parseError.value='预览仍有未保存业务数据，请保存后刷新';return}
+  const current = ++generation
+  previewRuntime.value?.dispose()
+  previewRuntime.value = null
   loading.value = true
   parseError.value = null
+  let runtime:PageRuntime | undefined
   try {
-    previewPageNode.value = requireActivePageNodeLoaded()
-  } catch (err) {
-    parseError.value = err instanceof Error ? err.message : String(err)
-    previewPageNode.value = null
-  } finally {
-    loading.value = false
-  }
+    const pageId = props.state.activePageId.value
+    const workspace = props.state.editor
+    const active = props.state.project.getActivePage()
+    if (!pageId || !active || active.pageId !== pageId || !active.isLoaded) throw new Error('请先选择一个已加载的配置页面')
+    const tool = new PageTool({pageId})
+    for(const name of props.state.pageFileNames)tool.hydrateFileText(name,active.getFileText(name))
+    tool.markLoaded()
+    const mainScenarioId = props.state.selectedNode.value?.dataSpace?.scenarioId
+    const ids = new Set<string>(mainScenarioId ? [mainScenarioId] : [])
+    const collect=(value:unknown):void=>{if(Array.isArray(value)){value.forEach(collect);return}if(!isRecord(value))return;const binding=value['dataViewKey'];if(typeof binding==='string' && binding.startsWith('#')){const id=binding.slice(1).split('@')[0];if(id)ids.add(id)}Object.values(value).forEach(collect)}
+    collect(tool.toDefinition().rule)
+    const assertCurrent=():void=>{if(current!==generation || workspace!==props.state.editor || props.state.activePageId.value!==pageId)throw new Error('PAGE_PREVIEW_STALE: 预览所属编辑页面已改变')}
+    runtime=new PageRuntime({tool,scenarioIds:[...ids],...(mainScenarioId ? {mainScenarioId} : {}),loadScenario:async scenarioId=>{
+      assertCurrent()
+      const scope=lowcodeApi.readRequestScope()
+      if(scope.headers['X-AppId']!==props.state.projectId)throw new Error('场景预览需要当前运行应用与编辑项目一致')
+      const assertScope=():void=>{assertCurrent();if(lowcodeApi.readRequestScope().token!==scope.token)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景预览请求代次已失效')}
+      const scene=await workspace.loadScenarioViews({scenarioId})
+      assertScope()
+      const result=await loadScenarioDataSet({scenarioId,config:scene.value,assertCurrent:assertScope})
+      assertScope()
+      return result.dataSet
+    }})
+    await runtime.load()
+    assertCurrent()
+    runtime.materialize()
+    const path=`/__page/${pageId}`
+    routeSnapshot.value=Object.freeze({path,fullPath:path,name:null,params:Object.freeze({tenantId:props.state.tenantId,projectId:props.state.projectId,pageId}),query:Object.freeze({}),hash:''})
+    previewRuntime.value=runtime
+  } catch(error) {
+    runtime?.dispose()
+    if(current===generation)parseError.value=error instanceof Error ? error.message : String(error)
+  } finally { if(current===generation)loading.value=false }
 }
 
 // 外部 refreshToken 变化时触发刷新（切 Tab 驱动）
@@ -121,24 +138,26 @@ function scheduleLiveRefresh() {
   _liveTimer = setTimeout(() => {
     _liveTimer = null
     if (loading.value) return // 正在手动刷新中，跳过
-    refresh()
+    void refresh()
   }, 500)
 }
 
 // 监听内存 PageNode 的可渲染输入，而不是监听通用 editor revision。
-// revision 会因选中节点、蓝图状态等非预览输入变化而递增；这里让相同四文件文本不会重复重建预览。
+// 相同工具文本及场景视图不会因其它编辑事件重建运行实例。
 watch(
   [
     () => props.state.activePageId.value,
-    () => props.state.project.readPageFileText('rule.json'),
-    () => props.state.project.readPageFileText('pagedata.json'),
-    () => props.state.project.readPageFileText('script.js'),
-    () => props.state.project.readPageFileText('style.css'),
+    () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('rule.json') },
+    () => props.state.selectedNode.value?.dataSpace?.scenarioId,
+    () => { void props.state.scenarioViewRevision.value; return props.state.scenarioViewFile.value?.getText() },
+    () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('script.js') },
+    () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('style.css') },
   ],
   scheduleLiveRefresh,
 )
 onBeforeUnmount(() => {
   if (_liveTimer !== null) clearTimeout(_liveTimer)
+  generation++;previewRuntime.value?.dispose()
 })
 
 onMounted(() => {

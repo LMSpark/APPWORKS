@@ -259,19 +259,6 @@
         "method.addRows.return": {
           "type": "number"
         },
-        "method.ingestPermissionSnapshot.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "types.ts.json#/$defs/DataPermissionSnapshotInput"
-            },
-            "viewId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.ingestPermissionSnapshot.return": true,
         "method.addView.params": {
           "type": "object",
           "properties": {
@@ -326,7 +313,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-05T19:46:26.686Z",
+  "generatedAt": "2026-10-06T19:53:16.505Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
@@ -418,7 +405,7 @@
             },
             {
               "name": "modelBinding",
-              "jsdoc": "模型绑定：该表对应的后端模型身份（模型 ID 与查询用 Name）。\n页面内 tableName 保持稳定，后端模型改名只更新这里，不重命名 tableName。",
+              "jsdoc": "模型绑定：该表对应的后端模型身份（模型 ID 与查询用 Name）。\n运行绑定只读；模型改名或迁移时重新装配，保留页面内 tableName。",
               "readable": true,
               "writable": false
             },
@@ -713,34 +700,6 @@
               "type": {
                 "type": "intrinsic",
                 "name": "number"
-              }
-            },
-            {
-              "name": "ingestPermissionSnapshot",
-              "jsdoc": "将同一次后端查询的行、权限和原始基线登记到指定视图。",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "DataPermissionSnapshotInput",
-                    "sourcePath": "packages/spark-data/src/types.ts"
-                  }
-                },
-                {
-                  "name": "viewId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
               }
             },
             {

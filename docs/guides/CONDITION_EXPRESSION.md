@@ -1,181 +1,58 @@
-# 条件表达式分析（FilterExpression / computeExpression）
+# 条件表达式（DataViewFilter / computeExpression）
 
-本文面向 SPARK 数据层与后端对接，澄清两套常被混用的“条件表达式”能力：
+`filterExpression` 筛选行，`computeExpression` 逐行计算派生列。二者保持独立职责。
 
-- `filterExpression`：用于筛选行（条件树，支持逻辑组合）。
-- `computeExpression`：用于逐行计算派生列（JavaScript 表达式/函数体）。
+## 1. 唯一公开过滤合同
 
-核心结论：二者职责不同，执行位置也不同。不要把 `computeExpression` 当过滤器，也不要把 `filterExpression` 当计算列。
-
----
-
-## 1. FilterExpression 语法模型
-
-类型定义位于 `packages/spark-data/src/types.ts`。
-
-```ts
-export type FilterOperator =
-  | '==' | '!=' | '>' | '>=' | '<' | '<='
-  | 'in' | 'not in' | 'like' | 'not like'
-  | 'is null' | 'is not null'
-  | 'between' | 'not between'
-  | 'startsWith' | 'endsWith' | 'contains'
-
-export type FilterFieldRef = {
-  kind: 'field'
-  field: string
-}
-
-export type FilterValueExpression =
-  | string
-  | number
-  | boolean
-  | null
-  | FilterFieldRef
-  | FilterValueExpression[]
-
-export type FilterExpression =
-  | { field: string; op: FilterOperator; value: FilterValueExpression }
-  | { type: 'and' | 'or'; children: FilterExpression[] }
-  | { type: '!condition'; field: string; op: FilterOperator; value: FilterValueExpression }
-  | { type: '!and' | '!or'; children: FilterExpression[] }
-```
-
-### 1.1 节点类型
-
-- 条件节点：`{ field, op, value }`
-- 逻辑节点：`{ type: 'and' | 'or', children }`
-- 否定条件：`{ type: '!condition', ... }`
-- 否定逻辑：`{ type: '!and' | '!or', children }`
-
-### 1.2 结构化字段引用
-
-`value` 可用结构化引用：
-
-```json
-{ "kind": "field", "field": "threshold" }
-```
-
-语义是“把某字段作为比较值来源”，但前端本地执行与后端远端执行的解释方式不同（见第 2 节与第 3 节）。
-
----
-
-## 2. 前端（spark-data）中的 FilterExpression 语义
-
-实现入口在 `packages/spark-data/src/data-view.ts`。
-
-## 2.1 执行时机
-
-- 静态本地过滤：`filterExpression` 在 `DataView` 行集合上逐行匹配。
-- 远端请求过滤：`requestData()` 会把 `filterExpression` 作为 `params.filter` 透传给后端（由后端编译/执行）。
-
-此外，远端请求还会把父子关系条件与用户过滤合并成 `and`，避免漏掉级联约束。
-
-## 2.2 本地匹配规则
-
-本地匹配函数 `_matchesFilterCondition()` 支持：
-
-- 比较：`== != > >= < <=`
-- 集合：`in / not in`
-- 字符串：`like / not like / contains / startsWith / endsWith`
-- 空值：`is null / is not null`
-- 区间：`between / not between`
-
-逻辑匹配函数 `_matchesFilterExpression()` 支持：
-
-- `and / or`
-- `!condition / !and / !or`
-
-## 2.3 本地字段引用解析
-
-在本地过滤中，`{ kind: 'field', field: 'x' }` 语义是“从当前行读取 `x` 再比较”。
-
-示例（来自测试）：
+前端组件、脚本、视图 JSON 与查询输入统一消费 `DataViewFilterTree`。状态与校验由不可变 class `DataViewFilter` 承接，定义位于 `packages/spark-data/src/query/filter/`。
 
 ```json
 {
-  "field": "amount",
-  "op": ">=",
-  "value": { "kind": "field", "field": "threshold" }
+  "logic": "and",
+  "filters": [
+    { "field": "status", "operator": "eq", "value": "open" },
+    { "field": "amount", "operator": "gte", "value": { "Type": "GetTableField", "Field": "threshold" } }
+  ]
 }
 ```
 
-会按当前行做 `row.amount >= row.threshold`。
+条件为 `{field, operator, value?}`，分组为 `{logic: 'and' | 'or', filters}`。旧 `op/children`、否定节点和 `kind: 'field'` 方言不再提供类型或兼容转换。
 
-## 2.4 本地空值/字符串细节
+公开操作符共 18 项：
 
-- `is null`：本地定义为 `null || undefined || ''`。
-- `is not null`：本地定义为非 `null/undefined/''`。
-- `compareFilterScalar`：数字按数值比较，其他按字符串 `localeCompare`。
+| 类别 | 操作符 |
+|---|---|
+| 比较 | `eq`、`ne`、`gt`、`gte`、`lt`、`lte` |
+| 空值 | `is-null`、`is-not-null`、`is-empty`、`is-not-empty` |
+| 文本 | `contains`、`not-contains`、`starts-with`、`not-starts-with`、`ends-with`、`not-ends-with` |
+| 集合 | `in`、`not-in` |
 
-这意味着本地 `is null` 会把空字符串当空值，而 SQL 语义通常不这么处理（见第 3.4 节）。
+范围控件直接生成 `gte/lte` 的 AND 分组，无公开 `between` 方言。完整目录以 `data-view-filter-catalog.ts` 为准。
 
-## 2.5 fail-fast 规则
+非一元条件必须有显式 JSON 值；`''`、空白、`null`、`[]`、`0`、`false` 均保留。值函数使用 `{Type, ...}`，完整 JSON 载荷保留。普通字符串不插值：`$[...]` 等文本只是常量。清空由明确的 `undefined` 表示；解析失败不能清空已有过滤，也不能丢弃坏子节点后执行部分约束。
 
-前端在校验和执行阶段会快速失败：
+## 2. DataView 与执行边界
 
-- 字段名为空：抛错。
-- `value` 非法（既不是标量/数组，也不是合法结构化 ref）：抛错。
-- 结构化 ref 指向不存在字段：抛错。
-- 旧协议占位符（`$[...]`、`$parent[...]`）已移除，检测到即抛错。
+DataView 私有持有已应用的 `DataViewFilter`，`filterExpression` 返回冻结树。脚本赋值、`setFilter` 与 `configure` 统一解析并保护未保存修改。`setFilter` 对静态视图执行本地筛选，对远端视图刷新；`executeFilter` 可重复执行相同条件。配置赋值本身不发远端请求。
 
----
+`DataSet.resolveCascadeFilter` 从参与级联的父行生成常量 `eq/in`。自动 `viewCascades` 生成和触发机制保留；远端请求把级联约束与当前过滤按 AND 合并。
 
-## 3. 远端 FilterExpression 边界
+静态求值由内部 `DataViewFilterLocal` 执行：
 
-AppWorks 不再拥有 SQL 编译后端。远端过滤必须由 lowcode 已有接口明确接受并解释；前端不得根据本地求值行为推断数据库方言或 SQL 编译结果。
+- 只支持常量、`GetConstValue` 与当前行 `GetTableField`。
+- 整树先检查服务端函数，即使位于短路分支也拒绝；不在前端模拟服务端上下文。
+- 条件字段和当前行引用必须存在，不猜限定表名或别名。
+- 数字按数值比较，其余标量沿用 JS 字符串比较；集合与文本使用本地 JS 语义。
+- `is-null` 为 null/undefined；`is-empty` 为字面量空字符串，空白文本不 trim。
+- 空 AND 为真、空 OR 为假；远端保留原分组，不据本地结果简化。
 
-## 3.1 关键原则
+远端只由 SPARK API 的 `runtime/protocol/data-space-filter.ts` 编解码公开树与后端 wire。宿主 assembler 不再维护过滤操作符或字段转换。值函数透传；数据源如何执行由后端负责，不推断 SQL、排序规则或不同来源的空值语义。正式后端过滤定义仍由同一 API 解码入口读取。
 
-如果 lowcode 端点声明支持结构化过滤，适配层必须把 AST 原样转换为该端点的公开合同，不得把表达式拼成 SQL 文本。
-
-即：
-
-- 前端本地：`field ref` 是按当前行取值。
-- 后端远端：`field ref` 必须编译成 SQL 列/表达式引用。
-
-示例：
-
-```json
-{ "field": "amount", "op": ">=", "value": { "kind": "field", "field": "threshold" } }
-```
-
-远端实现应保留“字段引用另一个字段”的语义：
-
-`amount >= threshold`
-
-## 3.2 字段白名单映射
-
-字段必须来自数据空间前端模型允许引用的数据资源字段；字段映射和最终鉴权由 lowcode 后端决定，前端不维护 SQL 字段白名单。
-
-## 3.3 SQL 编译策略
-
-- 仅发送 lowcode 合同明确支持的操作符。
-- `in/not in/between/not between` 仍需在前端完成数组形状校验。
-- `and/or` 与否定节点保持 AST 层级，不降级为字符串条件。
-- 缺少远端 capability 或响应不能证明语义一致时 fail-fast。
-
-空 children 语义：
-
-- `and([])` 在本地为真。
-- `or([])` 在本地为假。
-- 远端是否接受空 children 必须由端点 characterization 证明，不能推断。
-
-## 3.4 与前端语义的关键差异
-
-- 本地 `is null` 把空字符串当空值；远端空值语义由 lowcode 合同决定。
-- 本地字符串比较走 JS；远端排序规则和大小写行为由目标数据源决定。
-- 本地 `field ref` 是“当前行取值”；远端必须保留字段引用语义，不能发送本地当前值冒充字段引用。
-
-如果同一过滤条件在本地与远端结果不同，优先检查这三类差异。
-
----
-
-## 4. computeExpression（计算列表达式）
+## 3. computeExpression（计算列表达式）
 
 实现位于 `packages/spark-data/src/strategies/computed-column-delegate.ts`。
 
-## 4.1 执行模型
+## 3.1 执行模型
 
 `computeExpression` 是“逐行求值”，用于派生列。
 
@@ -184,7 +61,7 @@ AppWorks 不再拥有 SQL 编译后端。远端过滤必须由 lowcode 已有接
 - 求值上下文：`with(__row) { ... }`，行字段可直接引用。
 - 可读取 `ctx`（通过 `setComputedContext` 注入）。
 
-## 4.2 支持能力
+## 3.2 支持能力
 
 - 算术、字符串拼接、三元表达式。
 - 多语句 `if/else`、循环、函数定义。
@@ -192,13 +69,13 @@ AppWorks 不再拥有 SQL 编译后端。远端过滤必须由 lowcode 已有接
 - 子表聚合函数（依赖关系配置）：
   - `$sum/$count/$avg/$min/$max/$list/$join`
 
-## 4.3 错误与降级策略
+## 3.3 错误与降级策略
 
 - 编译失败：该列跳过，不中断其他计算列。
 - 运行时报错：该列写入 `undefined`，其他列继续。
 - 表达式长度有上限（防止超长注入）。
 
-## 4.4 与 FilterExpression 的边界
+## 3.4 与 DataViewFilter 的边界
 
 - `computeExpression` 负责“算值”。
 - `filterExpression` 负责“筛行”。
@@ -208,70 +85,18 @@ AppWorks 不再拥有 SQL 编译后端。远端过滤必须由 lowcode 已有接
 
 ---
 
-## 5. 常见误区与建议
+## 4. 参考实现与验证
 
-- 误区：把 SQL 写进 `computeExpression`（如 `DATEDIFF(...)`）。
-  - 建议：`computeExpression` 只写 JavaScript。
+- 公开合同与值对象：`packages/spark-data/src/query/filter/`。
+- 实际视图与级联：`packages/spark-data/src/data-view.ts`、`dataset.ts`。
+- 唯一 wire codec：`packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-filter.ts`。
+- 控件条件生成：`packages/spark-component/src/components/containers/runtime/container-filter.ts`。
+- 完整树及值函数编辑：`packages/spark-component/src/components/containers/filter/`，实际入口 `FilterExpressionEditor` 由 `RendererFilter` 消费。
+- 本地效果、不可变状态与脏保护：`packages/spark-data/src/tests/data-view-filter-expression.test.ts`。
+- 真实宿主请求组装：`tests/auth-nav/lowcode-data-space-runtime.test.ts`。
 
-- 误区：在远端过滤里沿用前端“按当前行取值”心智。
-  - 建议：远端必须走 AST -> SQL 编译，`field ref` 解析为列/表达式。
+`RendererFilter` 从同一 DataView 读取已应用过滤，编辑器接收实际 columns 与明确的 `filterFunctionContext`，不从页面表名猜后端模型名称。递归 AND/OR、常量和完整 JSON、值函数共用 DataViewFilter 校验。缺字段/缺值、坏 JSON 和未完成组保留草稿并阻止应用；只有明确清空才提交 undefined。未修改的后端扩展函数保真保留，修改时要求相应编辑定义。
 
-- 误区：继续使用 `$[...]` / `$parent[...]` 字符串占位。
-  - 建议：统一改为结构化字段引用 `{ kind: 'field', field: '...' }`。
+应用经 DataView.executeFilter。未保存修改导致拒绝时，弹框保留新草稿并显示错误，原过滤与编辑值保留；普通输入面板也返回失败状态、显示错误，不把日志记录当成功。运行 DataView 实例切换后旧编辑器卸载，不能将旧草稿应用到新实例。
 
-- 误区：把空字符串当成 SQL NULL。
-  - 建议：设计过滤条件时显式区分 `''` 和 `NULL`。
-
----
-
-## 6. 快速对照
-
-| 维度 | filterExpression | computeExpression |
-|---|---|---|
-| 目标 | 筛选行 | 计算列值 |
-| 位置 | DataView 过滤 / 远端透传 | DataView 逐行计算 |
-| 表达式形态 | 条件树 AST（JSON） | JS 字符串 |
-| 字段引用 | `value: {kind:'field',field}` | 行字段直接写变量名 |
-| 逻辑组合 | `and/or/!and/!or/!condition` | JS 逻辑语法 |
-| 失败策略 | 非法结构直接抛错 | 单列失败降级为 `undefined` |
-
----
-
-## 7. 最小示例
-
-### 7.1 前端本地过滤
-
-```json
-{
-  "filterExpression": {
-    "type": "and",
-    "children": [
-      { "field": "status", "op": "==", "value": "open" },
-      { "field": "amount", "op": ">=", "value": { "kind": "field", "field": "threshold" } }
-    ]
-  }
-}
-```
-
-### 7.2 计算列
-
-```json
-{
-  "columns": [
-    { "name": "amount", "type": "number" },
-    { "name": "tax", "type": "number", "computeExpression": "amount * ctx.taxRate" }
-  ]
-}
-```
-
----
-
-## 8. 参考实现与测试
-
-- 前端类型：`packages/spark-data/src/types.ts`
-- 前端过滤执行：`packages/spark-data/src/data-view.ts`
-- 计算列委托：`packages/spark-data/src/strategies/computed-column-delegate.ts`
-- 前端过滤测试：`packages/spark-data/src/tests/data-view-filter-expression.test.ts`
-- 计算列测试：`packages/spark-data/src/tests/computed-columns.test.ts`
-- lowcode 端点账本：`backend-api-contracts/lowcode-endpoint-ledger.json`
-- AppWorks 消费者账本：`backend-api-contracts/appworks-consumer-ledger.json`
+组件挂载与实际 DataView 验证位于 `packages/spark-component/src/tests/filter/filter-expression-editor.test.ts`。场景设计器、场景文件装载及完整 SPARK 查询/保存接线仍须由对应消费者与运行证据证明，不能用过滤编辑测试替代。

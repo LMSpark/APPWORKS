@@ -7,7 +7,7 @@
 - [spark-app/README.md](spark-app/README.md)：应用壳启动、路由、插件、日志与页面宿主（壳导航消费形状）。
 - [spark-component/README.md](spark-component/README.md)：组件系统、能力链、渲染容器。
 - [spark-data/README.md](spark-data/README.md)：DataSet、DataView、关系、树、聚合与渲染侧权限快照形状。
-- [spark-project-model/README.md](spark-project-model/README.md)：项目蓝图编辑树、页面四文件实现轴、脚本上下文。
+- [spark-project-model/README.md](spark-project-model/README.md)：ProjectBlueprint、PageTool 三文件、ScenarioViewFile 和 PageRuntime 调用生命周期。
 - [spark-lowcode-api/README.md](spark-lowcode-api/README.md)：对接 lowcode-jdk17 的前端 API（后端记录与端点合同、数据空间、权限、会话、实时）。
 - [spark-json-document/README.md](spark-json-document/README.md)：JSON Schema / 文档树编辑（JSON 类型与校验 SSOT）。
 - [spark-utils/README.md](spark-utils/README.md)：公共底层工具、HTTP、Logger transport、capability 原语。
@@ -27,12 +27,12 @@
 - 权限展示三态：`PermissionMode` 仅 `@spark-appworks/spark-utils`。
 - 运行导航表面：`RuntimeNavigationItemKind` / `NavigationPlacement` / `NavigationRootPlacement` / `NavigationLinkTarget` / `NavigationContextConfig` 仅 `@spark-appworks/spark-utils`（蓝图交付投影与壳导航共用，禁止包内同形别名；根布局是完整 placement 的子集，不可混用）。
 - 验证码：`SendCodeType` / `SendCodeScene` 台账与 `spark-lowcode-api` 同形（`verify:send-code-parity`）；门面子集 `LowcodeVerificationScene = Extract<…>`；禁止 `LowcodeVerificationChannel`。
-- 查询 wire 字面量：`OrderType` / `WireFilterOperator` / `GroupFunType` 台账与 `spark-lowcode-api` 同形（`verify:wire-query-parity`）；前端 `FilterOperator`/`SortDirection`/`AggregateType` 仅 spark-data（`AggregateType` 额外含 `join`）；投影仅宿主 `lowcode-data-space-assembler`。
+- 查询 wire 字面量：`OrderType` / `WireFilterOperator` / `GroupFunType` 台账与 `spark-lowcode-api` 同形（`verify:wire-query-parity`）；前端 `DataViewFilterOperator`/`SortDirection`/`AggregateType` 仅 spark-data（`AggregateType` 额外含 `join`）；过滤公开树与 wire 转换仅 SPARK API 的 `runtime/protocol/data-space-filter.ts`，宿主不再提供过滤 mapper。
 - 实现闸门：`ProjectBlueprintImplGate` 仅 `spark-project-model`；禁止宿主 `PageDesignImplGate` 与薄包再导出。
 - DataSpace 资源类型：CN wire 映射仅 `data-space-resource-type-wire.ts`；目录为 `Extract<table|view>`；→ TableResourceType 仅宿主 frontend-model-adapter。
 - 权限 → UI：唯一 mapper `src/lowcode/permission/lowcode-permission-to-data-permission.ts`。
-- 平台数据定义 / 运行装配：`spark-lowcode-api` DataSpace + 宿主 `src/lowcode/data-space/*`（有 `PageDataSpaceBinding` 时运行真源）。
-- 页面设计轴：`spark-project-model` 四文件（含 `pagedata.json`）；不得把 pagedata 当已绑定页面的运行数据真源。
+- 平台数据定义 / 运行装配：`spark-lowcode-api` DataSpace + 宿主 `src/lowcode/data-space/*`（显式场景配置、正式模型与权限共同装配运行数据）。
+- 页面工具：`spark-project-model` 的 `PageTool` 仅有 rule.json / script.js / style.css；`ScenarioViewFile` 独立持有场景视图配置。`PageRuntime` 按每次调用装配数据，工具 ID、蓝图节点 ID 与场景 ID 分离。
 
 ## 维护约束
 

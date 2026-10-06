@@ -7,11 +7,9 @@
     "sourceFile": "packages/spark-app/src/router/cross-project-ref-page.ts",
     "packageName": "@spark-appworks/spark-app",
     "modulePath": "router/cross-project-ref-page",
-    "jsdoc": "@module @spark-appworks/spark-app:router/cross-project-ref-page\n职责：提供应用壳层 cross-project-ref-page 能力，围绕 CrossProjectRefPageRouteProps 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 router/cross-project-ref-page。",
+    "jsdoc": "@module @spark-appworks/spark-app:router/cross-project-ref-page\n职责：解析蓝图引用的明确调用目标并导航。\n边界：目标由既有路由装配，不重复加载数据空间。\nAI用途：定位跨项目引用的请求作用域与场景参数传递。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": [
-      "CrossProjectRefPageRouteProps"
-    ]
+    "symbols": []
   },
   "$defs": {
     "CrossProjectRefPageRouteProps": {
@@ -19,68 +17,31 @@
       "type": "object",
       "title": "CrossProjectRefPageRouteProps",
       "properties": {
-        "pageContentLoader": {
-          "$ref": "../../../spark-project-model/src/io/page-content-loader.ts.json#/$defs/PageContentLoader"
-        },
-        "tenantId": {
-          "type": "string"
-        },
-        "hostProjectId": {
-          "type": "string"
-        },
-        "routePath": {
-          "type": "string"
-        },
-        "routeMeta": {
+        "route": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "title": "RouteLocationNormalizedLoaded"
         }
       },
       "required": [
-        "pageContentLoader"
+        "route"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T21:27:23.898Z",
+  "generatedAt": "2026-10-06T21:12:08.627Z",
   "models": {
     "CrossProjectRefPageRouteProps": {
       "name": "CrossProjectRefPageRouteProps",
-      "jsdoc": "Cross Project Ref Page Route Props 的属性契约。",
+      "jsdoc": "本次引用调用的路由快照；保留场景 query 和 hash 传给实际目标。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** page Content Loader 字段。 */\n    pageContentLoader: PageContentLoader;\n    /** tenant Id 标识。 */\n    tenantId?: string | undefined;\n    /** host Project Id 标识。 */\n    hostProjectId?: string | undefined;\n    /** route Path 路径。 */\n    routePath?: string | undefined;\n    /** route Meta 字段。 */\n    routeMeta?: Record<string, unknown> | undefined;\n}",
+        "declarationTypeText": "{\n    route: RouteLocationNormalizedLoaded;\n}",
         "members": {
           "attributes": [
             {
-              "name": "pageContentLoader",
-              "jsdoc": "page Content Loader 字段。",
+              "name": "route",
               "readable": true,
               "writable": true
-            },
-            {
-              "name": "tenantId",
-              "jsdoc": "tenant Id 标识。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "hostProjectId",
-              "jsdoc": "host Project Id 标识。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "routePath",
-              "jsdoc": "route Path 路径。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "routeMeta",
-              "jsdoc": "route Meta 字段。",
-              "readable": true,
-              "writable": false
             }
           ]
         }

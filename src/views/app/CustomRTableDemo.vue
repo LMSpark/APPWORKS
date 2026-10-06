@@ -26,7 +26,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         </div>
         <div class="custom-r-table-demo__meta-item">
           <span class="custom-r-table-demo__meta-label">数据来源</span>
-          <strong>PAGE_DATASET</strong>
+          <strong>DATA_SOURCE</strong>
         </div>
         <div class="custom-r-table-demo__meta-item">
           <span class="custom-r-table-demo__meta-label">children 桥接</span>
@@ -43,9 +43,9 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <section class="custom-r-table-demo__panel">
         <h2>运行效果</h2>
         <p class="custom-r-table-demo__panel-desc">
-          下方表格就是原始 RendererTable，页面层只负责提供 PAGE_DATASET。
+          下方表格就是原始 RendererTable，页面层只负责提供 DATA_SOURCE。
         </p>
-        <RendererTable type="r-table" :data-view-key="tableViewKey" border stripe>
+        <RendererTable type="r-table" border stripe>
           <FieldText type="r-text" field="name" label="姓名" :width="160" />
           <FieldNumber type="r-number" field="age" label="年龄" :width="100" />
           <FieldNumber type="r-number" field="score" label="绩效分" :width="120" />
@@ -56,7 +56,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <section class="custom-r-table-demo__panel">
         <h2>核心代码</h2>
         <p class="custom-r-table-demo__panel-desc">
-          关键点现在是两件事：页面层提供 PAGE_DATASET，原始 RendererTable 继续直接承接 slot 字段列。
+          关键点现在是两件事：页面层提供 DATA_SOURCE，原始 RendererTable 继续直接承接 slot 字段列。
         </p>
         <pre class="custom-r-table-demo__code"><code>{{ hostSnippet }}</code></pre>
       </section>
@@ -67,7 +67,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <ul>
         <li>这里展示的就是原始 RendererTable，本页没有再包额外的表格宿主组件。</li>
         <li>FieldNumber 在 r-table 宿主下会渲染成表格列，而不是输入框。</li>
-        <li>只要页面层提供 PAGE_DATASET，RendererTable 内部的 dataViewKey 与 DATA_SOURCE 链路就还是原来的实现。</li>
+        <li>只要页面层提供 DATA_SOURCE，RendererTable 继承同一个本地 DataView。</li>
         <li>外部 slot 透传字段的桥接点在 RendererTable 内部，通用组件就是 SparkChildrenBridge。</li>
       </ul>
     </section>
@@ -78,7 +78,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 自定义表格演示，展示 r-table children 桥接机制和自定义列渲染能力；仅用于开发演示，不进入组件配置目录。
  */
-import { FieldNumber, FieldText, PAGE_DATASET, RendererTable, useSparkContextScope } from '@spark-appworks/spark-component'
+import { FieldNumber, FieldText, DATA_SOURCE, RendererTable, useSparkContextScope } from '@spark-appworks/spark-component'
 import { SparkData } from '@spark-appworks/spark-data'
 
 const employeeDataSet = SparkData.createDataSet({
@@ -106,26 +106,28 @@ const employeeDataSet = SparkData.createDataSet({
   },
 })
 
-const tableViewKey = 'Employees@default'
 
 const { sparkProvide } = useSparkContextScope('custom-r-table-demo-page')
-sparkProvide(PAGE_DATASET, employeeDataSet)
+const employeeView = employeeDataSet.getView('Employees', 'default')
+if (!employeeView) throw new Error('demo Employees view missing')
+sparkProvide(DATA_SOURCE, employeeView)
 
 const hostSnippet = `<script setup lang="ts">
 import {
-  PAGE_DATASET,
+  DATA_SOURCE,
   RendererTable,
   useSparkContextScope,
 } from '@spark-appworks/spark-component'
 
-const tableViewKey = 'Employees@default'
 
 const { sparkProvide } = useSparkContextScope('custom-r-table-demo-page')
-sparkProvide(PAGE_DATASET, employeeDataSet)
+const employeeView = employeeDataSet.getView('Employees', 'default')
+if (!employeeView) throw new Error('demo Employees view missing')
+sparkProvide(DATA_SOURCE, employeeView)
 <\/script>
 
 <template>
-  <RendererTable :data-view-key="tableViewKey" border stripe>
+  <RendererTable border stripe>
     <FieldText type="r-text" field="name" label="姓名" :width="160" />
     <FieldNumber type="r-number" field="age" label="年龄" :width="100" />
   </RendererTable>

@@ -7,6 +7,8 @@ import type { DataRow } from '@spark-appworks/spark-data'
 import RendererHostScope from '../../packages/spark-component/src/components/containers/support/RendererHostScope.vue'
 import { useFieldPermission } from '../../packages/spark-component/src/components/fields/context/useFieldPermission'
 import type { SparkNode } from '@spark-appworks/spark-data'
+import { DataSpaceQueryTable } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 describe('RendererHostScope DATA_ROW reactivity', () => {
   it('keeps cached DATA_ROW consumers in sync when row prop changes', async () => {
@@ -64,16 +66,17 @@ describe('RendererHostScope DATA_ROW reactivity', () => {
   it('writes field changes into DataView editingRows instead of the row mirror', async () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'RendererEditingRowsDS',
+      scenarioId: 'SCENE',
       tables: {
         Users: {
           tableName: 'Users',
+          modelBinding: { modelId: 'MODEL', modelName: 'Users' },
           columns: [
             { name: 'id', type: 'number', isPrimaryKey: true },
             { name: 'name', type: 'string' },
           ],
           views: {
             default: {
-              rows: [{ id: 1, name: 'Alice' }],
               commitMode: 'staged',
             },
           },
@@ -81,6 +84,15 @@ describe('RendererHostScope DATA_ROW reactivity', () => {
       },
     })
     const view = ds.getView('Users', 'default')!
+    const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Users' })
+    const context = new DataSpaceQueryContext({ identity: table.identity, scope: 'host-row', readScope: () => 'host-row',
+      snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: { Items: [
+        { id: 1, name: 'Alice', lingma_sys_params: { e: ['name'], r: [], h: [], m: [], d: false } },
+      ], Count: 1 } } }),
+    })
+    view.bindQueryExecutor({ executeQuery: async () => context })
+    await view.loadFromServer()
+    expect(view.fieldAccess(view.rows[0]!, 'name').write).toBe('allowed')
 
     const Probe = defineComponent({
       setup() {
@@ -137,5 +149,7 @@ describe('RendererHostScope DATA_ROW reactivity', () => {
     expect(view.getEditingPatch(1)).toEqual({ name: 'Alice Draft' })
     expect(view.editingRows[0]?.['name']).toBe('Alice Draft')
     expect(wrapper.find('.field-probe').attributes('data-name')).toBe('Alice Draft')
+    wrapper.unmount()
+    ds.destroy()
   })
 })

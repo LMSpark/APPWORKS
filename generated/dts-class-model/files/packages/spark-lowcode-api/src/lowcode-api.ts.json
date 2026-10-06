@@ -82,11 +82,19 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.readRequestScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readRequestScope.return": {
+          "$ref": "platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
         }
       }
     }
   },
-  "generatedAt": "2026-08-10T12:16:41.570Z",
+  "generatedAt": "2026-10-06T20:23:15.301Z",
   "models": {
     "LowcodeApiOptions": {
       "name": "LowcodeApiOptions",
@@ -196,6 +204,18 @@
               "name": "session",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readRequestScope",
+              "jsdoc": "请求层统一提供选中应用 appId、租户头与身份代次；不写入数据实体或场景 JSON。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
             }
           ]
         }

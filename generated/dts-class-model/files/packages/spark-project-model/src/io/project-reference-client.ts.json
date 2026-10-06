@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-project-model/src/io/project-reference-client.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "io/project-reference-client",
-    "jsdoc": "@spark-appworks/spark-project-model 的 io/project-reference-client 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectSummary, ProjectPageReference, ListProjectReferencesOptions, ProjectReferenceGateway, ProjectReferenceClient（共 5 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-reference-client\n职责：跨项目目录和页面摘要读取。\n边界：只返回引用投影，不持有当前项目编辑态。\nAI用途：读取其他项目页面引用候选。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ProjectSummary",
       "ProjectPageReference",
@@ -135,11 +135,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T21:48:29.504Z",
+  "generatedAt": "2026-10-06T20:49:03.383Z",
   "models": {
     "ProjectSummary": {
       "name": "ProjectSummary",
-      "jsdoc": "",
+      "jsdoc": "引用候选项目的只读目录摘要。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    projectId: string;\n    name: string;\n    icon: string;\n    description: string;\n}>",
@@ -178,7 +178,7 @@
     },
     "ProjectPageReference": {
       "name": "ProjectPageReference",
-      "jsdoc": "",
+      "jsdoc": "附带目标项目身份的交付摘要，不进入当前编辑owner。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "ProjectPageNodeSummary & {\n    projectId: string;\n}",
@@ -206,7 +206,7 @@
     },
     "ListProjectReferencesOptions": {
       "name": "ListProjectReferencesOptions",
-      "jsdoc": "",
+      "jsdoc": "明确排除当前项目的引用查询条件。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    excludeProjectId?: string;\n}>",
@@ -230,7 +230,7 @@
     },
     "ProjectReferenceGateway": {
       "name": "ProjectReferenceGateway",
-      "jsdoc": "",
+      "jsdoc": "宿主提供的跨项目目录及正式蓝图读取能力。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    listProjects(): Promise<unknown>;\n    loadProjectBlueprint(projectId: string): Promise<Partial<ProjectBlueprintTreeData>>;\n}>",
@@ -292,10 +292,11 @@
     },
     "ProjectReferenceClient": {
       "name": "ProjectReferenceClient",
-      "jsdoc": "",
+      "jsdoc": "跨项目只读引用查询门面，不转移当前项目状态。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "绑定宿主目录及正式蓝图读取能力。",
           "signatureText": "constructor(gateway: ProjectReferenceGateway)",
           "parameters": [
             {

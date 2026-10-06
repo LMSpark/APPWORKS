@@ -7,40 +7,13 @@
     "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
     "packageName": "app",
     "modulePath": "lowcode/data-space/lowcode-model-relation-adapter",
-    "jsdoc": "app 的 lowcode/data-space/lowcode-model-relation-adapter 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeModelRelationAdapterResult, LowcodeModelRelationAdapter（共 2 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-model-relation-adapter\n职责：将正式模型关系映射到场景稳定表名与规范输出字段。边界：仅自动生成可解析的 AND 等值级联，其余返回诊断；AI 可用此入口理解默认视图级联来源。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "LowcodeModelRelationAdapterResult",
       "LowcodeModelRelationAdapter"
     ]
   },
   "$defs": {
-    "LowcodeModelRelationAdapterResult": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeModelRelationAdapterResult",
-      "properties": {
-        "resourceRelations": {
-          "type": "array",
-          "items": {
-            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataResourceRelation"
-          }
-        },
-        "viewCascades": {
-          "type": "array",
-          "items": {
-            "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataViewCascade"
-          }
-        },
-        "diagnostics": {
-          "type": "array",
-          "items": {
-            "$ref": "lowcode-frontend-model-adapter.ts.json#/$defs/LowcodeDataSpaceAdapterDiagnostic"
-          }
-        }
-      },
-      "additionalProperties": false
-    },
     "LowcodeModelRelationAdapter": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -55,65 +28,57 @@
           "type": "object",
           "properties": {
             "relations": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json#/$defs/LowcodeModelRelationRecord"
-              }
+              "type": "object",
+              "title": "Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>"
             },
-            "models": {
-              "$ref": "lowcode-frontend-model-adapter.ts.json#/$defs/LowcodeFrontendModelAdapterResult"
+            "bindings": {
+              "type": "object",
+              "title": "ReadonlyMap<string, Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>"
             }
           },
           "additionalProperties": false
         },
         "method.adapt.return": {
-          "$ref": "#/$defs/LowcodeModelRelationAdapterResult"
+          "type": "object",
+          "properties": {
+            "resourceRelations": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+              }
+            },
+            "viewCascades": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataViewCascade"
+              }
+            },
+            "diagnostics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "resourceRelations",
+            "viewCascades",
+            "diagnostics"
+          ],
+          "additionalProperties": false
         }
       }
     }
   },
-  "generatedAt": "2026-08-10T05:29:48.388Z",
+  "generatedAt": "2026-10-06T21:07:56.027Z",
   "models": {
-    "LowcodeModelRelationAdapterResult": {
-      "name": "LowcodeModelRelationAdapterResult",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    resourceRelations: readonly DataResourceRelation[];\n    viewCascades: readonly DataViewCascade[];\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    resourceRelations: readonly DataResourceRelation[];\n    viewCascades: readonly DataViewCascade[];\n    diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[];\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "resourceRelations",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "viewCascades",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "diagnostics",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "LowcodeModelRelationAdapter": {
       "name": "LowcodeModelRelationAdapter",
-      "jsdoc": "",
+      "jsdoc": "无状态关系适配器，可直接无参创建；只消费 readRelations 和 readModel 正式定义，不读取物理目录。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "无状态关系适配器，可直接无参创建；只消费 readRelations 和 readModel 正式定义，不读取物理目录。",
           "signatureText": "constructor()",
           "parameters": []
         },
@@ -125,23 +90,61 @@
                 {
                   "name": "relations",
                   "type": {
-                    "type": "unknown",
-                    "name": "readonly LowcodeModelRelationRecord[]"
+                    "type": "reference",
+                    "name": "Awaited",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ReturnType",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "DataSpaceDesignApi['readRelations']"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 },
                 {
-                  "name": "models",
+                  "name": "bindings",
                   "type": {
                     "type": "reference",
-                    "name": "LowcodeFrontendModelAdapterResult",
-                    "sourcePath": "src/lowcode/data-space/lowcode-frontend-model-adapter.ts"
+                    "name": "ReadonlyMap",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Awaited",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "ReturnType",
+                            "typeArguments": [
+                              {
+                                "type": "unknown",
+                                "name": "DataSpaceDesignApi['readModel']"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
                   }
                 }
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeModelRelationAdapterResult",
-                "sourcePath": "src/lowcode/data-space/lowcode-model-relation-adapter.ts"
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        resourceRelations: DataResourceRelation[];\n        viewCascades: DataViewCascade[];\n        diagnostics: string[];\n    }"
+                  }
+                ]
               }
             }
           ]

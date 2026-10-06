@@ -7,13 +7,6 @@ import { SparkData } from '@spark-appworks/spark-data'
 import { getMountedComponentApi, mountWithPageDataSet } from '../helpers/mount-with-page-dataset'
 import { requireFunction, requireRecord, requireString } from '../helpers/runtime-guards'
 
-function setPermissionSnapshot(view: object, authorizedFeatureTags: string[]): void {
-  Reflect.set(view, 'permissionSnapshot', {
-    formKey: 'FORM', dataSpaceId: 'SPACE', modelId: 'MODEL', allowAdd: false,
-    systemKey: 'SYSTEM', originalRows: [], authorizedFeatureTags,
-  })
-}
-
 function readConfigType(config: unknown): string {
   return requireString(requireRecord(config, 'action config')['type'], 'action config type')
 }
@@ -69,7 +62,6 @@ describe('RendererList and RendererSection container integration', () => {
       },
     })
     const listView = ds.getView('Users', 'default')!
-    setPermissionSnapshot(listView, ['export'])
 
     const wrapper = mountWithPageDataSet(RendererList, {
       dataSet: ds,

@@ -60,7 +60,7 @@ AI 在阶段 1（深度研读）时，除了读源码，还应根据任务涉及
 | `monorepo-dependencies.md` | 工程结构 | 包间依赖传播、catalog 版本管理、验证命令 |
 | `class-model-system.md` | AI/ClassModel | ClassModel 工具链路、知识边界、投影机制 |
 | `packages/spark-ai/docs/business-factory-workflow-zh-cn.md` | AI/Agent | Agent Workflow Designer 权威口径：流程、业务节点、ClassModel model context、LLM 工作、验证 action 和步骤线投影 |
-| `page-design.md` | 页面设计 | 四文件编辑、内存模型、落盘机制 |
+| `page-design.md` | 页面设计 | 工具三文件、场景配置、请求与运行实例隔离、保存回执 |
 | `vue-frontend.md` | Vue 前端 | 组件开发、状态管理、路由约束 |
 | `testing.md` | 测试 | 测试命令、验证套件、异步测试注意事项 |
 | `ai-metrics.md` | 效果度量 | AI编码存活率、返工率、记录模板、行业基准 |

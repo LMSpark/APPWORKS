@@ -11,6 +11,7 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DynamicRouterOptions",
+      "RuntimeScenarioLoadCommand",
       "DynamicRouter"
     ]
   },
@@ -59,10 +60,6 @@
         "isAuthenticated": {
           "type": "object",
           "title": "() => boolean"
-        },
-        "loadRuntimeDataSet": {
-          "type": "object",
-          "title": "(binding: PageDataSpaceBinding) => Promise<DataSet>"
         }
       },
       "required": [
@@ -70,6 +67,35 @@
         "pageContentLoader",
         "pageComponent"
       ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.loadScenario.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/RuntimeScenarioLoadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenario.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
+    },
+    "RuntimeScenarioLoadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeScenarioLoadCommand",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     },
     "DynamicRouter": {
@@ -86,6 +112,88 @@
           },
           "additionalProperties": false
         },
+        "method.getPageRuntime.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageRuntime.return": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.getPageRuntimeView.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageRuntimeView.return": {
+          "type": "object",
+          "title": "Component"
+        },
+        "method.getPageRuntimeNames.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPageRuntimeNames.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.getPageRuntimeById.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageRuntimeById.return": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.closePageRuntime.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.closePageRuntime.return": true,
+        "method.assertPageRuntimesClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertPageRuntimesClean.return": true,
+        "method.disposePageRuntimes.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.disposePageRuntimes.return": true,
+        "method.markPageConfigPending.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markPageConfigPending.return": true,
         "method.registerRoutes.params": {
           "type": "object",
           "properties": {},
@@ -143,14 +251,14 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T10:18:09.577Z",
+  "generatedAt": "2026-10-06T20:47:21.930Z",
   "models": {
     "DynamicRouterOptions": {
       "name": "DynamicRouterOptions",
       "jsdoc": "动态路由注册选项",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** Vue Router 实例 */\n    router: Router;\n    /** 配置页四文件加载器 */\n    pageContentLoader: PageContentLoader;\n    /**\n     * 动态页面组件（必需）\n     * 用于渲染配置化页面\n     *\n     * @example\n     * ```typescript\n     * import { PageRenderer } from '@spark-appworks/spark-component'\n     * const options = { router, pageContentLoader, pageComponent: PageRenderer }\n     * ```\n     */\n    pageComponent: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 导航节点 nodeKind='system-page' 时，使用此映射解析组件。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀，使所有业务路由统一在租户 URL 下。\n     * system-page 路由不受影响（DB 中已含完整路径）。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 `registerRoutes()` 使用此函数加载远程导航树并派生路由。\n     * 返回的 ProjectBlueprintTreeData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。\n     */\n    loadNavigation?: (() => Promise<RuntimeNavigation>) | undefined;\n    /**\n     * 平台工作台导航加载函数。\n     *\n     * 返回的节点 path 仍保持相对形态（如 /dashboard、/tenants），\n     * 注册路由时统一映射到 platformPathPrefix 下（默认 /platform）。\n     */\n    loadPlatformNavigation?: (() => Promise<RuntimeNavigation>) | undefined;\n    /** 平台工作台路由前缀（默认 /platform）。 */\n    platformPathPrefix?: string | undefined;\n    /** 是否注册平台工作台导航。通常仅 platform_admin 返回 true。 */\n    isPlatformNavigationEnabled?: (() => boolean) | undefined;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当 `registerRoutes()` 在未登录状态调用时（无法调用 loadNavigation），\n     * 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: RuntimeNavigation | undefined;\n    /**\n     * 认证状态检查回调。\n     *\n     * `registerRoutes()` 在运行时通过此回调判断当前状态：\n     * - 已登录 → 使用 `loadNavigation` 加载远程导航树\n     * - 未登录 → 使用 `preAuthNavTree` 本地导航树\n     */\n    isAuthenticated?: (() => boolean) | undefined;\n    /**\n     * 运行态 DataSet 装载器：配置页有 PageDataSpaceBinding 时由 SparkPageRenderer 调用。\n     * 有绑定则不得再把 pagedata.json 当运行数据真源。\n     */\n    loadRuntimeDataSet?: ((binding: PageDataSpaceBinding) => Promise<DataSet>) | undefined;\n}",
+        "declarationTypeText": "{\n    /** Vue Router 实例 */\n    router: Router;\n    /** 页面工具三文件加载器 */\n    pageContentLoader: PageContentLoader;\n    /**\n     * 动态页面组件（必需）\n     * 用于渲染配置化页面\n     *\n     * @example\n     * ```typescript\n     * import { PageRenderer } from '@spark-appworks/spark-component'\n     * const options = { router, pageContentLoader, pageComponent: PageRenderer }\n     * ```\n     */\n    pageComponent: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 导航节点 nodeKind='system-page' 时，使用此映射解析组件。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀，使所有业务路由统一在租户 URL 下。\n     * system-page 路由不受影响（DB 中已含完整路径）。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 `registerRoutes()` 使用此函数加载远程导航树并派生路由。\n     * 返回的 ProjectBlueprintTreeData 对象同时用于 UI 渲染（侧栏/顶栏菜单）。\n     */\n    loadNavigation?: (() => Promise<RuntimeNavigation>) | undefined;\n    /**\n     * 平台工作台导航加载函数。\n     *\n     * 返回的节点 path 仍保持相对形态（如 /dashboard、/tenants），\n     * 注册路由时统一映射到 platformPathPrefix 下（默认 /platform）。\n     */\n    loadPlatformNavigation?: (() => Promise<RuntimeNavigation>) | undefined;\n    /** 平台工作台路由前缀（默认 /platform）。 */\n    platformPathPrefix?: string | undefined;\n    /** 是否注册平台工作台导航。通常仅 platform_admin 返回 true。 */\n    isPlatformNavigationEnabled?: (() => boolean) | undefined;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当 `registerRoutes()` 在未登录状态调用时（无法调用 loadNavigation），\n     * 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: RuntimeNavigation | undefined;\n    /**\n     * 认证状态检查回调。\n     *\n     * `registerRoutes()` 在运行时通过此回调判断当前状态：\n     * - 已登录 → 使用 `loadNavigation` 加载远程导航树\n     * - 未登录 → 使用 `preAuthNavTree` 本地导航树\n     */\n    isAuthenticated?: (() => boolean) | undefined;\n    /**\n     * 场景 DataSet 装载器：由 PageRuntime 按显式调用场景逐个装配。\n     * 后端提供正式定义，场景 pagedata.json 只提供视图与级联配置。\n     */\n    loadScenario?: (command: RuntimeScenarioLoadCommand) => Promise<DataSet>;\n}",
         "members": {
           "attributes": [
             {
@@ -161,7 +269,7 @@
             },
             {
               "name": "pageContentLoader",
-              "jsdoc": "配置页四文件加载器",
+              "jsdoc": "页面工具三文件加载器",
               "readable": true,
               "writable": true
             },
@@ -218,10 +326,59 @@
               "jsdoc": "认证状态检查回调。\n`registerRoutes()` 在运行时通过此回调判断当前状态：\n- 已登录 → 使用 `loadNavigation` 加载远程导航树\n- 未登录 → 使用 `preAuthNavTree` 本地导航树",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadScenario",
+              "jsdoc": "场景 DataSet 装载器：由 PageRuntime 按显式调用场景逐个装配。\n后端提供正式定义，场景 pagedata.json 只提供视图与级联配置。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "RuntimeScenarioLoadCommand",
+                    "sourcePath": "packages/spark-app/src/router/dynamic.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RuntimeScenarioLoadCommand": {
+      "name": "RuntimeScenarioLoadCommand",
+      "jsdoc": "为一次页面调用装配指定应用中的一个场景；应用身份由请求层校验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
             },
             {
-              "name": "loadRuntimeDataSet",
-              "jsdoc": "运行态 DataSet 装载器：配置页有 PageDataSpaceBinding 时由 SparkPageRenderer 调用。\n有绑定则不得再把 pagedata.json 当运行数据真源。",
+              "name": "scenarioId",
               "readable": true,
               "writable": false
             }
@@ -250,6 +407,122 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "getPageRuntime",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              }
+            },
+            {
+              "name": "getPageRuntimeView",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Component"
+                }
+              }
+            },
+            {
+              "name": "getPageRuntimeNames",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "getPageRuntimeById",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              }
+            },
+            {
+              "name": "closePageRuntime",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertPageRuntimesClean",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "disposePageRuntimes",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "markPageConfigPending",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "registerRoutes",
               "jsdoc": "注册所有路由（从导航树派生）",

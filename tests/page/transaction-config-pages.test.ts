@@ -1,11 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { compileRule, parsePageData } from '@spark-appworks/spark-project-model'
+import { compileRule } from '@spark-appworks/spark-project-model'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
 import { copyOwnEnumerableProperties, readProperty } from '@spark-appworks/spark-utils/internal'
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
-import { isSparkNode, type SparkNode } from '@spark-appworks/spark-data'
+import { DataSet, isSparkNode, type SparkNode } from '@spark-appworks/spark-data'
 import { nodeToActionDescriptor } from '../../packages/spark-component/src/page/actions/node-to-descriptor'
 import { executeSaveDataSet } from '../../packages/spark-component/src/page/actions/action-data'
 import type { ActionDescriptor, ActionExecutionContext, SaveDataSetAction } from '../../packages/spark-component/src/page/actions/action-types'
@@ -114,7 +114,7 @@ describe('transaction validation page configs', () => {
       const pageDataText = readPageFile(pageId, 'pagedata.json')
       const ruleText = readPageFile(pageId, 'rule.json')
 
-      const parsedData = parsePageData(pageDataText)
+      const parsedData = DataSet.fromJson(JSON.parse(pageDataText))
       const compiledRule = compileRule(ruleText)
       const actions = collectActions(compiledRule)
 
@@ -129,7 +129,7 @@ describe('transaction validation page configs', () => {
   }
 
   it('tx-transaction-commit sends parent before child operations through the configured transaction endpoint', async () => {
-    const dataSet = parsePageData(readPageFile('tx-transaction-commit', 'pagedata.json'))
+    const dataSet = DataSet.fromJson(JSON.parse(readPageFile('tx-transaction-commit', 'pagedata.json')))
     dataSet.setPageRoute({ params: { tenantId: 'lmspark', projectId: 'homepage' } })
     const posts: CapturedPost[] = []
     dataSet.setSharedHttpClient(createMockHttpClient(posts))
@@ -178,7 +178,7 @@ describe('transaction validation page configs', () => {
       },
     })
 
-    const dataSet = parsePageData(readPageFile('tx-transaction-retry', 'pagedata.json'))
+    const dataSet = DataSet.fromJson(JSON.parse(readPageFile('tx-transaction-retry', 'pagedata.json')))
     dataSet.setPageRoute({ params: { tenantId: 'lmspark', projectId: 'homepage' } })
     const posts: CapturedPost[] = []
     dataSet.setSharedHttpClient(createMockHttpClient(posts))
@@ -220,6 +220,7 @@ describe('transaction validation page configs', () => {
       type: 'r-button',
       props: {
         action: 'save-dataset',
+        scenarioId: 'local-transaction-fixture',
         mode: 'transaction',
         requestIdStrategy: 'auto',
       },
@@ -247,7 +248,7 @@ describe('transaction validation page configs', () => {
       requestIdStrategy: 'auto',
     })
 
-    const dataSet = parsePageData(readPageFile('tx-transaction-commit', 'pagedata.json'))
+    const dataSet = DataSet.fromJson(JSON.parse(readPageFile('tx-transaction-commit', 'pagedata.json')))
     dataSet.setPageRoute({ params: { tenantId: 'lmspark', projectId: 'homepage' } })
     const posts: CapturedPost[] = []
     dataSet.setSharedHttpClient(createMockHttpClient(posts))
@@ -258,7 +259,8 @@ describe('transaction validation page configs', () => {
 
     const messages: Array<{ type: string; message: string }> = []
     const ctx: ActionExecutionContext = {
-      getDataSet: () => dataSet,
+      getDataSet: scenarioId => scenarioId === 'local-transaction-fixture' ? dataSet : null,
+      resolveView: binding => {const [table, view = 'default'] = binding.split('@'); return table ? dataSet.getView(table, view) ?? null : null},
       getPageService: () => ({
         showMessage: (message, type = 'info') => {
           messages.push({ type, message })

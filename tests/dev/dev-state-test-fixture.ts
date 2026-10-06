@@ -1,4 +1,4 @@
-import type { PageNodeFileName, ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
+import type { PageToolFileName, ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import { useDevState } from '@/views/app/dev-system/useDevState'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
 
@@ -22,14 +22,8 @@ export const DEMO_PAGE_FIXTURE: readonly DevStateTestPage[] = [
 
 function buildTestNavRoot(pages: readonly DevStateTestPage[]): ProjectBlueprintTreeData {
   return {
-    title: 'Test Project',
-    childPlacement: 'header',
-    children: pages.map((page) => ({
-      id: page.nodeId ?? `${page.pageId}-node`,
-      title: page.title ?? page.pageId,
-      nodeKind: 'page' as const,
-      path: page.path ?? `/${page.pageId}`,
-    })),
+    nodeId:'homepage_root',parentNodeId:'',projectId:'homepage',kind:'module',capability:{name:'Test Project'},source:{},
+    children:pages.map(page=>({nodeId:page.nodeId ?? `${page.pageId}-node`,parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:page.title ?? page.pageId},navigation:{title:page.title ?? page.pageId,target:page.path ?? `cfg:${page.pageId}`,order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}})),
   }
 }
 
@@ -63,14 +57,14 @@ export async function ensureDevStateActivePageLoaded(
   await state.editor.ensureActivePageFilesLoaded(options)
 }
 
-export function isDevStatePageDocumentDirty(state: DevState, name: PageNodeFileName): boolean {
+export function isDevStatePageDocumentDirty(state: DevState, name: PageToolFileName): boolean {
   void state.projectRevision.value
   return state.project.readDirtyProjection().dirtyFiles.has(name)
 }
 
 export async function saveDevStatePageDocument(
   state: DevState,
-  name: PageNodeFileName,
+  name: PageToolFileName,
 ): Promise<void> {
   if (!alignDevStateActivePage(state)) return
   await state.editor.savePageFile(name)

@@ -1,121 +1,35 @@
-import type { LowcodeModelRelationRecord } from '@spark-appworks/spark-lowcode-api'
 import { describe, expect, it } from 'vitest'
-
-import type {
-  LowcodeAdaptedResource,
-  LowcodeFrontendModelAdapterResult,
-} from '../../../src/lowcode/data-space/lowcode-frontend-model-adapter'
+import { DataViewFilter } from '@spark-appworks/spark-data'
+import type { DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
 import { LowcodeModelRelationAdapter } from '../../../src/lowcode/data-space/lowcode-model-relation-adapter'
-
-const parentResource: LowcodeAdaptedResource = {
-  resourceId: 'RESOURCE-PARENT',
-  resourceName: 'ParentTable',
-  resourceType: 'database-table',
-  databaseId: 'DATABASE-1',
-  databaseName: 'business',
-  primaryKeyField: 'id',
-  columns: [
-    { name: 'id', type: 'integer', isPrimaryKey: true },
-    { name: 'tenantId', type: 'string' },
-  ],
+type Model = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+function model(id:string,fields:readonly [string,string][]):Model {
+ return {id,metaName:id,name:id,sourceName:id,sourceId:'DB',sourceType:'table',primaryKey:fields[0]?.[1] ?? '',businessMain:true,raw:{},fields:fields.map(([name,canonicalName],i)=>({id:`${id}:${name}`,modelId:id,name,canonicalName,type:'string',primaryKey:i===0,description:'',output:true,computed:false,order:0,orderType:'',raw:{}}))}
 }
-
-const childResource: LowcodeAdaptedResource = {
-  resourceId: 'RESOURCE-CHILD',
-  resourceName: 'ChildTable',
-  resourceType: 'database-table',
-  databaseId: 'DATABASE-1',
-  databaseName: 'business',
-  primaryKeyField: 'id',
-  columns: [
-    { name: 'id', type: 'integer', isPrimaryKey: true },
-    { name: 'parentId', type: 'integer' },
-    { name: 'tenantKey', type: 'string' },
-  ],
+const bindings = new Map([['Parents',model('P',[['id','parentKey'],['tenantId','tenant']])],['Children',model('C',[['parentId','parentRef'],['tenantKey','tenantRef']])]])
+function relation(dependencyType='selectedRows',filter=DataViewFilter.group({logic:"and",filters:[
+ DataViewFilter.condition({field:'ChildTable.parentId',operator:'eq',value:{Type:'GetTableField',Field:'ParentTable.id'}}).toJSON(),
+ DataViewFilter.condition({field:'ChildTable.tenantKey',operator:'eq',value:{Type:'GetTableField',Field:'ParentTable.tenantId'}}).toJSON(),
+]})):Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>[number] {
+ return {sourceRelationId:'R',dataSpaceId:'S',parentModelId:'P',childModelId:'C',parentResourceName:'ParentTable',childResourceName:'ChildTable',filterExpression:filter,dependencyType,cascadeDelete:true}
 }
-
-const models: LowcodeFrontendModelAdapterResult = {
-  models: [{
-    dataSpaceId: 'SPACE-1',
-    modelId: 'MODEL-PARENT',
-    modelName: '父模型',
-    resource: parentResource,
-    fieldProjection: [
-      { fieldId: 'P-ID', source: 'resource', resourceFieldId: 'R-P-ID', resourceField: 'id', viewField: 'parentKey', type: 'integer', label: 'ID', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: true, value: '', valueFunction: '', expression: '' },
-      { fieldId: 'P-TENANT', source: 'resource', resourceFieldId: 'R-P-TENANT', resourceField: 'tenantId', viewField: 'tenant', type: 'string', label: '租户', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false, value: '', valueFunction: '', expression: '' },
-    ],
-  }, {
-    dataSpaceId: 'SPACE-1',
-    modelId: 'MODEL-CHILD',
-    modelName: '子模型',
-    resource: childResource,
-    fieldProjection: [
-      { fieldId: 'C-PARENT', source: 'resource', resourceFieldId: 'R-C-PARENT', resourceField: 'parentId', viewField: 'parentRef', type: 'integer', label: '父级', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false, value: '', valueFunction: '', expression: '' },
-      { fieldId: 'C-TENANT', source: 'resource', resourceFieldId: 'R-C-TENANT', resourceField: 'tenantKey', viewField: 'tenantRef', type: 'string', label: '租户', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false, value: '', valueFunction: '', expression: '' },
-    ],
-  }],
-  diagnostics: [],
-}
-
-function relation(dependencyType = 'selectedRows'): LowcodeModelRelationRecord {
-  return {
-    sourceRelationId: 'RELATION-1',
-    dataSpaceId: 'SPACE-1',
-    parentModelId: 'MODEL-PARENT',
-    childModelId: 'MODEL-CHILD',
-    parentResourceName: 'ParentTable',
-    childResourceName: 'ChildTable',
-    filterExpression: JSON.stringify({
-      Type: 'and',
-      Filters: [{
-        Type: 'cond', Field: 'ChildTable.parentId', Operator: 'equal',
-        ValueFun: { Type: 'GetTableField', Field: 'ParentTable.id' },
-      }, {
-        Type: 'cond', Field: 'ChildTable.tenantKey', Operator: 'equal',
-        ValueFun: { Type: 'GetTableField', Field: 'ParentTable.tenantId' },
-      }],
-    }),
-    dependencyType,
-    cascadeDelete: true,
-  }
-}
-
-describe('LowcodeModelRelationAdapter', () => {
-  it('projects one raw relation into independent resource mappings and DataView bindings', () => {
-    const result = new LowcodeModelRelationAdapter().adapt([relation()], models)
-
-    expect(result.diagnostics).toEqual([])
-    expect(result.resourceRelations).toMatchObject([{
-      sourceRelationId: 'RELATION-1',
-      parentTable: 'MODEL-PARENT',
-      childTable: 'MODEL-CHILD',
-      cascadeDelete: true,
-      fieldMappings: [
-        { parentResourceField: 'id', childResourceField: 'parentId' },
-        { parentResourceField: 'tenantId', childResourceField: 'tenantKey' },
-      ],
-    }])
-    expect(result.viewCascades).toMatchObject([{
-      sourceRelationId: 'RELATION-1',
-      parentViewId: 'default',
-      childViewId: 'default',
-      dependencyType: 'selectedRows',
-      filterBindings: [
-        { sourceField: 'parentKey', targetField: 'parentRef' },
-        { sourceField: 'tenant', targetField: 'tenantRef' },
-      ],
-    }])
-    expect(result.resourceRelations[0]).not.toBe(result.viewCascades[0])
-  })
-
-  it('blocks unknown depType instead of guessing a trigger', () => {
-    const result = new LowcodeModelRelationAdapter().adapt([relation('refresh')], models)
-
-    expect(result.resourceRelations).toEqual([])
-    expect(result.viewCascades).toEqual([])
-    expect(result.diagnostics).toMatchObject([{
-      code: 'unsupported-dependency-type',
-      sourceRelationId: 'RELATION-1',
-    }])
-  })
+describe('formal model relation assembly',()=>{
+ it('keeps stable table names and maps formal Name to output AsName without resource guesses',()=>{
+  const result=new LowcodeModelRelationAdapter().adapt([relation()],bindings)
+  expect(result.diagnostics).toEqual([])
+  expect(result.viewCascades).toMatchObject([{parentTable:'Parents',childTable:'Children',autoLoad:true,dependencyType:'selectedRows',filterBindings:[{sourceField:'parentKey',targetField:'parentRef'},{sourceField:'tenant',targetField:'tenantRef'}]}])
+  expect(result.resourceRelations).toMatchObject([{fieldMappings:[{parentResourceField:'parentKey',childResourceField:'parentRef'},{parentResourceField:'tenant',childResourceField:'tenantRef'}]}])
+ })
+ it('does not retain partial AND mappings when a nested OR is unsupported',()=>{
+  const filter=DataViewFilter.group({logic:"and",filters:[DataViewFilter.condition({field:'parentId',operator:'eq',value:{Type:'GetTableField',Field:'id'}}).toJSON(),DataViewFilter.group({logic:"or",filters:[DataViewFilter.condition({field:'parentId',operator:'eq',value:{Type:'GetTableField',Field:'id'}}).toJSON()]}).toJSON()]})
+  const result=new LowcodeModelRelationAdapter().adapt([relation('currentRow',filter)],bindings)
+  expect(result.viewCascades).toEqual([]);expect(result.resourceRelations).toEqual([]);expect(result.diagnostics).toHaveLength(1)
+ })
+ it('rejects an unknown selected-model field instead of guessing a physical column',()=>{
+  const filter=DataViewFilter.condition({field:'physicalFk',operator:'eq',value:{Type:'GetTableField',Field:'id'}})
+  expect(()=>new LowcodeModelRelationAdapter().adapt([relation('currentRow',filter)],bindings)).toThrow(/正式关系字段/)
+ })
+ it('reports unsupported dependency types without synthesizing a trigger',()=>{
+  expect(new LowcodeModelRelationAdapter().adapt([relation('refresh')],bindings).viewCascades).toEqual([])
+ })
 })

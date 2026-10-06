@@ -8,7 +8,7 @@ import {
   isolateAppProjectWorkspaceForTest,
   isDevStatePageDocumentDirty,
 } from './dev-state-test-fixture'
-import type { ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { refreshRoutes } from '@spark-appworks/spark-app'
 import { lowcodeHttp as http } from '@/lowcode/lowcode-runtime'
@@ -83,10 +83,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
         listVersions: async (pageId: string, fileName: string) => {
           const rows = await httpFns.get(`${pageFileKey}/${pageId}/${fileName}/versions`)
           return Array.isArray(rows)
-            ? rows.map((row) => ({
-                ...row,
-                createdAt: new Date(row.createdAt).toISOString(),
-              }))
+            ? rows
             : []
         },
         restoreVersion: async (pageId: string, fileName: string, version: number) => {
@@ -107,6 +104,10 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     }
   },
 }))
+
+
+function node(nodeId:string,title:string,target:string,projectId='homepage',description=''):ProjectBlueprintTreeNodeData { return {nodeId,parentNodeId:`${projectId}_root`,projectId,kind:'page',capability:{name:title,description},navigation:{title,target,icon:'Document',order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}} }
+function blueprintRoot(children:ProjectBlueprintTreeNodeData[],projectId='homepage'):ProjectBlueprintTreeData { return {nodeId:`${projectId}_root`,parentNodeId:'',projectId,kind:'module',capability:{name:projectId},navigation:{title:projectId,order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{},children} }
 
 const httpMock = vi.mocked(http)
 
@@ -192,10 +193,10 @@ describe('DevState 页面文件闭环', () => {
     expect(state.project.getActivePage()?.isLoaded).toBe(false)
   })
 
-  it('版本 createdAt 接受后端数字毫秒并归一为 ISO 字符串', async () => {
+  it('版本摘要保留编号文件名和可空修改时间', async () => {
     const state = createDevStateWithConfigPages(DEMO_PAGE_FIXTURE, 'demo')
     httpMock.get.mockResolvedValueOnce([
-      { version: 1, createdAt: 1710000000000, isCurrent: true, modifiedBy: 'tester' },
+      {version:1,fileName:'1__script.js',lastModified:1710000000000},
     ])
 
     state.project.setActivePage(state.activePageId.value)
@@ -204,16 +205,15 @@ describe('DevState 页面文件闭环', () => {
     expect(versions).toEqual([
       {
         version: 1,
-        createdAt: new Date(1710000000000).toISOString(),
-        isCurrent: true,
-        modifiedBy: 'tester',
+        fileName:'1__script.js',
+        lastModified:1710000000000,
       },
     ])
   })
 
   it('restore 后立即强制重读并回填文档模型', async () => {
     const state = createDevStateWithConfigPages(DEMO_PAGE_FIXTURE, 'demo')
-    state.project.writePageFile({ fileName: 'script.js', text: 'console.log("old")' })
+    state.project.getActivePage()?.hydrateFileText('script.js', 'console.log("old")')
     httpMock.post.mockResolvedValueOnce({ ok: true })
     httpMock.get.mockImplementation(async (url: string) => pageFileResponse(url))
 
@@ -229,11 +229,10 @@ describe('DevState 页面文件闭环', () => {
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'project-blueprint:homepage') {
         return {
-          title: 'root',
-          childPlacement: 'header',
+          ...blueprintRoot([]),
           children: [
-            { id: 'alpha-node', title: 'Alpha', nodeKind: 'page', path: '/alpha' },
-            { id: 'beta-node', title: 'Beta', nodeKind: 'page', path: '/beta' },
+            node('alpha-node','Alpha','cfg:alpha'),
+            node('beta-node','Beta','cfg:beta'),
           ],
         }
       }
@@ -243,14 +242,14 @@ describe('DevState 页面文件闭环', () => {
     await state.loadBlueprint()
     const observedEditDtoIds: string[] = []
     const stop = watchEffect(() => {
-      observedEditDtoIds.push(state.blueprintDraft.id)
+      observedEditDtoIds.push(state.blueprintDraft.nodeId)
     })
 
     await state.selectNode(state.treeData.value[1]!)
     await nextTick()
     stop()
 
-    expect(state.selectedNode.value?.id).toBe('beta-node')
+    expect(state.selectedNode.value?.nodeId).toBe('beta-node')
     expect(state.activePageId.value).toBe('beta')
     expect(observedEditDtoIds.at(-1)).toBe('beta-node')
   })
@@ -260,11 +259,10 @@ describe('DevState 页面文件闭环', () => {
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'project-blueprint:homepage') {
         return {
-          title: 'root',
-          childPlacement: 'header',
+          ...blueprintRoot([]),
           children: [
-            { id: 'alpha-node', title: 'Alpha', nodeKind: 'page', path: '/alpha', icon: 'Document', description: 'Alpha 页面需求' },
-            { id: 'sys-node', title: 'System', nodeKind: 'system-page', path: '/system' },
+            node('alpha-node','Alpha','cfg:alpha','homepage','Alpha 页面需求'),
+            node('sys-node','System','/system'),
           ],
         }
       }
@@ -279,7 +277,7 @@ describe('DevState 页面文件闭环', () => {
     expect(state.pageList.value).toEqual([
       expect.objectContaining({
         pageId: 'alpha',
-        path: '/alpha',
+        path: 'cfg:alpha',
         title: 'Alpha',
         nodeId: 'alpha-node',
         description: 'Alpha 页面需求',
@@ -299,10 +297,9 @@ describe('DevState 页面文件闭环', () => {
   it('header 保存蓝图属性时只提交选中节点 patch，不整树保存', async () => {
     const state = useDevState()
     const root: ProjectBlueprintTreeData = {
-      title: 'root',
-      childPlacement: 'header',
+      ...blueprintRoot([]),
       children: [
-        { id: 'alpha-node', title: 'Alpha', nodeKind: 'page', path: '/alpha' },
+        node('alpha-node','Alpha','cfg:alpha'),
       ],
     }
     navTreeState.tree = root
@@ -311,37 +308,37 @@ describe('DevState 页面文件闭环', () => {
       return pageFileResponse(url)
     })
     httpMock.put.mockResolvedValueOnce({
-      node: { id: 'alpha-node', title: 'Alpha updated', nodeKind: 'page', path: '/alpha' },
+      node: {...node('alpha-node','Alpha updated','cfg:alpha'),capability:{name:'Alpha',description:''}},
     })
 
     vi.mocked(refreshRoutes).mockImplementation(async (): Promise<RuntimeNavigation> => {
       const updated: ProjectBlueprintTreeData = {
         ...root,
         children: [
-          { id: 'alpha-node', title: 'Alpha updated', nodeKind: 'page', path: '/alpha' },
+          node('alpha-node','Alpha updated','cfg:alpha'),
         ],
       }
       navTreeState.tree = updated
       return {
-        title: updated.title,
-        childPlacement: updated.childPlacement,
+        title: updated.capability.name,
+        childPlacement:'header',
         items: [{ id: 'alpha-node', title: 'Alpha updated', itemKind: 'page', path: '/alpha' }],
       }
     })
 
     await state.loadBlueprint()
-    state.blueprintDraft.title = 'Alpha updated'
+    state.blueprintDraft.navigation!.title = 'Alpha updated'
     const refreshCallsBeforeSave = vi.mocked(refreshRoutes).mock.calls.length
 
     await state.saveAll()
 
     expect(vi.mocked(refreshRoutes).mock.calls.length - refreshCallsBeforeSave).toBe(1)
-    expect(navTreeState.tree?.children?.[0]?.title).toBe('Alpha updated')
-    expect(state.project.readBlueprintProjection().tree[0]?.title).toBe('Alpha updated')
+    expect(navTreeState.tree?.children?.[0]?.navigation?.title).toBe('Alpha updated')
+    expect(state.project.readBlueprintProjection().tree[0]?.navigation?.title).toBe('Alpha updated')
 
     expect(httpMock.put).toHaveBeenCalledWith(
       'project-blueprint:homepage:nodes:alpha-node',
-      expect.objectContaining({ title: 'Alpha updated', order: 0 }),
+      expect.objectContaining({navigation:expect.objectContaining({title:'Alpha updated',order:0})}),
     )
     expect(httpMock.put).not.toHaveBeenCalledWith('project-blueprint:homepage:nodes:alpha-node:move', expect.anything())
     expect(httpMock.put).not.toHaveBeenCalledWith('project-blueprint:homepage', expect.anything())
@@ -351,10 +348,9 @@ describe('DevState 页面文件闭环', () => {
   it('可打开其他租户项目模型编辑，保存时不刷新当前 APP 导航', async () => {
     const state = useDevState()
     const delegatedRoot: ProjectBlueprintTreeData = {
-      title: 'delegated',
-      childPlacement: 'header',
+      ...blueprintRoot([], 'delegated-app'),
       children: [
-        { id: 'delegated-node', title: 'Delegated', nodeKind: 'page', path: '/delegated-page' },
+        node('delegated-node','Delegated','cfg:delegated-page','delegated-app'),
       ],
     }
     httpMock.get.mockImplementation(async (url: string) => {
@@ -369,7 +365,7 @@ describe('DevState 页面文件闭环', () => {
       return pageFileResponse(url)
     })
     httpMock.put.mockResolvedValueOnce({
-      node: { id: 'delegated-node', title: 'Delegated updated', nodeKind: 'page', path: '/delegated-page' },
+      node: {...node('delegated-node','Delegated updated','cfg:delegated-page','delegated-app'),capability:{name:'Delegated',description:''}},
     })
 
     await state.loadEditableProjects('tenant-b')
@@ -380,16 +376,16 @@ describe('DevState 页面文件闭环', () => {
 
     expect(state.tenantId).toBe('tenant-b')
     expect(state.projectId).toBe('delegated-app')
-    expect(state.treeData.value[0]?.id).toBe('delegated-node')
+    expect(state.treeData.value[0]?.nodeId).toBe('delegated-node')
     expect(state.activePageId.value).toBe('delegated-page')
 
-    state.blueprintDraft.title = 'Delegated updated'
+    state.blueprintDraft.navigation!.title = 'Delegated updated'
     const refreshCallsBeforeSave = vi.mocked(refreshRoutes).mock.calls.length
     await state.saveAll()
 
     expect(httpMock.put).toHaveBeenCalledWith(
       'project-blueprint:delegated-app:nodes:delegated-node',
-      expect.objectContaining({ title: 'Delegated updated' }),
+      expect.objectContaining({navigation:expect.objectContaining({title:'Delegated updated'})}),
     )
     expect(vi.mocked(refreshRoutes).mock.calls.length).toBe(refreshCallsBeforeSave)
   })

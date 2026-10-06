@@ -13,12 +13,12 @@
 
 // ── 项目根 ────────────────────────────────────────────────────
 
-export { ProjectModel } from './project/project-model'
+export { ProjectBlueprint } from './project/project-blueprint'
 export { ProjectWorkspace } from './project/project-workspace'
 export type {
-  ProjectModelInitOptions,
-  ProjectModelEvent,
-  ProjectModelEventListener,
+  ProjectBlueprintInitOptions,
+  ProjectBlueprintEvent,
+  ProjectBlueprintEventListener,
   ProjectActivePageProjection,
   ProjectDirtyProjection,
   ProjectBlueprintProjection,
@@ -41,12 +41,7 @@ export type {
   ProjectPageReference,
   ProjectSummary,
 } from './io/project-reference-client'
-export {
-  applyNestedConfigPagePresetToDraft,
-} from './blueprint/project-blueprint-edit'
 export type {
-  BlueprintNodeDraftNode,
-  BlueprintNodePatch,
   BlueprintNodeDraftApplyResult,
   BlueprintNodeDraft,
 } from './blueprint/project-blueprint-edit'
@@ -55,18 +50,16 @@ export type {
 
 export {
   isProjectBlueprintTreeNodeData,
+  projectNodeDeliveryKind,
 } from './blueprint/project-blueprint-node'
 
 export {
   isConfigNodeKind,
   isConfigFilesPageSurface,
-  isNestedConfigPageNode,
   resolvePageNodePageId,
   findPageNodeByPageId,
   findNodeById,
   findNodeLocation,
-  isSystemRootDirectory,
-  canUseModuleNodeKind,
   normalizePageIdFromPath,
   normalizeBlueprintTree,
 } from './blueprint/project-blueprint-tree'
@@ -74,6 +67,7 @@ export {
 export type {
   ProjectBlueprintTreeData,
   ProjectBlueprintTreeNodeData,
+  ProjectBlueprintNodePatch,
   ProjectBlueprintTreeNodeLocation,
   ProjectBlueprintImplGate,
   ProjectPageSurface,
@@ -82,18 +76,14 @@ export type {
 
 // ── 配置页 ──────────────────────────────────────────────────
 
-export type {
-  PageNodeLoadOptions,
-  PageDataSpaceBinding,
-  PageNodeRenderConfig,
-  PageNodeLike,
-} from './page/config-page'
-
-export { PAGE_NODE_FILE_NAMES } from './page/page-file'
+export { PageTool } from './page/page-tool'
+export type { PageToolOptions, PageToolDefinition } from './page/page-tool'
+export type { PageToolLoadOptions } from './page/page-file'
+export { PAGE_TOOL_FILE_NAMES } from './page/page-file'
 
 export type {
-  PageNodeFileName,
-  PageNodeFileVersionSummary,
+  PageToolFileName,
+  PageToolFileVersionSummary,
 } from './page/page-file'
 
 export { PageContentLoader } from './io/page-content-loader'
@@ -102,17 +92,14 @@ export type {
   PageFileReadCommand,
   PageFileReader,
 } from './io/page-content-loader'
-export { createRuntimePageNode } from './page/runtime-page'
+export { PageRuntime } from './page/runtime-page'
+export type { PageRuntimeOptions, PageRuntimeCall } from './page/runtime-page'
+export { ScenarioViewFile } from './scenario/scenario-view-file'
+export { ScenarioViewConfig } from './scenario/scenario-view-config'
 
 export {
   compileRule,
   normalizeRuleNode,
-  parsePageData,
   parseScript,
   parseCss,
 } from './page/compile-files'
-
-export {
-  canonicalizePageDataJson,
-  canonicalizePageDataValue,
-} from './page/canonicalize-page-data'

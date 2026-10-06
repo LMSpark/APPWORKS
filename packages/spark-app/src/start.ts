@@ -15,9 +15,7 @@ import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router
 import {
   PageContentLoader,
   type PageFileReader,
-  type PageDataSpaceBinding,
 } from '@spark-appworks/spark-project-model'
-import type { DataSet } from '@spark-appworks/spark-data'
 import { Spark, SparkPageRenderer, registerAllRenderers } from '@spark-appworks/spark-component'
 import { createPageCache } from './navigation/page-cache'
 import { createDynamicRouter, type DynamicRouterOptions } from './router/dynamic'
@@ -123,10 +121,10 @@ export type PageNodeOptions = {
    */
   preAuthNavTree?: RuntimeNavigation
   /**
-   * 运行态 DataSet 装载器（有 PageDataSpaceBinding 时由 DynamicRouter 注入 SparkPageRenderer）。
-   * 有绑定则不得再把 pagedata.json 当运行数据真源。
+   * 场景 DataSet 装载器，由 DynamicRouter 注入每次调用的 PageRuntime。
+   * 后端定义为正式真源，场景 pagedata.json 只补充视图和级联。
    */
-  loadRuntimeDataSet?: (binding: PageDataSpaceBinding) => Promise<DataSet>
+  loadScenario?: DynamicRouterOptions['loadScenario']
 }
 
 /**
@@ -335,7 +333,7 @@ export async function start(options: StartOptions): Promise<void> {
         ...(pageNode.platformPathPrefix !== undefined && { platformPathPrefix: pageNode.platformPathPrefix }),
         ...(pageNode.preAuthNavTree !== undefined && { preAuthNavTree: pageNode.preAuthNavTree }),
         ...(pageNode.isAuthenticated !== undefined && { isAuthenticated: pageNode.isAuthenticated }),
-        ...(pageNode.loadRuntimeDataSet !== undefined && { loadRuntimeDataSet: pageNode.loadRuntimeDataSet }),
+        ...(pageNode.loadScenario !== undefined && { loadScenario: pageNode.loadScenario }),
       }
 
       const dynamicRouter = createDynamicRouter(dynamicRouterOptions)

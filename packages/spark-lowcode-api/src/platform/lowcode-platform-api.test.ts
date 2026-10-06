@@ -42,6 +42,23 @@ class FixtureStorage {
   }
 }
 
+function selectFixtureApplication(api: LowcodeApi): void {
+  api.application.save({ application: { id: 'APP-1', code: 'APP-CODE', name: 'fixture', description: '',
+    enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }, navigationRootId: 'ROOT-1' })
+}
+
+function authenticatedFileApi(http: FixtureHttpClient): LowcodeApi {
+  const api = new LowcodeApi({ http, sessionStorage: new FixtureStorage() })
+  api.session.save({ accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
+    accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+    identity: { userId: 'U1', account: 'fixture', displayName: 'fixture', enterpriseId: 'E1',
+      enterpriseShortName: 'Lingma', role: null, raw: {} },
+    enterprise: { id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {} },
+  })
+  selectFixtureApplication(api)
+  return api
+}
+
 describe('LowcodePlatformApi', () => {
   it('maps semantic login credentials and normalizes the login session', async () => {
     const http = new FixtureHttpClient({
@@ -313,7 +330,7 @@ describe('LowcodePlatformApi', () => {
       Code: 200,
       Result: 'x',
     })
-    const api = new LowcodeApi({ http })
+    const api = new LowcodeApi({ http, sessionStorage: new FixtureStorage() })
     api.session.save({
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
@@ -338,9 +355,10 @@ describe('LowcodePlatformApi', () => {
       },
     })
 
+    selectFixtureApplication(api)
     await api.design.readTextFile({ appType: 'vue', customPath: '', fileName: 'page.json' })
 
-    expect(http.requestConfig?.headers).toMatchObject({ Authorization: 'Bearer access-token' })
+    expect(http.requestConfig?.headers).toMatchObject({ Authorization: 'Bearer access-token', 'X-AppId': 'APP-1', 'tenant-id': 'Lingma' })
   })
 
   it('refreshes an expired access token before an authenticated request', async () => {
@@ -359,7 +377,7 @@ describe('LowcodePlatformApi', () => {
         Result: 'x',
       },
     ])
-    const api = new LowcodeApi({ http })
+    const api = new LowcodeApi({ http, sessionStorage: new FixtureStorage() })
     api.session.save({
       accessToken: 'expired-access',
       refreshToken: 'valid-refresh',
@@ -384,6 +402,7 @@ describe('LowcodePlatformApi', () => {
       },
     })
 
+    selectFixtureApplication(api)
     await api.design.readTextFile({ appType: 'vue', customPath: '', fileName: 'page.json' })
 
     expect(http.requestConfigs).toHaveLength(2)
@@ -396,7 +415,7 @@ describe('LowcodePlatformApi', () => {
     })
     expect(http.requestConfigs[1]).toMatchObject({
       url: '/api/File/content/text',
-      headers: { Authorization: 'Bearer new-access' },
+      headers: { Authorization: 'Bearer new-access', 'X-AppId': 'APP-1', 'tenant-id': 'NewApp' },
     })
   })
 
@@ -430,25 +449,27 @@ describe('LowcodePlatformApi', () => {
       Type: 'error',
     })
 
-    const action = new LowcodeApi({ http }).design.readTextFile({
+    const action = authenticatedFileApi(http).design.readTextFile({
       appType: 'vue',
       customPath: '',
       fileName: 'page.json',
     })
 
     await expect(action).rejects.toEqual(new LowcodeApiError(401, '令牌不能为空'))
+    expect(http.requestConfigs).toHaveLength(1)
   })
 
   it('fails closed when the response is not an AjaxResult', async () => {
     const http = new FixtureHttpClient({ result: { account: 'admin' } })
 
-    const action = new LowcodeApi({ http }).design.readTextFile({
+    const action = authenticatedFileApi(http).design.readTextFile({
       appType: 'vue',
       customPath: '',
       fileName: 'page.json',
     })
 
     await expect(action).rejects.toEqual(new LowcodeApiError(0, 'lowcode 响应缺少数字 Code'))
+    expect(http.requestConfigs).toHaveLength(1)
   })
 
   it('maps user registration to the source DTO without inventing a session', async () => {

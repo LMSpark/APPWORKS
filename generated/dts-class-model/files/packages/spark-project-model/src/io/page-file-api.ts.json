@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "io/page-file-api",
-    "jsdoc": "页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：三文件保存与编号快照语义网关。\n边界：能力由宿主注入，缺失即明确拒绝。\nAI用途：通过Workspace保存三文件或管理N__filename快照。\n\n页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PageFileCreateParams",
@@ -50,7 +50,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             },
             "content": {
               "type": "string"
@@ -96,14 +96,14 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             }
           },
           "additionalProperties": false
         },
         "method.listVersions.return": {
           "type": "object",
-          "title": "Promise<PageNodeFileVersionSummary[]>"
+          "title": "Promise<PageToolFileVersionSummary[]>"
         },
         "method.restoreVersion.params": {
           "type": "object",
@@ -113,7 +113,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             },
             "version": {
               "type": "number"
@@ -133,7 +133,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             }
           },
           "additionalProperties": false
@@ -150,7 +150,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             },
             "version": {
               "type": "number"
@@ -186,7 +186,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             },
             "content": {
               "type": "string"
@@ -232,14 +232,14 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             }
           },
           "additionalProperties": false
         },
         "method.listVersions.return": {
           "type": "object",
-          "title": "Promise<PageNodeFileVersionSummary[]>"
+          "title": "Promise<PageToolFileVersionSummary[]>"
         },
         "method.restoreVersion.params": {
           "type": "object",
@@ -249,7 +249,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             },
             "version": {
               "type": "number"
@@ -269,7 +269,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             }
           },
           "additionalProperties": false
@@ -286,7 +286,7 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             },
             "version": {
               "type": "number"
@@ -301,11 +301,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T11:04:02.063Z",
+  "generatedAt": "2026-10-06T20:49:03.382Z",
   "models": {
     "PageFileCreateParams": {
       "name": "PageFileCreateParams",
-      "jsdoc": "",
+      "jsdoc": "为明确pageId创建三工具文件的真实请求。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "PageFileCreateOptions & {\n    pageId: string;\n}",
@@ -333,14 +333,14 @@
     },
     "ProjectPageFileGateway": {
       "name": "ProjectPageFileGateway",
-      "jsdoc": "",
+      "jsdoc": "宿主真实三文件及编号快照能力；编号最大值不能视为正式发布。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageNodeFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageNodeFileName) => Promise<PageNodeFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageNodeFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageNodeFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageNodeFileName, version: number) => Promise<void>;\n}>",
+        "declarationTypeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageNodeFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageNodeFileName) => Promise<PageNodeFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageNodeFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageNodeFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageNodeFileName, version: number) => Promise<void>;\n}>",
+            "typeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -367,7 +367,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 },
@@ -459,7 +459,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 }
@@ -472,7 +472,7 @@
                     "type": "array",
                     "elementType": {
                       "type": "reference",
-                      "name": "PageNodeFileVersionSummary",
+                      "name": "PageToolFileVersionSummary",
                       "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                     }
                   }
@@ -493,7 +493,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 },
@@ -530,7 +530,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 }
@@ -560,7 +560,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 },
@@ -589,10 +589,11 @@
     },
     "PageFileApi": {
       "name": "PageFileApi",
-      "jsdoc": "",
+      "jsdoc": "三文件及编号快照操作门面，真实IO由注入网关执行。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "绑定宿主真实三文件能力，缺失操作明确失败。",
           "signatureText": "constructor(gateway: ProjectPageFileGateway)",
           "parameters": [
             {
@@ -621,7 +622,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 },
@@ -713,7 +714,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 }
@@ -726,7 +727,7 @@
                     "type": "array",
                     "elementType": {
                       "type": "reference",
-                      "name": "PageNodeFileVersionSummary",
+                      "name": "PageToolFileVersionSummary",
                       "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                     }
                   }
@@ -747,7 +748,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 },
@@ -784,7 +785,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 }
@@ -814,7 +815,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 },

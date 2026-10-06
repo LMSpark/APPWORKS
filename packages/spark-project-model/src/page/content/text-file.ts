@@ -1,8 +1,8 @@
 /**
  * @module @spark-appworks/spark-project-model:page/content/text-file
  * 职责：提供项目模型层 text-file 能力，围绕 PageTextFile 处理导航、页面文件、配置内容、工作区或远端 IO 契约。
- * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。
- * AI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 page/content/text-file。
+ * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 三文件链路。
+ * AI用途：规划导航、读写 page files 或理解 ProjectBlueprint/ProjectWorkspace 行为时，用本模块定位 page/content/text-file。
  */
 /**
  * PageTextFile——script.js / style.css 的内存模型，负责文本内容的读写与撤销重做。
@@ -11,10 +11,12 @@ import { SnapshotHistory } from '@spark-appworks/spark-utils'
 
 const TEXT_HISTORY_LIMIT = 100
 
+/** script.js或style.css文本owner，拥有独立撤销历史与保存基线。 */
 export class PageTextFile {
   private _text: string
   private savedText: string
   private readonly history = new SnapshotHistory<string>(TEXT_HISTORY_LIMIT)
+  /** 绑定明确工具身份和文件名，以初始文本建立编辑基线。 */
 
 constructor(
     readonly pageId: string,
@@ -51,8 +53,8 @@ loadText(text: string): void {
     this.savedText = text
   }
 
-markSaved(): void {
-    this.savedText = this._text
+markSaved(submittedText: string): void {
+    this.savedText = submittedText
   }
 
 undo(): boolean {

@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
     "packageName": "@spark-appworks/spark-app",
     "modulePath": "navigation/useTabPages",
-    "jsdoc": "@module @spark-appworks/spark-app:navigation/useTabPages\n职责：提供应用壳层 useTabPages 能力，围绕 TabPage、PageMode、UseTabPagesOptions 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/useTabPages。",
+    "jsdoc": "@module @spark-appworks/spark-app:navigation/useTabPages\n职责：按运行实例保存页面标签及调用地址。\n边界：关闭先校验脏状态，由路由 owner 释放实例。\nAI用途：定位多场景调用的标签切换、导航取消和关闭规则。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "TabPage",
@@ -21,6 +21,9 @@
       "type": "object",
       "title": "TabPage",
       "properties": {
+        "id": {
+          "type": "string"
+        },
         "path": {
           "type": "string"
         },
@@ -33,6 +36,15 @@
         "name": {
           "type": "string"
         },
+        "runtimeName": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
         "closable": {
           "type": "boolean"
         },
@@ -41,6 +53,7 @@
         }
       },
       "required": [
+        "id",
         "path",
         "title",
         "closable",
@@ -77,49 +90,63 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T21:40:30.839Z",
+  "generatedAt": "2026-10-06T21:12:08.626Z",
   "models": {
     "TabPage": {
       "name": "TabPage",
-      "jsdoc": "Tab Page 的语义模型。",
+      "jsdoc": "一个已打开页面的标签投影；工具实例用 instanceId 定位，fullPath 保留调用参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 路由完整路径（唯一标识） */\n    path: string;\n    /** 显示标题 */\n    title: string;\n    /** 图标（来自 route.meta.icon） */\n    icon?: string;\n    /** 路由 name */\n    name?: string;\n    /** 可否关闭（首页默认不可关闭） */\n    closable: boolean;\n    /** 完整路由信息快照 */\n    fullPath: string;\n}",
+        "declarationTypeText": "{\n    id: string;\n    path: string;\n    title: string;\n    icon?: string;\n    name?: string;\n    runtimeName?: string;\n    projectId?: string;\n    tenantId?: string;\n    closable: boolean;\n    fullPath: string;\n}",
         "members": {
           "attributes": [
             {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "path",
-              "jsdoc": "路由完整路径（唯一标识）",
               "readable": true,
               "writable": true
             },
             {
               "name": "title",
-              "jsdoc": "显示标题",
               "readable": true,
               "writable": true
             },
             {
               "name": "icon",
-              "jsdoc": "图标（来自 route.meta.icon）",
               "readable": true,
               "writable": false
             },
             {
               "name": "name",
-              "jsdoc": "路由 name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tenantId",
               "readable": true,
               "writable": false
             },
             {
               "name": "closable",
-              "jsdoc": "可否关闭（首页默认不可关闭）",
               "readable": true,
               "writable": true
             },
             {
               "name": "fullPath",
-              "jsdoc": "完整路由信息快照",
               "readable": true,
               "writable": true
             }
@@ -129,7 +156,7 @@
     },
     "PageMode": {
       "name": "PageMode",
-      "jsdoc": "Page Mode 的语义模型。",
+      "jsdoc": "单页或多标签显示方式；切换模式仍遵守实例脏状态检查。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'single' | 'multi'",
@@ -148,15 +175,14 @@
     },
     "UseTabPagesOptions": {
       "name": "UseTabPagesOptions",
-      "jsdoc": "Use Tab Pages Options 的调用配置。",
+      "jsdoc": "标签导航入口配置；注入的导航必须等待完成，失败不得释放原实例。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** navigate 回调。 */\n    navigate?: (fullPath: string) => Promise<void> | void;\n}",
+        "declarationTypeText": "{\n    navigate?: (fullPath: string) => Promise<void> | void;\n}",
         "members": {
           "methods": [
             {
               "name": "navigate",
-              "jsdoc": "navigate 回调。",
               "parameters": [
                 {
                   "name": "fullPath",

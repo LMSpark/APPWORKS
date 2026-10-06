@@ -34,6 +34,7 @@
         "kind": {
           "enum": [
             "page-file",
+            "scenario-view",
             "project-blueprint"
           ]
         },
@@ -56,6 +57,15 @@
       "type": "object",
       "title": "AiDeliveryResult",
       "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
         "mode": {
           "$ref": "#/$defs/AiDeliveryMode"
         },
@@ -153,7 +163,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:34:22.185Z",
+  "generatedAt": "2026-10-06T20:15:35.712Z",
   "models": {
     "AiDeliveryMode": {
       "name": "AiDeliveryMode",
@@ -179,11 +189,11 @@
       "jsdoc": "单次交付涉及的页面文件或项目蓝图变更摘要。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'scenario-view' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
+            "typeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'scenario-view' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -216,16 +226,31 @@
       "jsdoc": "Agent Run 结束后的交付回执，包含模式、状态与产物列表。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 交付模式（手动或自动）。 */\n    mode: AiDeliveryMode;\n    /** 交付最终状态。 */\n    status: 'saved' | 'skipped' | 'rolledBack' | 'failed';\n    /** 涉及的交付产物列表。 */\n    artifacts: readonly AiDeliveryArtifact[];\n    /** 可选的状态描述或错误信息。 */\n    message?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    requestId?: string;\n    pageId?: string;\n    scenarioId?: string;\n    /** 交付模式（手动或自动）。 */\n    mode: AiDeliveryMode;\n    /** 交付最终状态。 */\n    status: 'saved' | 'skipped' | 'rolledBack' | 'failed';\n    /** 涉及的交付产物列表。 */\n    artifacts: readonly AiDeliveryArtifact[];\n    /** 可选的状态描述或错误信息。 */\n    message?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 交付模式（手动或自动）。 */\n    mode: AiDeliveryMode;\n    /** 交付最终状态。 */\n    status: 'saved' | 'skipped' | 'rolledBack' | 'failed';\n    /** 涉及的交付产物列表。 */\n    artifacts: readonly AiDeliveryArtifact[];\n    /** 可选的状态描述或错误信息。 */\n    message?: string;\n}>",
+            "typeText": "Readonly<{\n    requestId?: string;\n    pageId?: string;\n    scenarioId?: string;\n    /** 交付模式（手动或自动）。 */\n    mode: AiDeliveryMode;\n    /** 交付最终状态。 */\n    status: 'saved' | 'skipped' | 'rolledBack' | 'failed';\n    /** 涉及的交付产物列表。 */\n    artifacts: readonly AiDeliveryArtifact[];\n    /** 可选的状态描述或错误信息。 */\n    message?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "mode",
               "jsdoc": "交付模式（手动或自动）。",

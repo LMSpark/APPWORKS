@@ -1,3 +1,9 @@
+<!--
+@module app:views/app/dev-system/blueprint-workspace/ReleasePane
+职责：编辑导航发布可见性和类型并展示运行资源摘要。
+边界：运行资源只读投影，发布写入由父工作台真实API确认。
+AI用途：设置正式节点导航发布参数并查看cfg或vue资源表面。
+-->
 <template>
   <section class="stage-pane">
     <el-form label-width="110px">

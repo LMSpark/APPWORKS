@@ -44,14 +44,14 @@ import * as ElIcons from '@element-plus/icons-vue'
 import {
   DATA_ROW,
   DATA_SOURCE,
-  PAGE_DATASET,
+  PAGE_RUNTIME,
   PAGE_SERVICE,
   SparkComponentRenderer,
   useSparkPageComponent,
 } from '../../internal'
 import { resolveButtonStyle } from '../../../page/actions/index'
 import type { RButtonProps } from './RendererButton.props'
-import { extractPermissionSnapshot, usePermission } from '../../../permission'
+import { usePermission } from '../../../permission'
 import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { useActionButtonRuntime } from './useActionButtonRuntime'
@@ -115,7 +115,8 @@ const { hasBuiltinAction, hostActionDisabled, executeAction } = useActionButtonR
   resolveView: resolveActionView,
   resolveScopedRow,
   resolveContext: () => ({
-    getDataSet: () => sparkConsume(PAGE_DATASET),
+    getDataSet: (scenarioId: string) => sparkConsume(PAGE_RUNTIME)?.getDataSet(scenarioId) ?? null,
+    resolveView: (binding: string) => sparkConsume(PAGE_RUNTIME)?.resolveView(binding) ?? null,
     getDataSource: resolveActionView,
     getPageService: () => sparkConsume(PAGE_SERVICE),
     getRouter: () => null,
@@ -125,10 +126,7 @@ const { hasBuiltinAction, hostActionDisabled, executeAction } = useActionButtonR
 
 // ── 四、权限判定与可见/禁用策略 ─────────────────────────────────────────
 const permissionAllowed = computed(() => {
-  const dataSource = sparkConsume(DATA_SOURCE)
-  const permissionSnapshot = extractPermissionSnapshot(dataSource)
-
-  if (!permission.isModelActionAllowed(currentNode.value, permissionSnapshot)) return false
+  if (!permission.isModelActionAllowed(currentNode.value)) return false
 
   const scopeRows = resolvePermissionScopeRows()
   if (scopeRows.length === 0) {

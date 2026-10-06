@@ -1,6 +1,6 @@
 # DataSet 整合 SPARK 数据空间研读
 
-> 2026-10-06 最新范围：页面和同一个 runtime 必须支持多个数据空间；不设页面全局场景。已确认按 `#dataSetName@tableName@viewId` 寻址。旧单空间计划已标 superseded；后续有效研读见 `research-page-multi-data-space.md`。本文历史单实例现状不是目标限制。
+> 历史研读取证，非现行方案：页面是工具，场景是调用参数；一份 pagedata 对应一个场景，组件有效绑定包含真实 scenarioId。当前交付与验证见 `research-project-blueprint-integration.md` 末节。本文的旧草案、早期单实例现状和合同讨论不能作为默认值、实施入口或兼容依据。
 
 日期：2026-10-06
 
@@ -269,7 +269,7 @@ pnpm exec vitest run tests/data-space-model-api.test.ts tests/query-scenario-mod
 - DataTable 的 CrudService 当前为多个 DataView 共享；每次结果上下文不能存成该共享 service 上的“最后一次查询”，否则不同视图的权限与编辑基线会串用。
 - sparkproject 批量保存不允许跨场景，也不允许同一批资源 metaName 重复（`data-space-model-api.ts:693`）。用户已确认本仓同模型多个待提交 View 同批保存时拒绝，要求显式选择一个视图。
 - sparkproject 公开 save 参数不接收调用方 queryContext；内部按 scope＋场景＋模型维护最多 16 个基线并选择或补查后保存。DataView 保留原上下文用于消费权限，并不等于现有公开 save 能指定这个对象；多视图保存的正式桥接需按源码验证。
-- 前端契约候选及人工审核点集中于 `notes/research-dataset-frontend-contract.md`；不是正式实施计划。
+- 早期前端契约取证保存在 `notes/research-dataset-frontend-contract.md`，仅供历史追溯；当前合同与审核范围以现行草案为准，不恢复其中已被用户修正的选择。
 - 用户已确认旧页面按页生成迁移预览，人工审核后逐页切换；现有资源→Table、模型→View 的引用转换不能按物理表身份猜测。DataSet 内部 renameTable 不能代替页面规则/脚本引用审核。
 
 ## 下一步及人工审核
@@ -278,5 +278,5 @@ pnpm exec vitest run tests/data-space-model-api.test.ts tests/query-scenario-mod
 - 按 AGENTS.md 逐项澄清真实歧义，一问一答；已明确的三层映射不重复提问。
 - 已发出本轮源码研读复述确认；用户随后补充“分析后端、Java 不改、建立与本仓一致的页面文件结构”，现已纳入。该补充不视为具体实施方案获批。
 - 已完成后端路径、接口、模型权限装配、关系调用方与历史四文件结构的相关源码核查；按最新要求先确定稳定前端 class 契约，再确定持久化真源分配。
-- 当前已有 `notes/plan-dataset-data-space-integration.md` 及 P1/P2 实施记录。2026-10-06 本轮复核后把第 9 项与 GetData 参数归属补入方案；早期“尚未开始正式方案”的状态已失效，后续阶段仍按具体审核范围推进。
+- 原单空间方案已撤回，P1/P2 历史实施摘要与本轮复查边界集中于 `research-dataset-handoff-review.md`。当前只从 `plan-scenario-dataview-extension-integration.md` 继续，未批准的新阶段不得以历史实施记录代替审核。
 - 方案需逐项列出精确文件、设计决策、验收证据、风险、回滚与人工审核项；批准后每次只实施一个最小闭环并立即验证。

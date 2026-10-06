@@ -650,9 +650,8 @@ import { useRoute } from 'vue-router'
 import { Plus, Loading, Delete, Connection, Coin, FolderOpened, Grid, Refresh } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { isRecord } from '@spark-appworks/spark-utils'
-import type { LowcodeDatabaseCatalog } from '@spark-appworks/spark-lowcode-api'
-import type { RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import { lowcodeApi, lowcodeHttp as http, readLowcodePrincipal, readLowcodeRuntimeNavigation } from '@/lowcode/lowcode-runtime'
+import type { LowcodeDatabaseCatalog, LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
+import { lowcodeApi, lowcodeHttp as http, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { parseTenantScope } from '@/services/tenant-scope'
 
 type DbmsServer = {
@@ -851,31 +850,25 @@ function apiErrorMessage(error: unknown): string {
 
 const databaseCatalogNavigationTitles = new Set(['数据库管理', '数据资源管理', '结构化配置'])
 
-function collectDatabaseCatalogFormKeys(
-  nodes: readonly RuntimeNavigationItem[],
-  result = new Set<string>(),
-): Set<string> {
-  for (const node of nodes) {
-    const path = node.path?.toLowerCase() ?? ''
-    if (
-      node.formKey
-      && (
-        databaseCatalogNavigationTitles.has(node.title)
-        || path.includes('databasecodelist')
-      )
-    ) result.add(node.formKey)
-    collectDatabaseCatalogFormKeys(node.children ?? [], result)
+function collectDatabaseCatalogScenarioIds(records: readonly LowcodeProjectBlueprintRecord[]): readonly string[] {
+  const result = new Set<string>()
+  for (const record of records) {
+    const scenarioId = record.dataSpace?.scenarioId
+    const navigation = record.navigation
+    const target = navigation?.target?.toLowerCase() ?? ''
+    if (scenarioId && (databaseCatalogNavigationTitles.has(navigation?.title ?? record.capability.name)
+      || target.includes('databasecodelist'))) result.add(scenarioId)
   }
-  return result
+  return [...result]
 }
 
-async function resolveDatabaseCatalogFormKeys(): Promise<readonly string[]> {
+async function resolveDatabaseCatalogScenarioIds(): Promise<readonly string[]> {
   const application = lowcodeApi.application.get()
   if (application === null) throw new Error('缺少 lowcode 应用上下文，无法定位数据库管理数据空间')
-  const navigation = await readLowcodeRuntimeNavigation(application.application.id)
-  const formKeys = [...collectDatabaseCatalogFormKeys(navigation.items)]
-  if (formKeys.length === 0) throw new Error('当前应用导航没有绑定数据库目录 FormKey，不能读取系统元数据')
-  return formKeys
+  const records = await lowcodeApi.blueprint.readRecords(application.application.id)
+  const scenarioIds = collectDatabaseCatalogScenarioIds(records)
+  if (scenarioIds.length === 0) throw new Error('当前应用蓝图没有绑定数据库目录场景，不能读取系统元数据')
+  return scenarioIds
 }
 
 // ── 状态 ──
@@ -994,7 +987,7 @@ function dataCellValue(row: Record<string, unknown>, column: DbmsColumn): string
 async function loadServers() {
   loading.servers = true
   try {
-    const formKeys = await resolveDatabaseCatalogFormKeys()
+    const formKeys = await resolveDatabaseCatalogScenarioIds()
     const snapshot = await lowcodeApi.catalog.getDatabaseCatalog(formKeys)
     catalogSnapshot.value = snapshot
     const normalizedServers = snapshot.servers.map((server) => ({

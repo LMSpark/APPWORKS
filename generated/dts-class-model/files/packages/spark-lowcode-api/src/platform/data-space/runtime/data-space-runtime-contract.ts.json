@@ -1,0 +1,588 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-contract",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/data-space-runtime-contract",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-contract\n职责：声明场景模型查询与请求执行域契约。\n边界：查询输入不携带结果权限，模型 Name 不等于物理资源名。\nAI用途：构造过滤、排序、分页和显式树查询。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceQueryIdentity",
+      "DataSpaceRequestScope",
+      "DataSpaceQueryPage",
+      "DataSpaceQueryTree",
+      "DataSpaceQueryOptions"
+    ]
+  },
+  "$defs": {
+    "DataSpaceQueryIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryIdentity",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRequestScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestScope",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryPage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryPage",
+      "properties": {
+        "index": {
+          "type": "number"
+        },
+        "size": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryTree": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryTree",
+      "properties": {
+        "keyField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "hasChildrenField": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "child",
+            "parent"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryValueFunction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryValueFunction",
+      "properties": {
+        "Type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "alias": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "group": {
+          "type": "number"
+        },
+        "isOutput": {
+          "type": "boolean"
+        },
+        "expression": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "orderType": {
+          "anyOf": [
+            {
+              "$ref": "../../../contracts/lowcode-wire-query.ts.json#/$defs/OrderType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "valueFun": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataSpaceQueryValueFunction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQuerySort": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQuerySort",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryInput",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryOptions",
+      "properties": {
+        "filter": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/query/filter/data-view-filter.ts.json#/$defs/DataViewFilter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sort": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceQuerySort"
+          }
+        },
+        "page": {
+          "$ref": "#/$defs/DataSpaceQueryPage"
+        },
+        "allPages": {
+          "type": "boolean"
+        },
+        "maxRows": {
+          "type": "number"
+        },
+        "tree": {
+          "$ref": "#/$defs/DataSpaceQueryTree"
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceQueryInput"
+          }
+        },
+        "singleFlight": {
+          "type": "boolean"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/DataSpaceQueryField"
+              }
+            ]
+          }
+        },
+        "outputType": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.604Z",
+  "models": {
+    "DataSpaceQueryIdentity": {
+      "name": "DataSpaceQueryIdentity",
+      "jsdoc": "后端场景注册身份；metaName 是模型 Name，不是物理资源名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestScope": {
+      "name": "DataSpaceRequestScope",
+      "jsdoc": "请求层负责生成包含全部身份通道的 token；数据实体不解释应用、租户或会话。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    token: string;\n    headers: Readonly<Record<string, string>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    token: string;\n    headers: Readonly<Record<string, string>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "token",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryPage": {
+      "name": "DataSpaceQueryPage",
+      "jsdoc": "显式分页参数；页码从 1 开始，页大小必须为正整数且不超过 1000。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    index: number;\n    size: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    index: number;\n    size: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "size",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryTree": {
+      "name": "DataSpaceQueryTree",
+      "jsdoc": "显式树查询的键、父键和目标节点；字段由正式模型查询边界解析。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    keyField: string;\n    parentField: string;\n    nodeId: string;\n    hasChildrenField?: string;\n    mode?: 'child' | 'parent';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    keyField: string;\n    parentField: string;\n    nodeId: string;\n    hasChildrenField?: string;\n    mode?: 'child' | 'parent';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "keyField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildrenField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryValueFunction": {
+      "name": "DataSpaceQueryValueFunction",
+      "jsdoc": "查询字段的值函数数据，保留 Type 与 JSON 扩展字段交给后端。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Type: string;\n    [key: string]: DataViewFilterJsonValue;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Type: string;\n    [key: string]: DataViewFilterJsonValue;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryField": {
+      "name": "DataSpaceQueryField",
+      "jsdoc": "查询字段投影；绑定正式模型的视图不得重定义其表达式或输出别名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    alias?: string | null;\n    group?: number;\n    isOutput?: boolean;\n    expression?: string | null;\n    order?: number;\n    orderType?: OrderType | null;\n    valueFun?: DataSpaceQueryValueFunction | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    alias?: string | null;\n    group?: number;\n    isOutput?: boolean;\n    expression?: string | null;\n    order?: number;\n    orderType?: OrderType | null;\n    valueFun?: DataSpaceQueryValueFunction | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alias",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "group",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isOutput",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFun",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQuerySort": {
+      "name": "DataSpaceQuerySort",
+      "jsdoc": "查询字段排序方向；字段名称在正式模型边界映射为请求字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    field: string;\n    direction: 'asc' | 'desc';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    field: string;\n    direction: 'asc' | 'desc';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "direction",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryInput": {
+      "name": "DataSpaceQueryInput",
+      "jsdoc": "传递给查询的具名输入值，不承载应用或租户身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryOptions": {
+      "name": "DataSpaceQueryOptions",
+      "jsdoc": "查询输入独立于结果权限；singleFlight 由请求生命周期所有者处理。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    outputType?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    outputType?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "filter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sort",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allPages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tree",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "singleFlight",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

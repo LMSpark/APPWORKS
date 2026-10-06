@@ -5,9 +5,9 @@
  * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
  */
 
-import { computed, reactive, toValue, watch } from 'vue'
-import type { ComputedRef, MaybeRefOrGetter } from 'vue'
-import { type SparkNode, type FilterExpression, type FilterOperator, type FilterValueExpression, nodeInputProp } from '@spark-appworks/spark-data'
+import { computed, reactive, ref, toValue, watch } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
+import { type SparkNode, DataViewFilter, type DataViewFilterTree, type DataViewFilterOperator, type DataViewFilterJsonValue, nodeInputProp } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 
 // ============================================================
@@ -19,32 +19,12 @@ const FILTER_SYNC_ERROR_MESSAGE = 'RendererFilter: 同步过滤表达式失败'
 /** executeFilter 路径应用失败的错误消息前缀。 */
 const FILTER_APPLY_ERROR_MESSAGE = 'RendererFilter: 应用过滤失败'
 
-/** 过滤操作符常量：范围（日期/数字）。 */
-const FILTER_OPERATOR_BETWEEN: FilterOperator = 'between'
-/** 过滤操作符常量：多值 IN。 */
-const FILTER_OPERATOR_IN: FilterOperator = 'in'
-/** 过滤操作符常量：文本包含。 */
-const FILTER_OPERATOR_CONTAINS: FilterOperator = 'contains'
-/** 过滤操作符常量：精确匹配（默认）。 */
-const FILTER_OPERATOR_EQUALS: FilterOperator = '=='
-
-/** 过滤值类型标记：字段引用。 */
-const FILTER_VALUE_KIND_FIELD = 'field'
-
 /** 文本字段组件类型。 */
 const FILTER_NODE_TYPE_TEXT = 'r-text'
 /** 日期字段组件类型。 */
 const FILTER_NODE_TYPE_DATE = 'r-date'
 /** 数字字段组件类型。 */
 const FILTER_NODE_TYPE_NUMBER = 'r-number'
-const FILTER_OPERATORS: ReadonlySet<string> = new Set([
-  '==', '!=', '>', '>=', '<', '<=',
-  'in', 'not in', 'like', 'not like',
-  'is null', 'is not null',
-  'between', 'not between',
-  'startsWith', 'endsWith', 'contains',
-])
-
 // ============================================================
 // § 内部类型与工具函数
 // ============================================================
@@ -61,7 +41,7 @@ readonly rows: ReadonlyArray<Record<string, unknown>>
     /** 列定义集合。 */
 readonly columns?: readonly unknown[]
     /** filter Expression 字段。 */
-readonly filterExpression?: FilterExpression | undefined
+readonly filterExpression?: DataViewFilterTree | undefined
     /** data Table 字段。 */
 readonly dataTable?: {
     readonly api?: { readonly list?: unknown } | undefined
@@ -69,16 +49,16 @@ readonly dataTable?: {
   } | null | undefined
     /** get Column 回调。 */
 getColumn?: (field: string) => unknown
-  /** 同步过滤表达式到 DataView（不触发远端查询，后续 watch 自动 refresh）。 */
-  setFilter(expr: FilterExpression | undefined): Promise<void>
+  /** 由 DataView 同步过滤并按数据来源决定本地执行或远端刷新。 */
+  setFilter(expr: DataViewFilterTree | undefined): Promise<void>
   /** 立即执行过滤查询（用于"搜索"按钮主动触发远端查询）。 */
-  executeFilter(expr: FilterExpression | undefined): Promise<void>
+  executeFilter(expr: DataViewFilterTree | undefined): Promise<void>
   /** 重新拉取远端数据并刷新当前视图行。 */
   refresh(): Promise<void>}
 
 type ApplyFilterSafelyOptions = {
   readonly view: FilterPanelDataView | null | undefined
-  readonly expr: FilterExpression | undefined
+  readonly expr: DataViewFilterTree | undefined
   readonly hasFilters: boolean
   readonly logger: ErrorLoggerLike
   readonly message: string
@@ -133,9 +113,9 @@ function isRemoteListView(view: FilterPanelDataView): boolean {
   return table?.resourceType !== 'static-data' && table?.api?.list !== undefined
 }
 
-function isSameFilterExpression(
-  left: FilterExpression | undefined,
-  right: FilterExpression | undefined,
+function isSameDataViewFilterTree(
+  left: DataViewFilterTree | undefined,
+  right: DataViewFilterTree | undefined,
 ): boolean {
   if (left === right) return true
   if (left === undefined || right === undefined) return false
@@ -166,21 +146,16 @@ function getNodeFilterValueRefField(config: SparkNode): string | undefined {
   return value.trim()
 }
 
-function isFilterOperator(value: string): value is FilterOperator {
-  return FILTER_OPERATORS.has(value)
+function requireCondition(field: string, operator: unknown, value: unknown): DataViewFilterTree {
+  const result = DataViewFilter.parse({ field, operator, value })
+  if (!result.ok) throw new Error(result.issues.map(issue => `RendererFilter: ${issue.message}`).join('\n'))
+  return result.value.toJSON()
 }
 
-function toFilterValueExpression(value: unknown): FilterValueExpression {
-  if (
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean' ||
-    value === null
-  ) {
-    return value
-  }
-  if (Array.isArray(value)) return value.map(toFilterValueExpression)
-  throw new Error(`RendererFilter: 不支持的过滤值类型 ${Object.prototype.toString.call(value)}`)
+function toDataViewFilterJsonValue(value: unknown): DataViewFilterJsonValue {
+  const tree = requireCondition('value', 'eq', value)
+  if ('logic' in tree || tree.value === undefined) throw new Error('RendererFilter: 缺少显式过滤值')
+  return tree.value
 }
 
 /** 断言过滤节点数组类型（配置错误 fail-fast）。 */
@@ -192,32 +167,15 @@ function assertFilterNodesArray(value: unknown): asserts value is SparkNode[] {
 /**
  * 推断过滤操作符（优先级：显式配置 > 数组类型推断 > 节点类型推断 > 默认精确匹配）。
  */
-function inferFilterOperator(config: SparkNode, value: unknown): FilterOperator {
+function inferDataViewFilterOperator(config: SparkNode, value: unknown): DataViewFilterOperator {
   const explicit = nodeInputProp(config, 'filterOp') ?? nodeInputProp(config, 'filterOperator')
-  if (typeof explicit === 'string') {
-    if (!isFilterOperator(explicit)) {
-      throw new Error(`RendererFilter: 不支持的过滤操作符 "${explicit}"`)
-    }
-    return explicit
+  if (explicit !== undefined) {
+    const tree = requireCondition('operator', explicit, null)
+    if ('logic' in tree) throw new Error('RendererFilter: 过滤操作符必须属于条件')
+    return tree.operator
   }
-
-  if (Array.isArray(value)) {
-    if (
-      isRangeFilterConfig(config) ||
-      config.type === FILTER_NODE_TYPE_DATE ||
-      config.type === FILTER_NODE_TYPE_NUMBER
-    ) {
-      return FILTER_OPERATOR_BETWEEN
-    }
-    return FILTER_OPERATOR_IN
-  }
-
-  switch (config.type) {
-    case FILTER_NODE_TYPE_TEXT:
-      return FILTER_OPERATOR_CONTAINS
-    default:
-      return FILTER_OPERATOR_EQUALS
-  }
+  if (Array.isArray(value)) return 'in'
+  return config.type === FILTER_NODE_TYPE_TEXT ? 'contains' : 'eq'
 }
 
 // ============================================================
@@ -232,7 +190,7 @@ type InputFilterDescriptor = {
 type ResidentFieldRefFilterDescriptor = {
   kind: 'field-ref'
   field: string
-  op: FilterOperator
+  operator: DataViewFilterOperator
   refField: string}
 
 /**
@@ -255,7 +213,7 @@ function createResidentFieldRefDescriptor(
   return {
     kind: 'field-ref',
     field,
-    op: inferFilterOperator(config, undefined),
+    operator: inferDataViewFilterOperator(config, undefined),
     refField,
   }
 }
@@ -293,59 +251,33 @@ function splitFilterDescriptors(descriptors: ReadonlyArray<InputFilterDescriptor
   return { input, residentFieldRef }
 }
 
-/** 将 field-ref 描述符转换为 FilterExpression（引用另一字段的值）。 */
-function toResidentFieldRefCondition(descriptor: ResidentFieldRefFilterDescriptor): FilterExpression {
-  return {
-    field: descriptor.field,
-    op: descriptor.op,
-    value: {
-      kind: FILTER_VALUE_KIND_FIELD,
-      field: descriptor.refField,
-    },
-  }
+/** 将 field-ref 描述符转换为 DataViewFilterTree（引用另一字段的值）。 */
+function toResidentFieldRefCondition(descriptor: ResidentFieldRefFilterDescriptor): DataViewFilterTree {
+  return DataViewFilter.condition({ field: descriptor.field, operator: descriptor.operator,
+    value: { Type: 'GetTableField', Field: descriptor.refField } }).toJSON()
 }
 
-/** 从模型值构建单条过滤条件（值为空则返回 undefined）。 */
-function buildCondition(config: SparkNode, value: unknown): FilterExpression | undefined {
+/** UI 空输入不生成条件；公开 JSON 中的显式空值由 DataViewFilter 保留。 */
+function buildCondition(config: SparkNode, value: unknown): DataViewFilterTree | undefined {
   const field = getNodeField(config)
   if (!field || isEmptyFilterValue(value)) return undefined
-  if (isRangeFilterConfig(config)) {
-    return buildRangeCondition(field, value)
-  }
-  return {
-    field,
-    op: inferFilterOperator(config, value),
-    value: toFilterValueExpression(value),
-  }
+  const inferredRange = Array.isArray(value)
+    && (config.type === FILTER_NODE_TYPE_DATE || config.type === FILTER_NODE_TYPE_NUMBER)
+    && nodeInputProp(config, 'filterOp') === undefined && nodeInputProp(config, 'filterOperator') === undefined
+  if (isRangeFilterConfig(config) || inferredRange) return buildRangeCondition(field, value)
+  return requireCondition(field, inferDataViewFilterOperator(config, value), value)
 }
 
-function toOptionalFilterValueExpression(value: unknown): FilterValueExpression | undefined {
-  if (isEmptyFilterValue(value)) return undefined
-  return toFilterValueExpression(value)
-}
-
-function buildRangeCondition(field: string, value: unknown): FilterExpression | undefined {
-  if (!Array.isArray(value)) {
-    return {
-      field,
-      op: FILTER_OPERATOR_EQUALS,
-      value: toFilterValueExpression(value),
-    }
-  }
-
-  const start = toOptionalFilterValueExpression(value[0])
-  const end = toOptionalFilterValueExpression(value[1])
+function buildRangeCondition(field: string, value: unknown): DataViewFilterTree | undefined {
+  if (!Array.isArray(value)) return requireCondition(field, 'eq', value)
+  const start = isEmptyFilterValue(value[0]) ? undefined : toDataViewFilterJsonValue(value[0])
+  const end = isEmptyFilterValue(value[1]) ? undefined : toDataViewFilterJsonValue(value[1])
   if (start === undefined && end === undefined) return undefined
-  if (start !== undefined && end !== undefined) {
-    return {
-      field,
-      op: FILTER_OPERATOR_BETWEEN,
-      value: [start, end],
-    }
-  }
-  if (start !== undefined) return { field, op: '>=', value: start }
-  if (end !== undefined) return { field, op: '<=', value: end }
-  return undefined
+  if (start !== undefined && end !== undefined) return DataViewFilter.group({ logic: 'and', filters: [
+    { field, operator: 'gte', value: start }, { field, operator: 'lte', value: end },
+  ] }).toJSON()
+  if (start !== undefined) return DataViewFilter.condition({ field, operator: 'gte', value: start }).toJSON()
+  return requireCondition(field, 'lte', end)
 }
 
 // ============================================================
@@ -390,10 +322,10 @@ function getInputFilterModelValue(
 function buildInputFilterConditions(
   descriptors: readonly InputFilterDescriptor[],
   model: Record<string, unknown>,
-): FilterExpression[] {
+): DataViewFilterTree[] {
   return descriptors
     .map(descriptor => buildCondition(descriptor.config, getInputFilterModelValue(descriptor, model)))
-    .filter((expr): expr is FilterExpression => expr !== undefined)
+    .filter((expr): expr is DataViewFilterTree => expr !== undefined)
 }
 
 /**
@@ -401,12 +333,12 @@ function buildInputFilterConditions(
  *
  * - 0 条 → undefined（无过滤）
  * - 1 条 → 直接返回
- * - 多条 → `{ type: 'and', children: [...] }`
+ * - 多条 → `{ logic: 'and', filters: [...] }`
  */
-function combineFilterConditions(conditions: FilterExpression[]): FilterExpression | undefined {
+function combineFilterConditions(conditions: DataViewFilterTree[]): DataViewFilterTree | undefined {
   if (conditions.length === 0) return undefined
   if (conditions.length === 1) return conditions[0]
-  return { type: 'and', children: conditions }
+  return DataViewFilter.group({ logic: 'and', filters: conditions }).toJSON()
 }
 
 /** 统计当前有值的 input 过滤器数量（用于 badge 显示）。 */
@@ -437,11 +369,12 @@ function clearFilterModel(model: Record<string, unknown>): void {
  *
  * - `execute` 模式：调用 `view.executeFilter(expr)`（适合"搜索"按钮触发场景）
  * - `set` 模式：调用 `view.setFilter(expr)`
- * - 捕获所有异常并通过 logger 记录（不向外抛出）
+ * - 捕获异常，向面板返回错误文本并记录日志。
  */
-async function applyFilterSafely(params: ApplyFilterSafelyOptions): Promise<boolean> {
+async function applyFilterSafely(params: ApplyFilterSafelyOptions): Promise<string | null> {
   const { view, expr, hasFilters, logger, message, mode = 'set' } = params
-  if (!view || !hasFilters) return false
+  if (!hasFilters) return null
+  if (!view) return 'RendererFilter: 未绑定 DataView'
 
   try {
     if (mode === 'execute') {
@@ -450,15 +383,15 @@ async function applyFilterSafely(params: ApplyFilterSafelyOptions): Promise<bool
       await view.setFilter(expr)
       if (
         isRemoteListView(view) &&
-        !isSameFilterExpression(view.filterExpression, expr)
+        !isSameDataViewFilterTree(view.filterExpression, expr)
       ) {
         await view.refresh()
       }
     }
-    return true
+    return null
   } catch (error) {
     logger.error(message, error)
-    return false
+    return error instanceof Error ? error.message : String(error)
   }
 }
 
@@ -485,8 +418,10 @@ export type FilterPanelState = {
   hasFilters: ComputedRef<boolean>
   /** 当前有值的过滤器数量（用于 badge）。 */
   activeFilterCount: ComputedRef<number>
+  /** 当前草稿校验或查询错误；失败不表示已应用。 */
+  filterError: Readonly<Ref<string | null>>
   /** 应用过滤（executeFilter 模式，用于搜索按钮）。 */
-  searchFilters: () => Promise<void>
+  searchFilters: () => Promise<boolean>
   /** 重置所有过滤值。 */
   resetFilters: () => Promise<void>}
 
@@ -504,6 +439,7 @@ export type FilterPanelState = {
  */
 export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState {
   const filterModel = reactive<Record<string, unknown>>({})
+  const filterError = ref<string | null>(null)
 
   const allFilterNodes = computed(() => {
     const nodes = toValue(options.filterChildren)
@@ -521,7 +457,7 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
   const inputFilterDescriptors = computed(() => descriptorBuckets.value.input)
   const filterConfigs = computed(() => inputFilterDescriptors.value.map(descriptor => descriptor.config))
 
-  const residentFieldRefConditions = computed<FilterExpression[]>(() =>
+  const residentFieldRefConditions = computed<DataViewFilterTree[]>(() =>
     descriptorBuckets.value.residentFieldRef.map(descriptor => toResidentFieldRefCondition(descriptor)),
   )
 
@@ -530,13 +466,17 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
     syncFilterModelKeys(filterModel, configs)
   }, { immediate: true })
 
-  // 合并 field-ref 常驻条件 + 用户输入条件 → 最终 FilterExpression。
-  const filterExpression = computed<FilterExpression | undefined>(() => {
-    const conditions = [
-      ...residentFieldRefConditions.value,
-      ...buildInputFilterConditions(inputFilterDescriptors.value, filterModel),
-    ]
-    return combineFilterConditions(conditions)
+  // 合并 field-ref 常驻条件 + 用户输入条件 → 最终 DataViewFilterTree。
+  const filterBuild = computed(() => {
+    try {
+      const conditions = [
+        ...residentFieldRefConditions.value,
+        ...buildInputFilterConditions(inputFilterDescriptors.value, filterModel),
+      ]
+      return { expr: combineFilterConditions(conditions), error: null }
+    } catch (error) {
+      return { expr: undefined, error: error instanceof Error ? error.message : String(error) }
+    }
   })
 
   const hasRenderableFilters = computed(() => filterConfigs.value.length > 0)
@@ -544,10 +484,11 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
 
   // DataView 切换时：将当前过滤表达式应用到新 view（用于持续过滤场景）。
   watch(resolvedFilterDataView, async (view) => {
-    if (filterExpression.value === undefined) return
-    await applyFilterSafely({
+    if (filterBuild.value.error !== null) { filterError.value = filterBuild.value.error; return }
+    if (filterBuild.value.expr === undefined) return
+    filterError.value = await applyFilterSafely({
       view,
-      expr: filterExpression.value,
+      expr: filterBuild.value.expr,
       hasFilters: hasAnyFilterNodes.value,
       logger: options.logger,
       message: FILTER_SYNC_ERROR_MESSAGE,
@@ -555,10 +496,12 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
   }, { immediate: true })
 
   // 表达式变化时：自动应用（set 模式，后续行为由 DataView 决定）。
-  watch(filterExpression, async (expr) => {
-    await applyFilterSafely({
+  watch(filterBuild, async (built, previous) => {
+    if (built.error !== null) { filterError.value = built.error; return }
+    if (built.expr === undefined && previous.expr === undefined && previous.error === null) return
+    filterError.value = await applyFilterSafely({
       view: resolvedFilterDataView.value,
-      expr,
+      expr: built.expr,
       hasFilters: hasAnyFilterNodes.value,
       logger: options.logger,
       message: FILTER_APPLY_ERROR_MESSAGE,
@@ -574,15 +517,17 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
     return Promise.resolve()
   }
 
-  async function searchFilters(): Promise<void> {
-    await applyFilterSafely({
+  async function searchFilters(): Promise<boolean> {
+    if (filterBuild.value.error !== null) { filterError.value = filterBuild.value.error; return false }
+    filterError.value = await applyFilterSafely({
       view: resolvedFilterDataView.value,
-      expr: filterExpression.value,
+      expr: filterBuild.value.expr,
       hasFilters: hasAnyFilterNodes.value,
       logger: options.logger,
       message: FILTER_APPLY_ERROR_MESSAGE,
       mode: 'execute',
     })
+    return filterError.value === null
   }
 
   return {
@@ -590,6 +535,7 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
     filterConfigs,
     hasFilters: hasRenderableFilters,
     activeFilterCount,
+    filterError,
     searchFilters,
     resetFilters,
   }

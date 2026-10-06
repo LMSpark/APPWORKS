@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h, nextTick, reactive } from 'vue'
 import { FieldText, FieldCheckbox, FieldSlider, FieldRate, FieldColor, FieldMention } from '@spark-appworks/spark-component'
-import { DATA_SOURCE, SPARK_REGISTRY_KEY, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import { DATA_ROW, DATA_SOURCE, SPARK_REGISTRY_KEY, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import { SUBTREE_FIELD_POLICY } from '../../packages/spark-component/src/permission'
 import { SparkData, type DataView } from '@spark-appworks/spark-data'
 import { mountFieldInContext } from '../helpers/mount-field-in-context'
 import { mount } from '@vue/test-utils'
+import { DataSpaceQueryTable } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const ElFormItemStub = defineComponent({
   props: ['label', 'prop', 'rules'],
@@ -86,24 +89,23 @@ const ElMentionStub = defineComponent({
   },
 })
 
-function createCurrentRowDataView(row: Record<string, unknown>): DataView {
+async function createCurrentRowDataView(row: Record<string, unknown>, failOnRefresh = false): Promise<DataView> {
   const dataSet = SparkData.createDataSet({
     dataSetName: 'FieldBasicValueControlsDS',
+    scenarioId: 'SCENE',
     tables: {
       Fields: {
         tableName: 'Fields',
+        modelBinding: { modelId: 'MODEL', modelName: 'Fields' },
         columns: [
           { name: 'id', type: 'string', isPrimaryKey: true },
           { name: 'name', type: 'string' },
           { name: 'assignee', type: 'string' },
+          { name: 'phone', type: 'string' },
+          { name: 'secret', type: 'string' },
         ],
         views: {
           default: {
-            rows: [{
-              id: 'current',
-              ...row,
-              lingma_sys_params: { r: [], e: ['name', 'assignee'], h: [], m: [], d: false },
-            }],
             autoCurrentFirst: false,
             autoSelectFirst: false,
           },
@@ -114,6 +116,17 @@ function createCurrentRowDataView(row: Record<string, unknown>): DataView {
 
   const view = dataSet.getView('Fields', 'default')
   if (!view) throw new Error('测试 DataView 创建失败: Fields@default')
+  const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Fields' })
+  const result = new DataSpaceQueryContext({ identity: table.identity, scope: 'field', readScope: () => 'field',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: { Items: [{
+      id: 'current', lingma_sys_params: { e: ['name', 'assignee'], d: false }, ...row,
+    }], Count: 1 } } }) })
+  let loads = 0
+  view.bindQueryExecutor({ executeQuery: async () => {
+    if (loads++ > 0 && failOnRefresh) throw new Error('query failed')
+    return result
+  } })
+  await view.loadFromServer()
   const currentRow = view.rows[0]
   if (!currentRow) throw new Error('测试 DataView 缺少 currentRow')
   view.setCurrentRow(currentRow)
@@ -228,7 +241,7 @@ describe('基础值字段组件', () => {
   })
 
   it('FieldText 在缺失 DATA_ROW 时应通过 DATA_SOURCE.currentRow 读写', async () => {
-    const view = createCurrentRowDataView({ name: '' })
+    const view = await createCurrentRowDataView({ name: '' })
     const { registry, rootContext } = Spark.createSystem()
 
     const Provider = defineComponent({
@@ -268,7 +281,7 @@ describe('基础值字段组件', () => {
   })
 
   it('FieldMention 在缺失 DATA_ROW 时应通过 DATA_SOURCE.currentRow 写回字段', async () => {
-    const view = createCurrentRowDataView({ assignee: '' })
+    const view = await createCurrentRowDataView({ assignee: '' })
     const { registry, rootContext } = Spark.createSystem()
 
     const Provider = defineComponent({
@@ -310,5 +323,102 @@ describe('基础值字段组件', () => {
 
     expect(readCurrentFieldValue(view, 'assignee')).toBe('Alice')
     expect(wrapper.find('.el-mention-stub').attributes('data-value')).toBe('Alice')
+  })
+})
+
+describe('原查询字段双通道呈现', () => {
+  async function fixture(failOnRefresh = false) {
+    return createCurrentRowDataView({ name: null, phone: null, secret: null,
+      lingma_sys_params: { e: ['name', 'phone'], r: ['name'], h: ['name', 'secret'], m: ['phone'], d: false },
+    }, failOnRefresh)
+  }
+
+  function mountBoundText(view: DataView, fieldName: string) {
+    return mountFieldInContext({ component: FieldText, type: 'r-text', model: view.currentRow!, fieldName, dataSource: view,
+      componentProps: { modelValue: 'must not reveal protected input' },
+      global: { stubs: { 'el-input': ElInputStub, 'el-form-item': ElFormItemStub } },
+    })
+  }
+
+  it.each(['name', 'phone'])('renders protected but writable %s as a blank input', async (fieldName) => {
+    const view = await fixture()
+    const wrapper = mountBoundText(view, fieldName)
+    expect(wrapper.get('.el-input-stub').attributes('data-value')).toBe('')
+    expect(wrapper.get('.el-input-stub').attributes('data-disabled')).toBe('false')
+    expect(view.hasEditingChanges()).toBe(false)
+    wrapper.findComponent(ElInputStub).vm.$emit('update:modelValue', 'new explicit value')
+    await nextTick()
+    expect(view.getEditingRow('current')?.[fieldName]).toBe('new explicit value')
+    expect(view.currentRow?.[fieldName]).toBeNull()
+    wrapper.unmount()
+    view.destroy()
+  })
+
+  it('decorates required fields from the current original R set', async () => {
+    const view = await fixture()
+    const wrapper = mountBoundText(view, 'name')
+    expect(wrapper.findComponent(ElFormItemStub).props('rules')).toEqual(expect.arrayContaining([expect.objectContaining({ required: true })]))
+    wrapper.unmount()
+    view.destroy()
+  })
+
+  it('does not render a hidden readonly field despite a forged public E set', async () => {
+    const view = await fixture()
+    if (!view.currentRow) throw new Error('missing current row')
+    view.currentRow['lingma_sys_params'] = { e: ['secret'], h: [], m: [], r: [], d: false }
+    const wrapper = mountBoundText(view, 'secret')
+    expect(wrapper.find('.el-input-stub').exists()).toBe(false)
+    wrapper.unmount()
+    view.destroy()
+  })
+
+  it('keeps visible false and zero values from returned rows', async () => {
+    for (const value of [false, 0]) {
+      const view = await createCurrentRowDataView({ name: value })
+      const wrapper = mountFieldInContext({ component: FieldText, type: 'r-text', model: view.currentRow!, fieldName: 'name', dataSource: view,
+        global: { stubs: { 'el-input': ElInputStub, 'el-form-item': ElFormItemStub } },
+      })
+      expect(wrapper.get('.el-input-stub').attributes('data-value')).toBe(String(value))
+      wrapper.unmount()
+      view.destroy()
+    }
+  })
+
+  it('pauses the field write channel after a query error', async () => {
+    const view = await fixture(true)
+    const wrapper = mountBoundText(view, 'phone')
+    await expect(view.loadFromServer()).rejects.toThrow('query failed')
+    await nextTick()
+    expect(wrapper.get('.el-input-stub').attributes('data-disabled')).toBe('true')
+    wrapper.findComponent(ElInputStub).vm.$emit('update:modelValue', 'stale write')
+    await nextTick()
+    expect(view.hasEditingChanges()).toBe(false)
+    wrapper.unmount()
+    view.destroy()
+  })
+
+  it('keeps local filter input separate from a business draft with the same key', async () => {
+    const view = await createCurrentRowDataView({ name: 'business' })
+    view.updateEditingValue('current', 'name', 'business draft')
+    const filter = reactive({ id: 'current', name: 'filter' })
+    const { registry, rootContext } = Spark.createSystem()
+    const Provider = defineComponent({ setup() {
+      const { sparkProvide } = useSparkComponent({ type: 'r-form' }, { parentContext: rootContext })
+      sparkProvide(DATA_SOURCE, view)
+      sparkProvide(DATA_ROW, filter)
+      sparkProvide(SUBTREE_FIELD_POLICY, 'unrestricted')
+      return () => h(FieldText, { type: 'r-text', field: 'name' })
+    } })
+    const wrapper = mount(Provider, { global: {
+      provide: { [SPARK_REGISTRY_KEY]: registry },
+      stubs: { 'el-input': ElInputStub, 'el-form-item': ElFormItemStub },
+    } })
+    expect(wrapper.get('.el-input-stub').attributes('data-value')).toBe('filter')
+    wrapper.findComponent(ElInputStub).vm.$emit('update:modelValue', 'new filter')
+    await nextTick()
+    expect(filter.name).toBe('new filter')
+    expect(view.getEditingRow('current')?.['name']).toBe('business draft')
+    wrapper.unmount()
+    view.destroy()
   })
 })

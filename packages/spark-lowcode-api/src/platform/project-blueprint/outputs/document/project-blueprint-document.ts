@@ -1,4 +1,9 @@
-/** lowcode legacy 文档导出端点的请求与任务回执合同。 */
+/**
+ * @module @spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/document/project-blueprint-document
+ * 职责：定义既有文档导出端点的请求选项与 submitted 回执。
+ * 边界：覆盖仅 legacy-menu-scope，不表示文件生成完成或完整蓝图交付。
+ * AI用途：准确解释文档任务提交结果，避免把 ACK 当生成成功。
+ */
 
 /** 可提交的 legacy 文档种类；对应 /api/File/export* 端点。 */
 export type LowcodeProjectBlueprintDocumentKind =

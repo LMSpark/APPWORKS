@@ -16,18 +16,18 @@
  * - 前端权限仅为渲染层表现，真正安全由后端控制
  * - 所有权限判断收口到本模块，方便统一维护
  */
-import type { DataPermissionSnapshot, DataRow, SparkNode } from '@spark-appworks/spark-data'
+import { computed, shallowRef } from 'vue'
+import { FieldVisibility } from '@spark-appworks/spark-data'
+import type { DataRow, SparkNode } from '@spark-appworks/spark-data'
+import { useDataViewEventBridge } from '../components/containers/runtime/useDataViewEventBridge'
 import type { SubtreeFieldPolicy } from '../core/capability-keys.js'
 import type { PermissionMode } from '@spark-appworks/spark-utils'
 import { useSparkConsume } from '../core/useSparkComponent'
-import { SUBTREE_FIELD_POLICY, PAGE_PERMISSION_MODE } from '../core/capability-keys.js'
+import { DATA_SOURCE, SUBTREE_FIELD_POLICY, PAGE_PERMISSION_MODE } from '../core/capability-keys.js'
 import {
-  isPermittedAction,
-  resolveFieldPermissionState,
   isModelActionAllowed,
   isRowActionAllowed,
 } from './PermissionResolver'
-import type { PermissionAction, ComponentPermissionActionContext } from './PermissionResolver'
 import type { FieldRenderConfig } from '@spark-appworks/spark-utils'
 import type { FieldRenderState } from '@spark-appworks/spark-data'
 
@@ -39,11 +39,8 @@ export type UsePermissionReturn = {
   /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */
   readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined
 
-  /** 判断动作是否被权限允许 */
-  isPermitted(action: PermissionAction | undefined, context?: Omit<ComponentPermissionActionContext, 'permissionMode'>): boolean
-
-  /** 判断模型级动作（create/import/export）是否允许 */
-  isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined): boolean
+  /** 模型新增消费绑定 DataView；未签发的动作或标签不能授权。 */
+  isModelActionAllowed(action: SparkNode): boolean
 
   /** 判断行级动作（edit/delete/create-child）是否允许 */
   isRowActionAllowed(action: SparkNode, row: DataRow | undefined): boolean
@@ -64,30 +61,43 @@ export function usePermission(): UsePermissionReturn {
   const { sparkConsume } = useSparkConsume()
   const mode = sparkConsume(PAGE_PERMISSION_MODE) ?? undefined
   const subtreeFieldPolicy = sparkConsume(SUBTREE_FIELD_POLICY) ?? undefined
+  const permissionRevision = shallowRef(0)
+  const bumpPermissionRevision = () => { permissionRevision.value += 1 }
+  useDataViewEventBridge({
+    resolvedView: computed(() => sparkConsume(DATA_SOURCE)),
+    onCurrentRowChanged: bumpPermissionRevision,
+    onSelectedRowsChanged: bumpPermissionRevision,
+    onRowsChanged: bumpPermissionRevision,
+    onCleared: bumpPermissionRevision,
+    onRequestStateChanged: bumpPermissionRevision,
+  })
 
   return {
     get permissionMode() { return mode },
     get subtreeFieldPolicy() { return subtreeFieldPolicy },
 
-    isPermitted(action, context) {
-      return isPermittedAction(action, { ...context, permissionMode: mode })
-    },
-
-    isModelActionAllowed(action, snapshot) {
-      return isModelActionAllowed(action, snapshot, mode)
+    isModelActionAllowed(action) {
+      permissionRevision.value
+      return isModelActionAllowed(action, sparkConsume(DATA_SOURCE))
     },
 
     isRowActionAllowed(action, row) {
-      return isRowActionAllowed(action, row, mode)
+      permissionRevision.value
+      return isRowActionAllowed(action, row, sparkConsume(DATA_SOURCE))
     },
 
     resolveFieldState(field, row, config) {
-      return resolveFieldPermissionState({
-        field,
-        row,
-        config: config ?? {},
-        permissionMode: subtreeFieldPolicy === 'unrestricted' ? 'none' : mode,
-      })
+      permissionRevision.value
+      if (!field || !row) return null
+      const localInput = subtreeFieldPolicy === 'unrestricted'
+      const access = localInput ? null : sparkConsume(DATA_SOURCE)?.fieldAccess(row, field)
+      const visibility = localInput || access?.read === 'visible' ? FieldVisibility.Visible
+        : access?.read === 'masked' ? FieldVisibility.Masked : FieldVisibility.Hidden
+      const readable = visibility !== FieldVisibility.Hidden && config?.visible !== false
+      const editable = (localInput || access?.write === 'allowed') && config?.editable !== false
+      const displayValue = readable
+        ? visibility === FieldVisibility.Masked ? '••••' : String(row[field] ?? '') : ''
+      return { field, visibility, readable, editable, displayValue, shouldRender: readable || editable }
     },
   }
 }

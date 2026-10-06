@@ -10,12 +10,13 @@
  * 动态路由属于应用引导层（spark-app），页面节点能力来自 spark-project-model。
  */
 
-import type { Router, RouteRecordRaw } from 'vue-router'
-import type { Component } from 'vue'
+import type { Router, RouteRecordRaw, RouteLocationNormalizedLoaded, LocationQuery, RouteParams } from 'vue-router'
+import { defineComponent, h, markRaw, ref, type Component, type ComponentPublicInstance } from 'vue'
 import {
-  createRuntimePageNode,
+  PageRuntime,
+  PageTool,
+  PAGE_TOOL_FILE_NAMES,
   type PageContentLoader,
-  type PageDataSpaceBinding,
 } from '@spark-appworks/spark-project-model'
 import type { DataSet } from '@spark-appworks/spark-data'
 import { createLogger } from '../logger'
@@ -25,7 +26,7 @@ import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from './cross-project-ref-route'
 import { ExternalLinkFramePage } from './external-link-frame-page'
 import { InvalidSystemPage } from './invalid-system-page'
 import { resolveNavNodeRuntimeTarget } from '../navigation/runtime-target'
-import { resolveCrossProjectRefPageId, resolveNavRoutePageId } from './route-helpers'
+import { resolveNavRoutePageId } from './route-helpers'
 import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
 
 function isUnauthorizedError(error: unknown): boolean {
@@ -49,7 +50,7 @@ export type DynamicRouterOptions = {
   /** Vue Router 实例 */
   router: Router
 
-  /** 配置页四文件加载器 */
+  /** 页面工具三文件加载器 */
   pageContentLoader: PageContentLoader
 
   /**
@@ -118,11 +119,15 @@ export type DynamicRouterOptions = {
   isAuthenticated?: (() => boolean) | undefined
 
   /**
-   * 运行态 DataSet 装载器：配置页有 PageDataSpaceBinding 时由 SparkPageRenderer 调用。
-   * 有绑定则不得再把 pagedata.json 当运行数据真源。
+   * 场景 DataSet 装载器：由 PageRuntime 按显式调用场景逐个装配。
+   * 后端提供正式定义，场景 pagedata.json 只提供视图与级联配置。
    */
-  loadRuntimeDataSet?: ((binding: PageDataSpaceBinding) => Promise<DataSet>) | undefined
+  loadScenario?: (command: RuntimeScenarioLoadCommand) => Promise<DataSet>
 }
+
+/** 为一次页面调用装配指定应用中的一个场景；应用身份由请求层校验。 */
+export type RuntimeScenarioLoadCommand = Readonly<{ projectId: string; scenarioId: string }>
+type RuntimeRouteEntry = { runtime: PageRuntime; view: Component; route: RouteLocationNormalizedLoaded; nodeId: string; key: string }
 
 type RouteRegistrationOptions = {
   skipTenantPrefix?: boolean
@@ -159,7 +164,8 @@ export class DynamicRouter {
   private _navTree: RuntimeNavigation | null = null
   /** ProjectBlueprintTreeNodeData → 注册路由路径追踪（弱引用，导航树刷新后自动 GC） */
   private _navRouteMap = new WeakMap<RuntimeNavigationItem, string>()
-  private _loadRuntimeDataSet: ((binding: PageDataSpaceBinding) => Promise<DataSet>) | undefined
+  private readonly _loadScenario: DynamicRouterOptions['loadScenario']
+  private readonly pageInstances = new Map<string, RuntimeRouteEntry>()
 
     /** 创建 Dynamic Router 实例。 */
 constructor(options: DynamicRouterOptions) {
@@ -176,7 +182,7 @@ constructor(options: DynamicRouterOptions) {
     this.tenantPathRegex = this.tenantPathPrefix
       ? this.createTenantPathRegex(this.tenantPathPrefix)
       : null
-    this._loadRuntimeDataSet = options.loadRuntimeDataSet
+    this._loadScenario = options.loadScenario
 
     // 导航加载函数（统一数据源）
     this._loadNavigation = options.loadNavigation
@@ -192,6 +198,125 @@ constructor(options: DynamicRouterOptions) {
         this.staticComponentMap.set(this.normalizePath(path), comp)
       }
     }
+  }
+
+  private scenarioCall(query: LocationQuery): Readonly<{ ids: readonly string[]; main?: string }> {
+    const main = query['scenarioId']
+    if (main !== undefined && (typeof main !== 'string' || !main.trim() || main !== main.trim())) throw new Error('scenarioId 必须是单个非空场景ID')
+    const additional = query['additionalScenarioIds']
+    const ids = additional === undefined ? [] : Array.isArray(additional) ? [...additional] : [additional]
+    if (ids.some(id => typeof id !== 'string' || !id.trim() || id !== id.trim()) || new Set(ids).size !== ids.length || (main !== undefined && ids.includes(main))) throw new Error('additionalScenarioIds 包含空值、重复或主场景')
+    const strings = ids.filter((id): id is string => typeof id === 'string').sort()
+    return { ids: main === undefined ? strings : [main, ...strings], ...(main === undefined ? {} : { main }) }
+  }
+
+  getPageRuntime(route: RouteLocationNormalizedLoaded): PageRuntime | undefined {
+    if (route.meta['type'] !== 'config-page') return undefined
+    const tool = route.meta['programmaticTool'] === true
+      ? { pageId: route.params['pageId'], projectId: route.params['projectId'] }
+      : route.meta['tool']
+    if (typeof tool !== 'object' || tool === null || !('pageId' in tool) || typeof tool.pageId !== 'string'
+      || !('projectId' in tool) || typeof tool.projectId !== 'string') throw new Error('配置页缺少正式工具目标')
+    const projectId = tool.projectId
+    if (route.params['projectId'] !== undefined && route.params['projectId'] !== projectId) throw new Error('页面工具所属项目与调用路径不一致')
+    const call = this.scenarioCall(route.query)
+    const query = Object.fromEntries(Object.keys(route.query).sort().map(key => [key, key === 'additionalScenarioIds' ? call.ids.filter(id => id !== call.main).sort() : route.query[key]]))
+    const key = JSON.stringify([projectId, route.meta['nodeId'], tool.pageId, query, route.hash])
+    const existing = this.pageInstances.get(key)
+    if (existing && !existing.runtime.destroyed) return existing.runtime
+    const page = new PageTool({ pageId: tool.pageId })
+    const reader = this.pageContentLoader.getPageFileReader()
+    const runtime = markRaw(new PageRuntime({
+      tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
+      loadTool: async () => {
+        if (!reader) throw new Error('未注入工具文件读取器')
+        const generation = runtime.generation
+        const findTool = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem['tool'] => {
+          for (const node of nodes) {
+            if (node.id === route.meta['nodeId']) return node.tool
+            const match = findTool(node.children ?? [])
+            if (match) return match
+          }
+          return undefined
+        }
+        const registeredTool = findTool(this._navTree?.items ?? [])
+        if (route.meta['programmaticTool'] !== true && this._navTree !== null
+          && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId)) {
+          throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
+        }
+        const currentTool = registeredTool ?? tool
+        const versionId = 'versionId' in currentTool && typeof currentTool.versionId === 'string' ? currentTool.versionId : undefined
+        const files = await Promise.all(PAGE_TOOL_FILE_NAMES.map(async fileName => ({ fileName,
+          text: await reader({ projectId, pageId: page.pageId, fileName, ...(versionId === undefined ? {} : { versionId }) }) })))
+        if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
+        for (const file of files) page.hydrateFileText(file.fileName, file.text)
+        page.markLoaded()
+        return page
+      },
+      loadScenario: async scenarioId => {
+        if (!this._loadScenario) throw new Error('未注入场景运行装配器')
+        return this._loadScenario({ projectId, scenarioId })
+      },
+    }))
+    const querySnapshot: LocationQuery = {}
+    for (const [name, value] of Object.entries(route.query)) {
+      const copied = Array.isArray(value) ? [...value] : value
+      if (Array.isArray(copied)) Object.freeze(copied)
+      querySnapshot[name] = copied
+    }
+    const paramsSnapshot: RouteParams = {}
+    for (const [name, value] of Object.entries(route.params)) {
+      const copied = Array.isArray(value) ? [...value] : value
+      if (Array.isArray(copied)) Object.freeze(copied)
+      paramsSnapshot[name] = copied
+    }
+    const snapshot = Object.freeze({ ...route, params: Object.freeze(paramsSnapshot),
+      query: Object.freeze(querySnapshot), meta: Object.freeze({ ...route.meta }) })
+    const view = markRaw(defineComponent({ name: `PageCall_${runtime.instanceId.replaceAll('-', '_')}`,
+      setup: (_props, { expose }) => {
+        const renderer = ref<ComponentPublicInstance>()
+        expose({ reload: async () => {
+          if (runtime.isDirty) throw new Error('页面有未保存修改，必须先保存或明确放弃')
+          await this.refreshRoutes()
+          await runtime.reload()
+          const reload: unknown = renderer.value === undefined ? undefined : Reflect.get(renderer.value, 'reload')
+          if (typeof reload !== 'function') throw new Error('页面渲染器缺少 reload 能力')
+          await Reflect.apply(reload, renderer.value, [])
+        } })
+        return () => h(this.pageComponent, { ref: renderer, pageRuntime: runtime, routeSnapshot: snapshot })
+      } }))
+    this.pageInstances.set(key, { runtime, view, route: snapshot, nodeId: String(route.meta['nodeId']), key })
+    return runtime
+  }
+
+  getPageRuntimeView(route: RouteLocationNormalizedLoaded): Component | undefined {
+    const runtime = this.getPageRuntime(route)
+    return runtime === undefined ? undefined : [...this.pageInstances.values()].find(entry => entry.runtime === runtime)?.view
+  }
+
+  getPageRuntimeNames(): string[] { return [...this.pageInstances.values()].map(entry => entry.view.name ?? '') }
+  getPageRuntimeById(instanceId: string): PageRuntime | undefined { return [...this.pageInstances.values()].find(entry => entry.runtime.instanceId === instanceId)?.runtime }
+
+  closePageRuntime(instanceId: string): void {
+    const entry = [...this.pageInstances.values()].find(item => item.runtime.instanceId === instanceId)
+    if (!entry) return
+    if (entry.runtime.isDirty) throw new Error('页面有未保存修改，必须先保存或明确放弃')
+    entry.runtime.dispose()
+    this.pageInstances.delete(entry.key)
+  }
+
+  assertPageRuntimesClean(): void {
+    if ([...this.pageInstances.values()].some(entry => entry.runtime.isDirty)) throw new Error('打开的页面有未保存修改，必须先保存或明确放弃')
+  }
+
+  disposePageRuntimes(): void {
+    this.assertPageRuntimesClean()
+    for (const entry of this.pageInstances.values()) entry.runtime.dispose()
+    this.pageInstances.clear()
+  }
+
+  markPageConfigPending(pageId: string): void {
+    for (const entry of this.pageInstances.values()) if (entry.runtime.pageId === pageId) entry.runtime.markConfigPending()
   }
 
   private normalizePath(path: string): string {
@@ -279,7 +404,7 @@ constructor(options: DynamicRouterOptions) {
       path: routePath,
       name: CROSS_PROJECT_REF_HOST_ROUTE_NAME,
       component: CrossProjectRefPage,
-      props: createCrossProjectRefRouteProps(this.pageContentLoader),
+      props: createCrossProjectRefRouteProps(),
       meta: {
         type: 'cross-project-ref',
         crossProjectRefHost: true,
@@ -394,6 +519,15 @@ constructor(options: DynamicRouterOptions) {
     const skipTenantPrefix = options.skipTenantPrefix === true
     const routePathPrefix = options.routePathPrefix
     this.registerCrossProjectRefHostRoute(skipTenantPrefix || routePathPrefix !== undefined)
+    if (!skipTenantPrefix && routePathPrefix === undefined) {
+      const toolPath = this.addTenantPrefix('/__tool/:pageId')
+      if (!this.registeredRoutes.has(toolPath)) {
+        this.router.addRoute({ path: toolPath, name: 'spark-page-tool-call', component: this.pageComponent,
+          props: resolvedRoute => ({ pageRuntime: this.getPageRuntime(resolvedRoute), routeSnapshot: resolvedRoute }),
+          meta: { type: 'config-page', title: '页面工具', programmaticTool: true } })
+        this.registeredRoutes.add(toolPath)
+      }
+    }
 
     for (const node of nodes) {
       const target = resolveNavNodeRuntimeTarget(node)
@@ -412,20 +546,16 @@ constructor(options: DynamicRouterOptions) {
       const isCrossProjectRefNode = target.routeKind === 'cross-project-ref'
       const crossProjectRefUrl = isCrossProjectRefNode ? this.resolveCrossProjectRefUrl(node) : null
       const nodePath = typeof node.path === 'string' ? node.path.trim() : ''
-      const relativePath = this.normalizePath(rawNodePath)
+      const relativePath = this.normalizePath(rawNodePath.split(/[?#]/, 1)[0] ?? '')
       const component = this.staticComponentMap.get(relativePath)
       const useStaticComponent = target.routeKind === 'page' && (node.itemKind === 'system-page' || component !== undefined)
       const pageId = resolveNavRoutePageId(node, rawNodePath)
-      const dataSpaceBinding = node.formKey && node.dataSpaceId && node.modelId
-        ? { formKey: node.formKey, dataSpaceId: node.dataSpaceId, modelId: node.modelId }
-        : null
-      const refPageId = isCrossProjectRefNode ? resolveCrossProjectRefPageId(node.refPath) : null
       // 平台级路由（preAuth）不加前缀，远程导航树路由统一加租户前缀
       const routePath = routePathPrefix !== undefined
-        ? this.addRoutePathPrefix(routePathPrefix, rawNodePath)
+        ? this.addRoutePathPrefix(routePathPrefix, relativePath)
         : skipTenantPrefix
-          ? this.normalizePath(rawNodePath)
-          : this.addTenantPrefix(rawNodePath)
+          ? relativePath
+          : this.addTenantPrefix(relativePath)
       const routeName = options.routeNamePrefix !== undefined
         ? `nav-${options.routeNamePrefix}-${node.id}`
         : `nav-${node.id}`
@@ -498,15 +628,15 @@ constructor(options: DynamicRouterOptions) {
               path: routePath,
               name: routeName,
               component: CrossProjectRefPage,
-              props: createCrossProjectRefRouteProps(this.pageContentLoader),
+              props: createCrossProjectRefRouteProps(),
               meta: {
                 type: 'cross-project-ref',
                 pageId,
                 title: node.title,
                 ...(node.description !== undefined && { description: node.description }),
                 refPath: node.refPath,
+                nodeId: node.id,
                 ...(node.refProjectId !== undefined && { refProjectId: node.refProjectId }),
-                ...(refPageId !== null && { refPageId }),
                 ...(node.icon !== undefined && { icon: node.icon }),
                 ...(node.permissionMode !== undefined && { permissionMode: node.permissionMode }),
               },
@@ -579,25 +709,12 @@ constructor(options: DynamicRouterOptions) {
           path: routePath,
           name: routeName,
           component: this.pageComponent,
-          props: {
-            pageNode: createRuntimePageNode(pageId, this.pageContentLoader, {
-              id: node.id,
-              title: node.title,
-              nodeKind: node.itemKind ?? 'page',
-              ...(node.path === undefined ? {} : { path: node.path }),
-              ...(node.formKey === undefined ? {} : { formKey: node.formKey }),
-              ...(node.dataSpaceId === undefined ? {} : { dataSpaceId: node.dataSpaceId }),
-              ...(node.modelId === undefined ? {} : { modelId: node.modelId }),
-            }),
-            pageId,
-            ...(this._loadRuntimeDataSet === undefined
-              ? {}
-              : { loadRuntimeDataSet: this._loadRuntimeDataSet }),
-          },
+          props: resolvedRoute => ({ pageRuntime: this.getPageRuntime(resolvedRoute), routeSnapshot: resolvedRoute }),
           meta: {
             type: 'config-page',
             pageId,
-            dataSpaceBinding,
+            tool: node.tool,
+            nodeId: node.id,
             title: node.title,
             ...(node.description !== undefined && { description: node.description }),
             ...(node.icon !== undefined && { icon: node.icon }),

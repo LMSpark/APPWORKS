@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-resource\n职责：拥有查询分页与结果上下文生命周期。\n边界：全部原始页核对通过才发布上下文，旧代次或 scope 不得继续使用。\nAI用途：执行模型查询并保留原查询强引用基线。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceQueryResource"
+    ]
+  },
+  "$defs": {
+    "DataSpaceQueryResourceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryResourceOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    },
+    "DataSpaceQueryResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataSpaceQueryResourceOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.invalidate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidate.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true,
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+            },
+            "options": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceQueryContext>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.613Z",
+  "models": {
+    "DataSpaceQueryResourceOptions": {
+      "name": "DataSpaceQueryResourceOptions",
+      "jsdoc": "查询请求的 HTTP 与 scope 来源，执行域包含资源失效代次。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryResource": {
+      "name": "DataSpaceQueryResource",
+      "jsdoc": "拥有模型查询的分页收集与结果上下文生命周期；全部页通过后才发布上下文。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "建立本资源的请求 owner，查询与上下文读取使用同一 scope 来源。",
+          "signatureText": "constructor(options: DataSpaceQueryResourceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryResourceOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "invalidate",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryIdentity",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryOptions",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

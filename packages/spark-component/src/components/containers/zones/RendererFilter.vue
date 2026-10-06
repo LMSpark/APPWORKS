@@ -70,6 +70,18 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
       :config="child"
     />
   </div>
+  <div v-if="dataState.resolvedView.value" class="renderer-filter">
+    <FilterExpressionEditor
+      :key="viewInstanceRevision"
+      :model-value="appliedFilter"
+      :columns="dataState.columns.value"
+      :function-context="props.filterFunctionContext ?? {}"
+      :disabled="applyingExpression"
+      :apply-error="expressionError"
+      @update:model-value="applyExpression"
+    />
+    <p v-if="expressionError || filterError" data-filter-error role="alert">{{ expressionError || filterError }}</p>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -85,10 +97,12 @@ import {
   SparkComponentRenderer,
   useSparkPageComponent,
 } from '../../internal'
-import { type SparkNode, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
+import { type SparkNode, type DataViewFilterTree, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 import { useContainerDataSource } from '../data-views/view-data-source'
 import DataViewMetaBar from '../data-views/DataViewMetaBar.vue'
 import { useFilterPanel } from '../runtime/container-filter'
+import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge'
+import FilterExpressionEditor from '../filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue'
 import type { RFilterProps as Props } from './RendererFilter.types'
 
 const props = withDefaults(defineProps<Props>(), {
@@ -140,11 +154,45 @@ const {
   activeFilterCount,
   searchFilters,
   resetFilters,
+  filterError,
 } = useFilterPanel({
   filterChildren: () => isPanelMode.value ? standaloneChildren.value : [],
   dataView: dataState.resolvedView,
   logger,
 })
+
+const expressionError = ref<string | null>(null)
+const applyingExpression = ref(false)
+const filterRevision = ref(0)
+const viewInstanceRevision = ref(0)
+watch(dataState.resolvedView, () => {
+  viewInstanceRevision.value += 1
+  filterRevision.value += 1
+  expressionError.value = null
+}, { immediate: true })
+useDataViewEventBridge({
+  resolvedView: dataState.resolvedView,
+  onConfigChanged: () => { filterRevision.value += 1 },
+})
+const appliedFilter = computed(() => {
+  filterRevision.value
+  return dataState.resolvedView.value?.filterExpression
+})
+
+async function applyExpression(tree: DataViewFilterTree | undefined): Promise<void> {
+  const view = dataState.resolvedView.value
+  if (!view) { expressionError.value = 'RendererFilter: 未绑定 DataView'; return }
+  applyingExpression.value = true
+  expressionError.value = null
+  try {
+    await view.executeFilter(tree)
+  } catch (error) {
+    if (view === dataState.resolvedView.value) expressionError.value = error instanceof Error ? error.message : String(error)
+    logger.error('RendererFilter: 应用完整过滤失败', error)
+  } finally {
+    applyingExpression.value = false
+  }
+}
 
 // ── 折叠状态自治 ────────────────────────────────────────────────────────
 const filtersCollapsed = ref<boolean>(props.defaultCollapsed ?? false)
@@ -253,6 +301,7 @@ defineExpose({
 .renderer-filter {
   width: 100%;
 }
+.renderer-filter [role="alert"] { color: var(--el-color-danger); white-space: pre-wrap; }
 
 .renderer-table-filters {
   width: 100%;

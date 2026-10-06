@@ -101,10 +101,6 @@
       "type": "object",
       "title": "DataViewDisplayState",
       "properties": {
-        "permissionSnapshot": {
-          "type": "object",
-          "title": "ComputedRef<DataPermissionSnapshot | null>"
-        },
         "value": {
           "type": "object",
           "title": "ComputedRef<string>"
@@ -119,7 +115,6 @@
         }
       },
       "required": [
-        "permissionSnapshot",
         "value",
         "label",
         "labels"
@@ -253,10 +248,6 @@
           "type": "object",
           "title": "ComputedRef<boolean>"
         },
-        "permissionSnapshot": {
-          "type": "object",
-          "title": "ComputedRef<DataPermissionSnapshot | null>"
-        },
         "value": {
           "type": "object",
           "title": "ComputedRef<string>"
@@ -318,7 +309,6 @@
         "selectedRows",
         "editingRows",
         "isMultiSelect",
-        "permissionSnapshot",
         "value",
         "label",
         "labels",
@@ -407,10 +397,6 @@
           "type": "object",
           "title": "ComputedRef<boolean>"
         },
-        "permissionSnapshot": {
-          "type": "object",
-          "title": "ComputedRef<DataPermissionSnapshot | null>"
-        },
         "value": {
           "type": "object",
           "title": "ComputedRef<string>"
@@ -480,7 +466,6 @@
         "selectedRows",
         "editingRows",
         "isMultiSelect",
-        "permissionSnapshot",
         "value",
         "label",
         "labels",
@@ -522,7 +507,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T20:40:43.494Z",
+  "generatedAt": "2026-10-06T13:59:00.570Z",
   "models": {
     "DataViewIdentityState": {
       "name": "DataViewIdentityState",
@@ -628,15 +613,9 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 原始模型权限数据，供权限投影和兼容字段读取。 */\n    permissionSnapshot: ComputedRef<DataPermissionSnapshot | null>;\n    /** 当前值字段的字符串化结果。 */\n    value: ComputedRef<string>;\n    /** 当前显示标签；没有当前行或标签字段时为空。 */\n    label: ComputedRef<string | null>;\n    /** 多选场景下的显示标签集合。 */\n    labels: ComputedRef<readonly string[]>;\n}",
+        "declarationTypeText": "{\n    /** 当前值字段的字符串化结果。 */\n    value: ComputedRef<string>;\n    /** 当前显示标签；没有当前行或标签字段时为空。 */\n    label: ComputedRef<string | null>;\n    /** 多选场景下的显示标签集合。 */\n    labels: ComputedRef<readonly string[]>;\n}",
         "members": {
           "attributes": [
-            {
-              "name": "permissionSnapshot",
-              "jsdoc": "原始模型权限数据，供权限投影和兼容字段读取。",
-              "readable": true,
-              "writable": true
-            },
             {
               "name": "value",
               "jsdoc": "当前值字段的字符串化结果。",

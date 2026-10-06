@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/project/project-session.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "project/project-session",
-    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-session\n职责：提供项目模型层 project-session 能力，围绕 ProjectSessionState、ProjectSessionOwner、ProjectSession 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-session。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-session\n职责：提供项目模型层 project-session 能力，围绕 ProjectSessionState、ProjectSessionOwner、ProjectSession 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 三文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectBlueprint/ProjectWorkspace 行为时，用本模块定位 project/project-session。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectSessionState",
@@ -78,7 +78,7 @@
             }
           ]
         },
-        "method.findConfigPageByPageId.params": {
+        "method.findPageTool.params": {
           "type": "object",
           "properties": {
             "pageId": {
@@ -87,10 +87,10 @@
           },
           "additionalProperties": false
         },
-        "method.findConfigPageByPageId.return": {
+        "method.findPageTool.return": {
           "anyOf": [
             {
-              "$ref": "../page/config-page.ts.json#/$defs/ConfigPageNode"
+              "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
             },
             {
               "type": "null"
@@ -208,7 +208,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T07:40:20.653Z",
+  "generatedAt": "2026-10-06T20:49:03.415Z",
   "models": {
     "ProjectSessionState": {
       "name": "ProjectSessionState",
@@ -248,10 +248,10 @@
     },
     "ProjectSessionOwner": {
       "name": "ProjectSessionOwner",
-      "jsdoc": "",
+      "jsdoc": "会话只查询既有节点及独立工具，不拥有持久IO或运行数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 按 nodeId 在导航树中查找项目节点；未找到返回 null */\n    findNodeById(nodeId: string): ProjectBlueprintNode | null;\n    /** 按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 ConfigPageNode，未找到返回 null */\n    findConfigPageByPageId(pageId: string): ConfigPageNode | null;\n}",
+        "declarationTypeText": "{\n    /** 按 nodeId 在导航树中查找项目节点；未找到返回 null */\n    findNodeById(nodeId: string): ProjectBlueprintNode | null;\n    /** 按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 PageTool，未找到返回 null */\n    findPageTool(pageId: string): PageTool | null;\n}",
         "members": {
           "methods": [
             {
@@ -282,8 +282,8 @@
               }
             },
             {
-              "name": "findConfigPageByPageId",
-              "jsdoc": "按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 ConfigPageNode，未找到返回 null",
+              "name": "findPageTool",
+              "jsdoc": "按 pageId 查找已加载的配置页节点；仅返回已 hydrate 的 PageTool，未找到返回 null",
               "parameters": [
                 {
                   "name": "pageId",
@@ -298,8 +298,8 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "ConfigPageNode",
-                    "sourcePath": "packages/spark-project-model/src/page/config-page.ts"
+                    "name": "PageTool",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
                   },
                   {
                     "type": "literal",
@@ -314,10 +314,11 @@
     },
     "ProjectSession": {
       "name": "ProjectSession",
-      "jsdoc": "ProjectModel 持有的设计过程态：选中、活动页、dirty 与导航草稿（不落盘）。",
+      "jsdoc": "ProjectBlueprint 持有的设计过程态：选中、活动页、dirty 与导航草稿（不落盘）。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "绑定项目领域查询owner，初始化选中、活动工具与dirty会话。",
           "signatureText": "constructor(owner: ProjectSessionOwner)",
           "parameters": [
             {

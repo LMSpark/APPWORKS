@@ -1,10 +1,10 @@
 /**
  * @module @spark-appworks/spark-project-model:project/project-types
  * 职责：提供项目模型层 project-types 契约，处理项目蓝图、页面文件、配置内容、工作区与远端 IO。
- * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。
- * AI用途：规划项目蓝图、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 project/project-types。
+ * 边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 三文件链路。
+ * AI用途：规划项目蓝图、读写 page files 或理解 ProjectBlueprint/ProjectWorkspace 行为时，用本模块定位 project/project-types。
  */
-import type { ProjectBlueprintNodeKind, RuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
+import type { ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
 import type {
   ProjectBlueprintTreeData,
   ProjectBlueprintTreeNodeData,
@@ -12,12 +12,13 @@ import type {
   ProjectPageNodeSummary,
 } from '../blueprint/project-blueprint-node'
 import type { BlueprintNodeDraft } from '../blueprint/project-blueprint-edit'
-import type { PageNodeFileName } from '../page/page-file'
+import type { PageToolFileName } from '../page/page-file'
 
+/** 节点编辑或根结构编辑的保存范围。 */
 export type ProjectBlueprintDirtyScope = 'node' | 'root'
 
-/** Project Model Event 的事件载荷。 */
-export type ProjectModelEvent =
+/** Project Blueprint Event 的事件载荷。 */
+export type ProjectBlueprintEvent =
   | {
       type: 'blueprint.changed'
       projectId: string
@@ -37,7 +38,7 @@ export type ProjectModelEvent =
       projectId: string
       revision: number
       pageId: string
-      fileName: PageNodeFileName
+      fileName: PageToolFileName
     }
   | {
       type: 'runtime.changed'
@@ -46,18 +47,20 @@ export type ProjectModelEvent =
       pageId?: string
     }
 
-export type ProjectModelEventListener = (event: ProjectModelEvent) => void
+/** 项目领域代次事件订阅，用于驱动UI投影更新。 */
+export type ProjectBlueprintEventListener = (event: ProjectBlueprintEvent) => void
 
 /** Project Page File Write Command 的命令参数。 */
 export type ProjectPageFileWriteCommand = {
   /** 目标配置页 pageId；省略时使用当前 activePage。 */
   pageId?: string | undefined
-  /** 要写入的页面四文件名。 */
-  fileName: PageNodeFileName
+  /** 要写入的页面三文件名。 */
+  fileName: PageToolFileName
   /** 新的文件文本内容，只写入内存模型，落盘由工作区编排。 */
   text: string
 }
 
+/** 正式蓝图及会话选择的读投影，不形成新的可写真源。 */
 export type ProjectBlueprintProjection = {
     /** 完整项目蓝图。 */
 blueprint: ProjectBlueprintTreeData
@@ -75,26 +78,26 @@ blueprintDraft: BlueprintNodeDraft | null
 pageDeliveries: ProjectPageNodeSummary[]
 }
 
+/** 当前独立PageTool三文件文本与装载状态投影。 */
 export type ProjectActivePageProjection = {
     /** page Id 标识。 */
 pageId: string
     /** rule Json 字段。 */
 ruleJson: string
-    /** page Data Json 字段。 */
-pageDataJson: string
     /** script 字段。 */
 script: string
     /** style 字段。 */
 style: string
     /** parse Errors 字段。 */
-parseErrors: Record<PageNodeFileName, string | null>
+parseErrors: Record<PageToolFileName, string | null>
     /** 是否 is Loaded。 */
 isLoaded: boolean
 }
 
+/** 活动文件和所有工具、蓝图编辑的dirty投影；场景dirty另由Workspace持有。 */
 export type ProjectDirtyProjection = {
     /** dirty Files 字段。 */
-dirtyFiles: Set<PageNodeFileName>
+dirtyFiles: Set<PageToolFileName>
     /** 是否 has Any File Dirty。 */
 hasAnyFileDirty: boolean
     /** 项目蓝图是否存在未保存变更。 */
@@ -117,10 +120,8 @@ export type BlueprintPlanningInput = Readonly<{
   nodeId: string
   /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */
   title: string
-  /** 蓝图业务类型；未知时必须为 unresolved，不能按路径或层级猜测。 */
-  blueprintKind: ProjectBlueprintNodeKind
-  /** 可选运行交付投影类型，不代表蓝图业务类型。 */
-  nodeKind: RuntimeNavigationItemKind
+  /** 蓝图草稿种类；unknown 不得进入正式策划完成结果。 */
+  kind: ProjectBlueprintNodeKind | 'unknown'
   /** 节点短需求，即项目蓝图节点 description。 */
   requirement: string
   /** 策划详细说明附件引用；省略时仅使用 requirement。 */
@@ -151,6 +152,7 @@ export type ProjectPlanningCompletionResult = Readonly<{
   nextStep?: string
 }>
 
+/** 固定项目身份及项目信息，不替代正式蓝图节点四组合同。 */
 export type ProjectInfo = {
   /** 租户 ID；多租户环境下用于隔离项目。 */
   tenantId?: string | undefined
@@ -178,14 +180,14 @@ export type ProjectInfo = {
 
 /** Project Info Input 的输入数据。 */
 export type ProjectInfoInput = Partial<Omit<ProjectInfo, 'projectId'>> & {
-  /** 可选项目 ID；未提供时由 ProjectModel 构造参数补齐。 */
+  /** 可选项目 ID；未提供时由 ProjectBlueprint 构造参数补齐。 */
   projectId?: string | undefined
 }
 
 /** 纯领域构造参数（无 IO）。 */
-export type ProjectModelInitOptions = {
-  /** 当前 ProjectModel 绑定的项目 ID。 */
+export type ProjectBlueprintInitOptions = {
+  /** 当前 ProjectBlueprint 绑定的项目 ID。 */
   projectId: string
-  /** 可选项目基础信息；缺省字段由 ProjectModel 使用默认值补齐。 */
+  /** 可选项目基础信息；缺省字段由 ProjectBlueprint 使用默认值补齐。 */
   project?: ProjectInfoInput | undefined
 }

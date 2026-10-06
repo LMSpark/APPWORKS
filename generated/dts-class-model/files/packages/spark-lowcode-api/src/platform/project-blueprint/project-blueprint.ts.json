@@ -7,96 +7,196 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/project-blueprint/project-blueprint",
-    "jsdoc": "lowcode `Base_NavigationInfo` 的只读事实记录。\n本模块只校验 wire 身份与父引用环，不拥有 AppWorks 项目蓝图领域行为或输出投影。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint\n职责：定义并校验蓝图四组消费记录、项目身份和父引用环。\n边界：不持有原查询权限或签名快照，不拥有项目编辑生命周期或导航授权投影。\nAI用途：用 nodeId/projectId/kind 与正式分组表达蓝图，避免混用工具、场景和菜单身份。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeProjectBlueprintRecord"
     ]
   },
   "$defs": {
+    "BlueprintCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintCapability",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "ownerId": {
+          "type": "string"
+        },
+        "deliveryStatus": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintNavigation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNavigation",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "placement": {
+          "enum": [
+            "top",
+            "left",
+            "right",
+            "parent",
+            "tabs",
+            "popup"
+          ]
+        },
+        "target": {
+          "type": "string"
+        },
+        "mobileTarget": {
+          "type": "string"
+        },
+        "openMode": {
+          "enum": [
+            "subsystem",
+            "current",
+            "new-window",
+            "modal",
+            "embedded"
+          ]
+        },
+        "displayMode": {
+          "type": "string"
+        },
+        "horizontalAlignment": {
+          "type": "string"
+        },
+        "publishInMenu": {
+          "type": "boolean"
+        },
+        "showChildren": {
+          "type": "boolean"
+        },
+        "beginGroup": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintModel",
+      "properties": {
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintDataSpace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintDataSpace",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintModel"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintPrototype": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintPrototype",
+      "properties": {
+        "htmlDescription": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "LowcodeProjectBlueprintRecord": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "LowcodeProjectBlueprintRecord",
       "properties": {
-        "id": {
+        "nodeId": {
           "type": "string"
         },
-        "parentId": {
+        "parentNodeId": {
           "type": "string"
         },
         "projectId": {
           "type": "string"
         },
-        "title": {
-          "type": "string"
-        },
         "kind": {
-          "type": "object",
-          "title": "ProjectBlueprintNodeKind"
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintNodeKind"
+            },
+            {
+              "const": "unknown"
+            }
+          ]
         },
-        "description": {
-          "type": "string"
+        "capability": {
+          "$ref": "#/$defs/BlueprintCapability"
         },
-        "formKey": {
-          "type": "string"
+        "navigation": {
+          "$ref": "#/$defs/BlueprintNavigation"
         },
-        "runtimeTarget": {
-          "type": "string"
+        "dataSpace": {
+          "$ref": "#/$defs/BlueprintDataSpace"
         },
-        "runtimeNavigationCandidate": {
-          "type": "boolean"
-        },
-        "order": {
-          "type": "number"
+        "prototype": {
+          "$ref": "#/$defs/BlueprintPrototype"
         },
         "source": {
           "type": "object",
-          "title": "Record<string, unknown>"
+          "title": "BlueprintSource"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T13:16:38.820Z",
+  "generatedAt": "2026-10-06T20:57:27.510Z",
   "models": {
-    "LowcodeProjectBlueprintRecord": {
-      "name": "LowcodeProjectBlueprintRecord",
-      "jsdoc": "lowcode `Base_NavigationInfo` 归一化记录；不是 AppWorks 项目蓝图领域实体。",
+    "BlueprintCapability": {
+      "name": "BlueprintCapability",
+      "jsdoc": "节点能力与短需求；不表达导航显示、数据模型或请求权限。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    parentId: string;\n    projectId: string;\n    title: string;\n    kind: ProjectBlueprintNodeKind;\n    description: string;\n    formKey: string;\n    runtimeTarget: string;\n    runtimeNavigationCandidate: boolean;\n    order: number;\n    source: Readonly<Record<string, unknown>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    name: string;\n    description?: string;\n    code?: string;\n    ownerId?: string;\n    deliveryStatus?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    parentId: string;\n    projectId: string;\n    title: string;\n    kind: ProjectBlueprintNodeKind;\n    description: string;\n    formKey: string;\n    runtimeTarget: string;\n    runtimeNavigationCandidate: boolean;\n    order: number;\n    source: Readonly<Record<string, unknown>>;\n}>",
+            "typeText": "Readonly<{\n    name: string;\n    description?: string;\n    code?: string;\n    ownerId?: string;\n    deliveryStatus?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "id",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "parentId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "projectId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "title",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "kind",
+              "name": "name",
               "readable": true,
               "writable": false
             },
@@ -106,22 +206,248 @@
               "writable": false
             },
             {
-              "name": "formKey",
+              "name": "code",
               "readable": true,
               "writable": false
             },
             {
-              "name": "runtimeTarget",
+              "name": "ownerId",
               "readable": true,
               "writable": false
             },
             {
-              "name": "runtimeNavigationCandidate",
+              "name": "deliveryStatus",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNavigation": {
+      "name": "BlueprintNavigation",
+      "jsdoc": "节点导航意图；实际可访问性由独立后端授权与运行投影裁决。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    title: string;\n    icon?: string;\n    order: number;\n    placement?: 'top' | 'left' | 'right' | 'parent' | 'tabs' | 'popup';\n    target?: string;\n    mobileTarget?: string;\n    openMode?: 'subsystem' | 'current' | 'new-window' | 'modal' | 'embedded';\n    displayMode?: string;\n    horizontalAlignment?: string;\n    publishInMenu: boolean;\n    showChildren: boolean;\n    beginGroup: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    title: string;\n    icon?: string;\n    order: number;\n    placement?: 'top' | 'left' | 'right' | 'parent' | 'tabs' | 'popup';\n    target?: string;\n    mobileTarget?: string;\n    openMode?: 'subsystem' | 'current' | 'new-window' | 'modal' | 'embedded';\n    displayMode?: string;\n    horizontalAlignment?: string;\n    publishInMenu: boolean;\n    showChildren: boolean;\n    beginGroup: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
               "readable": true,
               "writable": false
             },
             {
               "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placement",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mobileTarget",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "openMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "horizontalAlignment",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publishInMenu",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showChildren",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "beginGroup",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintModel": {
+      "name": "BlueprintModel",
+      "jsdoc": "明确的模型查询 Name 引用；导航行不提供正式字段或模型定义。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    metaName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintDataSpace": {
+      "name": "BlueprintDataSpace",
+      "jsdoc": "真实业务场景及模型引用，独立于工具 pageId 和节点 nodeId。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    models: readonly BlueprintModel[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    models: readonly BlueprintModel[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintPrototype": {
+      "name": "BlueprintPrototype",
+      "jsdoc": "节点原型说明；不承担运行工具文件或业务数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    htmlDescription?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    htmlDescription?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "htmlDescription",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintSource": {
+      "name": "BlueprintSource",
+      "jsdoc": "已剔除 query 凭据的后端消费行，保留分组外估算和版本字段，不构成授权。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeProjectBlueprintRecord": {
+      "name": "LowcodeProjectBlueprintRecord",
+      "jsdoc": "SPARK 蓝图四组消费记录；原权限与签名快照只在 API 私有查询上下文中持有。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    parentNodeId: string;\n    projectId: string;\n    kind: ProjectBlueprintNodeKind | 'unknown';\n    capability: BlueprintCapability;\n    navigation?: BlueprintNavigation;\n    dataSpace?: BlueprintDataSpace;\n    prototype?: BlueprintPrototype;\n    source: BlueprintSource;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    parentNodeId: string;\n    projectId: string;\n    kind: ProjectBlueprintNodeKind | 'unknown';\n    capability: BlueprintCapability;\n    navigation?: BlueprintNavigation;\n    dataSpace?: BlueprintDataSpace;\n    prototype?: BlueprintPrototype;\n    source: BlueprintSource;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prototype",
               "readable": true,
               "writable": false
             },

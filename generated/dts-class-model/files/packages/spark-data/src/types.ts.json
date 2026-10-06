@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-data/src/types.ts",
     "packageName": "@spark-appworks/spark-data",
     "modulePath": "types",
-    "jsdoc": "@module @spark-appworks/spark-data:types\n职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                DataPermissionSnapshot                  │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             FilterExpression, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 资源关系 & 视图级联    DataResourceRelation, DataViewCascade       │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
+    "jsdoc": "@module @spark-appworks/spark-data:types\n职责：定义数据行、模型绑定、表与视图元数据、资源关系、输入级联和保存协议。\n边界：保持框架和后端无关，查询输入与私有权限保存上下文分离，不承载页面调用生命周期。\nAI用途：确认数据配置与运行消费的边界，以及单场景多视图的序列化形状。\n\n@packageDocumentation\nSPARK 数据空间类型定义 —— 数据模型、视图、权限、过滤/排序、关系、树的唯一类型源。\n类型分组（按数据从底层结构到顶层数据集的消费流顺序）：\n┌──────────────────────────────────────────────────────────────┐\n│ 1. 基础数据行 / 事件发射器   DataRow, SparkEventEmitter        │\n│ 2. 列类型系统               ColumnType, ColumnTypeMap, DataColumn │\n│ 3. 表语义元数据             TableResourceType, TableBusinessCategory │\n│ 4. 权限快照                DataPermissionSnapshot                  │\n│ 5. 树 API 端点             TreeApi, HttpEndpoint                 │\n│ 6. 表级元数据              TableMetadata, CrudApi                │\n│ 7. 过滤 & 排序             DataViewFilterTree, SortExpression      │\n│ 8. 视图级元数据            ViewMetadata, AggregateType           │\n│ 9. 树结构配置             TreeConfig, 树节点类型                 │\n│ 10. 资源关系 & 视图级联    DataResourceRelation, DataViewCascade       │\n│ 11. 请求状态 & 提交模式     RequestState, CommitMode             │\n│ 12. 数据集元数据           DataSetMetadata, DataSetLayoutMetadata │\n│ 13. 数据源契约             DataSource, ViewChangeHandlers         │\n│ 14. 数据集合同             DataSetContract                       │\n│ 15. 保存 & 事务类型        DataSetSaveChanges* 系列              │\n│ 16. CRUD 服务类型          CrudResult, QueryParams, BatchResult, CrudOperationConfig │\n└──────────────────────────────────────────────────────────────┘",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "SparkEventEmitter",
@@ -28,14 +28,6 @@
       "CrudApi",
       "RetrieveRecordOptions",
       "TableMetadata",
-      "FilterOperator",
-      "FilterValueExpression",
-      "FilterFieldValueReference",
-      "FilterLeafExpression",
-      "FilterLogicExpression",
-      "FilterNegatedConditionExpression",
-      "FilterNegatedLogicExpression",
-      "FilterExpression",
       "SortDirection",
       "SortField",
       "SortExpression",
@@ -82,9 +74,7 @@
       "QueryParams",
       "BatchResult",
       "CrudOperationConfig",
-      "DataPermissionSets",
-      "DataPermissionSnapshot",
-      "DataPermissionSnapshotInput"
+      "DataPermissionSets"
     ]
   },
   "$defs": {
@@ -918,194 +908,6 @@
       ],
       "additionalProperties": false
     },
-    "FilterOperator": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "FilterOperator",
-      "enum": [
-        "==",
-        "!=",
-        ">",
-        ">=",
-        "<",
-        "<=",
-        "in",
-        "not in",
-        "like",
-        "not like",
-        "is null",
-        "is not null",
-        "between",
-        "not between",
-        "startsWith",
-        "endsWith",
-        "contains"
-      ]
-    },
-    "FilterValueExpression": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "FilterValueExpression",
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "null"
-        },
-        {
-          "type": "object",
-          "title": "FilterFieldValueReference"
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "FilterValueExpression"
-          }
-        }
-      ]
-    },
-    "FilterFieldValueReference": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FilterFieldValueReference",
-      "properties": {
-        "kind": {
-          "const": "field"
-        },
-        "field": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "kind",
-        "field"
-      ],
-      "additionalProperties": false
-    },
-    "FilterLeafExpression": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FilterLeafExpression",
-      "properties": {
-        "field": {
-          "type": "string"
-        },
-        "op": {
-          "$ref": "#/$defs/FilterOperator"
-        },
-        "value": {
-          "$ref": "#/$defs/FilterValueExpression"
-        }
-      },
-      "required": [
-        "field",
-        "op",
-        "value"
-      ],
-      "additionalProperties": false
-    },
-    "FilterLogicExpression": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FilterLogicExpression",
-      "properties": {
-        "type": {
-          "enum": [
-            "and",
-            "or"
-          ]
-        },
-        "children": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/FilterExpression"
-          }
-        }
-      },
-      "required": [
-        "type",
-        "children"
-      ],
-      "additionalProperties": false
-    },
-    "FilterNegatedConditionExpression": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FilterNegatedConditionExpression",
-      "properties": {
-        "type": {
-          "const": "!condition"
-        },
-        "field": {
-          "type": "string"
-        },
-        "op": {
-          "$ref": "#/$defs/FilterOperator"
-        },
-        "value": {
-          "$ref": "#/$defs/FilterValueExpression"
-        }
-      },
-      "required": [
-        "type",
-        "field",
-        "op",
-        "value"
-      ],
-      "additionalProperties": false
-    },
-    "FilterNegatedLogicExpression": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FilterNegatedLogicExpression",
-      "properties": {
-        "type": {
-          "enum": [
-            "!and",
-            "!or"
-          ]
-        },
-        "children": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/FilterExpression"
-          }
-        }
-      },
-      "required": [
-        "type",
-        "children"
-      ],
-      "additionalProperties": false
-    },
-    "FilterExpression": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "FilterExpression",
-      "anyOf": [
-        {
-          "type": "object",
-          "title": "FilterLeafExpression"
-        },
-        {
-          "type": "object",
-          "title": "FilterLogicExpression"
-        },
-        {
-          "type": "object",
-          "title": "FilterNegatedConditionExpression"
-        },
-        {
-          "type": "object",
-          "title": "FilterNegatedLogicExpression"
-        }
-      ]
-    },
     "SortDirection": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "SortDirection",
@@ -1275,7 +1077,7 @@
           }
         },
         "filterExpression": {
-          "$ref": "#/$defs/FilterExpression"
+          "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
         },
         "sortExpression": {
           "$ref": "#/$defs/SortExpression"
@@ -1848,16 +1650,6 @@
           "items": {
             "$ref": "#/$defs/DataRow"
           }
-        },
-        "permissionSnapshot": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/DataPermissionSnapshot"
-            },
-            {
-              "type": "null"
-            }
-          ]
         },
         "total": {
           "type": "number"
@@ -2432,7 +2224,7 @@
         "method.resolveCascadeFilter.return": {
           "anyOf": [
             {
-              "$ref": "#/$defs/FilterExpression"
+              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
             },
             {
               "type": "null"
@@ -2942,15 +2734,7 @@
           "type": "string"
         },
         "filter": {
-          "anyOf": [
-            {
-              "type": "object",
-              "title": "Record<string, unknown>"
-            },
-            {
-              "$ref": "#/$defs/FilterExpression"
-            }
-          ]
+          "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
         },
         "search": {
           "type": "string"
@@ -3130,88 +2914,9 @@
         }
       },
       "additionalProperties": false
-    },
-    "DataPermissionSnapshot": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DataPermissionSnapshot",
-      "properties": {
-        "formKey": {
-          "type": "string"
-        },
-        "dataSpaceId": {
-          "type": "string"
-        },
-        "modelId": {
-          "type": "string"
-        },
-        "allowAdd": {
-          "type": "boolean"
-        },
-        "systemKey": {
-          "type": "string"
-        },
-        "originalRows": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataRow"
-          }
-        },
-        "authorizedFeatureTags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "additionalProperties": false
-    },
-    "DataPermissionSnapshotInput": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DataPermissionSnapshotInput",
-      "properties": {
-        "formKey": {
-          "type": "string"
-        },
-        "dataSpaceId": {
-          "type": "string"
-        },
-        "modelId": {
-          "type": "string"
-        },
-        "allowAdd": {
-          "type": "boolean"
-        },
-        "systemKey": {
-          "type": "string"
-        },
-        "originalRows": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataRow"
-          }
-        },
-        "authorizedFeatureTags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "rows": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataRow"
-          }
-        },
-        "total": {
-          "type": "number"
-        }
-      },
-      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-05T19:46:04.482Z",
+  "generatedAt": "2026-10-06T21:13:30.259Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -4192,290 +3897,6 @@
         }
       }
     },
-    "FilterOperator": {
-      "name": "FilterOperator",
-      "jsdoc": "过滤操作符。\n- `==` / `!=` / `>` / `>=` / `<` / `<=` — 标量比较，value 为单个标量\n- `in` / `not in` — 集合成员，value 为数组\n- `like` / `not like` — SQL LIKE 模式（`%` 通配），通常由后端执行\n- `is null` / `is not null` — 空值判断，value 不使用\n- `between` / `not between` — 区间，value 为 `[min, max]` 两元素数组\n- `startsWith` / `endsWith` / `contains` — 字符串前缀/后缀/包含，前端内存过滤可用",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'==' | '!=' | '>' | '>=' | '<' | '<=' | 'in' | 'not in' | 'like' | 'not like' | 'is null' | 'is not null' | 'between' | 'not between' | 'startsWith' | 'endsWith' | 'contains'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'=='"
-          },
-          {
-            "kind": "union",
-            "typeText": "'!='"
-          },
-          {
-            "kind": "union",
-            "typeText": "'>'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'>='"
-          },
-          {
-            "kind": "union",
-            "typeText": "'<'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'<='"
-          },
-          {
-            "kind": "union",
-            "typeText": "'in'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'not in'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'like'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'not like'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'is null'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'is not null'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'between'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'not between'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'startsWith'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'endsWith'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'contains'"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "FilterValueExpression": {
-      "name": "FilterValueExpression",
-      "jsdoc": "过滤条件的值侧类型。\n- 标量（`string | number | boolean | null`）：静态常量值\n- `{ kind: 'field', field: string }`：动态引用父视图当前行的字段值\n- `FilterValueExpression[]`：`in / between` 等多值操作符使用的数组",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "string | number | boolean | null | FilterFieldValueReference | FilterValueExpression[]",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "string"
-          },
-          {
-            "kind": "union",
-            "typeText": "number"
-          },
-          {
-            "kind": "union",
-            "typeText": "boolean"
-          },
-          {
-            "kind": "union",
-            "typeText": "null"
-          },
-          {
-            "kind": "union",
-            "typeText": "FilterFieldValueReference",
-            "targetName": "FilterFieldValueReference"
-          },
-          {
-            "kind": "union",
-            "typeText": "FilterValueExpression[]"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "FilterFieldValueReference": {
-      "name": "FilterFieldValueReference",
-      "jsdoc": "过滤值侧字段引用：运行时从父视图当前行或上下文行读取字段值。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 固定判别值，表示 value 不是常量，而是字段引用。 */\n    kind: 'field';\n    /** 被引用的字段名。 */\n    field: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "kind",
-              "jsdoc": "固定判别值，表示 value 不是常量，而是字段引用。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "field",
-              "jsdoc": "被引用的字段名。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "FilterLeafExpression": {
-      "name": "FilterLeafExpression",
-      "jsdoc": "过滤叶子条件：对单个字段执行一个比较操作。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 被过滤的字段名。 */\n    field: string;\n    /** 过滤操作符。 */\n    op: FilterOperator;\n    /** 过滤右侧值，可为常量、字段引用或数组值。 */\n    value: FilterValueExpression;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "field",
-              "jsdoc": "被过滤的字段名。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "op",
-              "jsdoc": "过滤操作符。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "value",
-              "jsdoc": "过滤右侧值，可为常量、字段引用或数组值。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "FilterLogicExpression": {
-      "name": "FilterLogicExpression",
-      "jsdoc": "过滤逻辑组合：用 AND/OR 组合多个子表达式。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 逻辑组合类型。 */\n    type: 'and' | 'or';\n    /** 子过滤表达式列表。 */\n    children: FilterExpression[];\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "type",
-              "jsdoc": "逻辑组合类型。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "children",
-              "jsdoc": "子过滤表达式列表。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "FilterNegatedConditionExpression": {
-      "name": "FilterNegatedConditionExpression",
-      "jsdoc": "过滤叶子条件取反：对单个字段比较结果执行 NOT。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 固定判别值，表示该叶子条件取反。 */\n    type: '!condition';\n    /** 被过滤的字段名。 */\n    field: string;\n    /** 过滤操作符。 */\n    op: FilterOperator;\n    /** 过滤右侧值，可为常量、字段引用或数组值。 */\n    value: FilterValueExpression;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "type",
-              "jsdoc": "固定判别值，表示该叶子条件取反。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "field",
-              "jsdoc": "被过滤的字段名。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "op",
-              "jsdoc": "过滤操作符。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "value",
-              "jsdoc": "过滤右侧值，可为常量、字段引用或数组值。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "FilterNegatedLogicExpression": {
-      "name": "FilterNegatedLogicExpression",
-      "jsdoc": "过滤逻辑组合取反：对 AND/OR 子表达式整体执行 NOT。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 取反逻辑组合类型。 */\n    type: '!and' | '!or';\n    /** 子过滤表达式列表。 */\n    children: FilterExpression[];\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "type",
-              "jsdoc": "取反逻辑组合类型。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "children",
-              "jsdoc": "子过滤表达式列表。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "FilterExpression": {
-      "name": "FilterExpression",
-      "jsdoc": "过滤表达式——树形判别联合。\n四种形状：\n- `{ field, op, value }` — 叶子条件（字段、操作符、值）\n- `{ type: 'and' | 'or', children }` — 逻辑组合（AND/OR，可嵌套）\n- `{ type: '!condition', field, op, value }` — 叶子条件取反（NOT）\n- `{ type: '!and' | '!or', children }` — 逻辑组合取反（NAND/NOR）\n叶子节点无 `type` 字段，通过是否存在 `field` 属性识别；组合节点通过 `type` 判别。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "FilterLeafExpression | FilterLogicExpression | FilterNegatedConditionExpression | FilterNegatedLogicExpression",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "FilterLeafExpression",
-            "targetName": "FilterLeafExpression"
-          },
-          {
-            "kind": "union",
-            "typeText": "FilterLogicExpression",
-            "targetName": "FilterLogicExpression"
-          },
-          {
-            "kind": "union",
-            "typeText": "FilterNegatedConditionExpression",
-            "targetName": "FilterNegatedConditionExpression"
-          },
-          {
-            "kind": "union",
-            "typeText": "FilterNegatedLogicExpression",
-            "targetName": "FilterNegatedLogicExpression"
-          }
-        ],
-        "members": {}
-      }
-    },
     "SortDirection": {
       "name": "SortDirection",
       "jsdoc": "排序方向（小写）",
@@ -4722,7 +4143,7 @@
       "jsdoc": "数据视图元数据\n视图层关注点：行数据、过滤、排序、分页、树配置、聚合、序列化字段。\n当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */\n    fieldProjection?: readonly DataViewFieldProjection[];\n    /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */\n    queryContext?: DataViewQueryContext;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: FilterExpression;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，渲染层（如 usePageDataSet）在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * 仅对有配置 `api` 且为 default 视图的主表有意义。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
+        "declarationTypeText": "{\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */\n    fieldProjection?: readonly DataViewFieldProjection[];\n    /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */\n    queryContext?: DataViewQueryContext;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: DataViewFilterTree;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * 仅对有配置 `api` 且为 default 视图的主表有意义。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
         "members": {
           "attributes": [
             {
@@ -4817,7 +4238,7 @@
             },
             {
               "name": "autoLoad",
-              "jsdoc": "是否在 DataSet 初始化后自动加载数据（默认 false）。\n设为 `true` 时，渲染层（如 usePageDataSet）在构建 DataSet 后自动调用 `view.requestData()`，\n业务脚本无需在 `__init__` 中手动编写加载代码。\n仅对有配置 `api` 且为 default 视图的主表有意义。",
+              "jsdoc": "是否在 DataSet 初始化后自动加载数据（默认 false）。\n设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，\n业务脚本无需在 `__init__` 中手动编写加载代码。\n仅对有配置 `api` 且为 default 视图的主表有意义。",
               "readable": true,
               "writable": false
             },
@@ -5484,7 +4905,7 @@
       "jsdoc": "完整数据源全量接口，包含分页、聚合结果、权限、值序列化。\nDataView 实现此接口。可将其理解为\"UI 读取 DataView（API 视图）时看到的运行时数据结构\"。\n边界：\n- DataView 对应 table + viewId 的 API 视图（含 requestData/refresh/requestState）。\n- DataSource 只暴露 UI 消费所需的输出字段，不承载 API 配置定义本身（例如 viewId 应由 dataViewKey 解析得到）。\n1. 行级计算列：`columns[].computeExpression` 对每一行求值，结果写回该行字段。\n表达式可直接读取行字段，可通过 `ctx` 读取外部上下文，也可通过\n`$sum/$count/$avg/$min/$max/$list/$join` 读取 DataResourceRelation 匹配到的子资源行。\n2. 视图级聚合配置：定义在 `ViewMetadata.aggregates`，不是 `DataSource` 字段。\n每个输出项包含 `type / field / separator` 等后端 API 认得的规则信息。\n3. 运行时聚合结果：`aggregateResult` 基于当前 `rows` 计算，`selectionAggregateResult`\n基于当前 `selectedRows` 计算；二者都是由 aggregates 配置生成的\"聚合结果输出行\"，\n字段名来自 aggregates 的输出 key，字段值是对应聚合计算结果。\n4. UI / DataView 成员消费：组件可直接读取 `dataSource.aggregateResult`，也可通过\ndataViewKey=`Table@default` + dataMember=`aggregateResult` + dataField=`totalAmount` 引用。\n5. 序列化边界：`DataView.toJson()` 只持久化 `aggregates` 配置；`aggregateResult`、\n`selectionAggregateResult` 和计算列写回 rows 的派生值都是运行时结果，不写入配置 JSON。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前视图行集合，表格/列表/树等数据容器的主要渲染输入 */\n    rows?: readonly DataRow[];\n    /** 列定义数组（只读，来自 DataTable.columns）。UI 组件据此渲染表头 / 表单标签 */\n    columns?: readonly DataColumn[];\n    /** 表名（来自 DataView.tableName） */\n    tableName?: string;\n    /** 数据加载状态（Idle / Loading / Loaded / Failed） */\n    requestState?: RequestState;\n    /** 当前聚焦行（UI 高亮行 / 级联父行） */\n    currentRow?: DataRow | null;\n    /** 当前选中行集合（勾选行 / 级联选中行） */\n    selectedRows?: readonly DataRow[];\n    /** 后端最终权限快照；缺失时权限组件必须 fail-closed。 */\n    permissionSnapshot?: DataPermissionSnapshot | null;\n    /** 当前查询结果总行数，用于分页器展示总量 */\n    total?: number;\n    /** 当前页码，通常从 1 开始 */\n    page?: number;\n    /** 每页行数，用于分页查询和分页器状态同步 */\n    pageSize?: number;\n    /**\n     * 当前 `rows` 的全量聚合输出行；按视图 aggregates 配置自动计算，行变更后自动重算。\n     *\n     * 注意它不是单个标量，而是 `AggregateResultRow` 形状的结果容器：\n     * 每个字段名来自 aggregates 的输出 key，每个字段值是对应聚合计算结果。\n     * 例如 aggregates 配置了 `totalAmount`、`avgScore` 两个输出名，则结果形如：\n     * `{ totalAmount: 1234, avgScore: 87.5 }`。\n     * 当视图已配置 aggregates 且 rows 为空时，源码按类型填默认输出：\n     * `sum/count/avg` 为 `0`，`min/max` 为 `undefined`，`join` 为空字符串。\n     */\n    aggregateResult?: Readonly<AggregateResultRow>;\n    /**\n     * 当前 `selectedRows` 的选中聚合输出行；按视图 aggregates 配置自动计算，选中/数据变更后自动重算。\n     *\n     * 无选中行时源码直接返回空对象 `{}`，而不是按聚合类型填默认输出。\n     * 选中行存在时字段结构与 aggregateResult 相同。\n     */\n    selectionAggregateResult?: Readonly<AggregateResultRow>;\n    /** 选中行序列化值（按 valueField + selectionDelimiter 拼接，可 v-model 绑定） */\n    value?: string;\n    /** 当前行显示标签（按 labelField 或主键回退） */\n    label?: string | null;\n    /** 选中行标签数组 */\n    labels?: readonly string[];\n}",
+        "declarationTypeText": "{\n    /** 当前视图行集合，表格/列表/树等数据容器的主要渲染输入 */\n    rows?: readonly DataRow[];\n    /** 列定义数组（只读，来自 DataTable.columns）。UI 组件据此渲染表头 / 表单标签 */\n    columns?: readonly DataColumn[];\n    /** 表名（来自 DataView.tableName） */\n    tableName?: string;\n    /** 数据加载状态（Idle / Loading / Loaded / Failed） */\n    requestState?: RequestState;\n    /** 当前聚焦行（UI 高亮行 / 级联父行） */\n    currentRow?: DataRow | null;\n    /** 当前选中行集合（勾选行 / 级联选中行） */\n    selectedRows?: readonly DataRow[];\n    /** 后端最终权限快照；缺失时权限组件必须 fail-closed。 */\n    /** 当前查询结果总行数，用于分页器展示总量 */\n    total?: number;\n    /** 当前页码，通常从 1 开始 */\n    page?: number;\n    /** 每页行数，用于分页查询和分页器状态同步 */\n    pageSize?: number;\n    /**\n     * 当前 `rows` 的全量聚合输出行；按视图 aggregates 配置自动计算，行变更后自动重算。\n     *\n     * 注意它不是单个标量，而是 `AggregateResultRow` 形状的结果容器：\n     * 每个字段名来自 aggregates 的输出 key，每个字段值是对应聚合计算结果。\n     * 例如 aggregates 配置了 `totalAmount`、`avgScore` 两个输出名，则结果形如：\n     * `{ totalAmount: 1234, avgScore: 87.5 }`。\n     * 当视图已配置 aggregates 且 rows 为空时，源码按类型填默认输出：\n     * `sum/count/avg` 为 `0`，`min/max` 为 `undefined`，`join` 为空字符串。\n     */\n    aggregateResult?: Readonly<AggregateResultRow>;\n    /**\n     * 当前 `selectedRows` 的选中聚合输出行；按视图 aggregates 配置自动计算，选中/数据变更后自动重算。\n     *\n     * 无选中行时源码直接返回空对象 `{}`，而不是按聚合类型填默认输出。\n     * 选中行存在时字段结构与 aggregateResult 相同。\n     */\n    selectionAggregateResult?: Readonly<AggregateResultRow>;\n    /** 选中行序列化值（按 valueField + selectionDelimiter 拼接，可 v-model 绑定） */\n    value?: string;\n    /** 当前行显示标签（按 labelField 或主键回退） */\n    label?: string | null;\n    /** 选中行标签数组 */\n    labels?: readonly string[];\n}",
         "members": {
           "attributes": [
             {
@@ -5520,12 +4941,6 @@
             {
               "name": "selectedRows",
               "jsdoc": "当前选中行集合（勾选行 / 级联选中行）",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "permissionSnapshot",
-              "jsdoc": "后端最终权限快照；缺失时权限组件必须 fail-closed。",
               "readable": true,
               "writable": false
             },
@@ -6029,7 +5444,7 @@
       "jsdoc": "数据集公共契约\n消费者（渲染层、能力系统）应依赖此接口而非具体 DataSet 类，\n便于测试 mock 与未来扩展。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 数据集名称 */\n    readonly dataSetName: string;\n    /** 数据表集合 */\n    readonly tables: Record<string, DataTable>;\n    /** 数据资源关系定义 */\n    readonly resourceRelations: DataResourceRelation[] | undefined;\n    /** DataView 输入级联定义 */\n    readonly viewCascades: DataViewCascade[] | undefined;\n    /** Schema 格式版本（默认 1） */\n    readonly schemaVersion: number;\n    /** 业务数据版本号（乐观锁） */\n    readonly version: number | undefined;\n    /** 页面 ID */\n    readonly pageId: string | undefined;\n    /** 查询以指定 DataView 为源的目标级联（视图级索引） */\n    getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[];\n    /** 查询以指定 DataView 为目标的源级联（视图级索引） */\n    getParentCascades(childTable: string, childViewId: string): DataViewCascade[];\n    /** 查询以指定资源为父的所有资源关系（聚合函数消费） */\n    getResourceChildRelations(parentTable: string): DataResourceRelation[];\n    /** 查询以指定资源为子的所有资源关系 */\n    getResourceParentRelations(childTable: string): DataResourceRelation[];\n    /** 动态添加数据表 */\n    addTable(tableName: string, columns: DataColumn[]): DataTable;\n    /** 删除未被关系或依赖引用的数据表 */\n    removeTable(tableName: string): void;\n    /** 添加数据资源关系 */\n    addResourceRelation(params: {\n        parentTable: string;\n        childTable: string;\n        parentField: string;\n        childField: string;\n        relationName?: string;\n    }): void;\n    /** 更新数据资源关系 */\n    updateResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }, updates: Partial<DataResourceRelation>): DataResourceRelation;\n    /** 删除数据资源关系 */\n    removeResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }): void;\n    /** 添加 DataView 输入级联 */\n    addCascade(cascade: DataViewCascade): void;\n    /** 更新 DataView 输入级联 */\n    updateCascade(selector: DataViewCascadeSelector, updates: Partial<DataViewCascade>): DataViewCascade;\n    /** 删除 DataView 输入级联 */\n    removeCascade(selector: DataViewCascadeSelector): void;\n    /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */\n    resolveCascadeFilter(rel: DataViewCascade): FilterExpression | undefined | null;\n    /** 获取数据表 */\n    getTable(name: string): DataTable | undefined;\n    /** 获取数据视图（委托到 DataTable） */\n    getView(tableName: string, viewId?: string): DataView | undefined;\n    /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按数据资源关系父资源先于子资源提交所有有变更视图 */\n    saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>;\n    /** 注入页面运行时服务（用于 URL 模板 tenant/project 作用域解析） */\n    setAppServices(appServices: DataSetAppServices): void;\n    /** 注入页面路由快照（页面运行时服务缺失时用于 URL 模板 tenant/project 作用域解析） */\n    setPageRoute(route: unknown): void;\n    /** 生成端点 URL 模板上下文参数 */\n    getRequestTemplateParams(): Record<string, unknown>;\n    /** 序列化为 JSON 友好的元数据对象 */\n    toJson(): DataSetMetadata;\n    /**\n     * 订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n     * @returns 取消订阅函数\n     */\n    on(event: 'loadSuccess' | 'loadError', handler: (payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void): () => void;\n    /**\n     * 订阅此 DataSet 内任意视图的状态变化。\n     *\n     * 严格作用于本 DataSet 实例，多实例并存时互不干扰（替代全局 event-bus）。\n     * 订阅时遍历当前已存在的所有视图；如需监听后续动态创建的视图，可在创建后重新订阅。\n     *\n     * @returns 取消订阅函数（组件卸载时调用）\n     */\n    onAnyViewChange(handlers: ViewChangeHandlers): () => void;\n    /**\n     * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。\n     * 渲染层构建 DataSet 后调用；业务脚本无需手动编写加载代码。\n     */\n    triggerAutoLoad(): void;\n    /**\n     * 销毁 DataSet 及其所有 DataTable/DataView 的资源。\n     * 清理所有事件订阅、委托、共享 HTTP 客户端引用。\n     */\n    destroy(): void;\n    /** 数据集是否已被销毁 */\n    readonly destroyed: boolean;\n}",
+        "declarationTypeText": "{\n    /** 数据集名称 */\n    readonly dataSetName: string;\n    /** 数据表集合 */\n    readonly tables: Record<string, DataTable>;\n    /** 数据资源关系定义 */\n    readonly resourceRelations: DataResourceRelation[] | undefined;\n    /** DataView 输入级联定义 */\n    readonly viewCascades: DataViewCascade[] | undefined;\n    /** Schema 格式版本（默认 1） */\n    readonly schemaVersion: number;\n    /** 业务数据版本号（乐观锁） */\n    readonly version: number | undefined;\n    /** 页面 ID */\n    readonly pageId: string | undefined;\n    /** 查询以指定 DataView 为源的目标级联（视图级索引） */\n    getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[];\n    /** 查询以指定 DataView 为目标的源级联（视图级索引） */\n    getParentCascades(childTable: string, childViewId: string): DataViewCascade[];\n    /** 查询以指定资源为父的所有资源关系（聚合函数消费） */\n    getResourceChildRelations(parentTable: string): DataResourceRelation[];\n    /** 查询以指定资源为子的所有资源关系 */\n    getResourceParentRelations(childTable: string): DataResourceRelation[];\n    /** 动态添加数据表 */\n    addTable(tableName: string, columns: DataColumn[]): DataTable;\n    /** 删除未被关系或依赖引用的数据表 */\n    removeTable(tableName: string): void;\n    /** 添加数据资源关系 */\n    addResourceRelation(params: {\n        parentTable: string;\n        childTable: string;\n        parentField: string;\n        childField: string;\n        relationName?: string;\n    }): void;\n    /** 更新数据资源关系 */\n    updateResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }, updates: Partial<DataResourceRelation>): DataResourceRelation;\n    /** 删除数据资源关系 */\n    removeResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        parentField?: string;\n        childField?: string;\n    }): void;\n    /** 添加 DataView 输入级联 */\n    addCascade(cascade: DataViewCascade): void;\n    /** 更新 DataView 输入级联 */\n    updateCascade(selector: DataViewCascadeSelector, updates: Partial<DataViewCascade>): DataViewCascade;\n    /** 删除 DataView 输入级联 */\n    removeCascade(selector: DataViewCascadeSelector): void;\n    /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */\n    resolveCascadeFilter(rel: DataViewCascade): DataViewFilterTree | undefined | null;\n    /** 获取数据表 */\n    getTable(name: string): DataTable | undefined;\n    /** 获取数据视图（委托到 DataTable） */\n    getView(tableName: string, viewId?: string): DataView | undefined;\n    /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按数据资源关系父资源先于子资源提交所有有变更视图 */\n    saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>;\n    /** 注入页面运行时服务（用于 URL 模板 tenant/project 作用域解析） */\n    setAppServices(appServices: DataSetAppServices): void;\n    /** 注入页面路由快照（页面运行时服务缺失时用于 URL 模板 tenant/project 作用域解析） */\n    setPageRoute(route: unknown): void;\n    /** 生成端点 URL 模板上下文参数 */\n    getRequestTemplateParams(): Record<string, unknown>;\n    /** 序列化为 JSON 友好的元数据对象 */\n    toJson(): DataSetMetadata;\n    /**\n     * 订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n     * @returns 取消订阅函数\n     */\n    on(event: 'loadSuccess' | 'loadError', handler: (payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void): () => void;\n    /**\n     * 订阅此 DataSet 内任意视图的状态变化。\n     *\n     * 严格作用于本 DataSet 实例，多实例并存时互不干扰（替代全局 event-bus）。\n     * 订阅时遍历当前已存在的所有视图；如需监听后续动态创建的视图，可在创建后重新订阅。\n     *\n     * @returns 取消订阅函数（组件卸载时调用）\n     */\n    onAnyViewChange(handlers: ViewChangeHandlers): () => void;\n    /**\n     * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。\n     * 渲染层构建 DataSet 后调用；业务脚本无需手动编写加载代码。\n     */\n    triggerAutoLoad(): void;\n    /**\n     * 销毁 DataSet 及其所有 DataTable/DataView 的资源。\n     * 清理所有事件订阅、委托、共享 HTTP 客户端引用。\n     */\n    destroy(): void;\n    /** 数据集是否已被销毁 */\n    readonly destroyed: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -6379,8 +5794,8 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "FilterExpression",
-                    "sourcePath": "packages/spark-data/src/types.ts"
+                    "name": "DataViewFilterTree",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
                   },
                   {
                     "type": "intrinsic",
@@ -7159,7 +6574,7 @@
       "jsdoc": "分页查询参数 - 支持权限快照传递",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: Record<string, unknown> | FilterExpression;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的字段列表 */\n    fields?: string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 当前 DataView 的字段投影。 */\n    projection?: readonly DataViewFieldProjection[];\n    /** 当前 DataView 的运行查询上下文。 */\n    context?: DataViewQueryContext;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: DataViewFilterTree;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的字段列表 */\n    fields?: string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 当前 DataView 的字段投影。 */\n    projection?: readonly DataViewFieldProjection[];\n    /** 当前 DataView 的运行查询上下文。 */\n    context?: DataViewQueryContext;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -7414,94 +6829,6 @@
             },
             {
               "name": "d",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "DataPermissionSnapshot": {
-      "name": "DataPermissionSnapshot",
-      "jsdoc": "一次运行查询原子登记的权限事实、原始行和稳定身份。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    allowAdd: boolean;\n    systemKey: string;\n    originalRows: ReadonlyArray<Readonly<DataRow>>;\n    authorizedFeatureTags: readonly string[];\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    formKey: string;\n    dataSpaceId: string;\n    modelId: string;\n    allowAdd: boolean;\n    systemKey: string;\n    originalRows: ReadonlyArray<Readonly<DataRow>>;\n    authorizedFeatureTags: readonly string[];\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "formKey",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "dataSpaceId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "modelId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "allowAdd",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "systemKey",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "originalRows",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "authorizedFeatureTags",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "DataPermissionSnapshotInput": {
-      "name": "DataPermissionSnapshotInput",
-      "jsdoc": "DataTable/DataView 登记后端运行查询结果的唯一输入。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "DataPermissionSnapshot & Readonly<{\n    rows: readonly DataRow[];\n    total: number;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "intersection",
-            "typeText": "DataPermissionSnapshot",
-            "targetName": "DataPermissionSnapshot"
-          },
-          {
-            "kind": "intersection",
-            "typeText": "Readonly<{\n    rows: readonly DataRow[];\n    total: number;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "rows",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "total",
               "readable": true,
               "writable": false
             }

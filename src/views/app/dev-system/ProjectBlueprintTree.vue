@@ -28,18 +28,6 @@ AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模
             <el-dropdown-item divided @click="state.openProjectPlanningDocumentImportDialog()">
               <NavIcon name="Upload" :size="14" /> 导入项目策划文档
             </el-dropdown-item>
-            <el-dropdown-item
-              :disabled="state.hasReservedRootGroup('toolbar')"
-              @click="state.restoreReservedRootGroup('toolbar')"
-            >
-              恢复工具栏组
-            </el-dropdown-item>
-            <el-dropdown-item
-              :disabled="state.hasReservedRootGroup('user-menu')"
-              @click="state.restoreReservedRootGroup('user-menu')"
-            >
-              恢复用户菜单组
-            </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -49,8 +37,8 @@ AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模
       v-else
       ref="treeRef"
       :data="state.treeData.value"
-      node-key="id"
-      :props="{ label: 'title', children: 'children' }"
+      node-key="nodeId"
+      :props="{ label: nodeLabel, children: 'children' }"
       :default-expand-all="true"
       :filter-node-method="filterNode"
       highlight-current
@@ -65,20 +53,17 @@ AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模
         <span class="tree-node">
           <span class="node-icon">
             <NavIcon
-              :name="data.icon ?? ''"
-              :fallback="data.children?.length ? 'Folder' : data.nodeKind === 'module' ? 'Grid' : 'Document'"
+              :name="data.navigation?.icon ?? ''"
+              :fallback="data.children?.length ? 'Folder' : data.kind === 'module' ? 'Grid' : 'Document'"
             />
           </span>
-          <span class="node-label">{{ data.title }}</span>
+          <span class="node-label">{{ nodeLabel(data) }}</span>
           <el-tag size="small" type="success" class="node-tag node-kind-tag">
             {{ formatNodeKind(data) }}
           </el-tag>
-          <span v-if="data.path" class="node-path">{{ data.path }}</span>
-          <el-tag v-if="data.childPlacement" size="small" type="info" class="node-tag">
-            {{ formatNavigationPlacementLabel(data.childPlacement) }}
-          </el-tag>
-          <el-tag v-if="data.context" size="small" type="warning" class="node-tag">
-            context
+          <span v-if="data.navigation?.target" class="node-path">{{ data.navigation?.target }}</span>
+          <el-tag v-if="data.navigation?.placement" size="small" type="info" class="node-tag">
+            {{ formatNavigationPlacementLabel(data.navigation?.placement) }}
           </el-tag>
           <span class="node-actions">
             <el-button size="small" link type="primary" @click.stop="state.addChildNode(data)">
@@ -88,7 +73,6 @@ AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模
               size="small"
               link
               type="danger"
-              :disabled="state.isSystemRootDirectory(data)"
               @click.stop="handleRemove(node, data)"
             >
               <NavIcon name="Delete" :size="12" />
@@ -104,7 +88,6 @@ AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模
 import { ref, watch, nextTick } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
-import { isNestedConfigPageNode } from '@spark-appworks/spark-project-model'
 import type { DevState } from './useDevState'
 import { formatNavigationPlacementLabel } from './childPlacementLabels'
 import NavIcon from '@/components/NavIcon.vue'
@@ -115,41 +98,9 @@ const state = props.state
 const treeRef = ref()
 const treeFilter = ref('')
 
-const NODE_KIND_LABEL: Record<string, string> = {
-  'project': '项目蓝图',
-  'requirement': '需求策划',
-  'prototype': '原型设计',
-  'data-space': '数据空间',
-  'sub-page': '子页面',
-  'report': '报表',
-  'workflow': '流程',
-  'integration': '集成',
-  'action': '功能动作',
-  'external': '外部交付',
-  'permission-management': '权限管理',
-  'unresolved': '待确认类型',
-  'system-directory': '系统模块',
-  'module': '模块',
-  'system-page': '系统页面',
-  'system-action': '系统动作',
-  'page': '普通页面',
-  'link': '超链接',
-  'nested-page': '子页面',
-}
-
-function inferNodeKind(node: ProjectBlueprintTreeNodeData): string {
-  if (node.nodeKind) return node.nodeKind
-  if (node.childPlacement === 'toolbar' || node.childPlacement === 'user-menu') return 'system-directory'
-  if (node.linkTarget === 'iframe' || node.linkTarget === 'new-tab') return 'link'
-  return 'page'
-}
-
-function formatNodeKind(node: ProjectBlueprintTreeNodeData): string {
-  if (node.blueprintKind) return NODE_KIND_LABEL[node.blueprintKind] ?? node.blueprintKind
-  if (isNestedConfigPageNode(node)) return NODE_KIND_LABEL['nested-page'] ?? '子页面'
-  const kind = inferNodeKind(node)
-  return NODE_KIND_LABEL[kind] ?? kind
-}
+const NODE_KIND_LABEL: Record<string,string> = {module:'模块',page:'页面',embedded:'嵌入内容',service:'服务',content:'内容',unknown:'待确认'}
+function nodeLabel(node: ProjectBlueprintTreeNodeData): string { return node.navigation?.title ?? node.capability.name }
+function formatNodeKind(node: ProjectBlueprintTreeNodeData): string { return NODE_KIND_LABEL[node.kind] ?? node.kind }
 
 watch(treeFilter, (val) => { treeRef.value?.filter(val) })
 
@@ -157,16 +108,16 @@ watch(treeFilter, (val) => { treeRef.value?.filter(val) })
 watch(() => state.selectedNode.value, async (node) => {
   if (node) {
     await nextTick()
-    treeRef.value?.setCurrentKey(node.id)
+    treeRef.value?.setCurrentKey(node.nodeId)
   }
 }, { immediate: true })
 
 function filterNode(value: string, data: ProjectBlueprintTreeNodeData) {
   if (!value) return true
   const v = value.toLowerCase()
-  return data.title.toLowerCase().includes(v) ||
-    data.id.toLowerCase().includes(v) ||
-    (data.path?.toLowerCase().includes(v) ?? false)
+  return nodeLabel(data).toLowerCase().includes(v) ||
+    data.nodeId.toLowerCase().includes(v) ||
+    (data.navigation?.target?.toLowerCase().includes(v) ?? false)
 }
 
 async function handleNodeClick(data: ProjectBlueprintTreeNodeData) {
@@ -174,11 +125,11 @@ async function handleNodeClick(data: ProjectBlueprintTreeNodeData) {
 }
 
 function allowNodeDrag(data: ProjectBlueprintTreeNodeData): boolean {
-  return !state.isSystemRootDirectory(data)
+  return data.nodeId !== state.project.rootNode?.id
 }
 
 function allowNodeDrop(draggingNode: { data: ProjectBlueprintTreeNodeData }): boolean {
-  return !state.isSystemRootDirectory(draggingNode.data)
+  return draggingNode.data.nodeId !== state.project.rootNode?.id
 }
 
 function handleNodeDrop(draggingNode: { data: ProjectBlueprintTreeNodeData }) {
@@ -188,7 +139,7 @@ function handleNodeDrop(draggingNode: { data: ProjectBlueprintTreeNodeData }) {
 async function handleRemove(node: { parent: { data: ProjectBlueprintTreeNodeData } }, data: ProjectBlueprintTreeNodeData) {
   try {
     await ElMessageBox.confirm(
-      `确定删除 "${data.title}"？${data.children?.length ? `（含 ${data.children.length} 个子节点）` : ''}`,
+      `确定删除 "${nodeLabel(data)}"？${data.children?.length ? `（含 ${data.children.length} 个子节点）` : ''}`,
       '确认删除',
       { type: 'warning' },
     )
@@ -203,7 +154,7 @@ function collapseAll() {
   for (const k of getAllKeys(state.treeData.value)) treeRef.value?.getNode(k)?.collapse()
 }
 function getAllKeys(nodes: ProjectBlueprintTreeNodeData[]): string[] {
-  return nodes.flatMap(n => [n.id, ...(n.children ? getAllKeys(n.children) : [])])
+  return nodes.flatMap(n => [n.nodeId, ...(n.children ? getAllKeys(n.children) : [])])
 }
 
 defineExpose({ treeRef })

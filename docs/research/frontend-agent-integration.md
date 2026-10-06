@@ -40,11 +40,11 @@ AiAgentHost（注册/编排/运行）
 
 ```
 AI 生成 rule.json（SparkNode 树）
-  → ConfigPageNode.setFileText("rule.json", ...)
+  → ProjectWorkspace.project.openPageDesign(pageId).setFileText("rule.json", ...)
   → SparkNodeTree.fromPageChildren(rule)
   → buildPageChildren()（绑定事件、规范化 props）
   → SparkComponentRenderer（递归解析 type → 注册表查找 → Vue 组件渲染）
-  → Capability Context Tree 传播 DataSet / DataRow / Permission / PageService
+  → Capability Context Tree 传播 PAGE_RUNTIME / DATA_SOURCE / DATA_ROW / PageService
 ```
 
 **AI 输出的页面本身就是结构化 UI**，走的是和人工设计页面完全相同的渲染管线。缺的不是"结构化 UI 渲染能力"，而是 **Agent 会话流中的结构化交互能力**。
@@ -383,7 +383,7 @@ export function createPlaywrightPreviewProvider(
 ### 5.6 验证集成流程
 
 ```
-AI 生成 rule.json/pagedata.json
+AI 编辑工具 rule.json，并在明确 scenarioId 后编辑场景 pagedata.json
   → delivery.save() 保存文件
   → browserPreviewProvider.capture({ pageId, captureType: 'both' })
   → 返回截图 + accessibility 快照

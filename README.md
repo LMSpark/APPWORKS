@@ -21,7 +21,7 @@
 
 ## 为什么不主打生成代码
 
-- AI 主要生成 `rule.json`、`pagedata.json`、`style.css` 和最小化 `script.js`，而不是无边界地改整个代码仓库
+- AI 通过 PageTool 编辑 `rule.json`、`script.js`、`style.css`；数据视图配置由明确 scenarioId 的 ScenarioViewFile 编辑并保存到场景 `pagedata.json`
 - 生成结果进入固定运行时解释执行，可靠性依赖平台内核，而不是依赖每次生成的偶然正确性
 - 配置天然更适合做结构校验、依赖校验、权限校验、回滚和审计
 - 对企业场景来说，可控、可验证、可维护，比“多生成一些代码”更有价值
@@ -65,7 +65,7 @@ packages/
 ├── spark-app/                   # 🏗️ 应用层基础设施（路由、认证、宿主配置、插件系统）
 ├── spark-component/             # ⚙️ 组件核心系统（注册表、能力管理、上下文、页面渲染器）
 ├── spark-data/                  # 📊 数据空间（DataSet、DataView、TreeManager、关系与聚合）
-├── spark-project-model/         # 📄 软件项目模型（ProjectModel、项目蓝图节点、配置页内容子模型）
+├── spark-project-model/         # 📄 项目蓝图、PageTool、ScenarioViewFile 与 PageRuntime
 ├── spark-lowcode-api/           # 🔌 可发布的 lowcode-jdk17 前端 API 合同、领域入口与治理计划
 ├── spark-utils/                 # 🛠️ 共享工具（Logger、HTTP、能力键、基础类型）
 └── vite-plugin-spark-catalog/   # 组件扫描配置与命名工具
@@ -131,11 +131,10 @@ pnpm run test
 
 1. **页面结构配置**
    用 `rule.json` 描述页面布局、容器、字段、事件和工具栏。
-2. **页面数据模型（分层）**
-   - **设计/AI 轴**：四文件里的 `pagedata.json` 描述本地 DataSet 草稿（表、视图、关系等），供设计器与生成器编辑。
-   - **运行轴**：页面有 `formKey + dataSpaceId + modelId`（`PageDataSpaceBinding`）时，运行态 DataSet 只由平台 **DataSpace + 权限** 装配，不再把 `pagedata.json` 当运行真源。
+2. **场景数据视图**
+   `SysForm/<scenarioId>/pagedata.json` 声明单场景 tables、正式 modelBinding、命名 views 和 viewCascades。平台 readModel/readRelations 提供正式模型与关系；宿主按两者装配 DataSet。每次 PageRuntime 调用持有独立的多个场景数据集。
 3. **页面数据绑定**
-   通过 DataViewKey 把容器和 DataView 连接起来，例如 `Users@default`；展示和动作需要读取 DataView 输出时使用 `dataViewKey + dataMember + dataField`，例如 `dataViewKey: "Orders@detail", dataMember: "currentRow", dataField: "total"`。
+   通过 `#scenarioId@table@view` 定位本次调用已声明的视图；局部 `table@view` 需要明确 mainScenarioId。展示读取使用 `dataViewKey + dataMember + dataField`；动作通过 PageRuntime.resolveView/getDataSet 解析，没有默认首空间。
 4. **页面行为脚本**
    在 `script.js` 里只写最小化业务分支和页面行为，数据管理仍然通过 DataSet 流转。
 5. **组件能力系统**
@@ -149,7 +148,7 @@ pnpm run test
 {
   "type": "r-table",
   "props": {
-      "dataViewKey": "Users@default",
+      "dataViewKey": "#SCENE@Users@default",
     "border": true,
     "stripe": true,
     "highlightCurrentRow": true
@@ -186,7 +185,7 @@ SPARK 不直接把原始 JSON 丢给组件，而是通过 DataSet、DataTable、
 
 ### 3. 页面权限策略
 
-权限不是零散地塞进单个组件的 `disabled` 或 `v-if`，而是通过统一的权限快照和页面模式进入渲染链。这样同一页面能稳定支持只读、脱敏、不可见等模式。
+字段与动作权限来自 DataView 私有原查询上下文，组件消费 fieldAccess 和动作状态；页面模式可以进一步收窄权限。签名快照由 SPARK API 持有，业务行与页面脚本不能伪造权限。
 
 ### 4. 组件能力系统
 
@@ -208,7 +207,7 @@ SPARK 不直接把原始 JSON 丢给组件，而是通过 DataSet、DataTable、
 文档入口统一从 [docs/README.md](docs/README.md) 开始。当前只保留中文主线和可执行指南：
 
 - [快速开始](docs/guides/QUICKSTART.md)
-- [项目整体认知](docs/SPARK_AppWorks_PROJECT_DEEP_DIVE_ZH.md)
+- [项目整体认知](docs/SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md)
 - [spark-project-model 架构](docs/architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)
 - [数据流架构](docs/architecture/DATAFLOW_ARCHITECTURE.md)
 - [AI 编码标准](ai-coding-kit/AGENTS.md)

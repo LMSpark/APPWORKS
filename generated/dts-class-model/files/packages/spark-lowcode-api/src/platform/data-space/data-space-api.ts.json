@@ -31,8 +31,9 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "http": {
-              "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            "options": {
+              "type": "object",
+              "title": "DataSpaceApiOptions"
             }
           },
           "additionalProperties": false
@@ -40,21 +41,31 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T07:31:41.805Z",
+  "generatedAt": "2026-10-06T21:12:54.473Z",
   "models": {
+    "DataSpaceApiOptions": {
+      "name": "DataSpaceApiOptions",
+      "jsdoc": "数据空间根门面共享的运行 owner 配置；design 复用其中的请求 scope 与查询保存能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ConstructorParameters<typeof DataSpaceRuntimeApi>[0]",
+        "members": {}
+      }
+    },
     "DataSpaceApi": {
       "name": "DataSpaceApi",
-      "jsdoc": "数据空间 API 聚合根；{@link design}与 {@link runtime}各自持有独立 HTTP 客户端实例。",
+      "jsdoc": "数据空间 API 聚合根；设计合同读取与业务查询共享 HTTP、请求范围和实际查询 owner。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(http: HttpClientBase)",
+          "signatureText": "constructor(options: DataSpaceApiOptions)",
           "parameters": [
             {
-              "name": "http",
+              "name": "options",
               "type": {
                 "type": "reference",
-                "name": "HttpClientBase"
+                "name": "DataSpaceApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts"
               }
             }
           ]

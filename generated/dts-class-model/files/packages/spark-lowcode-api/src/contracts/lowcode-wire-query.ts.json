@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "contracts/lowcode-wire-query",
-    "jsdoc": "lowcode-jdk17 数据查询 wire 字面量（排序方向 / 过滤操作符 / 分组聚合）。\n与 `backend-api-contracts/common.ts` 同形（`tools/verify-wire-query-parity.mjs`）。\n前端 DataView 使用 spark-data 的 `SortDirection` / `FilterOperator` / `AggregateType`，\n经宿主 mapper 投影到本文件类型；`AggregateType` 含客户端专用 `join`，不可硬合并。",
+    "jsdoc": "lowcode-jdk17 数据查询 wire 字面量（排序方向 / 过滤操作符 / 分组聚合）。\n与 `backend-api-contracts/common.ts` 同形（`tools/verify-wire-query-parity.mjs`）。\n前端 DataView 使用 spark-data 的 `SortDirection` / `DataViewFilterOperator` / `AggregateType`，\n过滤由 API 独占 wire 转换；`AggregateType` 含客户端专用 `join`，不可硬合并。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "OrderType",
@@ -60,7 +60,7 @@
       ]
     }
   },
-  "generatedAt": "2026-08-10T12:20:36.993Z",
+  "generatedAt": "2026-10-06T05:30:40.467Z",
   "models": {
     "OrderType": {
       "name": "OrderType",
@@ -83,7 +83,7 @@
     },
     "WireFilterOperator": {
       "name": "WireFilterOperator",
-      "jsdoc": "wire 过滤操作符（Jackson Filter.Operator）。\n禁止与 spark-data `FilterOperator`（`==`/`contains` 等）同名混用。",
+      "jsdoc": "wire 过滤操作符（Jackson Filter.Operator）。\n禁止与 spark-data `DataViewFilterOperator`（`eq`/`contains` 等）同名混用。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "'equal' | 'notequal' | 'greaterthan' | 'greaterthanorequal' | 'lessthan' | 'lessthanorequal' | 'isnull' | 'isnotnull' | 'contains' | 'nolike' | 'startswith' | 'nostartswith' | 'endswith' | 'notendswith' | 'in' | 'notin' | 'isempty' | 'isnotempty'",

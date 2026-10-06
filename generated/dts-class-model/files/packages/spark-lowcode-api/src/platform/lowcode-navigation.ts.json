@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/lowcode-navigation",
-    "jsdoc": "运行态导航授权归一化：TopMenus/LeftMenus 树与 Relations 上下文。\nwire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；vue: 协议须小写。",
+    "jsdoc": "运行态导航授权归一化：TopMenus/LeftMenus 树与 Relations 上下文。\nwire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；cfg:/vue: 协议须小写。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "LowcodeNavigationTargetKind",
@@ -21,6 +21,7 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "LowcodeNavigationTargetKind",
       "enum": [
+        "cfg",
         "empty",
         "external",
         "route",
@@ -121,15 +122,19 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:16:41.561Z",
+  "generatedAt": "2026-10-05T10:07:52.893Z",
   "models": {
     "LowcodeNavigationTargetKind": {
       "name": "LowcodeNavigationTargetKind",
       "jsdoc": "导航目标类型；由 NavigationUrl/url 解析得出。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'empty' | 'external' | 'route' | 'vue'",
+        "declarationTypeText": "'cfg' | 'empty' | 'external' | 'route' | 'vue'",
         "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'cfg'"
+          },
           {
             "kind": "union",
             "typeText": "'empty'"
@@ -226,7 +231,7 @@
     },
     "LowcodeNavigationAuthorizationItem": {
       "name": "LowcodeNavigationAuthorizationItem",
-      "jsdoc": "导航授权树节点；route/vue 目标携带 formKey（conId/conid）。",
+      "jsdoc": "导航授权树节点；cfg/route/vue 目标携带 formKey（conId/conid）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    id: string;\n    target: string;\n    targetKind: LowcodeNavigationTargetKind;\n    formKey: string | null;\n    children: readonly LowcodeNavigationAuthorizationItem[];\n}>",

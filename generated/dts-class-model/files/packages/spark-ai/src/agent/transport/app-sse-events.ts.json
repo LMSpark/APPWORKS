@@ -79,7 +79,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T13:41:38.869Z",
+  "generatedAt": "2026-10-05T10:07:52.880Z",
   "models": {
     "AiAgentAppSseEventName": {
       "name": "AiAgentAppSseEventName",

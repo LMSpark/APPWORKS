@@ -36,9 +36,7 @@ export type RuntimeNavigationItem = {
   permissionMode?: PermissionMode
   children?: RuntimeNavigationItem[]
   path?: string
-  formKey?: string
-  dataSpaceId?: string
-  modelId?: string
+  tool?: Readonly<{ projectId: string; pageId: string; versionId?: string }>
   linkTarget?: NavigationLinkTarget
   redirect?: string
   refId?: string

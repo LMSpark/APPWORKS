@@ -10,7 +10,6 @@
     "jsdoc": "低代码平台门面 API：登录/刷新/登出、企业目录与注册、应用选择与导航根解析。\n会话与应用上下文分别委托 {@link LowcodeSessionStore}、{@link LowcodeApplicationStore} 持久化；\n登录成功会清空应用上下文，避免跨企业/跨应用残留导航身份。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "LowcodeCurrentUser",
       "LowcodeLoginCredentials",
       "LowcodeVerificationScene",
       "LowcodeVerificationRequest",
@@ -25,75 +24,6 @@
     ]
   },
   "$defs": {
-    "LowcodeCurrentUser": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeCurrentUser",
-      "properties": {
-        "account": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "realName": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "avatar": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "address": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "signature": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "orgId": {
-          "type": [
-            "null",
-            "number"
-          ]
-        },
-        "orgName": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "posName": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "buttons": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "userInfo": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "Record<string, unknown>"
-        }
-      },
-      "additionalProperties": false
-    },
     "LowcodeLoginCredentials": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -476,15 +406,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.getCurrentUser.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getCurrentUser.return": {
-          "type": "object",
-          "title": "Promise<LowcodeCurrentUser>"
-        },
         "method.listApplications.params": {
           "type": "object",
           "properties": {},
@@ -523,77 +444,8 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T12:27:48.568Z",
+  "generatedAt": "2026-10-05T18:48:10.694Z",
   "models": {
-    "LowcodeCurrentUser": {
-      "name": "LowcodeCurrentUser",
-      "jsdoc": "当前用户资料；wire 响应字段为 camelCase（如 account、realName、userInfo）。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    account: string | null;\n    realName: string | null;\n    avatar: string | null;\n    address: string | null;\n    signature: string | null;\n    orgId: number | null;\n    orgName: string | null;\n    posName: string | null;\n    buttons: readonly string[] | null;\n    userInfo: Readonly<Record<string, unknown>> | null;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    account: string | null;\n    realName: string | null;\n    avatar: string | null;\n    address: string | null;\n    signature: string | null;\n    orgId: number | null;\n    orgName: string | null;\n    posName: string | null;\n    buttons: readonly string[] | null;\n    userInfo: Readonly<Record<string, unknown>> | null;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "account",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "realName",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "avatar",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "address",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "signature",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "orgId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "orgName",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "posName",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "buttons",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "userInfo",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
       "jsdoc": "企业域登录凭据；请求体映射为 strUser、strPwd、entName（大小写固定）。",
@@ -1266,22 +1118,6 @@
                   {
                     "type": "intrinsic",
                     "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "getCurrentUser",
-              "jsdoc": "拉取当前用户；有会话时附带 Authorization Bearer accessToken。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "LowcodeCurrentUser",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
                   }
                 ]
               }

@@ -88,21 +88,19 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             </button>
           </div>
         </div>
-        <keep-alive v-else-if="mode === 'multi'" :max="10">
-          <component
-            v-if="isSparkRendererRoute"
-            :is="Component"
-            :key="sparkRendererRouteKey"
-          />
-          <component v-else :is="Component" :key="route.path" />
+        <div v-if="configPending && !contextGuard" role="status">
+          页面配置已更新。
+          <button type="button" :disabled="configRefreshing" @click="reloadCurrentConfiguration">刷新配置</button>
+          <span v-if="configRefreshError">{{ configRefreshError }}</span>
+        </div>
+        <keep-alive :include="runtimeNames">
+          <component v-if="!contextGuard && runtimeView" :is="runtimeView" :key="runtimeInstanceId" ref="runtimeRenderer" />
+        </keep-alive>
+        <keep-alive v-if="mode === 'multi'">
+          <component v-if="!contextGuard && !runtimeView" :is="Component" :key="route.fullPath" />
         </keep-alive>
         <transition v-else name="fade" mode="out-in">
-          <component
-            v-if="!contextGuard && isSparkRendererRoute"
-            :is="Component"
-            :key="sparkRendererRouteKey"
-          />
-          <component v-else-if="!contextGuard" :is="Component" :key="route.fullPath" />
+          <component v-if="!contextGuard && !runtimeView" :is="Component" :key="route.fullPath" />
         </transition>
       </router-view>
 
@@ -126,7 +124,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, provide, reactive, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, provide, reactive, ref, watch, type ComponentPublicInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
@@ -175,6 +173,7 @@ const {
   appPageUiService,
   createNavigationActionRegistry,
   getPageCacheHandle,
+  getDynamicRouter,
   getNavTree,
   getPageCacheStats,
   NAVIGATION_ACTION_REGISTRY_KEY,
@@ -220,16 +219,32 @@ const sidebarCollapsed = ref(false)
 const headerFirst = ref(false)
 const showFooter = ref(true)
 const showConfigurator = ref(false)
-const { mode, setMode } = useTabPages()
+const { tabs, mode, setMode } = useTabPages()
 useColorScheme()
 const activeSettingsScope = ref<string | null>(null)
 let isApplyingProjectUiSettings = false
 let _stopPageConfigChange: (() => void) | null = null
-const pageNodeRefreshRevision = ref(0)
-const sparkRendererRouteKey = computed(() => {
-  const base = mode.value === 'multi' ? route.path : route.fullPath
-  return `${base}::page-node-${pageNodeRefreshRevision.value}`
+const runtimeView = computed(() => contextGuard.value ? undefined : getDynamicRouter()?.getPageRuntimeView(router.currentRoute.value))
+const runtimeInstanceId = computed(() => contextGuard.value ? undefined : getDynamicRouter()?.getPageRuntime(router.currentRoute.value)?.instanceId)
+const runtimeNames = computed(() => tabs.value.flatMap(tab => tab.runtimeName ? [tab.runtimeName] : []))
+const runtimeRenderer = ref<ComponentPublicInstance>()
+const configurationRevision = ref(0)
+const configRefreshing = ref(false)
+const configRefreshError = ref('')
+const configPending = computed(() => {
+  void configurationRevision.value
+  return getDynamicRouter()?.getPageRuntime(router.currentRoute.value)?.configPending === true
 })
+async function reloadCurrentConfiguration(): Promise<void> {
+  configRefreshing.value = true
+  configRefreshError.value = ''
+  try {
+    const reload: unknown = runtimeRenderer.value === undefined ? undefined : Reflect.get(runtimeRenderer.value, 'reload')
+    if (typeof reload !== 'function') throw new Error('当前页面缺少配置刷新能力')
+    await Reflect.apply(reload, runtimeRenderer.value, [])
+  } catch (failure) { configRefreshError.value = failure instanceof Error ? failure.message : String(failure) }
+  finally { configRefreshing.value = false; configurationRevision.value++ }
+}
 
 function toTenantProjectSettingsScope(tenantId: string | undefined, projectId: string | undefined): string | null {
   if (!tenantId || !projectId) return null
@@ -359,8 +374,10 @@ function jumpToExpectedContext(): void {
 /* ── 项目切换服务（供子组件注入） ── */
 const projectSwitchService: ProjectSwitchService = {
   async switchAndReload(projectId: string) {
+    getDynamicRouter()?.assertPageRuntimesClean()
     if (projectId === 'homepage') enterLowcodeApplicationCatalog()
     else await activateLowcodeApplication(projectId)
+    getDynamicRouter()?.disposePageRuntimes()
     activeProjectId.value = projectId
     applyProjectSettingsScope(resolveProjectSettingsScope(projectId))
     try {
@@ -437,10 +454,6 @@ const nav = useNavigation(_navRoot, {
 const pageUiService = appPageUiService
 sparkProvide(AI_AGENT_HOST, appAiAgent)
 sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: pageUiService })
-const isSparkRendererRoute = computed(() => {
-  const routeType = route.meta['type']
-  return routeType === 'config-page' || routeType === 'cross-project-ref'
-})
 const pageModuleContext = computed<ContextSnapshot | null>(() => {
   const state = nav.moduleContext.value
   if (!state) return null
@@ -491,20 +504,10 @@ function emitModuleContextChange(
   }
 }
 
-function readRoutePageId(): string | null {
-  const pageId = route.meta['pageId']
-  return typeof pageId === 'string' && pageId.length > 0 ? pageId : null
-}
-
 function handlePageConfigChange(event: FileChangeEvent): void {
   getPageCacheHandle()?.clearPageCache(event.pageId)
-  const refPageId = route.meta['refPageId']
-  if (
-    readRoutePageId() === event.pageId
-    || (typeof refPageId === 'string' && refPageId === event.pageId)
-  ) {
-    pageNodeRefreshRevision.value += 1
-  }
+  getDynamicRouter()?.markPageConfigPending(event.pageId)
+  configurationRevision.value++
 }
 
 const moduleContextCapability: ModuleContextCapability = {

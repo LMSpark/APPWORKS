@@ -95,11 +95,10 @@ import type { CapabilityContext } from '@spark-appworks/spark-utils'
 import type { ComponentRegistry, ComponentChildrenMode } from '../core/types.js'
 import { consumeSparkCapability, createSparkCapabilityContext, isRecord, sparkProvide, sparkRemove } from '@spark-appworks/spark-utils'
 import { SPARK_REGISTRY_KEY } from '../system/keys.js'
-import { DATA_ROW, DATA_SOURCE } from '../core/capability-keys.js'
+import { DATA_ROW, DATA_SOURCE, PAGE_COMPONENT_REGISTRY } from '../core/capability-keys.js'
 import { sparkBindContextOwner, sparkResolveParentContext, sparkUnbindContextOwner, type SparkRuntimeOwner } from '../core/capability-context.js'
 import type { BeforeRenderContext } from './support/beforeRender.js'
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from './support/beforeRender.js'
-import { extractPermissionSnapshot } from '../permission/index.js'
 import { resolvePlaceholderProps } from '../core/useSparkComponent.js'
 
 // ── 常量与局部类型：渲染器内部约束、运行时局部类型 ───────────────────────────
@@ -406,7 +405,6 @@ function buildBeforeRenderContext({ rawProps, parentContext }: ScopedRuntimeInpu
     data: rawProps['data'] ?? row,
     index: resolveScopedRowIndex(rawProps),
     dataSource,
-    permissionSnapshot: extractPermissionSnapshot(dataSource),
     host: {
       type: parentContext?.type ?? null,
     },
@@ -685,10 +683,9 @@ function resolveGlobalElComponent(type: string | null) {
   const appComponents = currentInstance?.appContext.components
   if (appComponents === undefined) return null
 
-  if (/^Render[A-Z0-9_]/.test(type)) {
-    const directRender = appComponents[type]
-    if (directRender !== undefined) return resolveRenderableComponent(directRender)
-  }
+  const pageRegistry = consumeSparkCapability(parentCapabilityContext.value, PAGE_COMPONENT_REGISTRY)
+  const pageRender = pageRegistry?.getRender(type)
+  if (pageRender) return resolveRenderableComponent(pageRender)
 
   if (!type.startsWith('el-')) return null
 

@@ -7,7 +7,7 @@
     "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
     "packageName": "app",
     "modulePath": "services/page-design/page-design-agent-run-provider",
-    "jsdoc": "@module app:services/page-design/page-design-agent-run-provider\n职责：pageDesign 隔离式 Agent Run——headless editor 注册、四文件 delivery、run preparation。\n边界：DevSystem 内联 runner 共用 editor 语义见 page-design-ai-runner；不进入 spark-ai 内核。\nAI用途：排查 pageDesign Agent Run 的 delivery 与 run preparation 接线时，用本模块定位 provider 契约。",
+    "jsdoc": "@module app:services/page-design/page-design-agent-run-provider\n职责：pageDesign 隔离式 Agent Run——headless editor 注册、三文件 delivery、run preparation。\n边界：DevSystem 内联 runner 共用 editor 语义见 page-design-ai-runner；不进入 spark-ai 内核。\nAI用途：排查 pageDesign Agent Run 的 delivery 与 run preparation 接线时，用本模块定位 provider 契约。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PageDesignDeliveryContext",
@@ -25,6 +25,12 @@
         },
         "pageId": {
           "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -40,35 +46,43 @@
         "shouldSave": {
           "type": "boolean"
         },
-        "rollbackStatus": {
-          "enum": [
-            "skipped",
-            "rolledBack"
-          ]
-        },
         "saveFileNames": {
           "type": "array",
           "items": {
             "type": "object",
-            "title": "PageNodeFileName"
+            "title": "PageToolFileName"
           }
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDesignInlineDeliveryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignInlineDeliveryOptions",
+      "properties": {
+        "autoSave": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.531Z",
+  "generatedAt": "2026-10-06T21:11:38.604Z",
   "models": {
     "PageDesignDeliveryContext": {
       "name": "PageDesignDeliveryContext",
       "jsdoc": "pageDesign Agent Run 落盘时携带的 editor 与 pageId 上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n}>",
+            "typeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -85,6 +99,16 @@
               "jsdoc": "当前页面节点 id。",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -95,11 +119,11 @@
       "jsdoc": "Create Page Design Delivery Port Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 回滚时的交付状态标记。 */\n    rollbackStatus: 'skipped' | 'rolledBack';\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageNodeFileName[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 回滚时的交付状态标记。 */\n    rollbackStatus: 'skipped' | 'rolledBack';\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageNodeFileName[];\n}>",
+            "typeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -118,14 +142,58 @@
               "writable": false
             },
             {
-              "name": "rollbackStatus",
-              "jsdoc": "回滚时的交付状态标记。",
+              "name": "saveFileNames",
+              "jsdoc": "限定保存的文件名列表（省略则保存全部 dirty 文件）。",
               "readable": true,
               "writable": false
             },
             {
-              "name": "saveFileNames",
-              "jsdoc": "限定保存的文件名列表（省略则保存全部 dirty 文件）。",
+              "name": "allowedOperations",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignDeliverySelection": {
+      "name": "PageDesignDeliverySelection",
+      "jsdoc": "本次交付的明确文件范围及允许操作；省略范围与非法空范围语义不同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<CreatePageDesignDeliveryPortOptions, 'saveFileNames' | 'allowedOperations'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<CreatePageDesignDeliveryPortOptions, 'saveFileNames' | 'allowedOperations'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDesignInlineDeliveryOptions": {
+      "name": "PageDesignInlineDeliveryOptions",
+      "jsdoc": "内联交付设置；沿用已确定的目标范围并显式决定是否实际保存。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageDesignDeliverySelection & Readonly<{\n    autoSave: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageDesignDeliverySelection",
+            "targetName": "PageDesignDeliverySelection"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    autoSave: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "autoSave",
               "readable": true,
               "writable": false
             }

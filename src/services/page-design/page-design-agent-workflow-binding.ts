@@ -18,8 +18,8 @@ import type {
   AiAgentToolLoopNudgeContext,
   AiAgentToolLoopNudgeReason,
 } from '@spark-appworks/spark-ai/agent'
-import type { ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { ProjectModel } from '@spark-appworks/spark-project-model'
+import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprint } from '@spark-appworks/spark-project-model'
 import { getDtsClassModelManifestUrl } from '@/class-model-artifacts/artifact-urls'
 import {
   evaluatePageDesignMutationToolGate,
@@ -43,25 +43,16 @@ export function buildPageDesignToolLoopNudge(
   pageId: string,
   allowedOperations?: PageDesignAllowedOperations,
 ): string | undefined {
-  if (isPageDesignDataSetOnlyMode(allowedOperations)) {
-    switch (reason) {
-      case 'plan_without_tool':
-        return `pageId="${pageId}"；pageDataDesign preset：禁止只输出计划，下一回合必须 model_script 调用 editDataSet。`
-      case 'execution_phase':
-        return `pageId="${pageId}"；只改 pagedata.json：const page = this.openPageDesign("${pageId}"); await page.editDataSet(async tool => …)；禁止 nodeTree / setFileText 变更。script 只写函数体，不要包 async function/function。`
-      case 'model_script_retry':
-        return `pageId="${pageId}"；按 RECOVERY_HINT 修正后重试 model_script，仍只通过 const page = this.openPageDesign("${pageId}"); await page.editDataSet(async tool => …) 变更 DataSet。`
-      default:
-        return undefined
-    }
-  }
   switch (reason) {
     case 'plan_without_tool':
-      return `pageId="${pageId}"；禁止只输出计划，下一回合必须发起真实 tool_call。优先查询 model_action_guide({ kind: "ProjectModel", actionName: "openPageDesign" })，然后进入 model_script。`
+      return `pageId="${pageId}"；下一回合必须真实 tool_call，先查询 ProjectWorkspace / PageTool / ScenarioViewFile 契约。`
     case 'execution_phase':
-      return `pageId="${pageId}"；目录/指南阶段已完成，直接 model_script：script 只写函数体，不要包 async function/function；const page = this.openPageDesign("${pageId}"); 通过 page.setFileText("pagedata.json"|"rule.json"|"script.js"|"style.css", text) 写入四文件。`
+      if (isPageDesignDataSetOnlyMode(allowedOperations)) {
+        return `pageId="${pageId}"；model_script 只写函数体；仅通过显式 scenarioId 的 this.loadScenarioViews({scenarioId}) 获取 ScenarioViewFile 后 setText；页面三文件本轮禁止修改。`
+      }
+      return `pageId="${pageId}"；model_script 只写函数体；const page = this.project.openPageDesign("${pageId}"); 只写 rule.json / script.js / style.css。场景配置仅通过显式 scenarioId 的 this.loadScenarioViews({scenarioId}) 获取 ScenarioViewFile 后 setText。`
     case 'model_script_retry':
-      return `pageId="${pageId}"；按 RECOVERY_HINT 修正后重试 model_script；script 只写函数体，不要包 async function/function；openPageDesign 接收字符串 pageId，不是对象。`
+      return `pageId="${pageId}"；按 RECOVERY_HINT 修正后重试，this.project.openPageDesign 接收字符串 pageId；页面三文件与场景视图分开操作。`
     default:
       return undefined
   }
@@ -69,6 +60,8 @@ export function buildPageDesignToolLoopNudge(
 
 /** Page Design Run Input 的输入数据。 */
 export type PageDesignRunInput = {
+  requestId: string
+  scenarioId?: string
     /** page Id 标识。 */
 pageId: string
     /** description 字段。 */
@@ -96,7 +89,7 @@ export type ResolvePageDesignPlanningContextOptions = {
 }
 
 export function resolvePageDesignPlanningContext(
-  project: ProjectModel,
+  project: ProjectBlueprint,
   pageId: string,
   options: ResolvePageDesignPlanningContextOptions = {},
 ): Pick<PageDesignRunInput, 'effectiveDescription' | 'planningTitle' | 'planningPath'> {
@@ -138,23 +131,13 @@ export function formatPageDesignSystemPrompt(input: PageDesignRunInput): string 
     effectiveDescription,
     `用户本轮目标: ${input.description}`,
   ]
-  if (isPageDesignDataSetOnlyMode(input.allowedOperations)) {
-    return [
-      `当前 pageDataDesign preset（pageDesign 数据域）: ${input.pageId}（${planningTitle}，path=${planningPath}）`,
-      ...sharedHeader,
-      '能力边界: 只修改 pagedata.json（DataSet）；禁止 editNodeTree、rule.json、script.js、style.css。',
-      '知识索引: DTS ClassModel（ProjectModel → openPageDesign → editDataSet / DataSetCrudTool）。',
-      '工具参数: model_query 只用 kind / keyword / includeMembers；model_action_guide 只用 kind / actionName；禁止 member / select / query 旧参数。',
-      '执行规则: 先 model_action_guide 查 editDataSet 与 DataSetCrudTool，再 model_script 通过 editDataSet 回调变更表/视图/绑定。',
-      '脚本规则: model_script.script 只写 JavaScript async function body；不要写 TS/TSX/JSX、类型注解、import/export、async function(){} / function(){} 包裹。',
-      '交付: 仅 commit pagedata.json；nodeTree / rule / script / style 即使 dirty 也不落盘。',
-      '模型来源: generated/dts-class-model。',
-    ].join('\n')
+  if (isPageDesignDataSetOnlyMode(input.allowedOperations) && !input.scenarioId?.trim()) {
+    throw new Error('pageDesign scenario operations require explicit scenarioId.')
   }
   return [
     `当前 pageDesign 页面: ${input.pageId}（${planningTitle}，path=${planningPath}）`,
     ...sharedHeader,
-    '知识索引: DTS ClassModel（ProjectModel → ConfigPageNode）；用 model_query / model_action_guide 读取契约后 model_script 执行。',
+    '知识索引: DTS ClassModel（ProjectWorkspace → project.openPageDesign → PageTool；loadScenarioViews → ScenarioViewFile）。用 model_query / model_action_guide 读取正式契约后执行。',
     '工具参数: model_query 只用 kind / keyword / includeMembers；model_action_guide 只用 kind / actionName；禁止 member / select / query 旧参数。',
     ...pageDesignScriptSopLines(input),
     '模型来源: generated/dts-class-model。',
@@ -163,11 +146,13 @@ export function formatPageDesignSystemPrompt(input: PageDesignRunInput): string 
 
 function pageDesignScriptSopLines(input: PageDesignRunInput): readonly string[] {
   return [
-    'model_script 标准写法: script 是 JavaScript async function body；不要写 TS/TSX/JSX、类型注解、import/export、async function(){} / function(){} / return (async function...) 包裹。',
-    `四文件写入闭环: const page = this.openPageDesign("${input.pageId}"); page.setFileText("pagedata.json", JSON.stringify(data, null, 2)); page.setFileText("rule.json", JSON.stringify(rule, null, 2)); page.setFileText("script.js", scriptText); page.setFileText("style.css", cssText); return { pageId: page.pageId }。`,
-    '四文件名只允许 rule.json / pagedata.json / script.js / style.css；不要使用 style.json 或 script.json。',
-    '表单页交付底线: pagedata.json 必须建业务表与 default view；rule.json 必须有 r-form、字段 prop 绑定、列表区域、提交按钮；枚举字段必须提供可用 options。',
-    '绑定格式: dataViewKey 使用 TableName@default；字段绑定使用 dataMember + dataField/prop，不使用旧点号路径。',
+    'model_script.script 是 JavaScript async function body；禁止 TS/JSX、import/export 和 function 包裹。',
+    `页面三文件: const page = this.project.openPageDesign("${input.pageId}"); page.setFileText("rule.json", ruleText); page.setFileText("script.js", scriptText); page.setFileText("style.css", cssText)。仅修改 allowedOperations 放行的操作域。`,
+    ...(input.scenarioId === undefined ? ['本轮未提供 scenarioId，禁止推断场景身份或读写场景配置。'] : [
+      `场景视图: const views = await this.loadScenarioViews({ scenarioId: "${input.scenarioId}" }); views.setText(validScenarioViewText)。ScenarioViewConfig 校验数据模型引用、视图及关系；不得自造物理模型或用 pageId 当 scenarioId。`,
+      '交付阶段通过 saveScenarioViews({scenarioId}) 保存，保留原文、并发冲突与回读确认；禁止把场景配置写入页面文件。',
+    ]),
+    '绑定按实际场景视图配置构造为 #scenarioId@table@view；只有页面调用明确声明 mainScenarioId 才允许局部 table@view。禁止推断主场景、旧点号路径及不存在的 DataSetCrudTool。',
     ...leaveRequestPageDesignHintLines(input),
   ]
 }
@@ -178,7 +163,7 @@ function leaveRequestPageDesignHintLines(input: PageDesignRunInput): readonly st
   return [
     '本轮请假申请页验收字段: LeaveRequest 表至少包含 applicantName、leaveType、startDate、endDate、reason、status，以及 days/duration/dayCount 之一。',
     '请假类型必须给静态 options，例如 年假、事假、病假、婚假、产假、丧假、其他。',
-    'rule.json 至少包含绑定 LeaveRequest@default 的 r-form、这些字段的 r-form-item、提交申请按钮和请假记录 r-table。',
+    'rule.json 使用实际场景视图绑定的 r-form、字段 r-form-item、提交申请按钮和请假记录 r-table。',
   ]
 }
 
@@ -189,7 +174,7 @@ const PAGE_DESIGN_GATE_RULE_KINDS = new Set([
 
 /** Page Design Editor Getter Options 的调用配置。 */
 export type PageDesignEditorGetterOptions = Readonly<{
-  /** 按 moduleInstanceId（即 pageId）返回 pageDesign 编辑器。 */
+  /** 按 moduleInstanceId（即 requestId）返回 pageDesign 编辑器。 */
   getPageDesignEditor: (context: { moduleInstanceId: string }) => ProjectWorkspace
 }>
 
@@ -202,25 +187,27 @@ export type PageDesignAgentWorkflowBindingOptions = PageDesignEditorGetterOption
 export function resolvePageDesignProject(
   options: PageDesignAgentWorkflowBindingOptions,
   ctx: AiAgentRuntimeContext,
-): ProjectModel {
-  const moduleInstanceId = ctx.moduleInstanceId
-  if (moduleInstanceId.trim().length === 0) {
-    throw new Error('pageDesign ProjectModel requires host.moduleInstanceId.')
-  }
-  const host = options.getPageDesignEditor({ moduleInstanceId })
-  host.project.openPageDesign(moduleInstanceId)
-  return host.project
+): ProjectWorkspace {
+  const requestId = ctx.moduleInstanceId.trim()
+  const runContext = readPageDesignRunContext(requestId)
+  if (!requestId || runContext === undefined) throw new Error('PAGE_DESIGN_REQUEST_MISSING: 请求工作区上下文不存在')
+  const editor = options.getPageDesignEditor({ moduleInstanceId: requestId })
+  if (editor.project.getActivePage()?.pageId !== runContext.pageId) throw new Error('PAGE_DESIGN_REQUEST_MISMATCH: 活动页面已改变')
+  return editor
 }
 
 export function evaluatePageDesignBeforeFunctionCall(
-  project: ProjectModel,
+  editor: ProjectWorkspace,
   options: AiAgentBeforeFunctionCallOptions,
 ): AiAgentBeforeFunctionCallDirective {
-  const pageId = options.moduleInstanceId.trim()
+  const requestId = options.moduleInstanceId.trim()
+  const runContext = readPageDesignRunContext(requestId)
+  if (runContext === undefined) return { status: 'reject', reason: 'PAGE_DESIGN_REQUEST_MISSING' }
+  const pageId = runContext.pageId
   if (pageId.length === 0) {
     return { status: 'allow' }
   }
-  const summary = project.readPlanningProjection().find(item => item.pageId === pageId)
+  const summary = editor.project.readPlanningProjection().find(item => item.pageId === pageId)
   if (summary === undefined) {
     return {
       status: 'reject',
@@ -228,11 +215,10 @@ export function evaluatePageDesignBeforeFunctionCall(
       fix: '先 readPlanningProjection，确认 pageId 存在于 pageDeliveries。',
     }
   }
-  const runContext = readPageDesignRunContext(pageId)
   const gate = evaluatePageDesignMutationToolGate({
     toolName: options.toolName,
     summary,
-    ...(runContext?.allowedOperations === undefined
+    ...(runContext.allowedOperations === undefined
       ? {}
       : { allowedOperations: runContext.allowedOperations }),
     toolArgs: options.args,
@@ -248,21 +234,13 @@ export function evaluatePageDesignBeforeFunctionCall(
 }
 
 /**
- * 创建 pageDesign editorGetter 片段——解释器 resolveInstance 据此拿 ProjectModel。
+ * 创建 pageDesign editorGetter 片段——解释器 resolveInstance 据此拿 ProjectWorkspace。
  * editorSource=pageDesign 时，薄组合入口把此 getter 注入 editorGetterRegistry。
  */
 export function createPageDesignEditorGetter(
   options: PageDesignEditorGetterOptions,
-): (context: AiAgentRuntimeContext) => ProjectModel {
-  return (context) => {
-    const moduleInstanceId = context.moduleInstanceId
-    if (moduleInstanceId.trim().length === 0) {
-      throw new Error('pageDesign ProjectModel requires host.moduleInstanceId.')
-    }
-    const host = options.getPageDesignEditor({ moduleInstanceId })
-    host.project.openPageDesign(moduleInstanceId)
-    return host.project
-  }
+): (context: AiAgentRuntimeContext) => ProjectWorkspace {
+  return context => resolvePageDesignProject(options, context)
 }
 
 /**
@@ -282,7 +260,8 @@ export function executePageDesignGate(
     return { ok: true }
   }
   const runContext = readPageDesignRunContext(pageId)
-  const allowedOperations = runContext?.allowedOperations
+  if (runContext === undefined) return { ok: false, reason: 'PAGE_DESIGN_REQUEST_MISSING' }
+  const allowedOperations = runContext.allowedOperations
   const gate = evaluatePageDesignScriptOperationGate({
     toolName: command.options.toolName,
     ...(allowedOperations === undefined ? {} : { allowedOperations }),
@@ -300,13 +279,14 @@ export function executePageDesignGate(
 export function createPageDesignToolLoopNudge(
   context: AiAgentToolLoopNudgeContext,
 ): string | undefined {
-  const pageId = context.moduleInstanceId.trim()
-  if (pageId.length === 0) return undefined
-  const runContext = readPageDesignRunContext(pageId)
+  const requestId = context.moduleInstanceId.trim()
+  const runContext = readPageDesignRunContext(requestId)
+  if (runContext === undefined) return undefined
+  const pageId = runContext.pageId
   return buildPageDesignToolLoopNudge(
     context.reason,
     pageId,
-    runContext?.allowedOperations,
+    runContext.allowedOperations,
   )
 }
 
@@ -319,7 +299,8 @@ export const PAGE_DESIGN_EXECUTION_TOOL_NAMES = new Set<string>([
 export const PAGE_DESIGN_PLAN_WITHOUT_TOOL_MARKERS = [
   'openpagedesign',
   'editnodetree',
-  'editdataset',
+  'loadscenarioviews',
+  'settext',
 ] as const
 
 /**
@@ -334,11 +315,11 @@ export function createPageDesignKnowledgeProvider(rootClassName: string): ClassM
 }
 
 /**
- * pageDesign moduleClassResolver 片段——返回 ProjectModel 构造器。
- * 解释器据此 new ProjectModel() 实例（或 resolveInstance 直接拿编辑器实例）。
+ * pageDesign moduleClassResolver 片段——返回 ProjectWorkspace 构造器。
+ * 解释器 resolveInstance 直接拿本次请求编辑器实例。
  */
-export function resolvePageDesignModuleClass(): typeof ProjectModel {
-  return ProjectModel
+export function resolvePageDesignModuleClass(): typeof ProjectWorkspace {
+  return ProjectWorkspace
 }
 
 export {

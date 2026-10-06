@@ -8,7 +8,7 @@
  * spark-component 能力键定义。
  *
  * ## 三类键：
- * 1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_DATASET / DATA_SOURCE / DATA_ROW
+ * 1. 数据层键（依赖 @spark-appworks/spark-data 类型）：PAGE_RUNTIME / DATA_SOURCE / DATA_ROW
  * 2. 渲染层键（原在 spark-utils 中但属于 spark-component 语义）：
  *    MODULE_CONTEXT / PAGE_COMPONENT_REGISTRY / CSS_SCOPE
  * 3. 页面 UI 服务与权限键（从 spark-utils 迁入）：
@@ -29,7 +29,8 @@ import {
   type ContextSnapshot,
   type PermissionMode,
 } from '@spark-appworks/spark-utils'
-import { DataView, isDataRow, type DataRow, type DataSetContract } from '@spark-appworks/spark-data'
+import { DataView, isDataRow, type DataRow } from '@spark-appworks/spark-data'
+import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import type {
   PageServiceCapability,
 } from '../runtime'
@@ -101,6 +102,9 @@ api: unknown}
 
 /** 页面内组件实例/API 注册表能力接口 */
 export type PageComponentRegistry = {
+  registerRender(name: string, component: object): void
+  getRender(name: string): object | null
+  clearRenders(): void
   /** 注册组件实例元数据。 */
   registerInstance(entry: ComponentInstanceSnapshot): void
   /** 注销指定 id 的组件实例。 */
@@ -134,7 +138,7 @@ export type PageCssScopeCapability = {
 
 declare module '@spark-appworks/spark-utils' {
   interface CapabilityTypeMap {
-    'spark:capability:page-dataset': DataSetContract
+    'spark:capability:page-runtime': PageRuntime
     'spark:capability:data-source': DataView
     'spark:capability:data-row': DataRow
     'spark:capability:page-component-registry': PageComponentRegistry
@@ -146,27 +150,10 @@ declare module '@spark-appworks/spark-utils' {
   }
 }
 
-function isDataSetContract(value: unknown): value is DataSetContract {
-  if (!isRecord(value)) return false
-  return typeof value['dataSetName'] === 'string'
-    && isRecord(value['tables'])
-    && hasCallable(value, 'getChildCascades')
-    && hasCallable(value, 'getParentCascades')
-    && hasCallable(value, 'getResourceChildRelations')
-    && hasCallable(value, 'getResourceParentRelations')
-    && hasCallable(value, 'addTable')
-    && hasCallable(value, 'removeTable')
-    && hasCallable(value, 'getTable')
-    && hasCallable(value, 'getView')
-    && hasCallable(value, 'saveChanges')
-    && hasCallable(value, 'setAppServices')
-    && hasCallable(value, 'setPageRoute')
-    && hasCallable(value, 'getRequestTemplateParams')
-    && hasCallable(value, 'toJson')
-    && hasCallable(value, 'on')
-    && hasCallable(value, 'onAnyViewChange')
-    && hasCallable(value, 'triggerAutoLoad')
-    && hasCallable(value, 'destroy')
+function isPageRuntime(value: unknown): value is PageRuntime {
+  return isRecord(value) && typeof value['instanceId'] === 'string'
+    && hasCallable(value, 'getDataSet') && hasCallable(value, 'resolveView')
+    && hasCallable(value, 'dispose') && hasCallable(value, 'materialize')
 }
 
 function isDataView(value: unknown): value is DataView {
@@ -216,7 +203,7 @@ function isSubtreeFieldPolicy(value: unknown): value is SubtreeFieldPolicy {
 
 // ── 能力键 ────────────────────────────────────────────────────────────────
 
-export const PAGE_DATASET = defineCapability<DataSetContract>('spark:capability:page-dataset', isDataSetContract)
+export const PAGE_RUNTIME = defineCapability<PageRuntime>('spark:capability:page-runtime', isPageRuntime)
 export const DATA_SOURCE = defineCapability<DataView>('spark:capability:data-source', isDataView)
 export const DATA_ROW = defineCapability<DataRow>('spark:capability:data-row', isDataRow)
 

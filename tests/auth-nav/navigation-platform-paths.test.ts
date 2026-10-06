@@ -20,6 +20,7 @@ vi.mock('../../packages/spark-app/src/navigation/nav-access', () => ({
 type MountedNavigationProbe = {
   router: Router
   navigateToPath: NavigateToPath
+  setContextValue: ReturnType<typeof useNavigation>['setContextValue']
   navigateTo: ReturnType<typeof useNavigation>['navigateTo']}
 
 const DummyPage = defineComponent({
@@ -38,16 +39,18 @@ const NAV_ROOT: RuntimeNavigation = {
 
 const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ projectId: 'test' })
 
-async function mountNavigationProbe(initialPath: string): Promise<MountedNavigationProbe> {
+async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation = NAV_ROOT): Promise<MountedNavigationProbe> {
   let navigateToPath: NavigateToPath | null = null
   let navigateTo: ReturnType<typeof useNavigation>['navigateTo'] | null = null
+  let setContextValue: ReturnType<typeof useNavigation>['setContextValue'] | null = null
 
   const ProbeRoot = defineComponent({
     name: 'ProbeRoot',
     setup() {
-      const navigation = useNavigation(NAV_ROOT)
+      const navigation = useNavigation(root)
       navigateToPath = navigation.navigateToPath
       navigateTo = navigation.navigateTo
+      setContextValue = navigation.setContextValue
       return () => h('div')
     },
   })
@@ -122,10 +125,20 @@ async function mountNavigationProbe(initialPath: string): Promise<MountedNavigat
   const resolvedNavigateToPath: NavigateToPath = navigateToPath
   const resolvedNavigateTo: ReturnType<typeof useNavigation>['navigateTo'] = navigateTo
 
-  return { router, navigateToPath: resolvedNavigateToPath, navigateTo: resolvedNavigateTo }
+  if (setContextValue === null) throw new Error('navigation probe did not expose setContextValue')
+  return { router, navigateToPath: resolvedNavigateToPath, navigateTo: resolvedNavigateTo, setContextValue }
 }
 
 describe('useNavigation platform paths', () => {
+  it('keeps repeated scenario arguments when a module context changes', async () => {
+    const { router, setContextValue } = await mountNavigationProbe('/t/lmspark/homepage/home?additionalScenarioIds=S2&additionalScenarioIds=S3&bare&blank=', {
+      ...NAV_ROOT, items: [{ id: 'module', title: 'Module', path: '/home', itemKind: 'system-page',
+        context: { source: [{ id: 'D1', title: 'Department' }], paramName: 'dept' } }],
+    })
+    setContextValue('D1')
+    await flushPromises()
+    expect(router.currentRoute.value.query).toEqual({ additionalScenarioIds: ['S2', 'S3'], bare: null, blank: '', dept: 'D1' })
+  })
   beforeEach(() => {
     refreshRoutesMock.mockReset()
     refreshRoutesMock.mockResolvedValue(null)
@@ -143,10 +156,12 @@ describe('useNavigation platform paths', () => {
   it('still prefixes tenant system pages from bare app paths', async () => {
     const { router, navigateToPath } = await mountNavigationProbe('/t/lmspark/homepage/home')
 
-    navigateToPath('/dashboard')
+    navigateToPath('/dashboard?scenarioId=S1&additionalScenarioIds=S2&additionalScenarioIds=S3&bare&blank=#section')
     await flushPromises()
 
     expect(router.currentRoute.value.path).toBe('/t/lmspark/homepage/dashboard')
+    expect(router.currentRoute.value.query).toEqual({ scenarioId: 'S1', additionalScenarioIds: ['S2', 'S3'], bare: null, blank: '' })
+    expect(router.currentRoute.value.hash).toBe('#section')
   })
 
   it('uses the named cross-project route when another route has the same path', async () => {

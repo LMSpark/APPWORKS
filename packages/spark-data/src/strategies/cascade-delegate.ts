@@ -51,7 +51,13 @@ constructor(
       const parentView = dataSet.getView(rel.parentTable, rel.parentViewId)
       if (!parentView) throw new Error(`父视图 ${rel.parentTable}:${rel.parentViewId} 不存在，请检查 DataSet 级联配置`)
 
-      const handler = () => this.respondToParentChange(rel, parentView)
+      const handler = () => {
+        try {
+          this.respondToParentChange(rel, parentView)
+        } catch (error) {
+          logger.error(`级联加载 ${this.host.tableName}:${this.host.viewId} 失败`, error)
+        }
+      }
 
       // rowsChanged + cleared 对所有 dep 类型都相关
       parentView.events.on('rowsChanged', handler)

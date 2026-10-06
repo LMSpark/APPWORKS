@@ -9,16 +9,14 @@
  *
  * 优先级：
  * 1. props.value（显式值）
- * 2. props.dataViewKey + props.dataMember + props.dataField（DataView 输出读取，依赖 PAGE_DATASET）
+ * 2. props.dataViewKey + props.dataMember + props.dataField（DataView 输出读取，依赖 PAGE_RUNTIME）
  * 3. props.field（从 DATA_ROW / DATA_SOURCE.currentRow 读取字段）
  */
 import { computed, type ComputedRef } from 'vue'
 import { useSparkConsume, DATA_ROW, DATA_SOURCE } from '../internal'
-import { PAGE_DATASET } from '../internal'
+import { PAGE_RUNTIME } from '../internal'
 import {
-  diagnoseDataViewMember,
   FieldVisibility,
-  resolveDataViewKey,
   resolveDataViewMember,
   type DataMember,
   type DataRow,
@@ -47,7 +45,7 @@ export function useDisplayDataSource(props: DisplayDataProps): UseDisplayDataSou
   const { sparkConsume } = useSparkConsume()
   const contextData = sparkConsume(DATA_ROW)
   const dataSource = sparkConsume(DATA_SOURCE)
-  const pageDataSet = sparkConsume(PAGE_DATASET)
+  const runtime = sparkConsume(PAGE_RUNTIME)
   const permission = usePermission()
 
   function permittedValue(value: unknown, row: DataRow | null, field: string | undefined): unknown {
@@ -65,31 +63,23 @@ export function useDisplayDataSource(props: DisplayDataProps): UseDisplayDataSou
 
     // DataView 输出读取：支持 aggregateResult / currentRow / rows 等成员解析。
     if (
-      typeof props.dataViewKey === 'string'
-      && props.dataViewKey.trim().length > 0
+      props.dataViewKey !== undefined
       && props.dataMember !== undefined
     ) {
-      if (import.meta.env.DEV) {
-        const diagnostic = diagnoseDataViewMember({
-          dataViewKey: props.dataViewKey,
-          dataMember: props.dataMember,
-          dataField: props.dataField,
-        }, pageDataSet)
-        if (!diagnostic.ok) {
-          console.warn(`[DisplayDataSource] ${diagnostic.message}`)
-        }
-      }
+      if (!runtime) throw new Error('PAGE_RUNTIME_MISSING')
+      const boundView = runtime.resolveView(props.dataViewKey)
+      if (!boundView) throw new Error(`DATA_VIEW_MISSING: ${props.dataViewKey}`)
       const boundValue = resolveDataViewMember({
-        dataViewKey: props.dataViewKey,
+        dataViewKey: `${boundView.tableName}@${boundView.viewId}`,
         dataMember: props.dataMember,
         dataField: props.dataField,
-      }, pageDataSet)
+      }, boundView.dataSet)
       if (boundValue !== undefined) {
-        const boundView = pageDataSet === null
-          ? null
-          : resolveDataViewKey(props.dataViewKey, pageDataSet)
         const field = props.dataField ?? props.field
-        return permittedValue(boundValue, boundView?.currentRow ?? activeRow, field)
+        const row = boundView.currentRow
+        if (!row || !field) return boundValue
+        const access = boundView.fieldAccess(row, field)
+        return access.read === 'invisible' ? '' : access.read === 'masked' ? '••••' : boundValue
       }
     }
 

@@ -11,12 +11,11 @@
  * 提取到 spark-data 以在正确层级复用。
  */
 
-import type { DataPermissionSnapshot, DataRow, FieldVisibility } from './types'
+import type { DataRow, FieldVisibility } from './types'
 
 /** 权限动作上下文（脚本可用） */
 export type PermissionActionContext = {
     /** model Permission 字段。 */
-permissionSnapshot?: DataPermissionSnapshot | null
     /** 当前行数据。 */
 row?: DataRow | null
 }

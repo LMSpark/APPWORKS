@@ -49,7 +49,7 @@
           "items": true
         },
         "filterExpression": {
-          "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/FilterExpression"
+          "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
         },
         "dataTable": {
           "type": [
@@ -87,7 +87,7 @@
           "type": "object",
           "properties": {
             "expr": {
-              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/FilterExpression"
+              "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
             }
           },
           "additionalProperties": false
@@ -100,7 +100,7 @@
           "type": "object",
           "properties": {
             "expr": {
-              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/FilterExpression"
+              "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
             }
           },
           "additionalProperties": false
@@ -164,13 +164,18 @@
         "activeFilterCount": {
           "type": "object",
           "title": "ComputedRef<number>"
+        },
+        "filterError": {
+          "type": "object",
+          "title": "Ref<string | null>"
         }
       },
       "required": [
         "filterModel",
         "filterConfigs",
         "hasFilters",
-        "activeFilterCount"
+        "activeFilterCount",
+        "filterError"
       ],
       "additionalProperties": false,
       "$defs": {
@@ -181,7 +186,7 @@
         },
         "method.searchFilters.return": {
           "type": "object",
-          "title": "Promise<void>"
+          "title": "Promise<boolean>"
         },
         "method.resetFilters.params": {
           "type": "object",
@@ -195,7 +200,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T11:22:51.213Z",
+  "generatedAt": "2026-10-06T05:59:53.316Z",
   "models": {
     "ErrorLoggerLike": {
       "name": "ErrorLoggerLike",
@@ -241,7 +246,7 @@
       "jsdoc": "Filter Panel Data View 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 行数据集合。 */\n    readonly rows: ReadonlyArray<Record<string, unknown>>;\n    /** 列定义集合。 */\n    readonly columns?: readonly unknown[];\n    /** filter Expression 字段。 */\n    readonly filterExpression?: FilterExpression | undefined;\n    /** data Table 字段。 */\n    readonly dataTable?: {\n        readonly api?: {\n            readonly list?: unknown;\n        } | undefined;\n        readonly resourceType?: string | undefined;\n    } | null | undefined;\n    /** get Column 回调。 */\n    getColumn?: (field: string) => unknown;\n    /** 同步过滤表达式到 DataView（不触发远端查询，后续 watch 自动 refresh）。 */\n    setFilter(expr: FilterExpression | undefined): Promise<void>;\n    /** 立即执行过滤查询（用于\"搜索\"按钮主动触发远端查询）。 */\n    executeFilter(expr: FilterExpression | undefined): Promise<void>;\n    /** 重新拉取远端数据并刷新当前视图行。 */\n    refresh(): Promise<void>;\n}",
+        "declarationTypeText": "{\n    /** 行数据集合。 */\n    readonly rows: ReadonlyArray<Record<string, unknown>>;\n    /** 列定义集合。 */\n    readonly columns?: readonly unknown[];\n    /** filter Expression 字段。 */\n    readonly filterExpression?: DataViewFilterTree | undefined;\n    /** data Table 字段。 */\n    readonly dataTable?: {\n        readonly api?: {\n            readonly list?: unknown;\n        } | undefined;\n        readonly resourceType?: string | undefined;\n    } | null | undefined;\n    /** get Column 回调。 */\n    getColumn?: (field: string) => unknown;\n    /** 由 DataView 同步过滤并按数据来源决定本地执行或远端刷新。 */\n    setFilter(expr: DataViewFilterTree | undefined): Promise<void>;\n    /** 立即执行过滤查询（用于\"搜索\"按钮主动触发远端查询）。 */\n    executeFilter(expr: DataViewFilterTree | undefined): Promise<void>;\n    /** 重新拉取远端数据并刷新当前视图行。 */\n    refresh(): Promise<void>;\n}",
         "members": {
           "attributes": [
             {
@@ -289,7 +294,7 @@
             },
             {
               "name": "setFilter",
-              "jsdoc": "同步过滤表达式到 DataView（不触发远端查询，后续 watch 自动 refresh）。",
+              "jsdoc": "由 DataView 同步过滤并按数据来源决定本地执行或远端刷新。",
               "parameters": [
                 {
                   "name": "expr",
@@ -297,7 +302,7 @@
                     "type": "optional",
                     "elementType": {
                       "type": "reference",
-                      "name": "FilterExpression"
+                      "name": "DataViewFilterTree"
                     }
                   }
                 }
@@ -323,7 +328,7 @@
                     "type": "optional",
                     "elementType": {
                       "type": "reference",
-                      "name": "FilterExpression"
+                      "name": "DataViewFilterTree"
                     }
                   }
                 }
@@ -393,7 +398,7 @@
       "jsdoc": "`useFilterPanel` 返回状态。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 双向绑定的过滤模型（field → 用户输入值）。 */\n    filterModel: Record<string, unknown>;\n    /** 当前可渲染的过滤器配置列表（input 类型）。 */\n    filterConfigs: ComputedRef<SparkNode[]>;\n    /** 是否有可渲染的过滤器。 */\n    hasFilters: ComputedRef<boolean>;\n    /** 当前有值的过滤器数量（用于 badge）。 */\n    activeFilterCount: ComputedRef<number>;\n    /** 应用过滤（executeFilter 模式，用于搜索按钮）。 */\n    searchFilters: () => Promise<void>;\n    /** 重置所有过滤值。 */\n    resetFilters: () => Promise<void>;\n}",
+        "declarationTypeText": "{\n    /** 双向绑定的过滤模型（field → 用户输入值）。 */\n    filterModel: Record<string, unknown>;\n    /** 当前可渲染的过滤器配置列表（input 类型）。 */\n    filterConfigs: ComputedRef<SparkNode[]>;\n    /** 是否有可渲染的过滤器。 */\n    hasFilters: ComputedRef<boolean>;\n    /** 当前有值的过滤器数量（用于 badge）。 */\n    activeFilterCount: ComputedRef<number>;\n    /** 当前草稿校验或查询错误；失败不表示已应用。 */\n    filterError: Readonly<Ref<string | null>>;\n    /** 应用过滤（executeFilter 模式，用于搜索按钮）。 */\n    searchFilters: () => Promise<boolean>;\n    /** 重置所有过滤值。 */\n    resetFilters: () => Promise<void>;\n}",
         "members": {
           "attributes": [
             {
@@ -419,6 +424,12 @@
               "jsdoc": "当前有值的过滤器数量（用于 badge）。",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "filterError",
+              "jsdoc": "当前草稿校验或查询错误；失败不表示已应用。",
+              "readable": true,
+              "writable": true
             }
           ],
           "methods": [
@@ -432,7 +443,7 @@
                 "typeArguments": [
                   {
                     "type": "intrinsic",
-                    "name": "void"
+                    "name": "boolean"
                   }
                 ]
               }

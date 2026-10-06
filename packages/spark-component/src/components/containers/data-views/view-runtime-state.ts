@@ -11,11 +11,9 @@ import {
   type DataView,
   type DataColumn,
   type DataRow,
-  type DataPermissionSnapshot,
   type TreeConfig,
 } from '@spark-appworks/spark-data'
 import type { ValueRef } from '../../shared-types.js'
-import { extractPermissionSnapshot } from '../../../permission/index.js'
 import { toDataRecord } from './data-row-utils.js'
 import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge.js'
 
@@ -51,8 +49,6 @@ export type DataViewRowsState = {
 
 /** DataView 显示态：用于下拉/选择器等展示场景的 value/label 信息。 */
 export type DataViewDisplayState = {
-  /** 原始模型权限数据，供权限投影和兼容字段读取。 */
-  permissionSnapshot: ComputedRef<DataPermissionSnapshot | null>
   /** 当前值字段的字符串化结果。 */
   value: ComputedRef<string>
   /** 当前显示标签；没有当前行或标签字段时为空。 */
@@ -243,10 +239,6 @@ export function useDataViewState(
     return resolvedView.value?.isMultiSelect ?? false
   })
 
-  const permissionSnapshot = computed<DataPermissionSnapshot | null>(() => {
-    revisions.configRevision.value
-    return extractPermissionSnapshot(resolvedView.value)
-  })
   const value = computed<string>(() => {
     revisions.selectionRevision.value
     revisions.rowsRevision.value
@@ -313,7 +305,7 @@ export function useDataViewState(
   return {
     tableName, viewId, primaryKey, treeConfig,
     rows, columns, currentRow, selectedRows, editingRows, isMultiSelect,
-    permissionSnapshot, value, label, labels,
+    value, label, labels,
     requestState, aggregateResult, selectionAggregateResult,
     total, page, pageSize,
     mutating, mutatingError, loadingError,

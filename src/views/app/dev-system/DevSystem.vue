@@ -107,8 +107,8 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <div class="workspace-footer__left">
             <template v-if="state.selectedNode.value">
               <span class="footer-info">
-                <NavIcon name="Share" :size="13" /> {{ state.blueprintDraft.id }}
-                <template v-if="state.blueprintDraft.title"> · {{ state.blueprintDraft.title }}</template>
+                <NavIcon name="Share" :size="13" /> {{ state.blueprintDraft.nodeId }}
+                <template v-if="state.blueprintDraft.capability.name"> · {{ state.blueprintDraft.capability.name }}</template>
               </span>
               <el-tag v-if="state.blueprintDirty.value" type="warning" size="small">属性已修改</el-tag>
             </template>

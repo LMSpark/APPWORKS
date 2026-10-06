@@ -5,6 +5,8 @@ import { createRequest } from '@spark-appworks/spark-utils'
 import { isActionDescriptorDisabled } from '../../packages/spark-component/src/page/actions/executor-helpers'
 import { executeActionDescriptor } from '../../packages/spark-component/src/page/actions/action-executor'
 import { nodeToActionDescriptor } from '../../packages/spark-component/src/page/actions/node-to-descriptor'
+import { DataSpaceQueryTable } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import type {
   ActionExecutionContext,
   ActionExecutionScope,
@@ -18,37 +20,25 @@ type GrantDataViewPermissionOptions = Readonly<{
   allowDelete?: boolean
 }>
 
-function grantDataViewPermission(
-  view: DataView,
-  options: GrantDataViewPermissionOptions = {},
-): void {
-  const editableFields = options.editableFields ?? ['name']
-  for (const row of view.rows) {
-    row.lingma_sys_params = {
-      r: [],
-      e: editableFields,
-      h: [],
-      m: [],
-      d: options.allowDelete ?? true,
-    }
-  }
-  view.permissionSnapshot = {
-    formKey: 'FORM-CRUD-BRIDGE',
-    dataSpaceId: 'SPACE-CRUD-BRIDGE',
-    modelId: 'MODEL-CRUD-BRIDGE',
-    allowAdd: options.allowAdd ?? true,
-    systemKey: 'CRUD-BRIDGE',
-    originalRows: view.rows.map(row => ({ ...row })),
-    authorizedFeatureTags: [],
-  }
+async function grantDataViewPermission(view: DataView, options: GrantDataViewPermissionOptions = {}): Promise<void> {
+  const identity = {scenarioId: 'SCENE', metaName: view.tableName}
+  const table = new DataSpaceQueryTable(identity)
+  const rows = view.rows.map(row => ({...row, lingma_sys_params: {
+    ...row.lingma_sys_params, r: [], e: options.editableFields ?? ['name'], d: options.allowDelete ?? true,
+    h: row.lingma_sys_params?.h ?? [], m: row.lingma_sys_params?.m ?? [],
+  }}))
+  const context = new DataSpaceQueryContext({identity,scope:'fixture',readScope:()=> 'fixture',
+    snapshot:table.applyResult({Result:{primaryKeyField:view.primaryKey,allowAdd:options.allowAdd ?? true,data:{Items:rows,Count:rows.length}}})})
+  view.bindQueryExecutor({executeQuery:async()=>context})
+  await view.loadFromServer()
 }
 
-function createDataView() {
+async function createDataView(options: GrantDataViewPermissionOptions = {}) {
   const dataSet = SparkData.createDataSet({
-    dataSetName: 'CrudBridgeDS',
+    dataSetName: 'CrudBridgeDS', scenarioId: 'SCENE',
     tables: {
       Users: {
-        tableName: 'Users',
+        tableName: 'Users', modelBinding: {modelId:'MODEL',modelName:'Users'},
         columns: [
           { name: 'id', type: 'number' },
           { name: 'name', type: 'string' },
@@ -66,7 +56,7 @@ function createDataView() {
   if (!view) {
     throw new Error('Users@default view not created')
   }
-  grantDataViewPermission(view)
+  await grantDataViewPermission(view, options)
   view.setCurrentRowById(1)
   return { dataSet, view }
 }
@@ -87,9 +77,10 @@ function createPageService(overrides: Partial<PageServiceCapability> = {}): Page
   }
 }
 
-function createActionContext(dataSet: ReturnType<typeof createDataView>['dataSet'], pageService: PageServiceCapability): ActionExecutionContext {
+function createActionContext(dataSet: Awaited<ReturnType<typeof createDataView>>['dataSet'], pageService: PageServiceCapability): ActionExecutionContext {
   return {
     getDataSet: () => dataSet,
+    resolveView: binding => {const [table, view = 'default'] = binding.split('@'); return table ? dataSet.getView(table, view) ?? null : null},
     getPageService: () => pageService,
     getRouter: () => null,
   }
@@ -197,7 +188,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('builtin append-row should call view.addRow instead of appendRow', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView()
     const pageService = createPageService()
     const createdRow: DataRow = { id: 2, name: 'Bob' }
     const addRowSpy = vi.spyOn(view, 'addRow').mockResolvedValue(createdRow)
@@ -219,7 +210,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('builtin append-row should switch currentRow to created row when configured', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView()
     const pageService = createPageService()
 
     const desc = nodeToActionDescriptor({
@@ -239,7 +230,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('builtin prompt-edit should call view.editRowById instead of updateRowById', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView()
     const pageService = createPageService({
       showPrompt: vi.fn(async () => 'Bob'),
     })
@@ -265,7 +256,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('builtin submit-current-form should call view.editRowById with current form draft', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView()
     const pageService = createPageService()
     const editRowSpy = vi.spyOn(view, 'editRowById').mockResolvedValue(true)
     const validateSpy = vi.fn(async () => true)
@@ -293,10 +284,10 @@ describe('DataView CRUD bridge', () => {
 
   it('builtin prompt-append should build child row from scope row without script handlers', async () => {
     const dataSet = SparkData.createDataSet({
-      dataSetName: 'TreeAppendDS',
+      scenarioId: 'SCENE', dataSetName: 'TreeAppendDS',
       tables: {
         Nodes: {
-          tableName: 'Nodes',
+          tableName: 'Nodes', modelBinding:{modelId:'NODES',modelName:'Nodes'},
           columns: [
             { name: 'id', type: 'string', isPrimaryKey: true },
             { name: 'title', type: 'string' },
@@ -313,7 +304,7 @@ describe('DataView CRUD bridge', () => {
     })
 
     const view = dataSet.getView('Nodes', 'default')!
-    grantDataViewPermission(view, { allowAdd: true, editableFields: ['title'] })
+    await grantDataViewPermission(view, { allowAdd: true, editableFields: ['title'] })
     const pageService = createPageService({
       showPrompt: vi.fn(async () => '子节点 A'),
     })
@@ -334,7 +325,8 @@ describe('DataView CRUD bridge', () => {
     })!
     await executeActionDescriptor(
       desc,
-      { getDataSet: () => dataSet, getPageService: () => pageService, getRouter: () => null },
+      { getDataSet: () => dataSet,
+    resolveView: binding => {const [table, view = 'default'] = binding.split('@'); return table ? dataSet.getView(table, view) ?? null : null}, getPageService: () => pageService, getRouter: () => null },
       { scope: { row: view.rows[0]!, index: 0 } },
     )
     await flushAsync()
@@ -347,7 +339,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('builtin clear-rows should replace current view rows with empty list', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView()
     const pageService = createPageService({
       showConfirm: vi.fn(async () => true),
     })
@@ -409,7 +401,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('action executor append-row should call view.addRow instead of appendRow', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView()
     const pageService = createPageService()
     const createdRow: DataRow = { id: 2, name: 'Bob' }
     const addRowSpy = vi.spyOn(view, 'addRow').mockResolvedValue(createdRow)
@@ -429,7 +421,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('action executor delete-current should call view.removeRow instead of deleteRowById', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView()
     const pageService = createPageService({
       showConfirm: vi.fn(async () => true),
     })
@@ -451,7 +443,7 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('action executor rejects a direct mutation when backend permission is absent', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet, view } = await createDataView({editableFields: []})
     const pageService = createPageService()
     const editRowSpy = vi.spyOn(view, 'editRowById')
     const control = { cancel: false }
@@ -475,18 +467,8 @@ describe('DataView CRUD bridge', () => {
   })
 
   it('message-row never interpolates hidden or masked backend fields as raw values', async () => {
-    const { dataSet, view } = createDataView()
+    const { dataSet } = await createMessageDataView()
     const pageService = createPageService()
-    const row = view.currentRow!
-    row['secret'] = 'hidden-secret'
-    row['mobile'] = '13800000000'
-    row.lingma_sys_params = {
-      r: [],
-      e: ['name'],
-      h: ['secret'],
-      m: ['mobile'],
-      d: true,
-    }
 
     await executeActionDescriptor(
       {
@@ -499,5 +481,79 @@ describe('DataView CRUD bridge', () => {
     )
 
     expect(pageService.showMessage).toHaveBeenCalledWith('Alice||••••', 'info')
+  })
+})
+
+async function createMessageDataView() {
+  const dataSet = SparkData.createDataSet({ dataSetName: 'MessageDS', scenarioId: 'SCENE', tables: {
+    Users: { tableName: 'Users', modelBinding: { modelId: 'MODEL', modelName: 'Users' },
+      columns: [
+        { name: 'id', type: 'number', isPrimaryKey: true },
+        { name: 'name', type: 'string' }, { name: 'secret', type: 'string' },
+        { name: 'mobile', type: 'string' }, { name: 'count', type: 'number' }, { name: 'active', type: 'boolean' },
+      ], views: { default: {} },
+    },
+  } })
+  const view = dataSet.getView('Users', 'default')
+  if (!view) throw new Error('missing message view')
+  let scope = 'message'
+  const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Users' })
+  const result = new DataSpaceQueryContext({ identity: table.identity, scope, readScope: () => scope,
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: false, data: { Items: [
+      { id: 1, name: 'Alice', secret: 'hidden-secret', mobile: '13800000000', count: 0, active: false,
+        lingma_sys_key: 'private-token', lingma_sys_params: { e: [], r: [], h: ['secret'], m: ['mobile'], d: false } },
+    ], Count: 1 } } }),
+  })
+  view.bindQueryExecutor({ executeQuery: async () => result })
+  await view.loadFromServer()
+  view.setCurrentRowById(1)
+  return { dataSet, view, invalidate: () => { scope = 'another identity' } }
+}
+
+describe('message-row original query permissions', () => {
+  it('listed fields preserve zero and false and exclude hidden and system fields', async () => {
+    const { dataSet } = await createMessageDataView()
+    const pageService = createPageService()
+    await executeActionDescriptor({ action: 'message-row', target: 'current', dataViewKey: 'Users@default',
+      messageFields: ['name', 'secret', 'mobile', 'count', 'active', 'lingma_sys_key'],
+    }, createActionContext(dataSet, pageService))
+    expect(pageService.showMessage).toHaveBeenCalledWith('name: Alice | mobile: •••• | count: 0 | active: false', 'info')
+  })
+
+  it('compact messages consume the same query owner', async () => {
+    const { dataSet } = await createMessageDataView()
+    const pageService = createPageService()
+    await executeActionDescriptor({ action: 'message-row', target: 'current', dataViewKey: 'Users@default' },
+      createActionContext(dataSet, pageService))
+    expect(pageService.showMessage).toHaveBeenCalledWith(
+      JSON.stringify({ id: 1, name: 'Alice', mobile: '••••', count: 0, active: false, _pk: 1 }), 'info')
+  })
+
+  it('scope rows cannot replace the original hidden and masked permissions', async () => {
+    const { dataSet, view } = await createMessageDataView()
+    const pageService = createPageService()
+    const row: DataRow = { ...view.currentRow, lingma_sys_params: { e: ['secret', 'mobile'], r: [], h: [], m: [], d: true } }
+    await executeActionDescriptor({ action: 'message-row', target: 'scope', dataViewKey: 'Users@default',
+      message: '{name}|{secret}|{mobile}' }, createActionContext(dataSet, pageService), { scope: { row } })
+    expect(pageService.showMessage).toHaveBeenCalledWith('Alice||••••', 'info')
+  })
+
+  it('unknown rows cannot display values with forged permissions', async () => {
+    const { dataSet } = await createMessageDataView()
+    const pageService = createPageService()
+    const row: DataRow = { id: 99, name: 'unregistered', lingma_sys_params: { e: ['name'], r: [], h: [], m: [], d: true } }
+    await executeActionDescriptor({ action: 'message-row', target: 'scope', dataViewKey: 'Users@default',
+      message: '{name}' }, createActionContext(dataSet, pageService), { scope: { row } })
+    expect(pageService.showMessage).not.toHaveBeenCalled()
+  })
+
+  it('invalidated request identity produces an error without displaying old values', async () => {
+    const { dataSet, invalidate } = await createMessageDataView()
+    const pageService = createPageService()
+    invalidate()
+    await executeActionDescriptor({ action: 'message-row', target: 'current', dataViewKey: 'Users@default',
+      message: '{name}|{secret}|{mobile}' }, createActionContext(dataSet, pageService))
+    expect(pageService.showMessage).toHaveBeenCalledWith(expect.stringContaining('SPARK_QUERY_CONTEXT_STALE'), 'error')
+    expect(pageService.showMessage).not.toHaveBeenCalledWith(expect.stringContaining('Alice'), 'info')
   })
 })

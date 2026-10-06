@@ -1,3 +1,4 @@
+import { createTestPageRuntime } from './create-test-page-runtime'
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
@@ -6,11 +7,12 @@ import {
   DATA_ROW,
   DATA_SOURCE,
   PAGE_SERVICE,
-  PAGE_DATASET,
+  PAGE_RUNTIME,
   SPARK_REGISTRY_KEY,
   Spark,
   useSparkComponent,
 } from '@spark-appworks/spark-component'
+import { SUBTREE_FIELD_POLICY } from '../../packages/spark-component/src/permission'
 import type { ComponentRegistry, PageServiceCapability } from '@spark-appworks/spark-component'
 import type { CapabilityContext } from '@spark-appworks/spark-utils'
 import type { DataRow, DataSetContract, DataView, SparkNode } from '@spark-appworks/spark-data'
@@ -40,19 +42,6 @@ export function mountFieldInContext(options: MountFieldInContextOptions) {
   const globalOptions = options.global ?? {}
   const providedValues = globalOptions.provide ?? {}
 
-  if (options.model.lingma_sys_params === undefined) {
-    Object.defineProperty(options.model, 'lingma_sys_params', {
-      configurable: true,
-      value: {
-        r: [],
-        e: [options.fieldName],
-        h: [],
-        m: [],
-        d: true,
-      },
-    })
-  }
-
   const Provider = defineComponent({
     setup() {
       const hostType = options.hostType ?? 'r-form'
@@ -61,10 +50,12 @@ export function mountFieldInContext(options: MountFieldInContextOptions) {
       sparkProvide(DATA_ROW, options.model)
 
       if (options.pageDataSet !== undefined) {
-        sparkProvide(PAGE_DATASET, options.pageDataSet)
+        sparkProvide(PAGE_RUNTIME, createTestPageRuntime(options.pageDataSet))
       }
       if (options.dataSource !== undefined) {
         sparkProvide(DATA_SOURCE, options.dataSource)
+      } else {
+        sparkProvide(SUBTREE_FIELD_POLICY, 'unrestricted')
       }
       if (options.pageService !== undefined) {
         sparkProvide(PAGE_SERVICE, options.pageService)

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/blueprint-workspace/PlanningPane",
+    "sourcePath": "src/views/app/dev-system/blueprint-workspace/PlanningPane.vue",
+    "sourceFile": "src/views/app/dev-system/blueprint-workspace/PlanningPane.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/blueprint-workspace/PlanningPane",
+    "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/PlanningPane\n职责：编辑当前能力功能策划说明。\n边界：只编辑传入文本并发出保存动作，不自行构造蓝图节点或IO。\nAI用途：为正式节点补充能力说明并提交父工作台保存。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.631Z",
+  "models": {}
+}

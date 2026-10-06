@@ -10,7 +10,7 @@ export type AiDeliveryMode = 'manual' | 'auto'
 /** 单次交付涉及的页面文件或项目蓝图变更摘要。 */
 export type AiDeliveryArtifact = Readonly<{
   /** 产物类型。 */
-  kind: 'page-file' | 'project-blueprint'
+  kind: 'page-file' | 'scenario-view' | 'project-blueprint'
   /** 产物名称（文件名或项目蓝图标识）。 */
   name: string
   /** 产物当前交付状态。 */
@@ -19,6 +19,9 @@ export type AiDeliveryArtifact = Readonly<{
 
 /** Agent Run 结束后的交付回执，包含模式、状态与产物列表。 */
 export type AiDeliveryResult = Readonly<{
+  requestId?: string
+  pageId?: string
+  scenarioId?: string
   /** 交付模式（手动或自动）。 */
   mode: AiDeliveryMode
   /** 交付最终状态。 */

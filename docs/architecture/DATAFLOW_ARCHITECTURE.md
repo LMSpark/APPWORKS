@@ -1,151 +1,63 @@
 # SPARK 数据流架构
 
-> 当前数据流从项目蓝图开始，经 `ProjectModel.design` 与 `ConfigPageNode` 进入稳定渲染运行时。四文件、lowcode API 和 Vue 组件都是投影或消费层，不是理念入口。总览见 [system-architecture.md](system-architecture.md)。
+当前调用链以 [模型层级主合同](../../packages/spark-project-model/src/MODEL-HIERARCHY.md) 与源码为准。项目节点、工具定义、场景视图配置、业务结果和运行实例分别持有自己的身份与状态。
 
-## 主链路
-
-```text
-lowcode 项目蓝图记录
-  -> ProjectModel.design (ProjectBlueprintDesign)
-  -> ConfigPageNode（page；嵌套子页 = hidden + 无 path）
-  -> PageNodeRenderConfig
-  -> SparkPageRenderer
-  -> DataSet / SparkNodeTree / script / style
-  -> UI
-```
-
-## 项目节点
-
-**存储真源**是 lowcode 的 `Base_NavigationInfo` 平铺记录；**领域模型**由 `ProjectBlueprintDesign` 持有 `nodesById` 与配置页 Map，`ProjectBlueprintIndex` 提供索引。`ProjectBlueprintTreeData` 与导航树是为 UI、路由和策划遍历生成的投影，不必与表结构同构。
-
-节点的可序列化形状是 `ProjectBlueprintTreeNodeData`，核心字段：
+## 设计与运行主线
 
 ```text
-id / title / description
-nodeKind        运行交付投影（RuntimeNavigationItemKind）
-blueprintKind   策划业务种类（ProjectBlueprintNodeKind）
-icon / order / hidden / disabled / childPlacement / context
-children
+Base_NavigationInfo -> 正式蓝图 API -> ProjectBlueprint.design + session
+                                  -> PageTool: rule.json/script.js/style.css
+SysForm/<scenarioId>/pagedata.json -> ScenarioViewFile -> ScenarioViewConfig
+正式 readModel/readRelations + ScenarioViewConfig -> loadScenarioDataSet -> DataSet
+PageRuntime(tool, scenarioIds, loadScenario) -> 独立 DataSet Map
+                                        -> materialize() -> SparkPageRenderer
+                                        -> resolveView(binding) -> DataView -> UI
 ```
 
-嵌套规则：
+正式节点 DTO 是 nodeId/parentNodeId/projectId/kind/capability，加可选 navigation/dataSpace/prototype、source。children 只属于树投影。capability.description 与策划投影提供需求；工具不继承节点，多个节点可以指向同一 pageId。
+
+## 场景装配
+
+宿主先读取对应 ScenarioViewFile，再调用 `loadScenarioDataSet({scenarioId, config, designScenarioId?, assertCurrent?})`。loader 读取所引用模型的正式 readModel 与场景 readRelations，LowcodeDataSpaceAssembler 校验 modelId、查询模型 Name、稳定 tableName 和命名 views，绑定 API 查询执行器。
+
+场景配置只声明单场景视图与 viewCascades。字段与关系来自正式模型，不能从资源物理字段猜测。可表达的正式等值关系自动生成级联，显式 viewCascades 优先。DataSet.scenarioId 与 DataTable 模型绑定只读。
+
+PageRuntime 每次调用创建独立的数据集 Map。同一 PageTool 的两个调用也不共享编辑状态。load 失败释放已成功装配的兄弟场景；dispose 或 generation 改变后迟到结果不能回填。
+
+## 查询与保存
 
 ```text
-页面 => 嵌套子页（page + hidden，无 path）
+DataView.loadFromServer
+ -> 共享 DataSpaceRuntimeApi.query
+ -> 私有 DataSpaceQueryContext（原结果、权限、作用域）
+ -> 去权限字段的业务行 -> DataView
+DataView / DataSet 保存
+ -> 原 query context 构造差异与凭据
+ -> DataSpaceRuntimeApi.save -> SPARK maplist 封包
+ -> 回执匹配 -> 新基线
 ```
 
-## 页面节点
+API 持有正式 Name 请求与 AsName 输出映射，包括字段、过滤、排序、树键及保存回执。原签名快照保持原样；`_pk` 只用于前端计算定位，不提交。新增遵循正式 keyField/GUID 规则，不用 max+1、时间戳或猜测联合业务键。应用和租户来自既有请求 scope，不写入业务行。
 
-```text
-ProjectBlueprintNode            非配置页节点基类
-└── ConfigPageNode              nodeKind = page
-      rule     PageRuleFile      rule.json
-      dataSet  PageDataSetFile   pagedata.json
-      script   PageTextFile      script.js
-      style    PageTextFile      style.css
-```
+字段 E 是写白名单；R 只对 E 内字段形成必填。h/m 根据模型与真实当前行共同消费；树 c 独立控制新增子行。组件通过 DataView.fieldAccess/动作状态读取权限，不消费可注入的公共快照。Java 强验证仍是后端底线。
 
-- 蓝图元数据（标题、描述、路径、上下文、权限入口）属于 `ProjectBlueprintNode` 基类；`ConfigPageNode` 只扩展页面内容与运行投影。
-- 嵌套子页不是第二套 class，仍是 `ConfigPageNode`（`isSubPage` 为真）。
-- 系统页面（`system-page`）只保存节点事实和组件路径，不承载四文件。
-- `ConfigPageNode.toRenderConfig()` 产出 `PageNodeRenderConfig`：`pageId`、`blueprintNode`、`dataSpaceBinding`、`rule`、`data`、`script`、`css`。未加载时调用会抛错。
+dirty 视图拒绝结果与配置覆盖；查询失败进入 stale 并暂停编辑。相同模型的多个 dirty 视图拒绝合并保存；同一场景不同模型可以一次 save，该批次不承诺事务。
 
-## 功能约束
+## 页面消费者
 
-每个节点的 `description` 是用户需求。生成某个页面时，祖先节点与本级的描述共同合成 `effectiveDescription`，并附带来源明细 `descriptionContext`。消费层统一读取：
+`SparkPageRenderer` 接收 PageRuntime 与调用 routeSnapshot，load 后 materialize 工具定义。PAGE_RUNTIME 传递本实例；容器提供 DATA_SOURCE、行作用域提供 DATA_ROW。视图键为 `#scenarioId@table@view`，局部 `table@view` 必须显式声明 mainScenarioId。无默认第一空间。
 
-```text
-ProjectModel.readPlanningProjection()  ->  ProjectPageNodeSummary[]
-```
+展示读取使用 dataViewKey + dataMember + dataField；动作集中调用 getDataSet(scenarioId)/resolveView(binding)。显式无效或空选择拒绝整次动作；异步拒绝不执行 then。脚本的 `$page` 使用同一调用入口，关闭后旧动作、timer 与迟到异步失效；Render 注册、CSS 和组件状态只属于 instanceId。
 
-不要自行拼接约束链。同一份摘要还携带 `implGate`（缺省 `closed`）与 `upstreamContractsSatisfied`（缺省 `false`），pageDesign 闸门据此放行，见 [system-architecture.md](system-architecture.md)。
+## 编辑与 AI
 
-## 运行态
+ProjectWorkspace 编排蓝图、工具与场景 IO。DevSystem 与 AI 先编辑内存模型，再分别保存工具文件或明确 scenarioId 的场景配置；工具 dirtyFiles、ScenarioViewFile.isDirty、PageRuntime.isDirty 分属三种编辑状态。
 
-```mermaid
-sequenceDiagram
-  participant Router as DynamicRouter
-  participant Loader as PageContentLoader
-  participant Node as PageNodeLike
-  participant Renderer as SparkPageRenderer
-  participant Data as DataSet
-  participant Tree as SparkNodeTree
+场景保存执行写前原文比较与写后字节回读；后端无 CAS，不能承诺原子并发保护或失败回滚。工具版本为真实 N__filename 快照；发布引用保存在 source.VersionId 的 rule/script/style 段，恢复工作文件不切换发布引用。
 
-  Router->>Node: createRuntimePageNode(pageId, loader, 蓝图节点快照)
-  Router->>Renderer: pageNode
-  Renderer->>Node: load()
-  Node->>Loader: 读取四文件（宿主注入 readPageFile）
-  Node-->>Renderer: toRenderConfig()
-  Renderer->>Data: init DataSet
-  Renderer->>Tree: build children from rule
-```
+## 相关入口
 
-运行态边界：
-
-- Router 只创建 `PageNodeLike`，不触碰四文件内容。
-- Renderer 只消费 `PageNodeLike` 与 `PageNodeRenderConfig`。
-- `PageContentLoader` 依赖宿主注入的页面文件读取器；缺失时读取结果为失败（"未注入页面文件读取器"），`PageNodeLike.load()` 随即抛错，不静默兜底。
-- 配置非法或必需依赖缺失（例如有数据空间绑定却没有 `loadRuntimeDataSet`）时 fail-fast。
-
-## 设计态
-
-```text
-DevSystem
-  -> getAppProjectBlueprintWorkspace(scope)
-  -> ProjectWorkspace
-      -> ProjectModel.design -> ConfigPageNode
-      -> lowcode 蓝图接口 + 页面文件接口
-```
-
-- 宿主（`src/services/project/project-shell.ts`）按 `tenantId:projectId` 缓存两类 `ProjectWorkspace`：`getAppProjectWorkspace` 持有已提交（committed）的项目模型；`getAppProjectBlueprintWorkspace` 是 DevSystem 的编辑宿主。两者分离，编辑中的改动不会污染已提交投影。
-- DevSystem 是消费层，通过编辑宿主的 `ProjectWorkspace` 加载蓝图、选择页面、读写四文件并落盘。
-- 例外：六阶段工作区 `BlueprintWorkspace` 直接经 `lowcodeApi` 读写蓝图记录的策划、原型、数据规划、估算、发布字段，并上传设计文件版本，不经过 `ProjectWorkspace`。
-
-## AI
-
-```text
-AI Host
-  -> readWorkflowDefinition(...)
-  -> activatePageDesignAgentWorkflow() | activateProjectPlanningAgentWorkflow()
-  -> ProjectWorkspace.project
-  -> ProjectModel.openPageDesign(pageId)
-  -> ConfigPageNode
-  -> 配置页节点子模型
-```
-
-AI 写入先进入内存 `ConfigPageNode` 并标 dirty。DevSystem 的保存、版本、路由刷新和发布由显式用户动作触发；自动化 runner 可在运行结束后保存 dirty 四文件。
-
-## DataSet / DataView
-
-页面数据分两轴，禁止混成单一真源：
-
-| 轴 | 真源 | 用途 |
-|----|------|------|
-| 设计 / AI | 四文件 `pagedata.json` → `ConfigPageNode.dataSet` | 设计器、生成器、无绑定预览 |
-| 运行 | 平台 DataSpace 设计 + 权限快照 → `LowcodeDataSpaceAssembler` → `DataSet` | 有 `PageDataSpaceBinding`（`formKey` + `dataSpaceId` + `modelId`）的配置页 |
-
-有绑定的运行态：`SparkPageRenderer` 经宿主注入的 `loadRuntimeDataSet`（实现为 `loadBoundDataSpaceDataSet`）装载；**禁止**再把 `pagedata.json` 当运行数据真源。绑定不完整时数据读取失败关闭。无绑定时仍可用四文件 hydrate（设计轴）。
-
-组件读取必须走：
-
-```text
-dataViewKey + dataMember + dataField
-```
-
-`dataViewKey` 只定位视图：
-
-```text
-Users@grid
-#scope@Users@grid
-```
-
-不要使用旧的成员拼接键、点号数据路径、`pageData` 或 `$data` 旁路。
-
-## 不变约束
-
-1. `spark-project-model` 保持纯模型，不引入 Vue、Element Plus 或应用层 service。
-2. 存储真源分层：平台蓝图、导航授权、权限、DataSpace 在 lowcode；页面布局、脚本、样式、设计草稿在四文件；领域模型可用树与索引，树是投影。
-3. 嵌套子页与顶层配置页同属 `ConfigPageNode`（`page` + `hidden` + 无 `path`）。
-4. 系统页面是 `system-page` 节点，不反向决定数据结构。
-5. 四文件是页面内容投影，落盘锚点明确即可；运行业务数据不由 `pagedata.json` 独占。
-6. DataSet 管线：设计轴 `pagedata.json -> DataSet`；运行轴（有绑定）`DataSpace + 权限 -> DataSet -> DataViewKey -> DataView -> UI`。
+- [模型架构](SPARK_PAGE_CONFIG_ARCHITECTURE.md)
+- [系统总览](system-architecture.md)
+- [权限](PERMISSION_SYSTEM.md)
+- [数据 API](../../packages/spark-lowcode-api/README.md)

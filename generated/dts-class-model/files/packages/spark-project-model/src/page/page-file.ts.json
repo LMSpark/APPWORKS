@@ -7,21 +7,21 @@
     "sourceFile": "packages/spark-project-model/src/page/page-file.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "page/page-file",
-    "jsdoc": "@module @spark-appworks/spark-project-model:page/page-file\n职责：提供项目模型和页面配置域中的 page file 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n页面四文件：路径常量、IO 类型、文本 parse/serialize。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/page-file\n职责：提供项目模型和页面配置域中的 page file 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n页面三文件：路径常量、IO 类型、文本 parse/serialize。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "PageNodeFileName",
-      "PageNodeLoadOptions",
+      "PageToolFileName",
+      "PageToolLoadOptions",
       "PageContentLoadResult",
-      "PageNodeFileVersionSummary",
+      "PageToolFileVersionSummary",
       "PageFileCreateOptions"
     ]
   },
   "$defs": {
-    "PageNodeLoadOptions": {
+    "PageToolLoadOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "PageNodeLoadOptions",
+      "title": "PageToolLoadOptions",
       "properties": {
         "forceReload": {
           "type": "boolean"
@@ -68,32 +68,28 @@
       ],
       "additionalProperties": false
     },
-    "PageNodeFileVersionSummary": {
+    "PageToolFileVersionSummary": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "PageNodeFileVersionSummary",
+      "title": "PageToolFileVersionSummary",
       "properties": {
         "version": {
           "type": "number"
         },
-        "createdAt": {
+        "fileName": {
           "type": "string"
         },
-        "isCurrent": {
-          "type": "boolean"
-        },
-        "modifiedBy": {
+        "lastModified": {
           "type": [
             "null",
-            "string"
+            "number"
           ]
         }
       },
       "required": [
         "version",
-        "createdAt",
-        "isCurrent",
-        "modifiedBy"
+        "fileName",
+        "lastModified"
       ],
       "additionalProperties": false
     },
@@ -112,20 +108,20 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T07:40:20.657Z",
+  "generatedAt": "2026-10-06T20:49:03.360Z",
   "models": {
-    "PageNodeFileName": {
-      "name": "PageNodeFileName",
-      "jsdoc": "",
+    "PageToolFileName": {
+      "name": "PageToolFileName",
+      "jsdoc": "页面工具只允许rule.json、script.js、style.css三文件。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "typeof PAGE_NODE_FILE_NAMES[number]",
+        "declarationTypeText": "typeof PAGE_TOOL_FILE_NAMES[number]",
         "members": {}
       }
     },
-    "PageNodeLoadOptions": {
-      "name": "PageNodeLoadOptions",
-      "jsdoc": "Page Node Load Options 的调用配置。",
+    "PageToolLoadOptions": {
+      "name": "PageToolLoadOptions",
+      "jsdoc": "Page Tool Load Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "{\n    /** force Reload 字段。 */\n    forceReload?: boolean;\n}",
@@ -207,35 +203,26 @@
         }
       }
     },
-    "PageNodeFileVersionSummary": {
-      "name": "PageNodeFileVersionSummary",
-      "jsdoc": "",
+    "PageToolFileVersionSummary": {
+      "name": "PageToolFileVersionSummary",
+      "jsdoc": "N__filename快照摘要；缺少修改时间为null，编号不代表发布引用。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** version 字段。 */\n    version: number;\n    /** 创建时间。 */\n    createdAt: string;\n    /** 是否 is Current。 */\n    isCurrent: boolean;\n    /** modified By 字段。 */\n    modifiedBy: string | null;\n}",
+        "declarationTypeText": "{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}",
         "members": {
           "attributes": [
             {
               "name": "version",
-              "jsdoc": "version 字段。",
               "readable": true,
               "writable": true
             },
             {
-              "name": "createdAt",
-              "jsdoc": "创建时间。",
+              "name": "fileName",
               "readable": true,
               "writable": true
             },
             {
-              "name": "isCurrent",
-              "jsdoc": "是否 is Current。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "modifiedBy",
-              "jsdoc": "modified By 字段。",
+              "name": "lastModified",
               "readable": true,
               "writable": true
             }

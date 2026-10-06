@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-component/src/components/display/useDisplayDataSource.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "components/display/useDisplayDataSource",
-    "jsdoc": "@module @spark-appworks/spark-component:components/display/useDisplayDataSource\n职责：提供 use Display Data Source 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 display-level/view-only，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nuseDisplayDataSource — 轻量级数据读取 composable，供 display 组件使用\n优先级：\n1. props.value（显式值）\n2. props.dataViewKey + props.dataMember + props.dataField（DataView 输出读取，依赖 PAGE_DATASET）\n3. props.field（从 DATA_ROW / DATA_SOURCE.currentRow 读取字段）",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/useDisplayDataSource\n职责：提供 use Display Data Source 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 display-level/view-only，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nuseDisplayDataSource — 轻量级数据读取 composable，供 display 组件使用\n优先级：\n1. props.value（显式值）\n2. props.dataViewKey + props.dataMember + props.dataField（DataView 输出读取，依赖 PAGE_RUNTIME）\n3. props.field（从 DATA_ROW / DATA_SOURCE.currentRow 读取字段）",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
@@ -47,7 +47,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T21:15:15.437Z",
+  "generatedAt": "2026-10-06T20:17:53.700Z",
   "models": {
     "DisplayDataProps": {
       "name": "DisplayDataProps",

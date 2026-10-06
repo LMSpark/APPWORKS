@@ -21,14 +21,16 @@ flowchart LR
   Auth --> Assemble
   Assemble --> Nav["RuntimeNavigation<br/>(壳唯一导航合同)"]
   Nav --> Router["DynamicRouter"]
-  Router --> Page["SparkPageRenderer"]
-  Page --> Four["页面四文件<br/>rule / pagedata / script / style"]
-  Page --> DS["DataSet / DataView"]
+  Router --> Call["PageRuntime<br/>每次调用的实例身份"]
+  Call --> Page["SparkPageRenderer"]
+  Call --> Tool["PageTool<br/>rule / script / style"]
+  Call --> Scene["显式场景<br/>ScenarioViewFile 配置"]
+  Scene --> DS["DataSet / DataView<br/>每次调用独立装配"]
 ```
 
-- **项目蓝图**是完整的项目策划（模块、需求、原型、数据空间、页面、子页面、报表、流程、集成、动作、外链、权限管理等，种类表见 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`），**运行菜单**只是蓝图经候选筛选与后端授权后的输出。
+- **项目蓝图**的正式节点种类为 `module/page/embedded/service/content`，唯一种类表是 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`。后端 `conType` 中 `Model/Navitem` 对应 `module/page`；未知值保留为草稿 `unknown`，不能通过正式策划完成校验。**运行菜单**只是蓝图经候选筛选与后端授权后的输出。
 - 候选筛选：后端字段 `IsShowAtNav` 为 1 时，wire 层把记录标为 `runtimeNavigationCandidate`；宿主只保留"候选且授权树中存在同一 id"的节点。
-- 页面内容真源是四文件；有数据空间绑定的页面，运行数据真源是数据空间而不是 `pagedata.json`。
+- `PageTool` 仅持有 `rule.json`、`script.js`、`style.css` 三个工具文件。场景视图配置位于 `SysForm/<scenarioId>/pagedata.json`；运行数据依据该配置、正式模型和权限装配，工具不持有业务数据。
 
 ## 包分层与依赖方向
 
@@ -69,7 +71,7 @@ flowchart BT
 | `spark-utils` | 框架无关底座：`HttpClientBase`、`Logger`、Capability 原语，以及跨包共用的字面量 SSOT（蓝图节点 kind、权限展示三态、运行导航表面类型） |
 | `spark-json-document` | JSON 值与路径、JSON Schema（Draft 2020-12）、不可变树编辑；JSON Schema 类型的唯一来源 |
 | `spark-data` | 页面级数据引擎：`DataSet` → `DataTable` → `DataView`，关系与级联、树、聚合、计算列、权限快照、`SparkNodeTree` |
-| `spark-project-model` | 项目蓝图与页面四文件的内存模型，及其 IO 编排（`ProjectWorkspace`、`PageContentLoader`） |
+| `spark-project-model` | 项目蓝图、页面三文件、场景配置及页面调用生命周期，及其 IO 编排（`ProjectWorkspace`、`PageContentLoader`） |
 | `spark-component` | 组件注册表、能力上下文树、`SparkPageRenderer`、页面动作与绑定、权限判定 |
 | `spark-app` | 应用壳：启动、`DynamicRouter`、`RuntimeNavigation*` 合同、标签页、插件、主题 |
 | `spark-lowcode-api` | lowcode 前端 API 客户端与 wire 合同；`LowcodeApi` 聚合 blueprint / catalog / dataSpace / design / application / realtime / platform / permission / session |
@@ -77,35 +79,22 @@ flowchart BT
 
 ## 项目模型
 
-唯一领域根是 `ProjectModel`，由两部分组成：
+`ProjectBlueprint` 是项目设计与编辑会话根；`ProjectBlueprintDesign` 索引蓝图节点和页面工具，`ProjectSession` 持有选中节点、活动工具与草稿。蓝图节点 `nodeId` 和工具 `pageId` 是不同身份，两个节点可指向同一工具。
 
-- `ProjectBlueprintDesign`：持有平铺的 `nodesById` 与配置页 Map，树只是投影。
-- `ProjectSession`：选中节点、当前页、草稿、脏状态，不落盘。
+正式蓝图 DTO 使用 `nodeId`、`parentNodeId`、`projectId`、`kind`、`capability`、可选 `navigation/dataSpace/prototype` 和 `source`；`children` 只用于树投影。正式 `kind` 不由导航地址、层级或 children 猜测。导航运行交付的 `itemKind` 是下游投影。
 
-节点类层次：
+- `ProjectBlueprintNode` 表达蓝图节点。`PageTool` 表达三文件工具定义，并不继承蓝图节点；`openPageDesign(pageId)` 返回工具。
+- `ProjectWorkspace` 持有 `ProjectBlueprint`，提交蓝图 CRUD、三文件 IO、快照操作、跨项目引用和显式场景配置 IO。`loadScenarioViews({scenarioId})` 返回独立的 `ScenarioViewFile`。
+- `PageRuntime` 表达一次页面调用，持有唯一 `instanceId`、工具定义、显式 `scenarioIds` 和可选 `mainScenarioId`。每次调用独立装配 DataSet；销毁只释放本实例。运行数据不进入工具文件模型。
+- 节点需求来自 `capability.description`。父级与本级描述通过 `readPlanningProjection()` 合成 `effectiveDescription`，消费方不另行拼接。
+- `navigation.target` 指向实际工具目标，`dataSpace.scenarioId` 指向业务场景；场景 ID 不代表物理模型或工具身份。
 
-```text
-ProjectBlueprintNode            非配置页节点（模块 / 系统页 / 动作 / 外链 / 引用）
-└── ConfigPageNode              配置页：rule / dataSet / script / style 四个子模型
-```
-
-- 嵌套子页不是第二套 class：`nodeKind` 为 `page`、`hidden`、无 `path` 的节点仍是 `ConfigPageNode`。
-- `ProjectWorkspace` 持有 `ProjectModel` 并编排 IO（蓝图节点 CRUD、页面四文件读写、跨项目引用）。宿主按 `tenantId:projectId` 缓存两类实例：`getAppProjectWorkspace()` 是已提交模型，`getAppProjectBlueprintWorkspace()` 是 DevSystem 的编辑宿主，二者分离。
-- 运行态不建 `ProjectWorkspace`：`spark-app` 用 `PageContentLoader` + `createRuntimePageNode` 得到只读的 `PageNodeLike`。
-- 节点 `description` 是用户需求的单一真源；生成页面时，父级与本级描述合成 `effectiveDescription`，消费方通过 `readPlanningProjection()` 读取，不自行拼接。
-
-三个名字对应两条轴，不要混用：
-
-| 名字 | 所在位置 | 含义 |
-|---|---|---|
-| `blueprintKind` | `ProjectBlueprintNodeKind`（`spark-utils`） | 策划业务轴：页面、子页面、需求、原型、数据空间、报表等 |
-| `nodeKind` | `RuntimeNavigationItemKind`（`spark-utils`） | 运行交付轴，用于持久化与 API |
-| `itemKind` | `RuntimeNavigationItem`（`spark-app`） | 壳内对运行交付轴的叫法 |
+工具工作内容使用裸文件名。快照列表来自后端真实文件名 `N__filename` 和 `lastModified`，编号只表示该文件的快照；发布引用读取 `source.VersionId` 的 rule/script/style 分段。创建候选号取同文件现有最大编号加一，经过上传最终文件名和字节回读确认；不据此推断 current。恢复把快照内容写回工作文件，不切换发布指针。
 
 ## 启动与路由
 
 1. `src/main.ts` 做前置准备：清理损坏的本地存储键、注册内置插件（Element Plus、VXE Table）、构建 `config/navigation/vue-pages.json` 的页面注册表、与 lowcode 会话对账。
-2. 调用 `SparkApp.start(...)`，宿主注入 `loadNavigation`（`readLowcodeRuntimeNavigation`）、`readPageFile`、`loadRuntimeDataSet` 和租户路径前缀 `/t/:tenantId/:projectId`。
+2. 调用 `SparkApp.start(...)`，宿主注入 `loadNavigation`（`readLowcodeRuntimeNavigation`）、`readPageFile`、`loadScenario` 和租户路径前缀 `/t/:tenantId/:projectId`。
 3. `SparkApp.start` 依次：创建 Vue 应用与主题 → 安装 Spark 插件 → 注册内置 renderer → 动态导入 `virtual:spark-components` 注册业务扩展组件 → 创建 `PageContentLoader` 与 `DynamicRouter` → `bootstrap`。
 4. 路由守卫在 `beforeMount` 中安装：
    - 未登录：访问 `/t/*` 或平台工作区路径一律回平台首页，非公开页也回平台首页。
@@ -127,20 +116,15 @@ ProjectBlueprintNode            非配置页节点（模块 / 系统页 / 动作
 
 ## 页面渲染
 
-`SparkPageRenderer` 的加载顺序：`beforeLoad` → 读取节点渲染配置 → 解析运行数据 → 应用 → `afterLoad`。应用阶段的固定顺序：
+`SparkPageRenderer` 接收已经确定身份的 `pageRuntime` 与不可变调用 `routeSnapshot`。加载顺序为：`beforeLoad` → `PageRuntime.load()` → `materialize()` → 应用三文件 → `afterLoad` → 下一 tick 执行 `__init__`。
 
-1. css：写入作用域样式。
-2. script：沙箱编译，注册 `Render*` 函数组件。
-3. data：初始化 `DataSet` 并通过能力键 `PAGE_DATASET` 提供给子树。
-4. rule：`SparkNodeTree.fromPageChildren` → `buildPageChildren`（严格 `SparkNode` 校验、事件绑定、id 去重）→ `SparkComponentRenderer` 递归渲染。
-5. 下一个 tick 执行脚本的 `__init__`。
+1. 工具加载使用明确的发布引用读取三文件；调用的场景 ID 逐个通过宿主 `loadScenario` 装配。
+2. 样式以 `instanceId` 加作用域；script 在本实例沙箱编译，`Render*` 函数组件只注册到本页组件注册表。
+3. 通过 `PAGE_RUNTIME` 提供本次调用。脚本使用 `$page.getDataSet(scenarioId)` 或 `$page.resolveView(binding)` 获取明确场景的数据。
+4. rule 经 `SparkNodeTree.fromPageChildren` → `buildPageChildren` → `SparkComponentRenderer` 递归渲染；绑定统一为 `#scenarioId@table@view`。只有调用明确声明主场景时才接受局部 `table@view`，不会选择首个场景兜底。
+5. 每次重载或销毁使旧脚本、异步回执及定时器失效；脏运行数据阻止直接替换实例。
 
-要点：
-
-- 页面带有完整的数据空间绑定（`formKey` + `dataSpaceId` + `modelId`）时，必须由宿主注入 `loadRuntimeDataSet`，缺失即抛错；绑定不完整时数据读取按失败关闭处理。
-- 页面权限展示模式从路由元信息读取，非法值回落为 `masked`。
-- 组件按 `config.type` 在注册表中查找，未注册类型降级为提示卡片；`SparkComponentRenderer` 本身不创建能力上下文。
-- 组件读取数据统一经 `dataViewKey` + `dataMember` + `dataField`，不使用旧的成员拼接键或 `$data` 旁路。
+未注册的组件类型渲染提示卡片。页面脚本组件、数据和样式不注册到应用全局；两个实例即便工具 ID 与 Render 名称相同，也保持各自的状态和释放边界。字段权限沿用正式 DataView 快照。
 
 ## 组件注册与能力系统
 
@@ -156,14 +140,15 @@ ProjectBlueprintNode            非配置页节点（模块 / 系统页 / 动作
 运行查询 (dataSpace.runtime)      ─┘
 ```
 
-- 平台数据定义与运行装配：`spark-lowcode-api` 读取设计与权限，宿主 `LowcodeDataSpaceAssembler` 负责投影成 `spark-data` 的 `DataSet`。前端 `FilterOperator`/`SortDirection`/`AggregateType` 与后端 wire 字面量之间的映射，只在这个 assembler 里发生。
-- 权限事实由后端最终给出：每行带 `lingma_sys_params` 与 `lingma_sys_key`，每次运行查询登记一份 `DataPermissionSnapshot`。前端只按结果渲染，不按角色名推导授权。细节见 [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)。
-- 写操作缺少治理能力时失败关闭；运行时 mutation 只做准备，不在包内直接执行 HTTP。
+- 平台数据定义与运行装配：`spark-lowcode-api` 读取设计与权限，宿主 `LowcodeDataSpaceAssembler` 负责投影成 `spark-data` 的 `DataSet`。前端过滤统一为 `DataViewFilter` 的公开树；公开过滤与 wire 字面量之间的转换仅在 SPARK API 的 `runtime/protocol/data-space-filter.ts`，assembler 不再提供过滤 mapper。
+- 权限事实由后端最终给出：原始返回行带 `lingma_sys_params` 与 `lingma_sys_key`，每次查询由私有 `DataSpaceQueryContext` 持有基线，公开业务行剥离这两个系统字段。前端经 DataView 消费读写通道及动作状态，不按角色名推导授权。细节见 [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)。
+- 写操作由原查询 owner 统一执行实际批量 CRUD 请求，回放私有凭据并核对后端回执；缺少有效 owner、执行域或正式字段身份时明确失败。
 
 ## AI
 
 - Agent 在浏览器内运行：`AiAgentHost` → `AiAgentSession` → ToolLoop → `ClassModelRuntime`。LLM、Agent 配置和持久会话在 lowcode 后端；前端发起 turn、监听 SSE、执行已注册工具，再把结果回传后端继续对话。
-- 宿主有两种 Host：全局共享的 `appAiAgent`（`src/services/ai/ai-turn-bridge.ts`），以及项目策划每次运行创建的独立 Host（避免幂等 `ensure` 与热更新丢失编辑器引用）。两者最多 16 轮工具调用。
+- 宿主有两种 Host：全局共享的 `appAiAgent`（`src/services/ai/ai-turn-bridge.ts`），以及项目策划与页面设计每次运行创建的独立 Host（避免幂等 `ensure` 与热更新丢失编辑器引用）。两者最多 16 轮工具调用。
+- pageDesign 使用 requestId 作为 Host 运行身份；本次请求持有独立编辑器，gate、交付回执和清理都按 requestId 定位。工具文件和显式 scenarioId 的场景配置分别保存，部分成功按实际回执保留。
 - ClassModel 知识由 `.d.ts` 生成：`tsconfig.class-model-emit.json` 的源集内存 emit → `generated/dts-class-model/`（`manifest.json`、`files/**`、`semantic-gaps.json`）。浏览器经 Worker 按需加载，工具闭集为 `query`、`modelGuide`、`attributeGuide`、`actionGuide`、`model_script`、`human_question`、`agent_complete`。
 - Agent Workflow 是双文件：`design.json`（设计稿，不执行）与 `definition.json`（发布态，含 `runtimeBinding`），位于 `config/agent-workflows/`。运行时消费 `runtimeBinding`，不是逐节点解释执行图。
 - pageDesign 有两层闸门，不要混淆：
@@ -180,7 +165,7 @@ ProjectBlueprintNode            非配置页节点（模块 / 系统页 / 动作
 | `AjaxResult`、`SendCodeType/Scene`、`OrderType/WireFilterOperator/GroupFunType` | `backend-api-contracts/common.ts` 与 `spark-lowcode-api/src/contracts` 同形 | `verify:ajax-result-parity`、`verify:send-code-parity`、`verify:wire-query-parity` |
 | lowcode 端点与消费者台账 | `backend-api-contracts/*-ledger.json`，由 `tools/lowcode-contracts/generate-ledgers.mjs` 生成 | `verify:lowcode-contracts` |
 | JSON Schema 类型 | `spark-json-document` | 无专用脚本，靠包边界与评审 |
-| 前端 `FilterOperator` / `SortDirection` / `AggregateType` | `spark-data` | `verify:wire-query-parity`（禁止台账再把 `FilterOperator` 当正式名） |
+| 前端 `DataViewFilterOperator` / `SortDirection` / `AggregateType` | `spark-data` | `verify:wire-query-parity`（禁止台账把前端过滤名当后端 wire 名） |
 
 `pnpm run verify:rules` 串联全部治理门禁。注意：文档门禁只检查文件名与链接，不检查文档里的类名与路径是否存在，这部分靠评审与本文这类总览定期对照源码。
 

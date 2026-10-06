@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-component/src/page/context/buildPageContext.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "page/context/buildPageContext",
-    "jsdoc": "@module @spark-appworks/spark-component:page/context/buildPageContext\n职责：提供 build Page Context 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n脚本沙箱上下文（PageContext）构建工厂\n构建传入 `with (__ctx)` 沙箱的完整上下文对象。\n$dataSet 使用 getter，保证脚本每次访问都拿到最新值。",
+    "jsdoc": "@module @spark-appworks/spark-component:page/context/buildPageContext\n职责：提供 build Page Context 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n脚本沙箱上下文（PageContext）构建工厂\n构建传入 `with (__ctx)` 沙箱的完整上下文对象。\n数据与服务能力由当前页面调用持有，关闭后旧脚本失效。",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
@@ -17,6 +17,13 @@
       "type": "object",
       "title": "PageContextDeps",
       "properties": {
+        "pageRuntime": {
+          "$ref": "../../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        },
         "pageRoute": {
           "type": "object",
           "title": "PageRoute"
@@ -31,27 +38,14 @@
         }
       },
       "required": [
+        "pageRuntime",
+        "signal",
         "pageRoute",
         "pageContainer",
         "pageService"
       ],
       "additionalProperties": false,
       "$defs": {
-        "method.getDataSet.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getDataSet.return": {
-          "anyOf": [
-            {
-              "$ref": "../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "method.getComponentRegistry.params": {
           "type": "object",
           "properties": {},
@@ -85,16 +79,27 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T11:47:56.424Z",
+  "generatedAt": "2026-10-06T20:19:12.175Z",
   "models": {
     "PageContextDeps": {
       "name": "PageContextDeps",
       "jsdoc": "buildPageContext 所需的依赖引用",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** DataSet getter（闭包引用，每次调用返回最新值） */\n    getDataSet: () => DataSet | null;\n    /** page Route 字段。 */\n    pageRoute: PageRoute;\n    /** page Container 字段。 */\n    pageContainer: Ref<HTMLElement | null>;\n    /** page Service 字段。 */\n    pageService: PageServiceCapability;\n    /** 页面级组件注册中心 getter（可选） */\n    getComponentRegistry?: () => PageComponentRegistry | null;\n    /** 模块上下文 getter（可选，每次调用返回最新快照） */\n    getModuleContext?: () => ContextSnapshot | null;\n}",
+        "declarationTypeText": "{\n    /** 当前页面调用及其场景数据 owner。 */\n    pageRuntime: PageRuntime;\n    signal: AbortSignal;\n    /** page Route 字段。 */\n    pageRoute: PageRoute;\n    /** page Container 字段。 */\n    pageContainer: Ref<HTMLElement | null>;\n    /** page Service 字段。 */\n    pageService: PageServiceCapability;\n    /** 页面级组件注册中心 getter（可选） */\n    getComponentRegistry?: () => PageComponentRegistry | null;\n    /** 构建时捕获当前调用的模块上下文快照。 */\n    getModuleContext?: () => ContextSnapshot | null;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "pageRuntime",
+              "jsdoc": "当前页面调用及其场景数据 owner。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signal",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "pageRoute",
               "jsdoc": "page Route 字段。",
@@ -116,24 +121,6 @@
           ],
           "methods": [
             {
-              "name": "getDataSet",
-              "jsdoc": "DataSet getter（闭包引用，每次调用返回最新值）",
-              "parameters": [],
-              "type": {
-                "type": "union",
-                "types": [
-                  {
-                    "type": "reference",
-                    "name": "DataSet"
-                  },
-                  {
-                    "type": "literal",
-                    "value": null
-                  }
-                ]
-              }
-            },
-            {
               "name": "getComponentRegistry",
               "jsdoc": "页面级组件注册中心 getter（可选）",
               "parameters": [],
@@ -154,7 +141,7 @@
             },
             {
               "name": "getModuleContext",
-              "jsdoc": "模块上下文 getter（可选，每次调用返回最新快照）",
+              "jsdoc": "构建时捕获当前调用的模块上下文快照。",
               "parameters": [],
               "type": {
                 "type": "union",

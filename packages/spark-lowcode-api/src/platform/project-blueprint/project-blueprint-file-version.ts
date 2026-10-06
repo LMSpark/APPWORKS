@@ -1,9 +1,18 @@
+/**
+ * @module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-file-version
+ * 职责：解析与编码工具三文件的正式发布引用。
+ * 边界：文件名快照独立存在，裸文件是工作内容；场景文件没有三文件发布指针。
+ * AI用途：按明确 rule/script/style 引用定位文件，禁止以最大编号推断发布版本。
+ */
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 
 export const LOWCODE_BLUEPRINT_FILE_NAMES = ['rule.json', 'script.js', 'style.css'] as const
 
+/** 工具定义的三个文件名；场景共享 pagedata.json 不属于此集合。 */
 export type LowcodeBlueprintFileName = typeof LOWCODE_BLUEPRINT_FILE_NAMES[number]
+/** VersionId 的三个具名发布引用分段。 */
 export type LowcodeBlueprintFileVersionKey = 'rule' | 'script' | 'style'
+/** 各工具文件的非负快照编号或缺失引用；不是实际历史列表。 */
 export type LowcodeBlueprintFileVersions = Readonly<Record<LowcodeBlueprintFileVersionKey, number | null>>
 
 const FILE_VERSION_KEYS: readonly LowcodeBlueprintFileVersionKey[] = ['rule', 'script', 'style']
@@ -31,7 +40,7 @@ export function lowcodeBlueprintFileVersionKey(
   return 'style'
 }
 
-/** 解析导航 versionId；空值读裸文件，历史单值对三个文件共用。 */
+/** 解析导航 versionId；空值产生缺失引用，历史单值对三个文件共用。 */
 export function parseLowcodeBlueprintFileVersions(value: string): LowcodeBlueprintFileVersions {
   const source = value.trim()
   const result = emptyVersions()
@@ -73,13 +82,4 @@ export function lowcodeBlueprintVersionedFileName(
 ): string {
   const current = versions[lowcodeBlueprintFileVersionKey(fileName)]
   return current === null ? fileName : `${current}__${fileName}`
-}
-
-/** 只推进指定文件版本，其他文件指针保持不变。 */
-export function nextLowcodeBlueprintFileVersions(
-  versions: LowcodeBlueprintFileVersions,
-  fileName: LowcodeBlueprintFileName,
-): LowcodeBlueprintFileVersions {
-  const key = lowcodeBlueprintFileVersionKey(fileName)
-  return Object.freeze({ ...versions, [key]: (versions[key] ?? 0) + 1 })
 }

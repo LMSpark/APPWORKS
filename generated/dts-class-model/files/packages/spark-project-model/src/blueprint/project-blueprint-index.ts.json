@@ -146,7 +146,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T07:38:42.765Z",
+  "generatedAt": "2026-10-06T20:49:03.414Z",
   "models": {
     "ProjectBlueprintTreeNodeLike": {
       "name": "ProjectBlueprintTreeNodeLike",
@@ -192,6 +192,7 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "持有现有节点集合的索引引用，重建仅更新内存查询和树投影。",
           "signatureText": "constructor(nodesById: Map<string, TNode>)",
           "parameters": [
             {

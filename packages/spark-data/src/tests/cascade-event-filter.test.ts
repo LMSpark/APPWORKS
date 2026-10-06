@@ -148,7 +148,7 @@ describe('cascade event filter — no spurious child requests', () => {
     pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null
 
     const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async (params?: { filter?: unknown }) => {
-      expect(params?.filter).toEqual({ field: 'orderId', op: '==', value: 42 })
+      expect(params?.filter).toEqual({ field: 'orderId', operator: 'eq', value: 42 })
       cView.requestState = RequestState.Loaded
       return { success: true, data: [] }
     })

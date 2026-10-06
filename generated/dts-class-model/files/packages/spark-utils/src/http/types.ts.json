@@ -679,7 +679,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T13:43:18.696Z",
+  "generatedAt": "2026-10-05T10:07:52.907Z",
   "models": {
     "Method": {
       "name": "Method",

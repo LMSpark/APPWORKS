@@ -1,7 +1,11 @@
 # DataSet 整合工作交接复查
 
+> 历史复查记录；当时的未修复状态、旧合同和草案指针不再指导实施。2026-10-07 当前交付与验证见 research-project-blueprint-integration.md 末节，产品事实以源码和正式文档为准。
+
 日期：2026-10-06  
 状态：复查完成；发现的问题尚未修复，P3 不据既有绿色测试自动开工。
+
+续作方案更新：用户纠正数据空间存在后端表中、按场景 ID 使用，并明确一份 pagedata 对应一个场景，实际新增多 DataView 与 viewCascades。现行草案为 `plan-scenario-dataview-extension-integration.md`；此前两稿已 superseded，单文件多场景集合不得实施。以下代码复查证据保留，不能将展示快照或文件编辑链重新解释为空间正式持久化真源。
 
 ## 结论
 
@@ -153,3 +157,53 @@ pnpm exec vitest run tests/page/page-data-serialization-roundtrip.test.ts tests/
 5. **保存与持久化继续覆盖完整目标**：重要的真实写入和逐页切换由人工批准具体对象与范围；Java 仍不改。
 
 计划顶部只写“P1 已批准”，正文却记录 P2a/P2b 已完成；本轮得到用户确认 Copilot 已接手大量工作，但不据文档矛盾反推每项授权有无。保留实际成果和历史记录，以本次审查结论收敛下一轮方案。
+
+## 后端页面文件持久化续查
+
+### F9 — P1：文件保存回执会清掉保存期间产生的新修改
+
+**位置**：`packages/spark-project-model/src/project/project-workspace.ts:581-585`、`packages/spark-project-model/src/page/config-page.ts:177`、`packages/spark-project-model/src/page/content/text-file.ts:54`、`packages/spark-project-model/src/page/content/dataset-file.ts:52`。
+
+`savePageFileFromModel` 发送当时的 getFileText，await 后却调用不带提交快照的 markFileSaved。PageTextFile 把回执时的当前文本记为 savedText，PageDataSetFile 直接把 dirty 清零。
+
+临时只读探针 `%TEMP%/spark-dataset-review-page-save.mts` 使用真实 ProjectWorkspace、ConfigPageNode 和内存网关：先提交 A，挂起回执，继续编辑 B，再释放 A 的回执。script.js 与 pagedata.json 均复现 `sentDiffersFromCurrent=true, dirtyBeforeReceipt=true, dirtyAfterReceipt=false`。`pnpm exec tsx --tsconfig tsconfig.json <probe>` 最终退出 0。未发网络请求、未改仓库测试源码；首次探针仅因 Windows ESM 路径格式失败，改用 file URL 后运行成功。
+
+**方案要求**：保存确认必须对应实际提交并回读确认的快照，继续保留后来编辑的 dirty 状态；同文件保存需有顺序。修正应覆盖文本、规则、数据集三个文件模型的保存基线和 undo/redo，而非只在当前文本不同于提交文本时跳过 markSaved：后者不能更新真正的持久化基线，撤销后仍可能误报状态。现有并行保存 dirty 文件也不构成四文件事务。
+
+本发现是当前框架的既有保存缺口，不归因于 Copilot 的 DataSet 改动。在接通后端页面保存前列为 G1 的独立修复闭环，须随方案人工审核，当前未实施。
+
+本轮后端既有测试 `FileServiceImplContentTextTest` 4 项、`FileServiceImplDownloadTest` 3 项均通过；multipart 空文件上传另行尝试的临时 JShell 验证未取得有效输出，不能记为通过。详细命令、范围和页面路径取证见 `research-page-multi-data-space.md`。
+
+研读期间本仓 HEAD 从 `a7f2cf2e1` 推进至 `76d06b821`（同一分支），包含之前的工作树成果和 notes；本 agent 未执行 commit。继续以该提交为新基线保留成果，不据提交存在反推剩余实施已获批准。后端 HEAD 仍为 `37770101`，工作树干净。
+
+## 正式设计写回前置复查
+
+### F10 — P1：不完整的设计显示投影被接受为整份定义恢复前像
+
+**位置**：`packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts:219`、`:383`、`:411`，`design/data-space-design-mutation.ts` 的 DataSpaceDesignMutationCommand 与 prepareDataSpaceDesignMutation。
+
+`readTable` 对四张正式定义表各发一次 GetData，resultRows 只取 Items，不保留 total，也不继续分页。modelFields 只保留 type 为空或 dataModel 的字段，排除 inputParams 类别；输出还丢弃 description、allowAIAdd 等正式属性。返回对象可用于当前部分展示，但不是完整正式记录。prepareMutation 仅校验空间/模型归属，就返回 `compensation.kind=restore-data-space-design-snapshot`，把这一投影当作恢复前像。
+
+临时探针 `%TEMP%/spark-dataset-review-design-baseline.mts` 基于当前既有设计 API 测试夹具，调用真实 DataSpaceDesignApi.read/prepareMutation：令模型响应 total/Total=2002 但 Items 只有 2 条，添加一个 inputParams 字段及一个字段 description 标记。命令 `pnpm exec tsx --tsconfig tsconfig.json <probe>` 退出 0，断言结果如下：
+
+```json
+{"declaredModelTotal":2002,"returnedModelCount":2,"designReadRequests":4,"inputParameterFieldRetained":false,"originalFieldDescriptionRetained":false,"restoreDescriptorProduced":true,"writeRequests":0}
+```
+
+仓库生产消费者反查没有找到 prepareMutation 执行方。因此本发现证明的是设计写回的前置合同错误，未观察到线上数据被覆盖或恢复失败；不能据“已有恢复描述”宣称恢复链已实现。
+
+**方案要求**：由设计 API 私有持有经过完整分页、总数/唯一键/归属核对的正式基线；展示快照仍是投影。差异保存只改明确编辑的字段和记录，不将 columns 的缺失当删除，也不将显示投影用作整份恢复。恢复按实际触及记录的完整前像及写后状态核对，结果未知先回读，不因命令带 idempotencyKey 就自动重试。正式定义操作仍经设计场景调用原 SPARK API；应用/租户留在请求层。
+
+参考仓本轮定向验证：在 `E:/r/sparkproject/apps/appworks` 执行 `pnpm exec vitest run tests/data/data-space-design-baseline.test.ts tests/data/data-set-field-pagination.test.ts tests/data/api/data-model-field-changes.test.ts --pool=threads --maxWorkers=1 --reporter=dot`，退出 0，3 文件 16 项通过。它验证原定义基线、1001 字段分页和字段差异构造的测试合同；使用 mock，未证明真实后台写回或事务能力。未改生产/测试源码或 Java。
+
+## 失效方案清理时保留的历史实施摘要
+
+用户要求同步清理旧文档与旧逻辑，三份失效方案的执行步骤、结构示例和旧审核选项已退出现行入口。以下只转录原单空间计划中的实施记录，不是本轮重新执行的结果，也不推翻本报告 F1—F10 的复查结论：
+
+- P1 曾记录：视图序列化保留显式 false、过滤部分远端行及权限字段；新增序列化与页面夹具测试。当时报告 spark-data 407 项、根 1322 项以及 typecheck/lint/verify:ai-codegen 通过。嵌套权限与 modelBinding-only 等缺口由本报告继续跟踪。
+- P2a 曾记录：增加 scenarioId/modelBinding 与相关身份测试，更新三份相关 ClassModel 生成物；当时报告 spark-data 413 项、根 1328 项及四类检查通过。
+- P2b 曾记录：改为一模型一表，移除按物理资源分组与旧查询身份路由，改写消费者测试；当时报告 spark-data 413 项、根 1329 项及四类检查通过。它固定 default 视图和 modelId 表名的实际做法仍须按当前场景/模型/多视图合同复核，不能成为新目标的限制。
+- 原计划的授权记录仅明确 P1，并同时出现 P2 实施记录；此不一致已在交接时记录，不能据它推定后续实施获得授权。已有代码保留，未回滚、未重做。
+- 原 P3—P8 的必要目标仍由当前草案承接：原 SPARK 查询/权限/保存实现、DataView 消费、同场景保存、表与 JSON 持久化、人工审核迁移、真实行为验收与文档/生成物清理。废弃方案不代表删减这些目标。
+
+唯一现行方案为 `plan-scenario-dataview-extension-integration.md`，状态 draft。后续代码、测试、产品文档和生成物在各批准闭环一起替换；不以历史通过数字宣称目标完成。

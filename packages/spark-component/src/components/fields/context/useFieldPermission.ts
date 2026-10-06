@@ -65,10 +65,18 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   const validationRules = computed<FormItemRule[]>(() => {
     const column = boundColumn.value
     if (!column) return []
-    return columnToFormRules(column)
+    const rules = columnToFormRules(column)
+    if (perm.subtreeFieldPolicy !== 'unrestricted'
+      && dataSource?.fieldAccess(currentRow.value, fieldName.value).required === true
+      && !rules.some(rule => rule.required === true)) {
+      rules.push({ required: true, message: `${displayLabel.value}为必填字段`, trigger: 'blur' })
+    }
+    return rules
   })
 
-  const currentRow = computed<DataRow | null>(() => activeRow.value)
+  const currentRow = computed<DataRow | null>(() =>
+    perm.subtreeFieldPolicy === 'unrestricted' ? contextData : activeRow.value,
+  )
   const selectedRows = computed<DataRow[]>(() => activeSelectedRows.value)
 
   function hasRawProp(...keys: string[]): boolean {
@@ -83,7 +91,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   const sourceFieldValue = computed<TValue>(() => {
     if (hasExplicitModelValue.value && props.modelValue !== undefined) return props.modelValue
     if (hasExplicitValue.value && props.value !== undefined) return props.value
-    const row = activeRow.value
+    const row = currentRow.value
     if (row !== null && fieldName.value && fieldName.value in row) {
       return options.coerce(row[fieldName.value])
     }
@@ -161,9 +169,10 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   }
 
   function syncValue(value: TValue): void {
-    const row = activeRow.value
+    if (!isCurrentFieldEditable.value) return
+    const row = currentRow.value
     if (row !== null && fieldName.value) {
-      if (writeDataViewEditingValue({
+      if (perm.subtreeFieldPolicy !== 'unrestricted' && writeDataViewEditingValue({
         source: dataSource,
         row,
         field: fieldName.value,

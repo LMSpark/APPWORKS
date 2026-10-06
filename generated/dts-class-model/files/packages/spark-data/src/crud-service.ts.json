@@ -253,7 +253,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T13:26:39.094Z",
+  "generatedAt": "2026-10-05T10:07:52.886Z",
   "models": {
     "CrudService": {
       "name": "CrudService",

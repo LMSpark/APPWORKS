@@ -15,7 +15,6 @@ import type {
   TableResourceType,
   TableBusinessCategory,
   TableModelBinding,
-  DataPermissionSnapshotInput,
 } from './types'
 import type { DataSet } from './dataset'
 import { DataValidator } from './validation'
@@ -76,9 +75,10 @@ export class DataTable {
 
   /**
    * 模型绑定：该表对应的后端模型身份（模型 ID 与查询用 Name）。
-   * 页面内 tableName 保持稳定，后端模型改名只更新这里，不重命名 tableName。
+   * 运行绑定只读；模型改名或迁移时重新装配，保留页面内 tableName。
    */
-  modelBinding?: TableModelBinding
+  readonly modelBinding?: TableModelBinding
+  private _modelBinding: TableModelBinding | undefined
 
   /**
    * 业务分类：描述该表在当前业务模型中的角色。
@@ -158,6 +158,8 @@ export class DataTable {
    * @param columns 初始列定义；后续列变更必须通过公开方法维护派生状态。
    */
   constructor(tableName: string, columns: DataColumn[] = []) {
+    // 保留只读属性声明供ClassModel消费，同时禁止脚本改绑。
+    Object.defineProperty(this, 'modelBinding', { get: () => this._modelBinding, enumerable: true, configurable: false })
     assertNoSeparator(tableName, 'tableName')
     this.tableName = tableName
     this.columns = columns
@@ -320,7 +322,7 @@ export class DataTable {
       views: viewsData,
       ...(this.resourceType !== undefined ? { resourceType: this.resourceType } : {}),
       ...(this.resourceId !== undefined ? { resourceId: this.resourceId } : {}),
-      ...(this.modelBinding !== undefined ? { modelBinding: this.modelBinding } : {}),
+      ...(this.modelBinding !== undefined ? { modelBinding: { ...this.modelBinding } } : {}),
       ...(this.businessCategory !== undefined ? { businessCategory: this.businessCategory } : {}),
       ...(this.api !== undefined ? { api: this.api } : {}),
       ...(this.crudConfig !== undefined ? { crudConfig: this.crudConfig } : {}),
@@ -412,12 +414,6 @@ export class DataTable {
     return nextRows.length
   }
 
-  /** 将同一次后端查询的行、权限和原始基线登记到指定视图。 */
-  ingestPermissionSnapshot(input: DataPermissionSnapshotInput, viewId = 'default'): void {
-    const view = this.getOrCreateView(viewId)
-    view.ingestPermissionSnapshot(input)
-  }
-
   /**
    * 创建命名视图。
    *
@@ -476,7 +472,7 @@ export class DataTable {
     }
     if (normalized.resourceType !== undefined) t.resourceType = normalized.resourceType
     if (normalized.resourceId !== undefined) t.resourceId = normalized.resourceId
-    if (normalized.modelBinding !== undefined) t.modelBinding = normalized.modelBinding
+    if (normalized.modelBinding !== undefined) t._modelBinding = Object.freeze({ ...normalized.modelBinding })
     if (normalized.businessCategory !== undefined) t.businessCategory = normalized.businessCategory
     if (normalized.crudConfig !== undefined) t.crudConfig = normalized.crudConfig
 

@@ -275,7 +275,7 @@ cap?.doWork()
 |---|---|---|
 | `PAGE_RUNTIME_SERVICES` | `PageRuntimeServicesCapability`，来自 `@spark-appworks/spark-component` | `{ router?, logger?, tenant?, authService?, pageService? }` |
 | `PAGE_SERVICE` | `PageServiceCapability` | `showMessage / showConfirm / showLoading / navigate` |
-| `PAGE_DATASET` | `DataSetContract` | 页面级 DataSet，由 PageRenderer 提供 |
+| `PAGE_RUNTIME` | `PageRuntime` | 当前页面调用；按 scenarioId 取得 DataSet，集中解析绑定 |
 | `DATA_SOURCE` | `DataSource` | 组件级 DataView，由容器组件提供 |
 | `DATA_ROW` | `DataRow` | 当前行作用域 |
 | `PAGE_PERMISSION_MODE` | `PermissionMode` | 页面权限模式（SSOT：`@spark-appworks/spark-utils`） |
@@ -324,13 +324,23 @@ export { SPARK_REGISTRY_KEY }
 export {
   SparkPageRenderer,
   SparkComponentRenderer,
-  usePageDataSet,
 }
 export type {
   PageContext,
-  PageNodeRenderConfig,
 }
 ```
+
+---
+
+## 页面调用与数据绑定
+
+`SparkPageRenderer` 接收 `pageRuntime: PageRuntime` 和冻结的 `routeSnapshot: PageRoute`。宿主按 `instanceId` 为 Vue 组件设置 key。工具定义只包含 rule、script、css；每次调用独立装载场景 DataSet、脚本函数、组件注册表及样式作用域，关闭时 dispose。
+
+绑定使用 `#scenarioId@tableName@viewId`；只有明确声明 mainScenarioId 的调用允许本地 `tableName@viewId`。不存在隐式第一空间。显式空键、未知场景或视图会拒绝执行。普通静态组件可在局部提供 `DATA_SOURCE`。
+
+脚本通过 `$page.getDataSet(scenarioId)` 和 `$page.resolveView(binding)` 访问数据，通过 DataView 的 `requestData()` 刷新。保存动作必须指定 scenarioId；显式视图列表有空值或坏值时整次拒绝。失败或权限拒绝不执行后续 then 动作。
+
+页面脚本的路由、模块上下文按调用捕获；异步 UI 服务在返回时检查调用是否仍有效。页面销毁后旧服务与 timer 不能继续修改状态。`Render*` 仅注册到当前页面组件注册表。
 
 ---
 

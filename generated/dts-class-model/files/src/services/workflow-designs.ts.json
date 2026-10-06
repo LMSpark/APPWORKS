@@ -927,7 +927,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T13:45:53.607Z",
+  "generatedAt": "2026-10-05T10:07:52.918Z",
   "models": {
     "JsonRecord": {
       "name": "JsonRecord",

@@ -93,16 +93,6 @@
       "type": "object",
       "title": "PageContext",
       "properties": {
-        "$dataSet": {
-          "anyOf": [
-            {
-              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataSetContract"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "$components": {
           "$ref": "#/$defs/PageComponentAccessApi"
         },
@@ -110,7 +100,6 @@
         "h": true
       },
       "required": [
-        "$dataSet",
         "$components",
         "SparkData",
         "h"
@@ -172,7 +161,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T11:47:55.104Z",
+  "generatedAt": "2026-10-06T20:19:12.175Z",
   "models": {
     "PageComponentAccessApi": {
       "name": "PageComponentAccessApi",
@@ -285,10 +274,10 @@
     },
     "PageContext": {
       "name": "PageContext",
-      "jsdoc": "页面脚本运行时上下文。\n继承 `ScriptContext`（spark-project-model，框架无关契约），\n在此基础上添加 spark-component 层具体注入字段：\n- `$dataSet` — DataSet 实例（具体类型）\n- `$components` — 覆盖为更完整的 `PageComponentAccessApi`\n- `SparkData` — 数据工具命名空间\n- `h` — 渲染函数（Render* 专用）\n- Timer API — 沙箱白名单",
+      "jsdoc": "页面脚本运行时上下文。\n继承 `ScriptContext`（spark-project-model，框架无关契约），\n在此基础上添加 spark-component 层具体注入字段：\n- `$page.getDataSet(scenarioId)` — 当前调用的指定场景数据\n- `$components` — 覆盖为更完整的 `PageComponentAccessApi`\n- `SparkData` — 数据工具命名空间\n- `h` — 渲染函数（Render* 专用）\n- Timer API — 沙箱白名单",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ScriptContext & {\n    /** 页面 DataSet（比 ScriptContext 额外注入的具体类型） */\n    $dataSet: DataSetContract | null;\n    /** 组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法） */\n    $components: PageComponentAccessApi;\n    /** SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用） */\n    SparkData: typeof SparkData;\n    /** 渲染函数（运行时由渲染层注入，Render* 函数专用） */\n    h: typeof h;\n    /** set Timeout 回调。 */\n    setTimeout: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Timeout 回调。 */\n    clearTimeout: (id?: number) => void;\n    /** set Interval 回调。 */\n    setInterval: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Interval 回调。 */\n    clearInterval: (id?: number) => void;\n}",
+        "declarationTypeText": "ScriptContext & {\n    /** 组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法） */\n    $components: PageComponentAccessApi;\n    /** SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用） */\n    SparkData: typeof SparkData;\n    /** 渲染函数（运行时由渲染层注入，Render* 函数专用） */\n    h: typeof h;\n    /** set Timeout 回调。 */\n    setTimeout: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Timeout 回调。 */\n    clearTimeout: (id?: number) => void;\n    /** set Interval 回调。 */\n    setInterval: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Interval 回调。 */\n    clearInterval: (id?: number) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -297,17 +286,11 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 页面 DataSet（比 ScriptContext 额外注入的具体类型） */\n    $dataSet: DataSetContract | null;\n    /** 组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法） */\n    $components: PageComponentAccessApi;\n    /** SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用） */\n    SparkData: typeof SparkData;\n    /** 渲染函数（运行时由渲染层注入，Render* 函数专用） */\n    h: typeof h;\n    /** set Timeout 回调。 */\n    setTimeout: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Timeout 回调。 */\n    clearTimeout: (id?: number) => void;\n    /** set Interval 回调。 */\n    setInterval: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Interval 回调。 */\n    clearInterval: (id?: number) => void;\n}"
+            "typeText": "{\n    /** 组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法） */\n    $components: PageComponentAccessApi;\n    /** SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用） */\n    SparkData: typeof SparkData;\n    /** 渲染函数（运行时由渲染层注入，Render* 函数专用） */\n    h: typeof h;\n    /** set Timeout 回调。 */\n    setTimeout: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Timeout 回调。 */\n    clearTimeout: (id?: number) => void;\n    /** set Interval 回调。 */\n    setInterval: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Interval 回调。 */\n    clearInterval: (id?: number) => void;\n}"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "$dataSet",
-              "jsdoc": "页面 DataSet（比 ScriptContext 额外注入的具体类型）",
-              "readable": true,
-              "writable": true
-            },
             {
               "name": "$components",
               "jsdoc": "组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法）",

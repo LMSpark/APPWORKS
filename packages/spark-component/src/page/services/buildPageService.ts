@@ -11,7 +11,7 @@
  * 优先使用 props 注入的 UI 服务（测试或宿主覆盖），回退到 Element Plus。
  */
 
-import type { Router } from 'vue-router'
+import type { Router, LocationQueryRaw } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type {
   PageBrowseFilesOptions,
@@ -72,12 +72,16 @@ function extractUploadedUrl(response: unknown): string | undefined {
   return undefined
 }
 
-function stringifyQueryParams(params: Record<string, unknown>): Record<string, string> {
-  const query: Record<string, string> = {}
+function queryValue(value: unknown): string | null | undefined {
+  if (value === null || value === undefined) return value
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value)
+  throw new Error('页面调用参数必须是标量或标量数组')
+}
+
+function stringifyQueryParams(params: Record<string, unknown>): LocationQueryRaw {
+  const query: LocationQueryRaw = {}
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null) {
-      query[key] = String(value)
-    }
+    query[key] = Array.isArray(value) ? value.map((item: unknown) => queryValue(item)) : queryValue(value)
   }
   return query
 }

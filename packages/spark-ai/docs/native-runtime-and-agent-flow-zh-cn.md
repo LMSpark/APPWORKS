@@ -160,6 +160,12 @@ DevSystem
 - `AiToolApprovalBridge`：UI 审批每次 tool call。
 - `page-design-gates.ts`：对 mutation tool 检查 effectiveDescription / implGate / upstreamContractsSatisfied。
 
+页面文件自动交付等待本批每个保存调用结束，再逐文件记录结果。成功调用对应 `saved`，失败调用对应 `dirty`；任一失败使总体交付为 `failed`，错误信息保留各失败原因。一个文件失败不抹掉其他文件的成功回执，也不表示已写文件被回滚。`saved` 指本次捕获文本已提交，保存等待期间的新编辑仍可保持 dirty。
+
+显式保存范围必须是非空有效文件名数组。空数组、未知名称或错误类型使本次输入失败，不过滤坏项、不改成全部 dirty。Agent Run 在执行前校验，直接交付也在写入前校验；省略范围保留既有默认或本次已明确的范围。已接纳的范围保存为独立只读快照，调用方后续修改输入数组不会扩张保存范围。
+
+pageDesign 执行失败时，交付端口没有恢复内容或撤销远端写入。它保留原错误，报告本次保存 `skipped` 和各未保存产物 `dirty`，不生成 `rolledBack` 回执。编辑仍在工作区内时保留实际修改状态，后续放弃或恢复须由相应 owner 明确执行。
+
 ## 排错
 
 | 现象 | 处理 |

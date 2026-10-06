@@ -1,6 +1,6 @@
 /**
- * 数据空间领域模型与前端模型实体：设计态快照的类型合同与构造期不变量校验。
- * {@link DataSpaceFrontendModel} 在实例化时 fail-fast 校验身份、字段唯一性与关系归属，不可绕过。
+ * @module @spark-appworks/spark-lowcode-api:platform/data-space/data-space
+ * 职责：数据空间设计态资源、字段和关系合同及前端模型实体。边界：构造期校验身份和关系归属，运行查询字段由正式 readModel 定义；AI 可用此入口区分设计资源与查询模型。
  */
 import { LowcodeApiError } from '../../core/lowcode-api-error.js'
 import type { OrderType } from '../../contracts/lowcode-wire-query.js'
@@ -127,6 +127,7 @@ export class DataSpaceFrontendModel {
   public readonly relations: readonly LowcodeModelRelationRecord[]
   public readonly query: DataSpaceFrontendModelQuery
 
+  /** 复制设计态输入并校验非空身份、字段唯一性及同场景关系归属；无效输入立即失败。 */
   public constructor(snapshot: DataSpaceFrontendModelSnapshot) {
     this.dataSpaceId = requiredText(snapshot.dataSpaceId, 'dataSpaceId')
     this.modelId = requiredText(snapshot.modelId, 'modelId')

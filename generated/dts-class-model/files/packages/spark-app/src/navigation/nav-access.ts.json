@@ -12,37 +12,6 @@
     "symbols": []
   },
   "$defs": {
-    "DynamicRouterAccess": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DynamicRouterAccess",
-      "$defs": {
-        "method.refreshRoutes.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.refreshRoutes.return": {
-          "type": "object",
-          "title": "Promise<RuntimeNavigation | null>"
-        },
-        "method.getNavTree.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getNavTree.return": {
-          "anyOf": [
-            {
-              "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigation"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
     "NavAccessOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -55,64 +24,8 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T21:25:34.633Z",
+  "generatedAt": "2026-10-06T19:58:46.707Z",
   "models": {
-    "DynamicRouterAccess": {
-      "name": "DynamicRouterAccess",
-      "jsdoc": "DynamicRouter 公共 API 子集（仅导航相关）",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 清除路由缓存并重新注册，返回刷新后的导航树；DynamicRouter 未注入时由调用方处理 */\n    refreshRoutes(): Promise<RuntimeNavigation | null>;\n    /** 同步读取当前已加载的导航树（不发 HTTP），未加载或未注入时返回 null */\n    getNavTree(): RuntimeNavigation | null;\n}",
-        "members": {
-          "methods": [
-            {
-              "name": "refreshRoutes",
-              "jsdoc": "清除路由缓存并重新注册，返回刷新后的导航树；DynamicRouter 未注入时由调用方处理",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "reference",
-                        "name": "RuntimeNavigation",
-                        "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
-                      },
-                      {
-                        "type": "literal",
-                        "value": null
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "name": "getNavTree",
-              "jsdoc": "同步读取当前已加载的导航树（不发 HTTP），未加载或未注入时返回 null",
-              "parameters": [],
-              "type": {
-                "type": "union",
-                "types": [
-                  {
-                    "type": "reference",
-                    "name": "RuntimeNavigation",
-                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
-                  },
-                  {
-                    "type": "literal",
-                    "value": null
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    },
     "NavAccessOptions": {
       "name": "NavAccessOptions",
       "jsdoc": "初始化选项",

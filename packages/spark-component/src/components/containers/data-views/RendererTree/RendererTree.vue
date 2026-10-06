@@ -92,7 +92,7 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
 /**
  * RendererTree - 树形容器组件
  *
- * 内部通过 useContainerDataSource 统一解析 dataViewKey，并走能力链读取 PAGE_DATASET。
+ * 内部通过 useContainerDataSource 统一解析 dataViewKey，并走能力链读取 PAGE_RUNTIME。
  */
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 import {
@@ -190,7 +190,6 @@ function resolveToolbarActionNode(node: SparkNode): SparkNode {
     row: scopedRow,
     data: scopedRow,
     dataSource: dataState.resolvedView.value,
-    permissionSnapshot: dataState.permissionSnapshot.value,
     host: { type: 'r-tree-toolbar' },
   })
 

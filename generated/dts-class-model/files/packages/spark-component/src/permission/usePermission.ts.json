@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-component/src/permission/usePermission.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "permission/usePermission",
-    "jsdoc": "@module @spark-appworks/spark-component:permission/usePermission\n职责：提供 use Permission 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nusePermission — 权限 API composable\n统一封装 PAGE_PERMISSION_MODE / SUBTREE_FIELD_POLICY 能力消费 + 权限判断/字段状态。\n消费方只需调用本 composable 返回的方法，无需自行 sparkConsume 权限模式。\n设计原则：\n- permissionMode 由后端随导航配置下发，PageRenderer 通过 sparkProvide 注入\n- subtreeFieldPolicy 只描述子树内字段输入策略，不改变页面级 permissionMode\n- 前端权限仅为渲染层表现，真正安全由后端控制\n- 所有权限判断收口到本模块，方便统一维护",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-component:permission/usePermission\n职责：提供 use Permission 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "UsePermissionReturn"
     ]
@@ -29,37 +29,11 @@
       },
       "additionalProperties": false,
       "$defs": {
-        "method.isPermitted.params": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "$ref": "PermissionResolver.ts.json#/$defs/PermissionAction"
-            },
-            "context": {
-              "type": "object",
-              "title": "Omit<ComponentPermissionActionContext, 'permissionMode'>"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.isPermitted.return": {
-          "type": "boolean"
-        },
         "method.isModelActionAllowed.params": {
           "type": "object",
           "properties": {
             "action": {
               "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
-            },
-            "snapshot": {
-              "anyOf": [
-                {
-                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataPermissionSnapshot"
-                },
-                {
-                  "type": "null"
-                }
-              ]
             }
           },
           "additionalProperties": false
@@ -118,14 +92,14 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T11:41:37.214Z",
+  "generatedAt": "2026-10-06T13:46:51.807Z",
   "models": {
     "UsePermissionReturn": {
       "name": "UsePermissionReturn",
       "jsdoc": "Use Permission Return 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。 */\n    readonly permissionMode: PermissionMode | undefined;\n    /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */\n    readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined;\n    /** 判断动作是否被权限允许 */\n    isPermitted(action: PermissionAction | undefined, context?: Omit<ComponentPermissionActionContext, 'permissionMode'>): boolean;\n    /** 判断模型级动作（create/import/export）是否允许 */\n    isModelActionAllowed(action: SparkNode, snapshot: DataPermissionSnapshot | null | undefined): boolean;\n    /** 判断行级动作（edit/delete/create-child）是否允许 */\n    isRowActionAllowed(action: SparkNode, row: DataRow | undefined): boolean;\n    /** 解析字段权限状态（可见性 + 可编辑性） */\n    resolveFieldState(field: string | undefined, row: DataRow | null | undefined, config?: Omit<FieldRenderConfig, 'field'>): FieldRenderState | null;\n}",
+        "declarationTypeText": "{\n    /** 当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。 */\n    readonly permissionMode: PermissionMode | undefined;\n    /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */\n    readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined;\n    /** 模型新增消费绑定 DataView；未签发的动作或标签不能授权。 */\n    isModelActionAllowed(action: SparkNode): boolean;\n    /** 判断行级动作（edit/delete/create-child）是否允许 */\n    isRowActionAllowed(action: SparkNode, row: DataRow | undefined): boolean;\n    /** 解析字段权限状态（可见性 + 可编辑性） */\n    resolveFieldState(field: string | undefined, row: DataRow | null | undefined, config?: Omit<FieldRenderConfig, 'field'>): FieldRenderState | null;\n}",
         "members": {
           "attributes": [
             {
@@ -143,76 +117,14 @@
           ],
           "methods": [
             {
-              "name": "isPermitted",
-              "jsdoc": "判断动作是否被权限允许",
-              "parameters": [
-                {
-                  "name": "action",
-                  "type": {
-                    "type": "optional",
-                    "elementType": {
-                      "type": "reference",
-                      "name": "PermissionAction",
-                      "sourcePath": "packages/spark-component/src/permission/PermissionResolver.ts"
-                    }
-                  }
-                },
-                {
-                  "name": "context",
-                  "type": {
-                    "type": "reference",
-                    "name": "Omit",
-                    "typeArguments": [
-                      {
-                        "type": "reference",
-                        "name": "ComponentPermissionActionContext",
-                        "sourcePath": "packages/spark-component/src/permission/PermissionResolver.ts"
-                      },
-                      {
-                        "type": "literal",
-                        "value": "permissionMode"
-                      }
-                    ]
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
               "name": "isModelActionAllowed",
-              "jsdoc": "判断模型级动作（create/import/export）是否允许",
+              "jsdoc": "模型新增消费绑定 DataView；未签发的动作或标签不能授权。",
               "parameters": [
                 {
                   "name": "action",
                   "type": {
                     "type": "reference",
                     "name": "SparkNode"
-                  }
-                },
-                {
-                  "name": "snapshot",
-                  "type": {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "reference",
-                        "name": "DataPermissionSnapshot"
-                      },
-                      {
-                        "type": "literal",
-                        "value": null
-                      },
-                      {
-                        "type": "intrinsic",
-                        "name": "undefined"
-                      }
-                    ]
                   }
                 }
               ],

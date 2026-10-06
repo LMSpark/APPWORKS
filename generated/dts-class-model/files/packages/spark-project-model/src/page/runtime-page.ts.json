@@ -7,11 +7,421 @@
     "sourceFile": "packages/spark-project-model/src/page/runtime-page.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "page/runtime-page",
-    "jsdoc": "@module @spark-appworks/spark-project-model:page/runtime-page\n职责：提供项目模型和页面配置域中的 runtime page 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n运行态配置页：ConfigPageNode + PageContentLoader 绑定。",
-    "jsdocSource": "leading-jsdoc",
-    "symbols": []
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/runtime-page\n职责：每次页面调用的数据装配与生命周期。\n边界：实例身份固定，数据集独占，代次失效必须销毁。\nAI用途：装配明确场景、物化绑定及刷新干净实例。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PageRuntimeOptions",
+      "PageRuntimeCall",
+      "PageRuntime"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-08-09T21:44:14.391Z",
-  "models": {}
+  "$defs": {
+    "PageRuntimeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntimeOptions",
+      "properties": {
+        "tool": {
+          "$ref": "page-tool.ts.json#/$defs/PageTool"
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mainScenarioId": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool",
+        "scenarioIds"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.loadScenario.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenario.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
+        "method.loadTool.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadTool.return": {
+          "type": "object",
+          "title": "Promise<PageTool>"
+        }
+      }
+    },
+    "PageRuntimeCall": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntimeCall",
+      "properties": {
+        "instanceId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mainScenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageRuntime": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntime",
+      "properties": {
+        "tool": {
+          "$ref": "page-tool.ts.json#/$defs/PageTool"
+        },
+        "call": {
+          "$ref": "#/$defs/PageRuntimeCall"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageRuntimeOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markConfigPending.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.markConfigPending.return": true,
+        "method.reload.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reload.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getDataSet.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getDataSet.return": {
+          "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "method.resolveView.params": {
+          "type": "object",
+          "properties": {
+            "binding": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveView.return": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "method.materialize.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.materialize.return": {
+          "$ref": "page-tool.ts.json#/$defs/PageToolDefinition"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.262Z",
+  "models": {
+    "PageRuntimeOptions": {
+      "name": "PageRuntimeOptions",
+      "jsdoc": "一次页面调用的工具、明确场景列表及真实装配回调；局部绑定仅使用显式主场景。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    tool: PageTool;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    instanceId?: string;\n    loadScenario: (scenarioId: string) => Promise<DataSet>;\n    loadTool?: () => Promise<PageTool>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tool",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mainScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "instanceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadScenario",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadTool",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageTool",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageRuntimeCall": {
+      "name": "PageRuntimeCall",
+      "jsdoc": "不可变调用身份快照，重载保持 instanceId，场景身份不能取默认首空间。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    instanceId: string;\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    instanceId: string;\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mainScenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageRuntime": {
+      "name": "PageRuntime",
+      "jsdoc": "一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建独立调用 owner，验证场景身份；DataSet 在 load 后归此实例销毁。",
+          "signatureText": "constructor(options: PageRuntimeOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "PageRuntimeOptions",
+                "sourcePath": "packages/spark-project-model/src/page/runtime-page.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "tool",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "call",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "markConfigPending",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reload",
+              "jsdoc": "干净实例才允许刷新，失效旧代次并销毁旧数据集，保持调用身份。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "load",
+              "jsdoc": "装载工具与每个声明场景；迟到或身份错误的数据集销毁并显式失败。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getDataSet",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSet"
+                }
+              }
+            },
+            {
+              "name": "resolveView",
+              "jsdoc": "解析完整场景绑定或显式主场景局部绑定；未声明身份立即拒绝。",
+              "parameters": [
+                {
+                  "name": "binding",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView"
+                }
+              }
+            },
+            {
+              "name": "materialize",
+              "jsdoc": "复制工具规则并展开局部绑定，引用不存在的视图时失败，不修改原工具。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "PageToolDefinition",
+                "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
 }

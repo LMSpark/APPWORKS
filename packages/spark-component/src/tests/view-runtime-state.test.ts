@@ -70,6 +70,9 @@ describe('useDataViewState', () => {
     view.updateEditingValue(3, 'name', 'Cara Draft')
     expect(state.editingRows.value).toMatchObject([{ id: 3, name: 'Cara Draft' }])
 
+    expect(() => view.applyViewConfig({ page: 2, pageSize: 50 })).toThrow('UNSAVED')
+    expect(state.editingRows.value).toMatchObject([{ id: 3, name: 'Cara Draft' }])
+    expect(view.discardEditingRows()).toBe(1)
     view.applyViewConfig({ page: 2, pageSize: 50 })
     expect(state.page.value).toBe(2)
     expect(state.pageSize.value).toBe(50)

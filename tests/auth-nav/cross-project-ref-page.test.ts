@@ -1,138 +1,49 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import {
-  PageContentLoader,
-  type PageFileReadCommand,
-} from '@spark-appworks/spark-project-model'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import { CrossProjectRefPage } from '../../packages/spark-app/src/router/cross-project-ref-page'
+import { CrossProjectRefPage, createCrossProjectRefRouteProps } from '../../packages/spark-app/src/router/cross-project-ref-page'
 
-function isPageNodeLike(value: unknown): value is { pageId: string; load: () => Promise<void> } {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-    && typeof Reflect.get(value, 'pageId') === 'string'
-    && typeof Reflect.get(value, 'load') === 'function'
+const navState = vi.hoisted((): { tree: RuntimeNavigation | null } => ({ tree: null }))
+vi.mock('../../packages/spark-app/src/navigation/nav-access', () => ({ getNavTree: () => navState.tree }))
+
+async function setup(target?: string) {
+  navState.tree = { id: 'root', title: 'root', childPlacement: 'sidebar', items: [{ id: 'ref-node', title: 'Orders', itemKind: 'ref', ...(target ? { refPath: target } : {}) }] }
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/t/:tenantId/:projectId/__ref/:refNodeId', component: CrossProjectRefPage, props: createCrossProjectRefRouteProps(), meta: { type: 'cross-project-ref' } },
+    { path: '/t/:tenantId/:projectId/__tool/:pageId', component: { template: '<div />' } },
+  ] })
+  await router.push('/t/T/HOST/__ref/ref-node?scenarioId=CALL&additionalScenarioIds=A&additionalScenarioIds=B&bare&blank=#caller')
+  await router.isReady()
+  return { router, open: () => mount(CrossProjectRefPage, { props: { route: router.currentRoute.value }, global: { plugins: [router] } }) }
 }
 
-const navTreeState = vi.hoisted((): { tree: RuntimeNavigation | null } => ({
-  tree: null,
-}))
-
-const rendererState = vi.hoisted((): { props: Record<string, unknown> | null } => ({
-  props: null,
-}))
-
-vi.mock('../../packages/spark-app/src/navigation/nav-access', () => ({
-  getNavTree: () => navTreeState.tree,
-}))
-
-vi.mock('@spark-appworks/spark-component', async () => {
-  const vue = await vi.importActual<typeof import('vue')>('vue')
-  return {
-    SparkPageRenderer: vue.defineComponent({
-      name: 'SparkPageRenderer',
-      props: {
-        pageId: {
-          type: String,
-          required: true,
-        },
-        pageNode: {
-          type: Object,
-          required: true,
-        },
-      },
-      setup(props) {
-        rendererState.props = props
-        return () => vue.h('div', { class: 'renderer-stub' })
-      },
-    }),
-  }
-})
-
-describe('CrossProjectRefPage', () => {
-  beforeEach(() => {
-    rendererState.props = null
-    navTreeState.tree = null
+describe('CrossProjectRefPage uses the shared route factory', () => {
+  beforeEach(() => { navState.tree = null })
+  it('redirects to the explicit tool, preserving call parameters and target overrides', async () => {
+    const { router, open } = await setup('@app:TARGET/__tool/orders?scenarioId=TARGET-SCENE#target')
+    const wrapper = open()
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/t/T/TARGET/__tool/orders')
+    expect(router.currentRoute.value.query).toEqual({ scenarioId: 'TARGET-SCENE', additionalScenarioIds: ['A', 'B'], bare: null, blank: '' })
+    expect(router.currentRoute.value.hash).toBe('#target')
+    wrapper.unmount()
   })
-
-  it('resolves stale host UUID meta through the ref node target', async () => {
-    const hostRefNodeId = '06c56d10-4ff6-4c4d-a6ce-772536592c75'
-    const requests: PageFileReadCommand[] = []
-
-    navTreeState.tree = {
-      id: 'root',
-      title: 'root',
-      childPlacement: 'sidebar',
-      items: [
-        {
-          id: hostRefNodeId,
-          title: 'project list ref',
-          itemKind: 'ref',
-          refId: 'project-list',
-          refPath: '@app:engineering-pm/project-list',
-          refProjectId: 'engineering-pm',
-          children: [],
-        },
-      ],
-    }
-
-    const router = createRouter({
-      history: createMemoryHistory(),
-      routes: [
-        {
-          path: '/t/:tenantId/:projectId/__ref/:refNodeId',
-          component: CrossProjectRefPage,
-          meta: {
-            type: 'cross-project-ref',
-            pageId: hostRefNodeId,
-          },
-        },
-      ],
-    })
-
-    await router.push(`/t/lmspark/homepage/__ref/${hostRefNodeId}`)
-    await router.isReady()
-
-    const pageContentLoader = new PageContentLoader({
-      projectId: 'homepage',
-      readPageFile: async (command) => {
-        requests.push(command)
-        if (command.fileName === 'pagedata.json') return '{"dataSetName":"CrossProject","tables":{}}'
-        if (command.fileName === 'rule.json') return '[]'
-        return ''
-      },
-    })
-
-    mount(CrossProjectRefPage, {
-      props: {
-        pageContentLoader,
-        tenantId: 'lmspark',
-        hostProjectId: 'homepage',
-        routePath: `/t/lmspark/homepage/__ref/${hostRefNodeId}`,
-        routeMeta: {
-          type: 'cross-project-ref',
-          pageId: hostRefNodeId,
-        },
-      },
-      global: {
-        plugins: [router],
-      },
-    })
-
-    expect(rendererState.props?.['pageId']).toBe('project-list')
-
-    const rawPageNode = rendererState.props?.['pageNode']
-    const pageNode = isPageNodeLike(rawPageNode) ? rawPageNode : undefined
-    expect(pageNode).toBeDefined()
-    if (!pageNode) return
-    expect(pageNode.pageId).toBe('project-list')
-
-    await pageNode.load()
-
-    expect(requests).toContainEqual({
-      projectId: 'engineering-pm',
-      pageId: 'project-list',
-      fileName: 'rule.json',
-    })
+  it('fails without guessing a tool from the reference ID', async () => {
+    const { router, open } = await setup()
+    const wrapper = open()
+    await flushPromises()
+    expect(wrapper.text()).toContain('缺少明确调用目标')
+    expect(router.currentRoute.value.path).toBe('/t/T/HOST/__ref/ref-node')
+    wrapper.unmount()
+  })
+  it('keeps the original route when navigation is rejected', async () => {
+    const { router, open } = await setup('@app:TARGET/__tool/orders')
+    router.beforeEach(to => to.params['projectId'] === 'TARGET' ? false : undefined)
+    const wrapper = open()
+    await flushPromises()
+    expect(wrapper.text()).toContain('引用导航未完成')
+    expect(router.currentRoute.value.params['projectId']).toBe('HOST')
+    wrapper.unmount()
   })
 })

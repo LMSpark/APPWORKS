@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-data/src/dataset.ts",
     "packageName": "@spark-appworks/spark-data",
     "modulePath": "dataset",
-    "jsdoc": "@module @spark-appworks/spark-data:dataset\n职责：提供 spark-data 数据管线中的 dataset 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-data:dataset\n职责：持有单场景或本地数据表、多视图、资源关系及输入级联，协调订阅和保存。\n边界：场景身份只读，场景保存使用既有查询 owner 且不保证事务，多空间由 PageRuntime 持有。\nAI用途：解析视图、组织级联或保存场景内多个模型时确认数据集的不变量。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DataSet"
     ]
@@ -169,7 +169,6 @@
         "resourceRelations",
         "viewCascades",
         "schemaVersion",
-        "scenarioId",
         "version",
         "pageId",
         "saveChangesConfig",
@@ -328,7 +327,7 @@
         "method.resolveCascadeFilter.return": {
           "anyOf": [
             {
-              "$ref": "types.ts.json#/$defs/FilterExpression"
+              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
             },
             {
               "type": "null"
@@ -697,7 +696,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-05T19:46:26.751Z",
+  "generatedAt": "2026-10-06T21:13:30.258Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
@@ -836,9 +835,9 @@
             },
             {
               "name": "scenarioId",
-              "jsdoc": "SPARK 场景身份（页面绑定的 formKey）；未绑定场景的本地数据集为 undefined。",
+              "jsdoc": "SPARK 场景身份只读；变更时重新装配运行 DataSet。本地数据集为 undefined。",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "version",
@@ -1085,7 +1084,7 @@
             },
             {
               "name": "triggerAutoLoad",
-              "jsdoc": "触发所有标记了 `autoLoad: true` 的 default 视图自动加载。\n渲染层（如 usePageDataSet）在构建 DataSet 后调用此方法；\n业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。\n仅处理 default 视图——命名视图和从表通常由级联机制驱动。",
+              "jsdoc": "触发所有标记了 `autoLoad: true` 的 default 视图自动加载。\n页面调用渲染层在构建 DataSet 后调用此方法；\n业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。\n仅处理 default 视图——命名视图和从表通常由级联机制驱动。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -1166,8 +1165,8 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "FilterExpression",
-                    "sourcePath": "packages/spark-data/src/types.ts"
+                    "name": "DataViewFilterTree",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
                   },
                   {
                     "type": "intrinsic",
@@ -1571,7 +1570,7 @@
             },
             {
               "name": "destroy",
-              "jsdoc": "销毁 DataSet 及其所有 DataTable/DataView 的资源。\n调用后：\n- 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理\n- 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）\n- 共享 HTTP 客户端引用被释放\n- 标记为已销毁，后续操作静默忽略\n使用场景：页面卸载时由 `usePageDataSet.clearDataSet()` 调用。",
+              "jsdoc": "销毁 DataSet 及其所有 DataTable/DataView 的资源。\n调用后：\n- 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理\n- 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）\n- 共享 HTTP 客户端引用被释放\n- 标记为已销毁，后续操作静默忽略\n使用场景：页面调用 dispose 时释放其拥有的 DataSet。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -1632,7 +1631,7 @@
             },
             {
               "name": "saveChanges",
-              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n提交顺序按 resourceRelations 做父表 → 子表排序，保证主从页面一次提交时主表先落库。",
+              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n场景视图通过同一查询 owner 一次保存；本地 CRUD 视图按资源关系顺序提交。",
               "parameters": [
                 {
                   "name": "options",

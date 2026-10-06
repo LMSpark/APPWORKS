@@ -7,57 +7,78 @@
     "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
     "packageName": "app",
     "modulePath": "lowcode/data-space/lowcode-data-space-runtime",
-    "jsdoc": "运行态页面 DataSet 唯一装载入口：DataSpace 设计 + 平台权限 → spark-data DataSet。\n有 PageDataSpaceBinding 时禁止再把 pagedata.json 当运行数据真源。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用和租户由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "LoadBoundDataSpaceDataSetResult"
+      "LoadScenarioDataSetInput"
     ]
   },
   "$defs": {
-    "LoadBoundDataSpaceDataSetResult": {
+    "LoadScenarioDataSetInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "LoadBoundDataSpaceDataSetResult",
+      "title": "LoadScenarioDataSetInput",
       "properties": {
-        "dataSet": {
-          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        "scenarioId": {
+          "type": "string"
         },
-        "diagnostics": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
+        "designScenarioId": {
+          "type": "string"
+        },
+        "config": true
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-08-10T10:14:51.460Z",
+  "generatedAt": "2026-10-06T21:07:56.026Z",
   "models": {
-    "LoadBoundDataSpaceDataSetResult": {
-      "name": "LoadBoundDataSpaceDataSetResult",
-      "jsdoc": "",
+    "LoadScenarioDataSetInput": {
+      "name": "LoadScenarioDataSetInput",
+      "jsdoc": "场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    assertCurrent?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    assertCurrent?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "dataSet",
+              "name": "scenarioId",
               "readable": true,
               "writable": false
             },
             {
-              "name": "diagnostics",
+              "name": "designScenarioId",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

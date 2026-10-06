@@ -36,8 +36,16 @@
 - **规则**：`generated/dts-class-model/` 由 `pnpm run generate:class-model-surface` 生成。修改模型后需要重新生成，否则运行时知识是旧的。运行时通过 Web Worker（Comlink）按需加载 shard，主线程不加载全量 manifest。
 - **违反后果**：AI 在运行时读到的是旧版字段/API，基于过期知识生成错误脚本
 
-### SparkAIModel 的最小协议
+### AI 编辑实例由真实 binding 提供
 
 - **场景**：新增一个 AI 可编辑的业务 class
-- **规则**：必须 `extends SparkAIModel`（`packages/spark-utils/src/ai-model.ts`），协议只强制 `toJson()`。IO 在 `save()/load()` 内部，依赖经 options 传入，不挂公开字段。不要为每模型创建 interface，不要创建 `Ixxx` 或 `XxxImpl`。
-- **违反后果**：不继承 SparkAIModel → ClassModelRuntime 无法识别和路由该模型；机械创建 interface → `verify:ai-codegen` 报 interface 违规
+- **规则**：以当前 workflow 的 modelProjectionRef、executableRef、resolveInstance 和正式 class 成员为准。pageDesign 的 ProjectWorkspace、PageTool、ScenarioViewFile、PageRuntime 不要求继承共同 AI 基类；ClassModelRuntime 将脚本交给注入的 scriptExecutor，不以继承身份识别领域对象。不要为了沿用历史知识增加基类、兼容别名或机械 interface。
+- **违反后果**：强行继承不存在的协议或添加假方法，会让生成知识偏离实际可调用对象。
+- **发现来源**：2026-10 对照 ClassModelRuntime、pageDesign binding 及正式领域 class，替换历史基类要求。
+
+### 首次模块说明须按真实生成器解析
+
+- **场景**：源文件已补模块说明，生成后仍报告inferred或weak module。
+- **规则**：当前hasModuleSemanticSections要求说明以@module开头，并包含精确“职责：”“边界：”“AI用途：”；TS放首次import之前，Vue由project-from-declarations读取文件顶部HTML注释。修改说明后必须以重新生成的gap报告验证，不以源文本搜索推断清零。
+- **违反后果**：把正文移到标签前、仅在Vue script内加JSDoc或遗漏精确标识，会让运行AI仍只获得推导路径语义。
+- **发现来源**：2026-10-07读取实际生成器后修复本轮47项新增门禁，最终对HEAD新增0。

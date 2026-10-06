@@ -8,6 +8,7 @@ import { LowcodeCatalogApi } from './catalog/lowcode-catalog-api.js'
 import { LowcodeDesignApi } from './design/lowcode-design-api.js'
 import { LowcodeApplicationStore } from './platform/lowcode-application-store.js'
 import { DataSpaceApi } from './platform/data-space/data-space-api.js'
+import type { DataSpaceRequestScope } from './platform/data-space/runtime/data-space-runtime-contract.js'
 import { LowcodeProjectBlueprintApi } from './platform/project-blueprint/project-blueprint-api.js'
 import { PermissionApi } from './platform/permission/permission-api.js'
 import { LowcodeRealtimeApi, type LowcodeFetch } from './realtime/lowcode-realtime-api.js'
@@ -39,7 +40,6 @@ export class LowcodeApi {
   public readonly session: LowcodeSessionStore
 
   public constructor(options: LowcodeApiOptions) {
-    this.blueprint = new LowcodeProjectBlueprintApi(options.http)
     this.session = new LowcodeSessionStore({
       ...(options.sessionStorage === undefined ? {} : { storage: options.sessionStorage }),
       ...(options.sessionKey === undefined ? {} : { sessionKey: options.sessionKey }),
@@ -49,8 +49,9 @@ export class LowcodeApi {
       ...(options.applicationKey === undefined ? {} : { applicationKey: options.applicationKey }),
     })
     this.catalog = new LowcodeCatalogApi(options.http)
-    this.dataSpace = new DataSpaceApi(options.http)
-    this.design = new LowcodeDesignApi(options.http)
+    this.dataSpace = new DataSpaceApi({ http: options.http, readScope: () => this.readRequestScope() })
+    this.blueprint = new LowcodeProjectBlueprintApi({http:options.http,runtime:this.dataSpace.runtime})
+    this.design = new LowcodeDesignApi({ http: options.http, readScope: () => this.readRequestScope() })
     const browserFetch = typeof fetch === 'undefined' ? undefined : fetch.bind(globalThis)
     this.realtime = new LowcodeRealtimeApi(options.http, this.session, options.fetch ?? browserFetch)
     this.platform = new LowcodePlatformApi(options.http, this.session, this.application)
@@ -81,5 +82,24 @@ export class LowcodeApi {
         }
       },
     })
+  }
+
+  /** 请求层统一提供选中应用 appId、租户头与身份代次；不写入数据实体或场景 JSON。 */
+  public readRequestScope(): DataSpaceRequestScope {
+    const session = this.session.get()
+    const context = this.application.get()
+    if (session === null || session.refreshExpiresAt <= Date.now()) {
+      throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要有效登录身份')
+    }
+    if (context === null) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要明确选中应用')
+    const tenant = session.enterprise.shortName.trim()
+    if (!tenant) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求缺少租户身份')
+    return {
+      token: JSON.stringify([tenant, session.enterprise.id, session.identity.userId,
+        session.identity.enterpriseId, context.application.id, context.application.enterpriseId,
+        context.application.enterpriseShortName, this.session.revision, this.application.revision]),
+      headers: { 'tenant-id': tenant, 'visit-tenant-id': tenant, 'x-FirstFolder': tenant,
+        'X-AppId': context.application.id },
+    }
   }
 }

@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/design/data-space-design-api",
-    "jsdoc": "数据空间设计态只读 API：从 QYVirtualPlat 设计表拉取数据空间/模型/字段/关系快照。\n变更须走 {@link prepareMutation}，与 runtime 入口分离；读操作依赖固定 FormKey 与 catalog 目录解析。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-api\n职责：读取场景正式模型与关系，并保留目录设计审计及 mutation 命令准备入口。\n边界：正式读取复用 runtime query 与请求 scope；不以物理目录替代运行模型，不执行设计写入。\nAI用途：装配场景视图或创建草稿时核对真实模型 Name、输出字段和关系归属。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceInputParameter",
@@ -102,6 +102,153 @@
       },
       "additionalProperties": false
     },
+    "DataSpaceFormalReadInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFormalReadInput",
+      "properties": {
+        "designScenarioId": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "DataSpaceFormalField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFormalField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "canonicalName": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "output": {
+          "type": "boolean"
+        },
+        "computed": {
+          "type": "boolean"
+        },
+        "order": {
+          "type": "number"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "raw": {
+          "type": "object",
+          "title": "DataSpaceFormalRow"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceFormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "type": "boolean"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "type": "object",
+          "title": "DataSpaceFormalRow"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceFormalRelation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFormalRelation",
+      "properties": {
+        "filterExpression": {
+          "$ref": "../../../../../spark-data/src/query/filter/data-view-filter.ts.json#/$defs/DataViewFilter"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceDesignApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "runtime": {
+          "$ref": "../runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    },
     "DataSpaceDesignApi": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -110,11 +257,52 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "http": {
-              "$ref": "../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            "options": {
+              "$ref": "#/$defs/DataSpaceDesignApiOptions"
             }
           },
           "additionalProperties": false
+        },
+        "method.readModels.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "DataSpaceFormalScenarioReadInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModels.return": {
+          "type": "object",
+          "title": "Promise<readonly DataSpaceFormalModel[]>"
+        },
+        "method.readModel.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataSpaceFormalReadInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModel.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceFormalModel>"
+        },
+        "method.readRelations.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "DataSpaceFormalScenarioReadInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRelations.return": {
+          "type": "object",
+          "title": "Promise<readonly DataSpaceFormalRelation[]>"
         },
         "method.read.params": {
           "type": "object",
@@ -144,7 +332,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T12:46:09.986Z",
+  "generatedAt": "2026-10-06T20:57:27.507Z",
   "models": {
     "DataSpaceInputParameter": {
       "name": "DataSpaceInputParameter",
@@ -268,25 +456,393 @@
         }
       }
     },
+    "DataSpaceFormalRow": {
+      "name": "DataSpaceFormalRow",
+      "jsdoc": "正式元数据查询的消费行；保留字段原值，不包含可由调用方替换的查询凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceFormalReadInput": {
+      "name": "DataSpaceFormalReadInput",
+      "jsdoc": "designScenarioId 查询元数据，dataSpaceId 校验模型归属；二者不从菜单或请求应用推导。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    designScenarioId: string;\n    dataSpaceId: string;\n    metaName: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    designScenarioId: string;\n    dataSpaceId: string;\n    metaName: string;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "designScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFormalField": {
+      "name": "DataSpaceFormalField",
+      "jsdoc": "name 是正式字段 Name，canonicalName 是输出别名；type 是原 FieldType，未知时保持空值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    raw: DataSpaceFormalRow;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    raw: DataSpaceFormalRow;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canonicalName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "output",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "computed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFormalModel": {
+      "name": "DataSpaceFormalModel",
+      "jsdoc": "正式模型输出合同；来源名与查询模型 Name 分离，不依赖物理目录投影。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly DataSpaceFormalField[];\n    raw: DataSpaceFormalRow;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly DataSpaceFormalField[];\n    raw: DataSpaceFormalRow;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessMain",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFormalScenarioReadInput": {
+      "name": "DataSpaceFormalScenarioReadInput",
+      "jsdoc": "单场景模型目录或关系读取身份；调用方 guard 与请求 scope 共同拒绝迟到结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<DataSpaceFormalReadInput, 'metaName'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<DataSpaceFormalReadInput, 'metaName'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceFormalRelation": {
+      "name": "DataSpaceFormalRelation",
+      "jsdoc": "正式关系消费合同；过滤由唯一 codec 解码，视图和字段引用由场景装配验证。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<LowcodeModelRelationRecord, 'filterExpression'> & Readonly<{\n    filterExpression: DataViewFilter;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<LowcodeModelRelationRecord, 'filterExpression'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    filterExpression: DataViewFilter;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "filterExpression",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignApiOptions": {
+      "name": "DataSpaceDesignApiOptions",
+      "jsdoc": "注入既有 HTTP、共享 query/save owner 与实时应用登录 scope，不另造身份来源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    runtime: DataSpaceRuntimeApi;\n    readScope: () => DataSpaceRequestScope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    runtime: DataSpaceRuntimeApi;\n    readScope: () => DataSpaceRequestScope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
     "DataSpaceDesignApi": {
       "name": "DataSpaceDesignApi",
       "jsdoc": "数据空间设计态门面；只读拉取与 mutation 命令 prepare，不执行线上写入。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(http: HttpClientBase)",
+          "jsdoc": "绑定宿主请求与共享运行 owner；正式读取校验 scope，设计 mutation 仅准备命令。",
+          "signatureText": "constructor(options: DataSpaceDesignApiOptions)",
           "parameters": [
             {
-              "name": "http",
+              "name": "options",
               "type": {
                 "type": "reference",
-                "name": "HttpClientBase"
+                "name": "DataSpaceDesignApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
               }
             }
           ]
         },
         "members": {
           "methods": [
+            {
+              "name": "readModels",
+              "jsdoc": "以真实场景模型目录发现 Name，再复用正式单模型读取；不借物理 catalog 猜测字段。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceFormalScenarioReadInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceFormalModel[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readModel",
+              "jsdoc": "仅读取明确选择的正式模型；完整字段与来源主键验证通过后交付，不查询全物理目录。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceFormalReadInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceFormalModel",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readRelations",
+              "jsdoc": "完整读取单场景关系；过滤经唯一 codec 保留完整树，模型与视图引用由场景装配核对。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceFormalScenarioReadInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceFormalRelation[]"
+                  }
+                ]
+              }
+            },
             {
               "name": "read",
               "parameters": [

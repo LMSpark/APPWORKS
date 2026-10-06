@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-file-version",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/project-blueprint/project-blueprint-file-version",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-file-version\n职责：解析与编码工具三文件的正式发布引用。\n边界：文件名快照独立存在，裸文件是工作内容；场景文件没有三文件发布指针。\nAI用途：按明确 rule/script/style 引用定位文件，禁止以最大编号推断发布版本。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeBlueprintFileName",
+      "LowcodeBlueprintFileVersionKey",
+      "LowcodeBlueprintFileVersions"
+    ]
+  },
+  "$defs": {
+    "LowcodeBlueprintFileVersionKey": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeBlueprintFileVersionKey",
+      "enum": [
+        "rule",
+        "script",
+        "style"
+      ]
+    }
+  },
+  "generatedAt": "2026-10-06T21:02:29.702Z",
+  "models": {
+    "LowcodeBlueprintFileName": {
+      "name": "LowcodeBlueprintFileName",
+      "jsdoc": "工具定义的三个文件名；场景共享 pagedata.json 不属于此集合。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof LOWCODE_BLUEPRINT_FILE_NAMES[number]",
+        "members": {}
+      }
+    },
+    "LowcodeBlueprintFileVersionKey": {
+      "name": "LowcodeBlueprintFileVersionKey",
+      "jsdoc": "VersionId 的三个具名发布引用分段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'rule' | 'script' | 'style'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'rule'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'script'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'style'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeBlueprintFileVersions": {
+      "name": "LowcodeBlueprintFileVersions",
+      "jsdoc": "各工具文件的非负快照编号或缺失引用；不是实际历史列表。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<LowcodeBlueprintFileVersionKey, number | null>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<LowcodeBlueprintFileVersionKey, number | null>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

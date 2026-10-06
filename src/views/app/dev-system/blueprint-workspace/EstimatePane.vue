@@ -1,3 +1,9 @@
+<!--
+@module app:views/app/dev-system/blueprint-workspace/EstimatePane
+职责：编辑当前节点估算与交付责任字段。
+边界：仅发出保存动作，真实写入及节点身份校验由父工作台执行。
+AI用途：维护节点工作量并按当前节点ID关联项目经理任务。
+-->
 <template>
   <section class="stage-pane">
     <el-form label-width="100px" class="estimate-grid">

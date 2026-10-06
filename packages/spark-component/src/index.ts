@@ -31,7 +31,6 @@ export type {
 
 // ── 3.5 权限渲染 API ──
 export * as permission from './permission/index.js'
-export type { ComponentPermissionActionContext } from './permission/index.js'
 
 // ── 4. 核心类型 ──
 export type {
@@ -58,7 +57,7 @@ export type {
 export {
   PAGE_SERVICE,
   PAGE_PERMISSION_MODE,
-  PAGE_DATASET,
+  PAGE_RUNTIME,
   DATA_SOURCE,
   DATA_ROW,
   PAGE_COMPONENT_REGISTRY,
@@ -311,14 +310,6 @@ export type {
   TourStep,
   TransferValue,
 } from './components/index.js'
-
-export {
-  usePageDataSet,
-} from './page/index.js'
-export type {
-  UsePageDataSetOptions,
-  UsePageDataSetReturn,
-} from './page/index.js'
 
 export type {
   PageContext,

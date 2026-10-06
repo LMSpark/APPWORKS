@@ -1,91 +1,48 @@
 # spark-project-model 架构
 
-> `spark-project-model` 是 SPARK 的软件设计模型包，不引入 Vue、Vue Router、Element Plus 或应用层 service。总览见 [system-architecture.md](system-architecture.md)。
+本包承载项目设计、工具、场景文件和调用生命周期，不引入 Vue、Vue Router、Element Plus 或应用 service。主合同是 [MODEL-HIERARCHY.md](../../packages/spark-project-model/src/MODEL-HIERARCHY.md)，目录边界见 [STRUCTURE.md](../../packages/spark-project-model/src/STRUCTURE.md)。
 
-权威细节以包内文档与源码 JSDoc 为准：
-
-- [`packages/spark-project-model/README.md`](../../packages/spark-project-model/README.md)
-- [`packages/spark-project-model/src/MODEL-HIERARCHY.md`](../../packages/spark-project-model/src/MODEL-HIERARCHY.md)
-- [`packages/spark-project-model/src/STRUCTURE.md`](../../packages/spark-project-model/src/STRUCTURE.md)
-
-## 治理顺序
+## owner 分层
 
 ```text
-理念 > 逻辑 > AI 生成代码规则 > SSOT || SOLID > 该删则删 || 该合则合 || 该拆则拆 > 迁移便利
+ProjectWorkspace
+ ├─ ProjectBlueprint
+ │   ├─ ProjectBlueprintDesign: 节点索引 + 工具索引
+ │   └─ ProjectSession: 选中、草稿、dirty
+ └─ ScenarioViewFile: 单场景视图配置、基线、历史
+PageTool: rule / script / style
+PageRuntime: 一次工具调用 + 多个独立场景 DataSet
 ```
 
-## 核心模型
+正式节点 DTO 包含 nodeId、parentNodeId、projectId、kind、capability，以及可选 navigation、dataSpace、prototype 和原 source。kind 为 module/page/embedded/service/content；unknown 只保留读入诊断，不能通过正式策划完成。树 children 是投影。
 
-**设计即编辑**；**模型 = class + API（事件）**；谁 `new` 谁负责生命周期。
+工具 pageId 与节点 nodeId 独立。PageTool 不继承节点，`project.openPageDesign(pageId)` 返回工具。工具只持 rule.json、script.js、style.css：PageRuleFile 管理 SparkNodeTree，两个 PageTextFile 管理文本与历史。toDefinition() 要求工具已加载，输出 pageId/rule/script/css，不含业务数据。
 
-```text
-ProjectModel
-├── design: ProjectBlueprintDesign   # 平铺 nodesById + 配置页 Map，树是投影
-├── session: ProjectSession          # 选中节点 / 活动页 / 蓝图 dirty，不落盘
-└── ProjectBlueprintNode             # 非配置页节点
-    └── ConfigPageNode               # rule / dataSet / script / style 四个子模型
+## 场景与调用
 
-ProjectWorkspace                     # 持有 .project + IO 编排
-PageContentLoader                    # 运行态四文件加载
-```
+ScenarioViewConfig 校验单场景 tables/modelBinding/views/viewCascades；正式模型字段与关系通过平台读入。ScenarioViewFile 位于 `SysForm/<scenarioId>/pagedata.json`，由 ProjectWorkspace.loadScenarioViews/getScenarioViews/saveScenarioViews 编排编辑和保存，与 `<appId>/<pageId>` 下工具文件分离。
 
-- `ProjectBlueprintIndex` 提供节点索引；`ProjectBlueprintTreeNodeData` / `ProjectBlueprintTreeData` 是可序列化的数据形状，用于 API 载荷、落盘映射与 UI 投影。
-- 两条节点轴：`nodeKind`（运行交付，`RuntimeNavigationItemKind`）与 `blueprintKind`（策划业务，`ProjectBlueprintNodeKind`），均定义在 `spark-utils`，且互相分离。
-- `ConfigPageNode` 的四个子模型：`PageRuleFile`（`rule.json`）、`PageDataSetFile`（`pagedata.json`）、`PageTextFile`（`script.js`、`style.css`）。
-- `ProjectBlueprintImplGate`（`closed` / `open`）：pageDesign 是否允许进入实现阶段的人工闸门，缺省 `closed`；运行态壳不读取。
+PageRuntime 构造入口接收 tool、scenarioIds、loadScenario，可显式提供 mainScenarioId、instanceId、loadTool。load() 加载工具与全部声明场景，拒绝共享 DataSet 和错误身份。materialize() 返回调用内工具定义并校验视图绑定；resolveView/getDataSet 只解析本次调用的数据。
 
-## 存储
+绑定格式为 `#scenarioId@table@view`；局部格式需要明确主场景。dispose 释放本实例所有场景并使旧代次失效；reload 拒绝未保存业务编辑。同一工具的多个调用不能共享数据、脚本状态或组件 registry。
 
-| 真源 | 形状 |
-|---|---|
-| lowcode 平台 | `Base_NavigationInfo` 平铺蓝图记录（经 `spark-lowcode-api` 读取，宿主适配后进入 `ProjectModel`） |
-| 页面文件 | `rule.json`、`pagedata.json`、`script.js`、`style.css` |
+## IO、版本与保存
 
-蓝图节点还可以用 `NavigationUrl` 的 `cfg:<customPath>` 与 `VersionId` 指向版本化的设计文件（文件名形如 `{n}__rule.json`），这部分协议由 `spark-lowcode-api` 的 `project-blueprint-file-version` 与 `lowcode-design-file-upload` 承载，不在本包内。
+宿主提供 ProjectWorkspace 的蓝图、页面文件和引用 gateway；包不拥有服务器 URL 或认证策略。PageContentLoader 只读工具三文件，缓存清理同时使在途读取失效。
 
-## 三个消费层
+工作文件用裸文件名，快照为后端真实 N__filename。列表摘要含 version/fileName/lastModified，没有独立版本表。创建候选编号后必须上传并读回最终字节；编号不表示发布状态。source.VersionId 的 rule/script/style 引用决定运行读取，缺段拒绝。恢复写回工作内容，dirty 目标拒绝覆盖，不修改发布引用。
 
-| 层 | 创建方式 |
-|---|---|
-| spark-app 运行态 | `new PageContentLoader` + `createRuntimePageNode`，得到只读的 `PageNodeLike` |
-| DevSystem / AI | `new ProjectWorkspace`，宿主用 `getAppProjectBlueprintWorkspace(scope)`（编辑）或 `getAppProjectWorkspace(scope)`（已提交） |
-| 纯内存 | `new ProjectModel({ projectId })` |
+ScenarioViewFile 保存执行写前原文比较与写后字节回读。无后端 CAS，不声称原子并发保护；保存失败可能已经发生远端写入。
 
-## 公共入口
+## 公共消费
 
 ```ts
-import {
-  ProjectModel,
-  ProjectWorkspace,
-  PageContentLoader,
-  createRuntimePageNode,
-  type PageNodeLike,
-} from '@spark-appworks/spark-project-model'
+import { ProjectBlueprint, ProjectWorkspace, PageTool, PageRuntime,
+  PageContentLoader, ScenarioViewFile, ScenarioViewConfig }
+  from '@spark-appworks/spark-project-model'
 ```
 
-`ConfigPageNode`、`ProjectBlueprintNode`、`ProjectBlueprintDesign` 不从包入口导出。需要配置页时走 `ProjectModel.openPageDesign(pageId)`，需要运行态页面时走 `createRuntimePageNode`。包外不要 deep import `src/project/*`、`src/blueprint/*`、`src/page/*`、`src/io/*`。
-
-## 源码目录
-
-```text
-src/
-├── index.ts
-├── blueprint/   节点类、kind、树、索引、编辑草稿
-├── page/        ConfigPageNode、四文件模型、compile-files、canonicalize-page-data、运行态页面
-├── project/     ProjectModel、ProjectBlueprintDesign、ProjectSession、ProjectWorkspace
-└── io/          蓝图与页面文件的网关客户端、PageContentLoader
-```
-
-目录之间的实际依赖方向（按源码 import 统计）：
-
-```text
-blueprint   叶子：不依赖同包其它目录
-page        -> blueprint；对 io 仅有类型引用（runtime-page.ts）
-io          -> blueprint, page
-project     -> blueprint, page；仅 project-workspace.ts 依赖 io
-```
-
-页面节点的实例化入口在 `page/instantiate-project-node.ts`，由 `project-design` 调用；`blueprint/` 不引用 `page/`。
+UI 通过 subscribe/read*Projection 消费项目状态；AI 使用 ProjectWorkspace 根定位工具，仅在明确 scenarioId 后编辑场景文件。blueprintDirty、工具 dirtyFiles、场景 isDirty 和运行业务 isDirty 各属于对应 owner。
 
 ## 验证
 
@@ -93,3 +50,5 @@ project     -> blueprint, page；仅 project-workspace.ts 依赖 io
 pnpm --filter @spark-appworks/spark-project-model run typecheck
 pnpm --filter @spark-appworks/spark-project-model run test:run
 ```
+
+相关链路见 [DATAFLOW_ARCHITECTURE.md](DATAFLOW_ARCHITECTURE.md)。

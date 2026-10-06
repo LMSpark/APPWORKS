@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import {
   encodeLowcodeBlueprintFileVersions,
   lowcodeBlueprintVersionedFileName,
-  nextLowcodeBlueprintFileVersions,
   parseLowcodeBlueprintFileVersions,
 } from './project-blueprint-file-version.js'
 
@@ -24,15 +23,6 @@ describe('project blueprint file version', () => {
     const versions = parseLowcodeBlueprintFileVersions('style=3;rule=2;script=1')
     expect(versions).toEqual({ rule: 2, script: 1, style: 3 })
     expect(encodeLowcodeBlueprintFileVersions(versions)).toBe('rule=2;script=1;style=3')
-  })
-
-  it('increments only the saved file version', () => {
-    const next = nextLowcodeBlueprintFileVersions(
-      parseLowcodeBlueprintFileVersions('rule=2;script=1;style=3'),
-      'script.js',
-    )
-    expect(next).toEqual({ rule: 2, script: 2, style: 3 })
-    expect(lowcodeBlueprintVersionedFileName('script.js', next)).toBe('2__script.js')
   })
 
   it.each([

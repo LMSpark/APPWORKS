@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/dev-system/DevDataSetDesigner.vue",
     "packageName": "app",
     "modulePath": "views/app/dev-system/DevDataSetDesigner",
-    "jsdoc": "@module app:views/app/dev-system/DevDataSetDesigner\n职责：提供 DevSystem 的 DevDataSetDesigner 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevDataSetDesigner。",
+    "jsdoc": "@module app:views/app/dev-system/DevDataSetDesigner\n职责：编辑单场景共享视图配置及真实N__pagedata.json历史。\n边界：正式模型定义不在配置文件中；缺文件需显式新建，dirty禁止恢复与快照。\nAI用途：通过ScenarioViewFile与Workspace编辑、保存、预览并明确恢复场景文件。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-10T05:45:36.340Z",
+  "generatedAt": "2026-10-06T21:12:48.638Z",
   "models": {}
 }

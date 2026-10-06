@@ -134,14 +134,24 @@
         "path": {
           "type": "string"
         },
-        "formKey": {
-          "type": "string"
-        },
-        "dataSpaceId": {
-          "type": "string"
-        },
-        "modelId": {
-          "type": "string"
+        "tool": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "pageId": {
+              "type": "string"
+            },
+            "versionId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "projectId",
+            "pageId"
+          ],
+          "additionalProperties": false
         },
         "linkTarget": {
           "type": "object",
@@ -263,7 +273,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:07:49.400Z",
+  "generatedAt": "2026-10-06T19:54:39.523Z",
   "models": {
     "RuntimeNavigationContextState": {
       "name": "RuntimeNavigationContextState",
@@ -312,7 +322,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id: string;\n    title: string;\n    description?: string;\n    icon?: string;\n    itemKind?: RuntimeNavigationItemKind;\n    childPlacement?: NavigationPlacement;\n    context?: string | readonly ContextItem[] | NavigationContextConfig;\n    order?: number;\n    hidden?: boolean;\n    disabled?: boolean;\n    dividerAfter?: boolean;\n    permissionMode?: PermissionMode;\n    children?: RuntimeNavigationItem[];\n    path?: string;\n    formKey?: string;\n    dataSpaceId?: string;\n    modelId?: string;\n    linkTarget?: NavigationLinkTarget;\n    redirect?: string;\n    refId?: string;\n    refPath?: string;\n    refProjectId?: string;\n    refBroken?: boolean;\n}",
+        "declarationTypeText": "{\n    id: string;\n    title: string;\n    description?: string;\n    icon?: string;\n    itemKind?: RuntimeNavigationItemKind;\n    childPlacement?: NavigationPlacement;\n    context?: string | readonly ContextItem[] | NavigationContextConfig;\n    order?: number;\n    hidden?: boolean;\n    disabled?: boolean;\n    dividerAfter?: boolean;\n    permissionMode?: PermissionMode;\n    children?: RuntimeNavigationItem[];\n    path?: string;\n    tool?: Readonly<{\n        projectId: string;\n        pageId: string;\n        versionId?: string;\n    }>;\n    linkTarget?: NavigationLinkTarget;\n    redirect?: string;\n    refId?: string;\n    refPath?: string;\n    refProjectId?: string;\n    refBroken?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -386,17 +396,7 @@
               "writable": false
             },
             {
-              "name": "formKey",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "dataSpaceId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "modelId",
+              "name": "tool",
               "readable": true,
               "writable": false
             },

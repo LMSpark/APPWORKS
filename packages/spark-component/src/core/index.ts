@@ -60,7 +60,7 @@ export type {
 } from './capability-keys.js'
 
 export {
-  PAGE_DATASET,
+  PAGE_RUNTIME,
   DATA_SOURCE,
   DATA_ROW,
   MODULE_CONTEXT,

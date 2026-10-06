@@ -56,6 +56,10 @@
           "$ref": "../../../spark-utils/src/http/types.ts.json#/$defs/Method"
         },
         "data": true,
+        "params": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
         "headers": {
           "type": "object",
           "title": "Record<string, string>"
@@ -67,7 +71,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T07:31:18.127Z",
+  "generatedAt": "2026-10-05T10:07:52.890Z",
   "models": {
     "LowcodeClient": {
       "name": "LowcodeClient",
@@ -121,11 +125,11 @@
       "jsdoc": "单次 lowcode 请求描述；path 为相对 API 路径，method 受底层 HttpClient 约束。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -143,6 +147,11 @@
             },
             {
               "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "params",
               "readable": true,
               "writable": false
             },

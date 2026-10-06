@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-component/src/permission/index.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "permission/index",
-    "jsdoc": "@module @spark-appworks/spark-component:permission/index\n职责：汇总导出 permission 的组件、props、types 和 zero-code 能力。\n边界：只维护目录级公开表面，不实现具体渲染逻辑，也不创建新的运行时状态。\nAI用途：判断某个组件能力是否应对外暴露或被注册表扫描时，用本模块确认导出入口。\n\n权限系统模块 — 权限数据的唯一消费者\n## 定位\n页面权限模型 + 权限解析/渲染 API 统一收口于此。\n权限快照类型仍定义在 `@spark-appworks/spark-data`，但所有权限数据消费、字段/动作权限判断均在本模块内。\n## 设计原则\n- 纯函数优先：所有权限检查/过滤/字段状态计算均为纯函数，无类实例、无单例\n- usePermission 是唯一的 Vue composable 桥接，内部消费 PAGE_PERMISSION_MODE 能力\n- 其他 composable 只能通过 usePermission() 访问权限数据，不允许直接 sparkConsume 权限能力",
+    "jsdoc": "@module @spark-appworks/spark-component:permission/index\n职责：汇总导出 permission 的组件、props、types 和 zero-code 能力。\n边界：只维护目录级公开表面，不实现具体渲染逻辑，也不创建新的运行时状态。\nAI用途：判断某个组件能力是否应对外暴露或被注册表扫描时，用本模块确认导出入口。\n\n组件权限渲染入口\n## 定位\n字段和动作消费绑定 DataView 的原查询权限，不建立另一份授权模型。\n## 设计原则\n- usePermission 是 Vue composable 桥接，内部消费 DATA_SOURCE 和本地输入策略\n- 其他 composable 只能通过 usePermission() 访问权限数据，不允许直接 sparkConsume 权限能力",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-10T11:31:31.666Z",
+  "generatedAt": "2026-10-06T14:02:49.817Z",
   "models": {}
 }

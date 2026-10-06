@@ -1,8 +1,12 @@
+import { shallowMount } from '@vue/test-utils'
+import { defineComponent } from 'vue'
+import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
+import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, ref } from 'vue'
 
-const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors } = vi.hoisted(() => ({
+const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels } = vi.hoisted(() => ({
   httpGet: vi.fn(),
+  readModels: vi.fn(),
   httpPost: vi.fn(),
   httpPut: vi.fn(),
   httpRequestFull: vi.fn(),
@@ -25,6 +29,8 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => null,
   lowcodeApi: {
+    readRequestScope:()=>({token:'scope'}),
+    dataSpace:{design:{readModels}},
     platform: {
       listApplications: async () => [],
     },
@@ -37,8 +43,9 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
       },
     },
     blueprint: {
-      loadRoot: async () => ({ title: 'Test Project', children: [] }),
+      loadRoot: async () => ({ nodeId:'homepage_root',parentNodeId:'',projectId:'homepage',kind:'module',capability:{name:'Test Project'},source:{},children:[] }),
     },
+    scenarioViews: {readScope:()=> 'scope',readText:async(scenarioId:string)=>{const content=(await httpGet(`scenario:${scenarioId}`)).content;return content === null ? null : String(content)},writeText:async(scenarioId:string,text:string)=>{await httpPut(`scenario:${scenarioId}`,{content:text})}},
     projectReferences: {
       listProjects: async () => [],
       loadProjectBlueprint: async () => ({ title: 'Test Project', children: [] }),
@@ -46,374 +53,106 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   }),
 }))
 
-import { canonicalizePageDataJson } from '@spark-appworks/spark-project-model'
-import { PAGE_NODE_FILE_NAMES, type PageNodeFileName } from '@spark-appworks/spark-project-model'
-import { useDevFileEditor } from '../../src/views/app/dev-system/composables/useDevFileEditor'
-import {
-  createDevStateWithConfigPages,
-  ensureDevStateActivePageLoaded,
-  isolateAppProjectWorkspaceForTest,
-  isDevStatePageDocumentDirty,
-  saveDevStatePageDocument,
-} from './dev-state-test-fixture'
+import { createDevStateWithConfigPages, ensureDevStateActivePageLoaded, isolateAppProjectWorkspaceForTest } from './dev-state-test-fixture'
+import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
+const fixtureText=(pageSize:number)=>JSON.stringify({scenarioId:'scene',tables:{Orders:{modelBinding:{modelId:'orders-model',modelName:'Orders'},views:{default:{pageSize},detail:{}}}}})
+function sceneNode():ProjectBlueprintTreeNodeData{return {nodeId:'orders-page-node',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders-page',order:0,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'scene',models:[{metaName:'Orders'}]},source:{}}}
+describe('tool and shared scenario editing owners',()=>{
+ it('opens vue scene planning without loading a tool and explicitly creates from formal models',async()=>{
+  let remote:string|null=null
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}))
+  httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content})
+  readModels.mockResolvedValue([{id:'REAL-ID',metaName:'RealOrders'}])
+  const state=createDevStateWithConfigPages([], '')
+  const node=sceneNode();if(node.navigation)node.navigation.target='vue:/features/orders'
+  state.project.replaceBlueprintChildren([node]);await state.selectNode(node)
+  expect(httpGet.mock.calls.map(call=>String(call[0]))).toEqual(['scenario:scene'])
+  expect(state.pageDataError.value).toContain('FILE_MISSING')
+  expect(state.scenarioViewFile.value).toBeNull()
+  await state.createSelectedScenarioViews()
+  expect(state.scenarioViewFile.value?.value.toJSON()).toEqual({scenarioId:'scene',tables:{RealOrders:{modelBinding:{modelId:'REAL-ID',modelName:'RealOrders'},views:{default:{}}}},viewCascades:[]})
+  expect(state.hasAnyDirty.value).toBe(true);expect(httpPut).not.toHaveBeenCalled()
+  await state.saveScenarioViewText();expect(state.pageDataDirty.value).toBe(false)
+ })
+ it('does not fabricate a draft when the backend has no formal models',async()=>{
+  httpGet.mockResolvedValue({content:null});readModels.mockResolvedValue([])
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  await expect(state.createSelectedScenarioViews()).rejects.toThrow('没有正式模型')
+  expect(state.scenarioViewFile.value).toBeNull();expect(httpPut).not.toHaveBeenCalled()
+ })
 
-
-function requireValue<T>(value: T | null | undefined, message: string): T {
-  if (value !== null && value !== undefined) return value
-  throw new Error(message)
-}
-
-function readFirstChildType(children: unknown): string {
-  if (!Array.isArray(children)) throw new Error('Expected SparkNode children')
-  const firstChild = children[0]
-  if (firstChild === null || typeof firstChild !== 'object') {
-    throw new Error('Expected first SparkNode child')
-  }
-  const type = Object.getOwnPropertyDescriptor(firstChild, 'type')?.value
-  if (typeof type === 'string') return type
-  throw new Error('Expected first SparkNode child type')
-}
-
-function createPageDataText(name: string, compact = false): string {
-  const payload = {
-    dataSetName: 'OrdersDS',
-    tables: {
-      Orders: {
-        tableName: 'Orders',
-        columns: [
-          { name: 'id', type: 'number', isPrimaryKey: true },
-          { name: 'name', type: 'string' },
-        ],
-        views: {
-          default: {
-            rows: [{ id: 1, name }],
-          },
-        },
-      },
-    },
-  }
-  return compact ? JSON.stringify(payload) : `${JSON.stringify(payload, null, 2)}\n`
-}
-
-async function requestFullFromGet(config: { url: string }): Promise<Record<string, unknown>> {
-  try {
-    const data = await httpGet(config.url)
-    const content = data !== null && typeof data === 'object'
-      ? Object.getOwnPropertyDescriptor(data, 'content')?.value
-      : ''
-    return {
-      data: {
-        protocolVersion: 4,
-        ok: true,
-        data: {
-          content: String(content ?? ''),
-          timestamp: '1',
-        },
-      },
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-    }
-  } catch (error) {
-    if (
-      isErrorLike(error) &&
-      error.status === undefined &&
-      typeof error.response?.status === 'number'
-    ) {
-      error.status = error.response.status
-    }
-    throw error
-  }
-}
-
-function isErrorLike(value: unknown): value is { status?: unknown; response?: { status?: unknown } } {
-  return value !== null && typeof value === 'object'
-}
-
-describe('useDevState documents SSOT', () => {
-  beforeEach(() => {
-    isolateAppProjectWorkspaceForTest()
-    localStorage.clear()
-    httpGet.mockReset()
-    httpPost.mockReset()
-    httpPut.mockReset()
-    httpRequestFull.mockReset()
-    httpClearCache.mockReset()
-    httpInterceptors.request.use.mockReset()
-    httpInterceptors.response.use.mockReset()
-    httpRequestFull.mockImplementation(requestFullFromGet)
-    httpClearCache.mockImplementation(() => undefined)
-    httpInterceptors.request.use.mockImplementation(() => () => undefined)
-    httpInterceptors.response.use.mockImplementation(() => () => undefined)
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('loading pagedata from remote parses into a clean model', async () => {
-    const initial = createPageDataText('Alpha', true)
-    httpGet.mockImplementation(async (url: string) => {
-      if (url.endsWith('/pagedata.json')) return { content: initial }
-      const name = PAGE_NODE_FILE_NAMES.find((f) => url.endsWith(`/${f}`))
-      if (name) return { content: '' }
-      throw new Error(`unexpected GET ${url}`)
-    })
-
-    const state = createDevStateWithConfigPages()
-    await ensureDevStateActivePageLoaded(state)
-
-    expect((state.project.getActivePage()?.isLoaded ? 'loaded' : 'idle')).toBe('loaded')
-    expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(false)
-    expect(state.project.getDataSetTool()).not.toBeNull()
-    expect((state.project.getActivePage()?.dataSet.canUndo ?? false)).toBe(false)
-    expect(state.project.readPageFileText('pagedata.json')).toBe(canonicalizePageDataJson(initial).text)
-  })
-
-  it('editing pagedata text reparses model, makes doc dirty and enables undo', async () => {
-    const initial = createPageDataText('Alpha', true)
-    const next = createPageDataText('Beta', true)
-
-    httpGet.mockImplementation(async (url: string) => {
-      if (url.endsWith('/pagedata.json')) return { content: initial }
-      const name = PAGE_NODE_FILE_NAMES.find((f) => url.endsWith(`/${f}`))
-      if (name) return { content: '' }
-      throw new Error(`unexpected GET ${url}`)
-    })
-
-    const state = createDevStateWithConfigPages()
-    await ensureDevStateActivePageLoaded(state)
-
-    state.project.writePageFile({ fileName: 'pagedata.json', text: next })
-
-    expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(true)
-    expect((state.project.getActivePage()?.dataSet.canUndo ?? false)).toBe(true)
-    expect(state.project.readPageFileText('pagedata.json')).toBe(canonicalizePageDataJson(next).text)
-
-    expect(state.project.undoPageFile('pagedata.json')).toBe(true)
-    expect(state.project.readPageFileText('pagedata.json')).toBe(canonicalizePageDataJson(initial).text)
-    // undo always marks dirty in V3.1 single-track model
-    expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(true)
-
-    expect(state.project.redoPageFile('pagedata.json')).toBe(true)
-    expect(state.project.readPageFileText('pagedata.json')).toBe(canonicalizePageDataJson(next).text)
-  })
-
-  it('ensureActivePageFilesLoaded loads each file exactly once', async () => {
-    const fetchCount: Record<string, number> = {}
-    httpGet.mockImplementation(async (url: string) => {
-      const name = PAGE_NODE_FILE_NAMES.find((f) => url.endsWith(`/${f}`))
-      if (!name) throw new Error(`unexpected GET ${url}`)
-      fetchCount[name] = (fetchCount[name] ?? 0) + 1
-      if (name === 'pagedata.json') return { content: createPageDataText('Shared', true) }
-      if (name === 'rule.json') return { content: '[]\n' }
-      return { content: '' }
-    })
-
-    const state = createDevStateWithConfigPages()
-    await ensureDevStateActivePageLoaded(state)
-    await ensureDevStateActivePageLoaded(state)
-
-    expect(fetchCount).toEqual({
-      'rule.json': 1,
-      'pagedata.json': 1,
-      'script.js': 1,
-      'style.css': 1,
-    })
-    expect((state.project.getActivePage()?.isLoaded ? 'loaded' : 'idle')).toBe('loaded')
-  })
-
-  it('ensureActivePageFilesLoaded fails fast and preserves existing documents when remote fetch fails', async () => {
-    httpGet.mockImplementation(async (url: string) => {
-      const name = PAGE_NODE_FILE_NAMES.find((f) => url.endsWith(`/${f}`))
-      if (!name) throw new Error(`unexpected GET ${url}`)
-      if (name === 'pagedata.json') return { content: createPageDataText('Stable', true) }
-      if (name === 'rule.json') return { content: '[]\n' }
-      return { content: '' }
-    })
-
-    const state = createDevStateWithConfigPages()
-    await ensureDevStateActivePageLoaded(state)
-
-    const previousRuleText = state.project.readPageFileText('rule.json')
-    // readPageDataText omitted — V3.1 parallel load makes pagedata non-deterministic after partial failure
-
-    httpGet.mockImplementation(async (url: string) => {
-      if (url.endsWith('/rule.json')) throw new Error('network-down')
-      const name = PAGE_NODE_FILE_NAMES.find((f) => url.endsWith(`/${f}`))
-      if (!name) throw new Error(`unexpected GET ${url}`)
-      if (name === 'pagedata.json') return { content: createPageDataText('Mutated', true) }
-      return { content: '' }
-    })
-
-    // V3.1: errors propagate directly from config loader without wrapping
-    await expect(ensureDevStateActivePageLoaded(state, { forceReload: true })).rejects.toThrow(
-      'network-down',
-    )
-
-    // V3.1: parallel load means pagedata may or may not be updated; only rule.json is guaranteed preserved
-    expect(state.project.readPageFileText('rule.json')).toBe(previousRuleText)
-    expect((state.project.getActivePage()?.isLoaded ? 'loaded' : 'idle')).toBe('loaded')
-    expect((state.project.getActivePage()?.isLoaded ? 'loaded' : 'idle')).toBe('loaded')
-  })
-
-  it('rule.json setText + undo reflects in the live SparkNodeTree', () => {
-    const state = createDevStateWithConfigPages()
-
-    state.project.writePageFile({ fileName: 'rule.json', text: `${JSON.stringify([{ type: 'div' }], null, 2)}\n` })
-    state.project.writePageFile({ fileName: 'rule.json', text: `${JSON.stringify([{ type: 'el-button' }], null, 2)}\n` })
-
-    const treeNow = requireValue(state.project.getNodeTree(), 'rule model 未初始化').toJSON()
-    expect(readFirstChildType(treeNow.children)).toBe('el-button')
-
-    expect(state.project.undoPageFile('rule.json')).toBe(true)
-    const treeUndo = requireValue(state.project.getNodeTree(), 'rule model 未初始化').toJSON()
-    expect(readFirstChildType(treeUndo.children)).toBe('div')
-    expect(JSON.parse(state.project.readPageFileText('rule.json'))).toMatchObject({ type: 'div' })
-  })
-
-  it('script.js undo stays in sync with the page model', () => {
-    const state = createDevStateWithConfigPages()
-
-    state.project.writePageFile({ fileName: 'script.js', text: 'console.log("alpha")\n' })
-    state.project.writePageFile({ fileName: 'script.js', text: 'console.log("beta")\n' })
-
-    expect(state.project.readPageFileText('script.js')).toBe('console.log("beta")\n')
-    expect(state.project.undoPageFile('script.js')).toBe(true)
-    expect(state.project.readPageFileText('script.js')).toBe('console.log("alpha")\n')
-  })
-
-  it('style.css undo stays in sync with the page model', () => {
-    const state = createDevStateWithConfigPages()
-
-    state.project.writePageFile({ fileName: 'style.css', text: '.page { color: red; }\n' })
-    state.project.writePageFile({ fileName: 'style.css', text: '.page { color: blue; }\n' })
-
-    expect(state.project.readPageFileText('style.css')).toBe('.page { color: blue; }\n')
-    expect(state.project.undoPageFile('style.css')).toBe(true)
-    expect(state.project.readPageFileText('style.css')).toBe('.page { color: red; }\n')
-  })
-
-  it('savePageFile fails closed when the platform has no governed page-file mutation', async () => {
-    const state = createDevStateWithConfigPages()
-    state.project.writePageFile({ fileName: 'pagedata.json', text: createPageDataText('Gamma', true) })
-
-    expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(true)
-    const canUndoBefore = (state.project.getActivePage()?.dataSet.canUndo ?? false)
-
-    await expect(saveDevStatePageDocument(state, 'pagedata.json')).rejects.toThrow(
-      '当前平台未提供受治理的页面文件保存能力',
-    )
-
-    expect(httpPut).not.toHaveBeenCalled()
-    expect(isDevStatePageDocumentDirty(state, 'pagedata.json')).toBe(true)
-    expect((state.project.getActivePage()?.dataSet.canUndo ?? false)).toBe(canUndoBefore)
-  })
-
-  it('dev file editor text is a read-only projection of the model (no drafts)', () => {
-    const state = createDevStateWithConfigPages()
-    const initial = createPageDataText('Alpha', true)
-
-    httpGet.mockImplementation(async (url: string) => {
-      const name = PAGE_NODE_FILE_NAMES.find((f) => url.endsWith(`/${f}`))
-      if (name) return { content: '' }
-      throw new Error(`unexpected GET ${url}`)
-    })
-    state.project.writePageFile({ fileName: 'pagedata.json', text: initial })
-
-    const scope = effectScope()
-    try {
-      scope.run(() => {
-        const editor = useDevFileEditor(state, ref<PageNodeFileName>('pagedata.json'))
-        const initialCanonical = canonicalizePageDataJson(initial).text
-
-        // V3.1: text is a direct read-only projection of the model
-        expect(editor.text.value).toBe(initialCanonical)
-        expect(state.project.readPageFileText('pagedata.json')).toBe(initialCanonical)
-
-        // V3.1: no draft APIs; text always equals model text
-        expect(editor.isFileDirty('pagedata.json')).toBe(true)
-
-        // Direct model mutation is reflected in the text projection
-        const next = createPageDataText('DirectSet', true)
-        state.project.writePageFile({ fileName: 'pagedata.json', text: next })
-        expect(editor.text.value).toBe(canonicalizePageDataJson(next).text)
-      })
-    } finally {
-      scope.stop()
-    }
-  })
-
-  it('designer-level mutate reflects in text and is undoable', async () => {
-    const state = createDevStateWithConfigPages()
-    state.project.writePageFile({ fileName: 'pagedata.json', text: createPageDataText('Live', true) })
-
-    await state.project.editDataSet((tool) => {
-      tool.createColumn({ tableName: 'Orders', column: { name: 'status', type: 'string' } })
-    })
-
-    expect(state.project.readPageFileText('pagedata.json')).toContain('status')
-    expect(state.project.getDataSetTool()!.getColumn({ tableName: 'Orders', columnName: 'status' })).toBeDefined()
-
-    expect(state.project.undoPageFile('pagedata.json')).toBe(true)
-    expect(state.project.getDataSetTool()!.getColumn({ tableName: 'Orders', columnName: 'status' })).toBeUndefined()
-
-    expect(state.project.redoPageFile('pagedata.json')).toBe(true)
-    expect(state.project.getDataSetTool()!.getColumn({ tableName: 'Orders', columnName: 'status' })).toBeDefined()
-  })
-
-  it('page switch resets all documents', () => {
-    const state = createDevStateWithConfigPages()
-    state.selectPage('orders-page')
-    state.project.writePageFile({ fileName: 'pagedata.json', text: createPageDataText('PageA', true) })
-    state.project.writePageFile({ fileName: 'script.js', text: '// a\n' })
-
-    expect(state.project.getDataSetTool()).not.toBeNull()
-    expect(state.project.readPageFileText('script.js')).toBe('// a\n')
-
-    state.selectPage('orders-page-v2')
-
-    expect(state.activePageId.value).toBe('orders-page-v2')
-    // In V3.1, sub-models are always initialized; isLoaded distinguishes loaded vs unloaded
-    expect(state.project.getNodeTree()).not.toBeNull()
-    expect(state.project.getDataSetTool()).not.toBeNull()
-    for (const name of PAGE_NODE_FILE_NAMES) {
-      expect(isDevStatePageDocumentDirty(state, name)).toBe(false)
-      expect((state.project.getActivePage()?.isLoaded ? 'loaded' : 'idle')).toBe('idle')
-    }
-  })
-
-  it('rule load followed by undo to baseline keeps the document clean', async () => {
-    const initial = '[]\n'
-    httpGet.mockImplementation(async (url: string) => {
-      if (url.endsWith('/rule.json')) return { content: initial }
-      const name = PAGE_NODE_FILE_NAMES.find((f) => url.endsWith(`/${f}`))
-      if (name) return { content: '' }
-      throw new Error(`unexpected GET ${url}`)
-    })
-
-    const state = createDevStateWithConfigPages()
-    await ensureDevStateActivePageLoaded(state)
-
-    expect(isDevStatePageDocumentDirty(state, 'rule.json')).toBe(false)
-    expect((state.project.getActivePage()?.rule.canUndo ?? false)).toBe(false)
-
-    state.project.writePageFile({ fileName: 'rule.json', text: `${JSON.stringify([{ type: 'div' }], null, 2)}\n` })
-    expect(isDevStatePageDocumentDirty(state, 'rule.json')).toBe(true)
-    expect((state.project.getActivePage()?.rule.canUndo ?? false)).toBe(true)
-
-    expect(state.project.undoPageFile('rule.json')).toBe(true)
-    // undo always marks dirty in V3.1 single-track model
-    expect(isDevStatePageDocumentDirty(state, 'rule.json')).toBe(true)
-    expect((state.project.getActivePage()?.rule.canUndo ?? false)).toBe(false)
-    expect(state.project.readPageFileText('rule.json')).toBe(initial)
-  })
-
-  it('pageDataDirty mirrors pagedata document dirty flag', () => {
-    const state = createDevStateWithConfigPages()
-    expect(state.pageDataDirty.value).toBe(false)
-    state.project.writePageFile({ fileName: 'pagedata.json', text: createPageDataText('Dirty', true) })
-    expect(state.pageDataDirty.value).toBe(true)
-  })
-
+ it('mounts the shared scene designer in the data stage and locks rebinding for unsaved scenes',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  const Slot=defineComponent({template:'<div><slot /></div>'})
+  const Button=defineComponent({props:['disabled'],template:'<button :disabled="disabled"><slot /></button>'})
+  const Input=defineComponent({props:['disabled'],template:'<input :disabled="disabled" />'})
+  const wrapper=shallowMount(DataPlanningPane,{props:{form:{formKey:'scene'},state,saving:false},global:{stubs:{ElForm:Slot,ElFormItem:Slot,ElButton:Button,ElInput:Input}}})
+  expect(wrapper.findComponent(DevDataSetDesigner).exists()).toBe(true)
+  expect(wrapper.findComponent(DevDataSetDesigner).props('state')).toBe(state)
+  state.writeScenarioViewText(fixtureText(50));await wrapper.vm.$nextTick()
+  expect(wrapper.find('input').attributes()).toHaveProperty('disabled')
+  expect(wrapper.find('button').attributes()).toHaveProperty('disabled')
+  await wrapper.setProps({form:{formKey:'different'}})
+  expect(wrapper.findComponent(DevDataSetDesigner).exists()).toBe(false)
+  wrapper.unmount()
+ })
+ it('previews an actual scene snapshot before restoring and blocks dirty versions',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  const list=vi.spyOn(state.editor,'listScenarioVersions').mockResolvedValue([{version:0,fileName:'0__pagedata.json',lastModified:null}])
+  const preview=vi.spyOn(state.editor,'previewScenarioVersion').mockResolvedValue(fixtureText(50))
+  const restore=vi.spyOn(state.editor,'restoreScenarioVersion').mockResolvedValue()
+  const Button=defineComponent({props:['disabled'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>'})
+  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{ElButton:Button,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  await wrapper.get('[data-test="scene-history"]').trigger('click');await vi.waitFor(()=>expect(list).toHaveBeenCalled())
+  await wrapper.get('[data-test="scene-preview"]').trigger('click');await vi.waitFor(()=>expect(preview).toHaveBeenCalled())
+  expect(restore).not.toHaveBeenCalled()
+  await wrapper.get('[data-test="scene-restore"]').trigger('click');await vi.waitFor(()=>expect(restore).toHaveBeenCalledWith({scenarioId:'scene',version:0,previewText:fixtureText(50)}))
+  state.writeScenarioViewText(fixtureText(70));await wrapper.vm.$nextTick()
+  expect(wrapper.get('[data-test="scene-snapshot"]').attributes()).toHaveProperty('disabled')
+  wrapper.unmount()
+ })
+ it('discards a late scene history after the panel is closed',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  let release:((value: {version:number;fileName:string;lastModified:null}[])=>void)|undefined
+  const pending=new Promise<{version:number;fileName:string;lastModified:null}[]>(resolve=>{release=resolve})
+  vi.spyOn(state.editor,'listScenarioVersions').mockReturnValue(pending)
+  const Button=defineComponent({props:['disabled'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>'})
+  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{ElButton:Button,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  await wrapper.get('[data-test="scene-history"]').trigger('click')
+  await wrapper.get('[data-test="scene-history-close"]').trigger('click')
+  release?.([{version:4,fileName:'4__pagedata.json',lastModified:null}]);await pending;await wrapper.vm.$nextTick()
+  expect(wrapper.find('[data-test="scene-preview"]').exists()).toBe(false)
+  wrapper.unmount()
+ })
+ it('rejects a late scene version list after changing the selected node',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  let release:((value:[])=>void)|undefined
+  const pending=new Promise<[]>(resolve=>{release=resolve})
+  vi.spyOn(state.editor,'listScenarioVersions').mockReturnValue(pending)
+  const listing=state.listScenarioVersions()
+  const rejected=expect(listing).rejects.toThrow('目标已切换')
+  state.project.selectNode(null)
+  release?.([]);await rejected
+ })
+ it('still loads a scene when a cfg tool load fails',async()=>{
+  httpGet.mockImplementation(async(url:string)=>{if(!url.startsWith('scenario:'))throw new Error('tool file missing');return {content:fixtureText(20)}})
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  expect(state.scenarioViewFile.value?.scenarioId).toBe('scene')
+  expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(true)
+ })
+ beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset()})
+ afterEach(()=>{vi.useRealTimers()})
+ it('loads exactly three tool files and retains clean undo baselines',async()=>{const state=createDevStateWithConfigPages();httpGet.mockImplementation(async()=>({content:''}));await ensureDevStateActivePageLoaded(state);await ensureDevStateActivePageLoaded(state);expect(httpGet.mock.calls).toHaveLength(3);expect(httpGet.mock.calls.map(call=>String(call[0]))).not.toContainEqual(expect.stringContaining('pagedata.json'));state.project.writePageFile({fileName:'script.js',text:'A'});expect(state.project.undoPageFile('script.js')).toBe(true);expect(state.project.readDirtyProjection().dirtyFiles.has('script.js')).toBe(false)})
+ it('loads scene views through the scene gateway and undoes to a clean shared baseline',async()=>{let remote=fixtureText(20);httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}));httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content});const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());expect(state.scenarioViewFile.value?.scenarioId).toBe('scene');state.writeScenarioViewText(fixtureText(50));expect(state.pageDataDirty.value).toBe(true);expect(state.scenarioViewFile.value?.undo()).toBe(true);state.scenarioViewRevision.value++;expect(state.pageDataDirty.value).toBe(false);state.writeScenarioViewText(fixtureText(70));await state.saveScenarioViewText();expect(remote).toBe(fixtureText(70));expect(state.pageDataDirty.value).toBe(false);expect(state.project.readDirtyProjection().dirtyFiles).not.toContain('pagedata.json')})
+ it('rejects model structure edits and preserves the last valid scene document',async()=>{httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}));const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());const previous=state.scenarioViewFile.value?.getText();expect(()=>state.writeScenarioViewText(JSON.stringify({scenarioId:'scene',tables:{Orders:{columns:[],views:{default:{}}}}}))).toThrow();expect(state.scenarioViewFile.value?.getText()).toBe(previous);expect(state.pageDataDirty.value).toBe(false)})
 })

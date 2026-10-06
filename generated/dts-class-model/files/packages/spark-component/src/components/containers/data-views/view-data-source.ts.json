@@ -188,7 +188,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:03:36.344Z",
+  "generatedAt": "2026-10-06T20:17:53.701Z",
   "models": {
     "DataSourceLoggerLike": {
       "name": "DataSourceLoggerLike",
@@ -261,7 +261,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 显式 DataView 定位键，格式为 table@viewId 或带作用域的 #scope@table@viewId。 */\n    dataViewKey: MaybeRefOrGetter<string | undefined>;\n    /** 从上级 DataView 上下文读取的成员名，例如 currentRow、rows 或 selectedRows。 */\n    contextDataMember?: MaybeRefOrGetter<DataMember | `${DataMember}` | undefined>;\n    /** 在 contextDataMember 解析结果上继续读取的字段路径。 */\n    contextDataField?: MaybeRefOrGetter<string | undefined>;\n    /** capability 消费入口，用于读取 PAGE_DATASET。 */\n    sparkConsume: SparkCapabilityConsumer;\n    /** 将解析到的 DataView 映射成容器实际消费的数据源形态。 */\n    mapView: (view: DataView) => TSource;\n    /** 外部显式传入的数据源；优先级高于 dataViewKey。 */\n    externalDataSource?: MaybeRefOrGetter<TSource | undefined>;\n    /** 父级容器传入的数据源；显式来源和上下文都缺失时使用。 */\n    inheritedDataSource?: MaybeRefOrGetter<TSource | null | undefined>;\n    /** 将解析出的数据源提供给子级容器或字段。 */\n    provideDataSource?: (source: TSource) => void;\n    /** 容器数据源解析诊断日志。 */\n    logger?: DataSourceLoggerLike;\n    /** 日志前缀，用于区分不同容器实例。 */\n    logPrefix?: string;\n    /** 跳过 provide、autoLoad 和诊断副作用，仅保留解析结果。 */\n    skipEffects?: boolean;\n    /** 跳过向下提供数据源的副作用。 */\n    skipProvideEffect?: boolean;\n    /** 跳过 DataView 自动加载副作用。 */\n    skipAutoLoadEffect?: boolean;\n}",
+        "declarationTypeText": "{\n    /** 显式 DataView 定位键，格式为 table@viewId 或带作用域的 #scope@table@viewId。 */\n    dataViewKey: MaybeRefOrGetter<string | undefined>;\n    /** 从上级 DataView 上下文读取的成员名，例如 currentRow、rows 或 selectedRows。 */\n    contextDataMember?: MaybeRefOrGetter<DataMember | `${DataMember}` | undefined>;\n    /** 在 contextDataMember 解析结果上继续读取的字段路径。 */\n    contextDataField?: MaybeRefOrGetter<string | undefined>;\n    /** capability 消费入口，用于读取 PAGE_RUNTIME。 */\n    sparkConsume: SparkCapabilityConsumer;\n    /** 将解析到的 DataView 映射成容器实际消费的数据源形态。 */\n    mapView: (view: DataView) => TSource;\n    /** 外部显式传入的数据源；优先级高于 dataViewKey。 */\n    externalDataSource?: MaybeRefOrGetter<TSource | undefined>;\n    /** 父级容器传入的数据源；显式来源和上下文都缺失时使用。 */\n    inheritedDataSource?: MaybeRefOrGetter<TSource | null | undefined>;\n    /** 将解析出的数据源提供给子级容器或字段。 */\n    provideDataSource?: (source: TSource) => void;\n    /** 容器数据源解析诊断日志。 */\n    logger?: DataSourceLoggerLike;\n    /** 日志前缀，用于区分不同容器实例。 */\n    logPrefix?: string;\n    /** 跳过 provide、autoLoad 和诊断副作用，仅保留解析结果。 */\n    skipEffects?: boolean;\n    /** 跳过向下提供数据源的副作用。 */\n    skipProvideEffect?: boolean;\n    /** 跳过 DataView 自动加载副作用。 */\n    skipAutoLoadEffect?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -284,7 +284,7 @@
             },
             {
               "name": "sparkConsume",
-              "jsdoc": "capability 消费入口，用于读取 PAGE_DATASET。",
+              "jsdoc": "capability 消费入口，用于读取 PAGE_RUNTIME。",
               "readable": true,
               "writable": true
             },

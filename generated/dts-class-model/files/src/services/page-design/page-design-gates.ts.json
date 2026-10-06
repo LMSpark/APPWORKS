@@ -48,6 +48,12 @@
       "type": "object",
       "title": "PageDesignRunContext",
       "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
         "allowedOperations": {
           "$ref": "#/$defs/PageDesignAllowedOperations"
         },
@@ -55,7 +61,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "title": "PageNodeFileName"
+            "title": "PageToolFileName"
           }
         }
       },
@@ -153,18 +159,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T13:19:33.165Z",
+  "generatedAt": "2026-10-06T20:16:52.169Z",
   "models": {
     "PageDesignAllowedOperations": {
       "name": "PageDesignAllowedOperations",
       "jsdoc": "页面设计允许的操作域：每项 true=放行 / false=硬拦截 / undefined=不限制",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许读写数据集（editDataSet / getDataSetTool） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许读写数据集（editDataSet / getDataSetTool） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -178,7 +184,7 @@
             },
             {
               "name": "dataSet",
-              "jsdoc": "是否允许读写数据集（editDataSet / getDataSetTool）",
+              "jsdoc": "是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText）",
               "readable": true,
               "writable": false
             },
@@ -206,19 +212,29 @@
     },
     "PageDesignRunContext": {
       "name": "PageDesignRunContext",
-      "jsdoc": "页面设计运行上下文：绑定到 pageId，控制本次 run 的操作域与输出约束",
+      "jsdoc": "页面设计运行上下文：绑定到 requestId，控制本次 run 的操作域与输出约束",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；为空时不限制输出文件范围 */\n    deliverySaveFileNames?: readonly PageNodeFileName[];\n}>",
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId?: string;\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；为空时不限制输出文件范围 */\n    deliverySaveFileNames?: readonly PageNodeFileName[];\n}>",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId?: string;\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "allowedOperations",
               "jsdoc": "操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截",
@@ -227,7 +243,7 @@
             },
             {
               "name": "deliverySaveFileNames",
-              "jsdoc": "交付阶段允许保存的文件名列表；为空时不限制输出文件范围",
+              "jsdoc": "交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。",
               "readable": true,
               "writable": false
             }

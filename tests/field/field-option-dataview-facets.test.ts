@@ -1,8 +1,9 @@
+import { createTestPageRuntime } from '../helpers/create-test-page-runtime'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import {
-  PAGE_DATASET,
+  PAGE_RUNTIME,
   SPARK_REGISTRY_KEY,
   Spark,
   useSparkComponent,
@@ -46,7 +47,7 @@ function mountOptionProbe(dataSet: ReturnType<typeof SparkData.createDataSet>, s
     setup() {
       const node: SparkNode = { type: 'r-form' }
       const { sparkProvide } = useSparkComponent(node, { parentContext: rootContext })
-      sparkProvide(PAGE_DATASET, dataSet)
+      sparkProvide(PAGE_RUNTIME, createTestPageRuntime(dataSet))
 
       return () => h(OptionProbe, {
         optionDataViewKey: 'Dict@default',

@@ -7,46 +7,11 @@
     "sourceFile": "src/views/app/dev-system/childPlacementLabels.ts",
     "packageName": "app",
     "modulePath": "views/app/dev-system/childPlacementLabels",
-    "jsdoc": "@module app:views/app/dev-system/childPlacementLabels\n职责：提供 DevSystem 的 childPlacementLabels 能力，围绕 NavigationPlacementValue 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/childPlacementLabels。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module app:views/app/dev-system/childPlacementLabels\n职责：提供正式navigation.placement的界面选项与标签。\n边界：只翻译展示文本，不持有布局真源或重写业务kind。\nAI用途：显示top/left/right/parent/tabs/popup正式布局值。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {
-    "NavigationPlacementValue": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "NavigationPlacementValue",
-      "anyOf": [
-        {
-          "const": ""
-        },
-        {
-          "type": "object",
-          "title": "NavigationPlacement"
-        }
-      ]
-    }
-  },
-  "generatedAt": "2026-08-10T12:01:38.732Z",
-  "models": {
-    "NavigationPlacementValue": {
-      "name": "NavigationPlacementValue",
-      "jsdoc": "Child Placement Value 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'' | NavigationPlacement",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "''"
-          },
-          {
-            "kind": "union",
-            "typeText": "NavigationPlacement",
-            "targetName": "NavigationPlacement"
-          }
-        ],
-        "members": {}
-      }
-    }
-  }
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.634Z",
+  "models": {}
 }

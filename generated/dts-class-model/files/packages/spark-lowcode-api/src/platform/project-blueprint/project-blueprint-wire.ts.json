@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/project-blueprint/project-blueprint-wire",
-    "jsdoc": "项目蓝图 wire 层：GetData 查询体构造与 Base_NavigationInfo 行归一化。\n未知 BlueprintNodeKind fail-fast；缺失 kind 的非根节点降级为 unresolved。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-wire\n职责：在 Base_NavigationInfo 消费行与 capability/navigation/dataSpace/prototype 四组之间映射。\n边界：conType 决定 kind，未知值保留诊断；不构造查询或授权，不从父节点推断模型。\nAI用途：核对正式节点与后端字段的读写对应，避免 source 成为权限或模型定义来源。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-10T13:16:38.822Z",
+  "generatedAt": "2026-10-06T20:57:27.509Z",
   "models": {}
 }

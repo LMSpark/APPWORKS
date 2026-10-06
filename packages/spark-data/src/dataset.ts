@@ -1,21 +1,23 @@
 /**
  * @module @spark-appworks/spark-data:dataset
- * 职责：提供 spark-data 数据管线中的 dataset 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。
- * 边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。
- * AI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。
+ * 职责：持有单场景或本地数据表、多视图、资源关系及输入级联，协调订阅和保存。
+ * 边界：场景身份只读，场景保存使用既有查询 owner 且不保证事务，多空间由 PageRuntime 持有。
+ * AI用途：解析视图、组织级联或保存场景内多个模型时确认数据集的不变量。
  */
+import { DataViewFilter } from './query/filter/data-view-filter'
+import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
 
 import type {
   DataSetContract, DataSetMetadata, TableMetadata, DataResourceRelation, DataViewCascade,
   DataViewCascadeSelector, DataRow, DataColumn,
-  ColumnType, ViewChangeHandlers, FilterExpression, FilterValueExpression, CrudResult,
+  ColumnType, ViewChangeHandlers, CrudResult,
   DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult,
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
   DataSetTransactionResponse, HttpEndpoint,
 } from './types'
 import { RequestState } from './types'
 import type { DataSetAppServices } from './types'
-import type { DataView } from './data-view'
+import { DataView } from './data-view'
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 import { deepClone, Logger, isRecord, SparkAIModel } from '@spark-appworks/spark-utils'
 
@@ -112,6 +114,11 @@ type DataSetSaveChangesTarget = {
   view: DataView
   ids?: Array<string | number>}
 
+type DataSetScenarioSavePlan = {
+  target: DataSetSaveChangesTarget
+  viewResult: DataSetSaveChangesViewResult
+}
+
 type DataSetTransactionOperationPlan = {
   operation: DataSetTransactionOperation
   view: DataView
@@ -186,7 +193,7 @@ function dataRowFromValue(value: unknown): DataRow {
   return { value }
 }
 
-function toFilterScalar(value: unknown, fieldName: string): Exclude<FilterValueExpression, FilterValueExpression[]> {
+function toFilterScalar(value: unknown, fieldName: string): string | number | boolean | null {
   if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return value
   }
@@ -377,8 +384,8 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   /** Schema 格式版本（默认 1） */
   schemaVersion = 2
 
-  /** SPARK 场景身份（页面绑定的 formKey）；未绑定场景的本地数据集为 undefined。 */
-  scenarioId: string | undefined
+  /** SPARK 场景身份只读；变更时重新装配运行 DataSet。本地数据集为 undefined。 */
+  readonly scenarioId: string | undefined
 
   /** 业务数据版本号（乐观锁） */
   version: number | undefined
@@ -450,6 +457,8 @@ export class DataSet extends SparkAIModel implements DataSetContract {
     super({ dataSetName: config.dataSetName })
     assertNoSeparator(config.dataSetName, 'dataSetName')
     this.dataSetName = config.dataSetName
+    this.scenarioId = normalizeScenarioId(config.scenarioId)
+    Object.defineProperty(this, 'scenarioId', { writable: false, configurable: false })
     this._applyNormalizedMetadata({
       dataSetName: config.dataSetName,
       tables: config.tables,
@@ -714,7 +723,7 @@ getRequestTemplateParams(): Record<string, unknown> {
   /**
    * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。
    *
-   * 渲染层（如 usePageDataSet）在构建 DataSet 后调用此方法；
+   * 页面调用渲染层在构建 DataSet 后调用此方法；
    * 业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。
    *
    * 仅处理 default 视图——命名视图和从表通常由级联机制驱动。
@@ -751,7 +760,7 @@ getRequestTemplateParams(): Record<string, unknown> {
   }
 
   /** 将 DataView 输入级联解析为目标视图过滤表达式。 */
-  resolveCascadeFilter(rel: DataViewCascade): FilterExpression | undefined | null {
+  resolveCascadeFilter(rel: DataViewCascade): DataViewFilterTree | undefined | null {
     const parentView = this.getView(rel.parentTable, rel.parentViewId)
     if (!parentView) return null
 
@@ -759,12 +768,12 @@ getRequestTemplateParams(): Record<string, unknown> {
     const parentReady = parentView.requestState === RequestState.Loaded || parentView.rows.length > 0
     if (!parentReady || parentRows.length === 0) return null
 
-    const filters: FilterExpression[] = []
+    const filters: DataViewFilterTree[] = []
     for (const binding of rel.filterBindings) {
       const isComputedField = parentView.columns.some(
         column => column.name === binding.sourceField && column.computeExpression !== undefined,
       )
-      const values: Array<Exclude<FilterValueExpression, FilterValueExpression[]>> = []
+      const values: Array<string | number | boolean | null> = []
       const seen = new Set<unknown>()
 
       for (const row of parentRows) {
@@ -788,16 +797,16 @@ getRequestTemplateParams(): Record<string, unknown> {
       if (values.length === 0) return null
 
       if (values.length > 1) {
-        filters.push({ field: binding.targetField, op: 'in', value: values })
+        filters.push(DataViewFilter.condition({ field: binding.targetField, operator: 'in', value: values }).toJSON())
       } else {
         const firstValue = values[0]
         if (firstValue === undefined) return null
-        filters.push({ field: binding.targetField, op: '==', value: firstValue })
+        filters.push(DataViewFilter.condition({ field: binding.targetField, operator: 'eq', value: firstValue }).toJSON())
       }
     }
 
     if (filters.length === 1) return filters[0]
-    return { type: 'and', children: filters }
+    return DataViewFilter.group({ logic: 'and', filters }).toJSON()
   }
 
   /**
@@ -867,7 +876,6 @@ getRequestTemplateParams(): Record<string, unknown> {
   private _applyNormalizedMetadata(normalized: DataSetMetadata): void {
     this.dataSetName = normalized.dataSetName
     this.schemaVersion = normalized.schemaVersion ?? 2
-    this.scenarioId = normalized.scenarioId
     this.resourceRelations = normalized.resourceRelations
     this.viewCascades = normalized.viewCascades
     this.version = normalized.version
@@ -881,6 +889,9 @@ getRequestTemplateParams(): Record<string, unknown> {
     /** 执行 replace From Json 操作。 */
 replaceFromJson(json: DataSetMetadata | Record<string, unknown> | string): void {
     const normalized = normalizeDataSetMetadata(DataSet.fromJson(json).toJson())
+    if (normalized.scenarioId !== this.scenarioId) {
+      throw new Error('DataSet.replaceFromJson: 场景身份不可变更，请重新装配运行 DataSet')
+    }
 
     for (const table of Object.values(this.tables)) {
       table.destroy()
@@ -1298,7 +1309,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * - 共享 HTTP 客户端引用被释放
    * - 标记为已销毁，后续操作静默忽略
    *
-   * 使用场景：页面卸载时由 `usePageDataSet.clearDataSet()` 调用。
+   * 使用场景：页面调用 dispose 时释放其拥有的 DataSet。
    */
   destroy(): void {
     if (this._destroyed) return
@@ -1358,11 +1369,12 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 保存 DataSet 范围内的编辑态和 staged 变更。
    *
    * 默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。
-   * 提交顺序按 resourceRelations 做父表 → 子表排序，保证主从页面一次提交时主表先落库。
+   * 场景视图通过同一查询 owner 一次保存；本地 CRUD 视图按资源关系顺序提交。
    */
   async saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
     const targets = this.resolveSaveChangesTargets(options)
     const mode = options?.mode ?? this.saveChangesConfig?.mode ?? 'perView'
+    this.assertScenarioSaveTargets(targets, mode, options)
     if (mode === 'transaction') {
       return this.withCascadeSuspended(() => this.saveChangesInTransaction(targets, options))
     }
@@ -1370,6 +1382,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     return this.withCascadeSuspended(async () => {
       const result = emptyDataSetSaveChangesResult(targets.length)
       const shouldApplyEditingRows = options?.applyEditingRows ?? true
+      const querySaves: DataSetScenarioSavePlan[] = []
 
       for (const target of targets) {
         const view = target.view
@@ -1402,24 +1415,41 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
         }
 
         if (viewResult.failedEditingRows === 0 && (shouldSave || viewResult.appliedEditingRows > 0)) {
-          const saveResult = await view.saveChanges(target.ids)
-          const saveData = saveResult.data
-          if (saveData) {
-            viewResult.createdCount = saveData.createdCount
-            viewResult.savedCount = saveData.savedCount
-            viewResult.deletedCount = saveData.deletedCount
-            viewResult.failedCount = saveData.failedCount
-            viewResult.failedIds.push(...saveData.failedIds)
-            for (const [id, message] of Object.entries(saveData.failedErrors)) {
-              viewResult.failedErrors[id] = message
+          if (this.scenarioId !== undefined) querySaves.push({ target, viewResult })
+          else {
+            const saveResult = await view.saveChanges(target.ids)
+            const saveData = saveResult.data
+            if (saveData) {
+              viewResult.createdCount = saveData.createdCount
+              viewResult.savedCount = saveData.savedCount
+              viewResult.deletedCount = saveData.deletedCount
+              viewResult.failedCount = saveData.failedCount
+              viewResult.failedIds.push(...saveData.failedIds)
+              for (const [id, message] of Object.entries(saveData.failedErrors)) {
+                viewResult.failedErrors[id] = message
+              }
+            } else if (!saveResult.success) {
+              viewResult.failedCount = 1
+              viewResult.failedErrors['*'] = saveResult.message ?? saveResult.error?.message ?? '保存失败'
             }
-          } else if (!saveResult.success) {
-            viewResult.failedCount = 1
-            viewResult.failedErrors['*'] = saveResult.message ?? saveResult.error?.message ?? '保存失败'
           }
         }
 
         mergeViewResult(result, viewResult)
+      }
+
+      if (querySaves.length > 0) {
+        const saved = await DataView.saveQueryViews(querySaves.map(plan => plan.target))
+        querySaves.forEach((plan, index) => {
+          const saveData = saved[index]?.data
+          if (saveData === undefined) throw new Error('DATA_SET_SAVE_RECEIPT: 缺少视图保存统计')
+          Object.assign(plan.viewResult, saveData)
+          result.createdCount += saveData.createdCount
+          result.savedCount += saveData.savedCount
+          result.deletedCount += saveData.deletedCount
+          result.failedCount += saveData.failedCount
+          if (saveData.failedCount > 0) result.failedViews.push({ tableName: plan.target.view.tableName, viewId: plan.target.view.viewId })
+        })
       }
 
       return {
@@ -1430,6 +1460,36 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
         data: result,
       }
     })
+  }
+
+  private assertScenarioSaveTargets(
+    targets: DataSetSaveChangesTarget[],
+    mode: NonNullable<DataSetSaveChangesOptions['mode']>,
+    options?: DataSetSaveChangesOptions,
+  ): void {
+    const active = targets.filter(target => hasPendingChanges(target.view, target.ids)
+      || ((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids)))
+    if (this.scenarioId === undefined) {
+      if (active.some(target => target.view.dataTable?.modelBinding !== undefined)) {
+        throw new Error('DATA_SET_SAVE_IDENTITY: 模型保存必须绑定明确场景')
+      }
+      return
+    }
+    if (mode === 'transaction') {
+      throw new Error('DATA_SET_SAVE_TRANSACTION_UNSUPPORTED: SPARK save 不提供事务保证')
+    }
+    const modelIds = new Set<string>()
+    const modelNames = new Set<string>()
+    for (const { view } of active) {
+      if (view.dataSet !== this) throw new Error('DATA_SET_SAVE_IDENTITY: 保存视图不属于当前场景运行实例')
+      const binding = view.dataTable?.modelBinding
+      if (!binding) throw new Error(`DATA_SET_SAVE_IDENTITY: ${view.tableName}@${view.viewId} 缺少正式模型绑定`)
+      if (modelIds.has(binding.modelId) || modelNames.has(binding.modelName)) {
+        throw new Error(`DATA_SET_SAVE_MODEL_CONFLICT: ${binding.modelName} 存在多个有变更视图，请明确选择一个视图`)
+      }
+      modelIds.add(binding.modelId)
+      modelNames.add(binding.modelName)
+    }
   }
 
   private async withCascadeSuspended<T>(work: () => Promise<T>): Promise<T> {
@@ -1625,6 +1685,9 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     for (const id of view.dirtyTracking.pendingDeleteIds) {
       if (!includesId(id)) continue
       const snapshot = view.dirtyTracking.getPendingDeleteSnapshot(id)
+      if (!snapshot && view.primaryKey === '_pk') {
+        throw new Error('Cannot submit without the original business primary key fields')
+      }
       const operation: DataSetTransactionOperation = {
         operationId: this.buildTransactionOperationId('delete', view, id),
         tableName: view.tableName,

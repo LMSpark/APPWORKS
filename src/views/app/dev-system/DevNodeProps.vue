@@ -24,21 +24,11 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
       </div>
     </transition>
 
-    <el-alert
-      v-if="isSystemRootDirectory"
-      type="warning"
-      :closable="false"
-      show-icon
-      class="system-dir-alert"
-      title="系统模块（固定分组）不可删除、不可改类型、不可改层级；仅可编辑子项"
-    />
-    <el-form :model="state.blueprintDraft" :disabled="isSystemRootDirectory" label-width="100px" size="default" class="node-form">
-      <NodeBasicInfo :state="state" :module-kind-disabled="moduleKindDisabled" />
-      <NodeAgentGateConfig :state="state" />
+    <el-form :model="state.blueprintDraft" label-width="100px" size="default" class="node-form">
+      <NodeBasicInfo :state="state" />
       <NodeTargetConfig :state="state" />
       <NodeLayoutConfig :state="state" />
       <NodeStateConfig :state="state" />
-      <NodeContextConfig :state="state" />
     </el-form>
   </div>
 </template>
@@ -48,16 +38,12 @@ import { computed } from 'vue'
 import type { DevState } from './useDevState'
 import NavIcon from '@/components/NavIcon.vue'
 import NodeBasicInfo from './components/NodeBasicInfo.vue'
-import NodeAgentGateConfig from './components/NodeAgentGateConfig.vue'
 import NodeTargetConfig from './components/NodeTargetConfig.vue'
 import NodeLayoutConfig from './components/NodeLayoutConfig.vue'
 import NodeStateConfig from './components/NodeStateConfig.vue'
-import NodeContextConfig from './components/NodeContextConfig.vue'
 
 const props = defineProps<{ state: DevState }>()
 
-const isSystemRootDirectory = computed(() => props.state.isSystemRootDirectory(props.state.selectedNode.value))
-const moduleKindDisabled = computed(() => !props.state.canUseModuleNodeKind(props.state.selectedNode.value))
 const autoSaveVisible = computed(() => props.state.autoSaveStatus.value !== 'idle')
 </script>
 

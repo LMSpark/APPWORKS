@@ -260,13 +260,13 @@ Node A -> Node B -> Node C
 {
   "modelProjectionRef": {
     "kind": "dts-class-model",
-    "rootClassName": "ProjectModel",
+    "rootClassName": "ProjectWorkspace",
     "manifestUrlRef": "dts-class-model"
   },
   "executableRef": {
     "kind": "js-module",
     "moduleSpecifier": "@spark-appworks/spark-project-model",
-    "exportName": "ProjectModel"
+    "exportName": "ProjectWorkspace"
   },
   "resolveInstance": {
     "editorSource": "projectPlanning",
@@ -281,7 +281,7 @@ Node A -> Node B -> Node C
 
 ```json
 {
-  "rootClassName": "ProjectModel",
+  "rootClassName": "ProjectWorkspace",
   "allowedActions": [],
   "readableAttributes": []
 }

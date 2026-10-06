@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-component/src/page/createSandbox.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "page/createSandbox",
-    "jsdoc": "@module @spark-appworks/spark-component:page/createSandbox\n职责：提供 create Sandbox 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n脚本沙箱工具",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-component:page/createSandbox\n职责：解析页面脚本的顶层函数并在统一 PageContext 作用域编译。\n边界：上下文由当前页面调用提供，只返回可调用函数，不负责页面生命周期和路由。\nAI用途：确认页面函数与 Render 函数如何获取当前调用能力及相互调用。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-06-11T12:48:50.985Z",
+  "generatedAt": "2026-10-06T21:12:54.471Z",
   "models": {}
 }

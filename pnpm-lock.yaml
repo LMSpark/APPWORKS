@@ -500,6 +500,9 @@ importers:
 
   packages/spark-lowcode-api:
     dependencies:
+      '@spark-appworks/spark-data':
+        specifier: workspace:*
+        version: link:../spark-data
       '@spark-appworks/spark-utils':
         specifier: workspace:*
         version: link:../spark-utils

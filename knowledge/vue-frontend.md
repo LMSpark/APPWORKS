@@ -33,15 +33,15 @@
 ### src/views/ 的路由对应
 
 - **场景**：新增页面视图
-- **规则**：`src/views/` 的目录结构与路由对应：`app/` = 应用页面，`platform/` = 平台管理，`tenant/` = 租户管理。`dev-system/` 是项目蓝图开发工作台，树组件、预览和数据集设计器都消费同一 `ProjectWorkspace.project`，不能另建导航或页面身份。
+- **规则**：`src/views/` 的目录结构与路由对应：`app/` = 应用页面，`platform/` = 平台管理，`tenant/` = 租户管理。`dev-system/` 工作台以同一ProjectWorkspace管理蓝图和PageTool，场景设计器消费其显式ScenarioViewFile；运行预览使用独立PageRuntime，不能把编辑对象或运行数据混为同一实例。
 - **违反后果**：视图放在错误目录下 → 路由配置找不到组件
 
-### 平台权限 → UI 权限只经唯一 mapper
+### 数据权限由原查询 owner 持有
 
-- **场景**：把 lowcode `PermissionRuntimeSnapshot` 接到 spark-data / 组件层 `DataPermissionSnapshot`
-- **规则**：只走 `src/lowcode/permission/lowcode-permission-to-data-permission.ts`（`toDataPermissionSnapshotInput` / `resolveAllowAddFromPermissionRuntime`）。`LowcodeDataSpaceAssembler` 入参是完整 `permission`，禁止在 UI 或 assembler 内另写一套标签/`allowAdd` 推导。资源表 `allowAddByResource[resourceId] === false` 硬拒绝优先于查询响应的 `allowAdd`。
-- **违反后果**：双路径推导 → 同一页功能按钮与行级可写状态和平台 GetFormUserFunction 不一致
-- **发现来源**：2026-08 系统结构 SSOT 归并（批次 D）
+- **场景**：将后端查询数据与权限接到 DataView 和组件。
+- **规则**：当前 DataSpaceRuntimeApi 查询生成私有 DataSpaceQueryContext，DataView 经绑定 owner 消费双通道、动作状态与保存基线。公开行剥离权限名单和token；UI/assembler不另写标签或allowAdd推导。旧公开快照mapper已删除。
+- **违反后果**：第二套权限投影会脱离实际原查询身份和后端凭据。
+- **发现来源**：2026-08 系统结构 SSOT 归并（批次 D）；2026-10 按原查询owner替换旧mapper规则。
 
 ### SparkNode 类型与 helpers 只从 spark-data 导入
 
@@ -64,12 +64,12 @@
 - **违反后果**：同结构多名字，改 API 漏改一边
 - **发现来源**：2026-08 SSOT 薄别名清理
 
-### DataView 查询结果用 DataPermissionSnapshotInput
+### DataView 查询结果与私有权限同源
 
 - **场景**：DataView / DataSpace 查询返回
-- **规则**：只用 `DataPermissionSnapshotInput`；已删同形别名 `DataViewQueryResult`
-- **违反后果**：同形双名，消费方不知以哪个为准
-- **发现来源**：2026-08 SSOT 薄别名清理
+- **规则**：消费当前 DataViewQueryExecutor/DataViewQueryResult 边界，由原查询owner提供数据、总数、行身份和权限入口。该结果不是公开可替换权限快照，业务组件只使用DataView。
+- **违反后果**：回生旧快照登记会绕过原查询基线，产生身份与授权不一致。
+- **发现来源**：2026-08 SSOT 薄别名清理；2026-10 随私有查询结果合同更新。
 
 ### 台账 WireJsonObject ≠ json-document JsonObject
 
@@ -100,16 +100,16 @@
 ### WireFilterOperator / OrderType 与 spark-data 分层
 
 - **场景**：DataView 过滤/排序投影到 GetData wire
-- **规则**：`FilterOperator` / `SortDirection` 仅 `@spark-appworks/spark-data`；wire 正式名 `WireFilterOperator` / `OrderType` / `GroupFunType` 在台账与 `spark-lowcode-api/contracts/lowcode-wire-query.ts` 同形（`verify:wire-query-parity`）。唯一过滤/排序 mapper：`src/lowcode/data-space/lowcode-data-space-assembler.ts`。`AggregateType`（含 `join`）仅 spark-data，禁止与 `GroupFunType` 硬合并或同名。禁止台账再用正式名 `FilterOperator`
+- **规则**：公开过滤树与排序类型来自 `@spark-appworks/spark-data`；wire 正式名 `WireFilterOperator` / `OrderType` / `GroupFunType` 在台账与 `spark-lowcode-api/contracts/lowcode-wire-query.ts` 同形（`verify:wire-query-parity`）。转换在 API 包的 `platform/data-space/runtime/protocol/data-space-filter.ts`，宿主assembler不维护第二mapper。`AggregateType` 仍属spark-data，不与GroupFunType硬合并或同名。
 - **违反后果**：同名冲突、错误 wire Operator、排序 direction 内联联合再分叉
 - **发现来源**：2026-08 SSOT wire-query 收口
 
 ### ProjectBlueprintImplGate SSOT 在 project-model
 
-- **场景**：蓝图节点 / pageDesign runner / DevSystem 编辑实现放行闸门
-- **规则**：只用 `@spark-appworks/spark-project-model` 的 `ProjectBlueprintImplGate`。禁止宿主再定义 `PageDesignImplGate` 或内联 `'closed'|'open'`
+- **场景**：蓝图节点与pageDesign runner读取实现放行闸门。
+- **规则**：只用 `@spark-appworks/spark-project-model` 的 `ProjectBlueprintImplGate`。当前节点读取source实际implGate，上游合同缺失时fail closed；后端没有对应可写字段，不得在DevSystem伪造source成功或新增编辑控件充当持久放行。
 - **违反后果**：闸门字面量漂移；strictImplGate 语义分叉
-- **发现来源**：2026-08 SSOT implGate 收口
+- **发现来源**：2026-08 SSOT implGate 收口；2026-10 按实际可读及不可写边界校准。
 
 ### HttpEndpoint.method 复用 spark-utils Method
 
@@ -121,7 +121,7 @@
 ### DataSpace 资源类型分层与 CN wire 映射
 
 - **场景**：设计读回 Type 中文标签、运行写出 Type、目录 table/view、DataView TableResourceType
-- **规则**：领域 `DataSpaceResourceType` 在 `data-space.ts`；CN↔领域唯一映射在 `data-space-resource-type-wire.ts`（`parseDataSpaceResourceType` / `encodeDataSpaceResourceType`）。目录用 `DataSpaceDatabaseResourceType = Extract<table|view>`（禁止再设 `LowcodeDatabaseResourceType` 别名）。DataSpace→`TableResourceType` 唯一 mapper：`src/lowcode/data-space/lowcode-frontend-model-adapter.ts`。字段 `orderType` 为 `OrderType | ''`
+- **规则**：领域 `DataSpaceResourceType` 在 `data-space.ts`；CN↔领域唯一映射在 `data-space-resource-type-wire.ts`（`parseDataSpaceResourceType` / `encodeDataSpaceResourceType`）。目录用 `DataSpaceDatabaseResourceType = Extract<table|view>`。宿主LowcodeDataSpaceAssembler按正式模型字段与场景modelBinding装配；旧frontend-model-adapter已退役，不能从旧TableResourceType投影重建正式模型。
 - **违反后果**：design/runtime 各维护一份中文表；orderType 自由字符串漏网
 - **发现来源**：2026-08 SSOT data-space resource-type 收口
 
@@ -188,19 +188,19 @@
 - **违反后果**：额外转发层掩盖真实依赖，SSOT 再次分叉
 - **发现来源**：2026-08 SSOT G5/G6
 
-### 运行 DataSet 装载器经 pageNode / DynamicRouter 注入
+### 运行场景装配经 PageRuntime / DynamicRouter 注入
 
 - **场景**：宿主要把 DataSpace 运行装载接到 `SparkPageRenderer`
-- **规则**：在 `PageNodeOptions.loadRuntimeDataSet` 注入；`DynamicRouter` 注册 config-page 时写入路由 `props`。`spark-component` 不依赖 `spark-lowcode-api` / 宿主 `src/lowcode`；不要在组件包内直连 lowcode，也不要用薄 re-export 包绕开。
+- **规则**：宿主通过 DynamicRouterOptions.loadScenario 按projectId/scenarioId装配，DynamicRouter为每次调用创建PageRuntime，并向renderer传pageRuntime与routeSnapshot。PageRuntimeOptions.loadScenario返回本调用独立DataSet；不要共享运行数据或从工具推断场景。组件包不直连lowcode或宿主，也不新增薄转发入口。
 - **违反后果**：包边界污染或漏注入 → 有 binding 的页面加载失败；薄转发层再引入双真源
-- **发现来源**：2026-08 系统结构 SSOT 归并（批次 F）
+- **发现来源**：2026-08 系统结构 SSOT 归并（批次 F）；2026-10 按工具与调用分离更新注入合同。
 
 ### 行级权限五集合里 `r` 是"必填"，不是"可读"
 
-- **场景**：读写 `DataRow.lingma_sys_params`（`r` / `e` / `h` / `m` / `d`）或判定字段权限
-- **规则**：以 `PermissionChecker` 为准。`r` 用于 `isFieldRequired`，并与 `e` 共同构成可编辑集合（`isFieldEditable`、`canEdit`、mutation 的可改字段校验都用 `r ∪ e`）；`h` 隐藏、`m` 脱敏、`d` 可删。行上缺 `lingma_sys_params` 时字段一律按隐藏处理（失败关闭）。不要把五个集合压缩成枚举。
+- **场景**：经DataView判断字段与行权限。
+- **规则**：正式合同见 `docs/architecture/PERMISSION_SYSTEM.md`。后端R必填且同步加入E，h/m独立表示实际返回值的保护状态，d为删除许可，树c为父行新增子行许可。本仓write消费E，参考sparkproject消费R或E，正常R⊆E输出等价；不能把R当可读名单、用空值推断隐藏或把首行权限复制给新增草稿。公开行不携带原权限名单/token。
 - **违反后果**：把 `r` 当可读，会漏掉必填校验，或把只读字段误判成可改。
-- **发现来源**：2026-10-05 重写 `docs/architecture/PERMISSION_SYSTEM.md` 时读 `PermissionChecker.ts`
+- **发现来源**：2026-10-05 原权限研读；2026-10-07 对照当前原查询owner及参考SPARK双通道实现更新。
 
 ### 收窄 `Object.entries(Partial<Record>)` 用类型守卫，不要断言也不要 `!== undefined` 过滤
 

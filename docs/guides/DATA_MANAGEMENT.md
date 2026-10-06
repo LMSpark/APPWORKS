@@ -1,375 +1,90 @@
 # 数据管理指南
 
-> 使用 DataSet、DataView 和 TreeManager 管理应用数据
->
-> **API 参考**：`packages/spark-data/src/`
+正式运行场景与局部内存数据集使用同一 DataView 能力，但装配和查询 owner 不同。完整链路见 [数据流架构](../architecture/DATAFLOW_ARCHITECTURE.md)。
 
-## 概述
-
-SPARK 数据层核心对象：
+## 对象与身份
 
 | 对象 | 职责 |
-|------|------|
-| `DataSet` | 数据空间协调器，持有多个 `DataTable`，管理关系配置 |
-| `DataTable` | 单表数据存储容器，持有列定义和多个 `DataView` |
-| `DataView` | 数据视图，**唯一数据交互枢纽**（读写、加载、选择、状态） |
-| `TreeManager` | 树形数据转换与导航 |
+|---|---|
+| DataSet | 单场景运行数据集，协调多个表与视图；scenarioId 只读 |
+| DataTable | 稳定 tableName、正式模型绑定与列，持多个命名视图 |
+| DataView | 查询、编辑、选择、dirty/stale 与权限消费 |
+| TreeManager | 树缓存与本地树算法 |
 
-**引用链**（单向）：`DataView → DataTable → DataSet`
+DataView -> DataTable -> DataSet 是归属链。PageRuntime 持多个场景 DataSet，每次调用独立；工具不持数据。
 
----
+## 正式场景装配
 
-## 1. 创建 DataSet
+ProjectWorkspace 读取 SysForm/<scenarioId>/pagedata.json，由 ScenarioViewFile 持原文和编辑历史。ScenarioViewConfig 声明单场景 tables、modelBinding、views、viewCascades。
 
-```typescript
-import { DataMember, SparkData } from '@spark-appworks/spark-data'
+宿主 loadScenarioDataSet 通过 readModel/readRelations 读取正式定义，校验 modelId、模型查询 Name、稳定 tableName 和字段输出，再绑定共享 DataSpaceRuntimeApi。模型与关系不能从物理资源目录或运行菜单推断。
 
-const dataSet = SparkData.createDataSet({
-  dataSetName: 'UserManagement',
-  tables: {
-    Users: {
-      tableName: 'Users',
-      columns: [
-        { name: 'id', type: 'number', primaryKey: true },
-        { name: 'name', type: 'string', nullable: false },
-        { name: 'email', type: 'string', nullable: false },
-        { name: 'departmentId', type: 'number' }
-      ],
-      rows: [                      // 可选：提供初始（静态）数据
-        { id: 1, name: 'Alice', email: 'alice@example.com', departmentId: 1 },
-        { id: 2, name: 'Bob', email: 'bob@example.com', departmentId: 1 }
-      ]
-    },
-    Departments: {
-      tableName: 'Departments',
-      columns: [
-        { name: 'id', type: 'number', primaryKey: true },
-        { name: 'name', type: 'string', nullable: false }
-      ],
-      rows: []
-    }
-  },
-  tableRelations: [
-    {
-      name: 'UserDepartment',
-      parentTable: 'Departments',
-      childTable: 'Users',
-      parentField: 'id',
-      childField: 'departmentId',
-      parentViewId: 'default',
-      childViewId: 'default'
-    }
-  ]
-})
-```
+正式关系可表达的等值级联自动生成；显式 viewCascades 优先。选择父视图 currentRow 后，级联按实际配置更新子视图，不在组件里手写第二套依赖算法。
 
----
+## 定位与读取
 
-## 2. DataView — 数据读写
-
-`DataView` 是数据读写的唯一入口，通过 `DataSet.getView()` 获取：
-
-```typescript
-// 获取（并按需创建）DataView
-const usersView = dataSet.getView('Users', 'default')
-// 等价于：dataSet.tables['Users'].getOrCreateView('default')
-```
-
-### 读取数据
-
-```typescript
-// 行数据
-const allRows = usersView?.rows ?? []
-const currentRow = usersView?.currentRow
-const selectedRows = usersView?.selectedRows ?? []
-
-// 分页信息
-const total = usersView?.total ?? 0
-const page = usersView?.page ?? 1
-const pageSize = usersView?.pageSize ?? 20
-
-// 加载状态
-const requestState = usersView?.requestState  // RequestState 枚举
-const error = usersView?.loadingError
-```
-
-### 写入数据（直接赋值，用于静态数据）
-
-```typescript
-// 设置行（替换现有数据，不触发网络请求）
-if (usersView) {
-  usersView.rows = [
-    { id: 1, name: 'Alice', email: 'alice@example.com', departmentId: 1 },
-    { id: 2, name: 'Bob', email: 'bob@example.com', departmentId: 1 }
-  ]
-  usersView.total = usersView.rows.length
-}
-```
-
----
-
-## 3. 从服务器加载数据（DataView.requestData）
-
-```typescript
-// requestData() 是幂等的：requestState !== Idle 时直接返回
-usersView?.requestData()
-
-// 监听领域事件
-usersView?.events.on('requestStateChanged', (state) => {
-  console.log('请求状态变化:', state)
-})
-usersView?.events.on('rowsChanged', () => {
-  console.log('行数据变化:', usersView.rows)
-})
-```
-
-### 配置 CRUD API（DataTable 级别）
-
-```typescript
-import { SparkData } from '@spark-appworks/spark-data'
-import type { CrudApi } from '@spark-appworks/spark-data'
-
-const usersTable = dataSet.tables['Users']
-
-// 设置 CRUD API
-usersTable.setApi({
-  read: async (params) => {
-    const res = await fetch(`/api/users?page=${params.page}&pageSize=${params.pageSize}`)
-    const data = await res.json()
-    return { success: true, data: { rows: data.items, total: data.total } }
-  },
-  create: async (data) => {
-    const res = await fetch('/api/users', {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'application/json' }
-    })
-    const created = await res.json()
-    return { success: true, data: created }
-  },
-  update: async (id, data) => {
-    const res = await fetch(`/api/users/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'application/json' }
-    })
-    return { success: res.ok, data: await res.json() }
-  },
-  delete: async (id) => {
-    const res = await fetch(`/api/users/${id}`, { method: 'DELETE' })
-    return { success: res.ok }
-  }
-})
-```
-
----
-
-## 4. CRUD 操作（DataView 级别）
-
-所有 CRUD 方法都在 `DataView` 上，返回 `CrudResult`：
-
-```typescript
-const usersView = dataSet.getView('Users', 'default')!
-
-// 新增
-const addResult = await usersView.addRecord({
-  name: 'Charlie',
-  email: 'charlie@example.com',
-  departmentId: 1
-})
-if (addResult.success) {
-  console.log('新增成功:', addResult.data)
-}
-
-// 更新
-const updateResult = await usersView.updateRecord(1, { name: 'Alice Updated' })
-
-// 删除
-const deleteResult = await usersView.deleteRecord(2)
-
-// 批量操作
-const batchResult = await usersView.batchCreate([
-  { name: 'D', email: 'd@example.com', departmentId: 2 },
-  { name: 'E', email: 'e@example.com', departmentId: 2 }
-])
-```
-
----
-
-## 5. 数据查询（JavaScript 原生）
-
-DataView 提供原始数据数组，查询使用 JavaScript 数组方法：
-
-```typescript
-const view = dataSet.getView('Users', 'default')
-if (!view) return
-
+```ts
+const view = pageRuntime.resolveView('#SCENE@Users@grid')
+if (!view) throw new Error('视图不存在')
 const rows = view.rows
-
-// 查找单行
-const alice = rows.find(row => row.name === 'Alice')
-
-// 过滤
-const engineers = rows.filter(row => row.departmentId === 1)
-
-// 排序（不可变）
-const sorted = [...rows].sort((a, b) => (a.name as string).localeCompare(b.name as string))
-
-// 分页
-const pageSize = 10
-const page = 1
-const paginated = rows.slice((page - 1) * pageSize, page * pageSize)
+const current = view.currentRow
+const selected = view.selectedRows
 ```
 
----
+SCENE 是已声明的真实场景 ID。局部 Users@grid 仅在明确 mainScenarioId 时允许；不自动取首场景。dataViewKey 只定位视图，dataMember 指定 rows/currentRow/selectedRows/total 等输出，dataField 指定对象成员内字段。
 
-## 6. 选择状态管理
+组件使用 useSparkComponent 消费 PAGE_RUNTIME；容器向下提供 DATA_SOURCE，行作用域提供 DATA_ROW。响应式 UI 应订阅 DataView 领域事件或使用现有运行态 hook，不仅把 class 成员放进 computed 就假定它会通知 Vue。
 
-```typescript
-const view = dataSet.getView('Users', 'default')!
+## 查询、选择与编辑
 
-// 当前行
-view.currentRow = view.rows[0] ?? null
-
-// 多选
-view.selectedRows = view.rows.filter(r => r.departmentId === 1)
-
-// 响应式监听（Vue 组件内）
-import { computed } from 'vue'
-const currentUser = computed(() => view.currentRow)
-const selectedUsers = computed(() => view.selectedRows)
+```ts
+await view.loadFromServer()
+view.setCurrentRowById('ROW_ID')
+view.setSelectedRows([view.rows[0]])
+view.updateEditingValue('ROW_ID', 'name', '新名称')
+await view.saveChanges()
 ```
 
----
+实际字段与主键必须来自正式模型。方法的 CrudResult 必须检查成功状态。需要取消编辑时使用 discardEditingRows；不要直接修改 rows 数组、注入权限字段或绕过编辑方法。
 
-## 7. DataViewKey（渲染层使用）
+dirty 视图拒绝配置/结果覆盖；查询失败进入 stale 并暂停编辑。恢复查询前应按业务意图显式丢弃或处理未保存编辑。迟到查询结果不能覆盖新代次。
 
-```typescript
+## 权限与保存
+
+DataView 私有原 query context 持有查询权限、原 token、差异与保存基线。页面消费 fieldAccess、create/delete/edit 动作状态，不自行解析行里的签名或制造公共权限快照。
+
+E 是写白名单；R 必填只对 E 中字段生效。h/m 联合模型和真实行，树 c 独立控制新增子行。API 映射正式 Name 请求与 AsName 输出；新增按 keyField/GUID 规则，_pk 只用于前端定位而不提交。应用/租户来自请求 scope。
+
+DataSet.saveChanges 保存明确场景。同模型多 dirty 视图拒合存；同场景不同模型一次 SPARK save，不保证事务。正式场景拒绝 transaction 模式。详见 [保存动作](SAVE_DATASET_ACTION.md)。
+
+## 局部内存数据
+
+不带 scenarioId 的局部 DataSet 可用于静态组件和纯算法测试，不承担正式平台权限与模型身份。
+
+```ts
 import { SparkData } from '@spark-appworks/spark-data'
-import { PAGE_DATASET } from '@spark-appworks/spark-component'
-import { useSparkComponent } from '@spark-appworks/spark-component'
 
-// 在渲染层组件中
-const { sparkConsume } = useSparkComponent(props.config)
-const dataSet = sparkConsume(PAGE_DATASET)
-
-// 容器级绑定使用 DataViewKey 定位 DataView
-const view = SparkData.resolveDataViewKey('Users@grid', dataSet)
-
-// 展示、动作等需要读取 DataView 输出时显式声明 dataMember
-const binding = SparkData.resolveDataViewMemberBinding({
-  dataViewKey: 'Users@grid',
-  dataMember: DataMember.Rows,
-}, dataSet)
-const rows = computed(() => binding?.value ?? [])
-```
-
-DataViewKey 格式：
-
-| 类型 | 格式 | 示例 |
-|------|------|------|
-| DataViewKey | `table@viewId` | `Users@grid` |
-| DataViewKey | `#scope@table@viewId` | `#Shared@Users@grid` |
-
-DataViewKey 只包含定位信息。读取成员时使用 `dataMember`，读取对象成员内部字段时再使用 `dataField`。
-
----
-
-## 8. 级联加载（父子视图）
-
-子视图根据父视图的 `currentRow` 自动加载：
-
-```typescript
-const dataSet = SparkData.createDataSet({
-  dataSetName: 'OrderManagement',
+const local = SparkData.createDataSet({
+  dataSetName: 'LocalItems',
   tables: {
-    Orders: { /* ... */ },
-    OrderItems: { /* ... */ }
+    Items: {
+      tableName: 'Items',
+      columns: [{ name: 'id', type: 'number', isPrimaryKey: true }],
+      views: { default: { rows: [{ id: 1 }, { id: 2 }] } },
+    },
   },
-  tableRelations: [
-    {
-      parentTable: 'Orders',
-      childTable: 'OrderItems',
-      parentField: 'id',
-      childField: 'orderId'
-    }
-  ]
 })
-
-// 选择父行后，子视图自动重新加载
-const ordersView = dataSet.getView('Orders')!
-const itemsView = dataSet.getView('OrderItems')!
-
-ordersView.currentRow = ordersView.rows[0]
-// → itemsView 会自动执行 requestData()（订阅父 currentRowChanged / rowsChanged）
+const localView = local.getView('Items', 'default')
 ```
 
----
+局部 owner 负责 destroy。明确绑定 API 的通用数据集可以使用其后端 CRUD 合同；不能把局部静态行当正式场景 fallback。
 
-## 9. TreeManager（树形数据）
+## 树与验证
 
-```typescript
-import { SparkData } from '@spark-appworks/spark-data'
+TreeManager 负责本地节点、路径、子树与缓存；UI 通过 DataView 树方法协调查询和选择。远程 path/subtree/move 能力必须由真实执行器或端点提供，方法名不证明后端支持。参见 [树指南](TREE_CAPABILITY.md)。
 
-const treeManager = SparkData.createTreeManager({
-  idField: 'id',
-  parentIdField: 'parentId',
-  childrenField: 'children'
-})
+验证应覆盖正式装配、命名视图、级联、无效绑定拒绝、dirty/stale、权限、原回执与销毁。模拟请求测试不能宣称真实后端写入成功。
 
-// 将平铺数据转换为树形
-const flatData = [
-  { id: 1, name: 'Root', parentId: null },
-  { id: 2, name: 'Child A', parentId: 1 },
-  { id: 3, name: 'Child B', parentId: 1 },
-  { id: 4, name: 'Grandchild', parentId: 2 }
-]
-
-const tree = treeManager.buildTree(flatData)
-```
-
----
-
-## 10. 在 Vue 组件中使用
-
-```vue
-<script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useSparkComponent } from '@spark-appworks/spark-component'
-import { PAGE_DATASET } from '@spark-appworks/spark-component'
-import { SparkData } from '@spark-appworks/spark-data'
-import type { SparkNode } from '@spark-appworks/spark-component'
-
-type UserGridConfig = SparkNode & {
-  dataViewKey: string
-}
-
-const props = defineProps<{ config: UserGridConfig }>()
-const { consume, logger } = useSparkComponent(props.config)
-
-// 消费 DataSet
-const dataSet = sparkConsume(PAGE_DATASET)
-
-// 通过 DataViewKey 解析 DataView
-const view = SparkData.resolveDataViewKey(props.config.dataViewKey, dataSet)
-
-// 响应式数据
-const rows = computed(() => view?.rows ?? [])
-const currentRow = computed(() => view?.currentRow)
-const isLoading = computed(() => view?.requestState === 2 /* Loading */)
-
-onMounted(() => {
-  view?.events.on('rowsChanged', () => logger.debug('View rows changed'))
-  view?.events.on('currentRowChanged', () => logger.debug('View current row changed'))
-  view?.events.on('requestStateChanged', () => logger.debug('View request state changed'))
-})
-</script>
-```
-
----
-
-## 相关文档
-
-- [数据流架构](../architecture/DATAFLOW_ARCHITECTURE.md) — 完整调用链
-- [组件开发指南](COMPONENT_DEVELOPMENT.md) — 能力系统
-- [文档入口](../README.md) — 当前保留的中文主线
+- [组件开发](COMPONENT_DEVELOPMENT.md)
+- [平台 API](../../packages/spark-lowcode-api/README.md)
+- [数据包](../../packages/spark-data/README.md)

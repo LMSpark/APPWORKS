@@ -1,3 +1,4 @@
+import { createTestPageRuntime } from '../helpers/create-test-page-runtime'
 /**
  * 零代码事件机制端到端测试
  *
@@ -78,6 +79,7 @@ function createActionContext(overrides?: Partial<ActionExecutionContext>): Actio
   })
   return {
     getDataSet: () => ds,
+    resolveView: binding => createTestPageRuntime(ds).resolveView(binding) ?? null,
     getPageService: () => createPageService(),
     getRouter: () => null,
     ...overrides,
@@ -457,6 +459,7 @@ describe('navigate action — 事件行插值', () => {
     const router = { push: vi.fn() }
     const actionCtx: ActionExecutionContext = {
       getDataSet: () => ds,
+    resolveView: binding => createTestPageRuntime(ds).resolveView(binding) ?? null,
       getPageService: () => pageService,
       getRouter: () => router,
     }
@@ -494,13 +497,14 @@ describe('navigate action — 事件行插值', () => {
     const router = { push: vi.fn() }
     const actionCtx: ActionExecutionContext = {
       getDataSet: () => ds,
+    resolveView: binding => createTestPageRuntime(ds).resolveView(binding) ?? null,
       getPageService: () => createPageService(),
       getRouter: () => router,
     }
 
     const desc: ActionDescriptor = { action: 'navigate', path: '/user/{name}' }
     // 无事件行 → 回退到 currentRow
-    await executeActionDescriptor(desc, actionCtx)
+    await executeActionDescriptor(desc, {...actionCtx, getDataSource: () => view})
 
     // currentRow.name = 'Charlie'
     expect(router.push).toHaveBeenCalledWith('/user/Charlie')
@@ -525,6 +529,7 @@ describe('navigate action — 事件行插值', () => {
     })
     const actionCtx: ActionExecutionContext = {
       getDataSet: () => ds,
+    resolveView: binding => createTestPageRuntime(ds).resolveView(binding) ?? null,
       getPageService: () => pageService,
       getRouter: () => router,
     }
@@ -630,6 +635,7 @@ describe('集成测试 — RendererTable cancelDefault 全链路', () => {
     })
     const actionCtx = createActionContext({
       getDataSet: () => ds,
+    resolveView: binding => createTestPageRuntime(ds).resolveView(binding) ?? null,
       getPageService: () => pageService,
     })
 
@@ -679,6 +685,7 @@ describe('集成测试 — RendererTable cancelDefault 全链路', () => {
     const pageService = createPageService()
     const actionCtx = createActionContext({
       getDataSet: () => ds,
+    resolveView: binding => createTestPageRuntime(ds).resolveView(binding) ?? null,
       getPageService: () => pageService,
     })
 
@@ -725,6 +732,7 @@ describe('集成测试 — RendererTable cancelDefault 全链路', () => {
     const pageService = createPageService()
     const actionCtx = createActionContext({
       getDataSet: () => ds,
+    resolveView: binding => createTestPageRuntime(ds).resolveView(binding) ?? null,
       getPageService: () => pageService,
     })
 

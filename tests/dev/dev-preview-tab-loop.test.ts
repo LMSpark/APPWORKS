@@ -1,9 +1,8 @@
-import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { mount, flushPromises } from '@vue/test-utils'
+import { defineComponent, h, nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
-import type { DevState } from '@/views/app/dev-system/useDevState'
-import type { PageNodeFileName } from '@spark-appworks/spark-project-model'
+import { createDevStateWithConfigPages, isolateAppProjectWorkspaceForTest } from './dev-state-test-fixture'
 
 const SwitchStub = defineComponent({
   name: 'ElSwitch',
@@ -27,63 +26,20 @@ const ButtonStub = defineComponent({
 const RendererStub = defineComponent({
   name: 'SparkPageRenderer',
   props: {
-    pageNode: Object,
-    pageNodeRevision: Number,
+    pageRuntime: Object,
+    routeSnapshot: Object,
   },
   setup(props) {
-    return () => h('div', { class: 'renderer-stub', 'data-page-id': props.pageNode?.['pageId'] })
+    return () => h('div', { class: 'renderer-stub', 'data-page-id': props.pageRuntime?.['pageId'] })
   },
 })
 
 function createPreviewState() {
-  const activePageId = ref('cascade-demo')
-  const projectRevision = ref(1)
-  const files: Record<PageNodeFileName, string> = {
-    'rule.json': '[]',
-    'pagedata.json': '{"dataSetName":"Demo","tables":{}}',
-    'script.js': '',
-    'style.css': '',
-  }
-  const getActivePage = vi.fn(() => ({ pageId: activePageId.value, isLoaded: true }))
-  const getActivePageRenderNode = vi.fn(() => ({
-    pageId: activePageId.value,
-    isLoaded: true,
-    load: () => Promise.resolve(),
-    toRenderConfig: () => ({
-      pageId: activePageId.value,
-      blueprintNode: null,
-      dataSpaceBinding: null,
-      rule: [],
-      data: {} as never,
-      script: undefined,
-      css: undefined,
-    }),
-  }))
-  const readPageFileText = vi.fn((name: PageNodeFileName) => {
-    void projectRevision.value
-    return files[name]
-  })
-  const editor = {
-    getActivePageRenderNode,
-  }
-  const project = {
-    getActivePage,
-    readPageFileText,
-  }
-  const state: DevState = Object.assign(Object.create(null), {
-    activePageId,
-    projectRevision,
-    editor,
-    project,
-  })
-
-  return {
-    state,
-    files,
-    projectRevision,
-    getActivePage,
-    getActivePageRenderNode,
-  }
+  isolateAppProjectWorkspaceForTest()
+  const state = createDevStateWithConfigPages([{pageId:'cascade-demo',nodeId:'cascade-node',title:'Cascade'}], 'cascade-demo')
+  state.project.getActivePage()?.markLoaded()
+  const getActivePage = vi.spyOn(state.project,'getActivePage')
+  return {state,projectRevision:state.projectRevision,getActivePage}
 }
 
 describe('DevPreviewTab live refresh', () => {
@@ -96,9 +52,9 @@ describe('DevPreviewTab live refresh', () => {
   })
 
   it('does not rebuild preview when editor revision changes but in-memory page files are unchanged', async () => {
-    const { state, files, projectRevision, getActivePage } = createPreviewState()
+    const { state, projectRevision } = createPreviewState()
 
-    mount(DevPreviewTab, {
+    const wrapper = mount(DevPreviewTab, {
       props: {
         state,
         refreshToken: 0,
@@ -117,21 +73,26 @@ describe('DevPreviewTab live refresh', () => {
       },
     })
 
-    expect(getActivePage).toHaveBeenCalledTimes(1)
+    await flushPromises()
+    const instance = wrapper.findComponent(RendererStub).props('pageRuntime')
 
     projectRevision.value += 1
     await nextTick()
     vi.advanceTimersByTime(600)
     await nextTick()
 
-    expect(getActivePage).toHaveBeenCalledTimes(1)
+    await flushPromises()
+    expect(wrapper.findComponent(RendererStub).props('pageRuntime')).toBe(instance)
 
-    files['script.js'] = 'console.log("changed")'
+    state.project.writePageFile({fileName:'script.js',text:'console.log("changed")'})
     projectRevision.value += 1
     await nextTick()
     vi.advanceTimersByTime(600)
     await nextTick()
 
-    expect(getActivePage).toHaveBeenCalledTimes(2)
+    await flushPromises()
+    expect(wrapper.findComponent(RendererStub).props('pageRuntime')).not.toBe(instance)
+    expect(instance?.['destroyed']).toBe(true)
+    wrapper.unmount()
   })
 })

@@ -7,12 +7,11 @@
     "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "io/project-blueprint-client",
-    "jsdoc": "@spark-appworks/spark-project-model 的 io/project-blueprint-client 模块。\n导出 DtsTypeDeclarationModel symbol: LinkProbeResult, ProjectBlueprintGateway, ProjectBlueprintClient（共 3 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-client\n职责：正式蓝图节点读取与增改删移动网关。\n边界：按节点身份提交真实操作，不进行整树伪同步。\nAI用途：确认Workspace远端蓝图保存所需能力。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LinkProbeResult",
-      "ProjectBlueprintGateway",
-      "ProjectBlueprintClient"
+      "ProjectBlueprintGateway"
     ]
   },
   "$defs": {
@@ -82,127 +81,8 @@
               "type": "string"
             },
             "patch": {
-              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodePatch"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.updateNode.return": {
-          "type": "object",
-          "title": "Promise<ProjectBlueprintTreeNodeData>"
-        },
-        "method.deleteNode.params": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.deleteNode.return": {
-          "type": "object",
-          "title": "Promise<ProjectBlueprintTreeNodeData | null>"
-        },
-        "method.moveNode.params": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "newParentId": {
-              "type": [
-                "null",
-                "string"
-              ]
-            },
-            "index": {
-              "type": "number"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.moveNode.return": {
-          "type": "object",
-          "title": "Promise<ProjectBlueprintTreeNodeData>"
-        },
-        "method.probeLink.params": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.probeLink.return": {
-          "type": "object",
-          "title": "Promise<LinkProbeResult>"
-        }
-      }
-    },
-    "ProjectBlueprintClient": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ProjectBlueprintClient",
-      "$defs": {
-        "constructor.params": {
-          "type": "object",
-          "properties": {
-            "gateway": {
-              "$ref": "#/$defs/ProjectBlueprintGateway"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.loadRoot.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.loadRoot.return": {
-          "type": "object",
-          "title": "Promise<ProjectBlueprintTreeData>"
-        },
-        "method.addNode.params": {
-          "type": "object",
-          "properties": {
-            "params": {
               "type": "object",
-              "properties": {
-                "parentId": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
-                },
-                "node": {
-                  "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
-                },
-                "index": {
-                  "type": "number"
-                }
-              },
-              "required": [
-                "node"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.addNode.return": {
-          "type": "object",
-          "title": "Promise<ProjectBlueprintTreeNodeData>"
-        },
-        "method.updateNode.params": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "patch": {
-              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodePatch"
+              "title": "ProjectBlueprintNodePatch"
             }
           },
           "additionalProperties": false
@@ -262,11 +142,11 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T22:20:20.739Z",
+  "generatedAt": "2026-10-06T20:59:31.328Z",
   "models": {
     "LinkProbeResult": {
       "name": "LinkProbeResult",
-      "jsdoc": "",
+      "jsdoc": "真实链接嵌入检测结果及解释。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    embeddable: boolean;\n    reason: string;\n}>",
@@ -295,14 +175,14 @@
     },
     "ProjectBlueprintGateway": {
       "name": "ProjectBlueprintGateway",
-      "jsdoc": "",
+      "jsdoc": "按正式节点身份执行蓝图读取与CRUD，返回实际后端读回数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    loadRoot(): Promise<Partial<ProjectBlueprintTreeData>>;\n    addNode?: (params: {\n        parentId?: string | null;\n        node: ProjectBlueprintTreeNodeData;\n        index?: number;\n    }) => Promise<ProjectBlueprintTreeNodeData>;\n    updateNode?: (id: string, patch: BlueprintNodePatch) => Promise<ProjectBlueprintTreeNodeData>;\n    deleteNode?: (id: string) => Promise<ProjectBlueprintTreeNodeData | null>;\n    moveNode?: (id: string, newParentId: string | null, index: number) => Promise<ProjectBlueprintTreeNodeData>;\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
+        "declarationTypeText": "Readonly<{\n    loadRoot(): Promise<Partial<ProjectBlueprintTreeData>>;\n    addNode?: (params: {\n        parentId?: string | null;\n        node: ProjectBlueprintTreeNodeData;\n        index?: number;\n    }) => Promise<ProjectBlueprintTreeNodeData>;\n    updateNode?: (id: string, patch: ProjectBlueprintNodePatch) => Promise<ProjectBlueprintTreeNodeData>;\n    deleteNode?: (id: string) => Promise<ProjectBlueprintTreeNodeData | null>;\n    moveNode?: (id: string, newParentId: string | null, index: number) => Promise<ProjectBlueprintTreeNodeData>;\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    loadRoot(): Promise<Partial<ProjectBlueprintTreeData>>;\n    addNode?: (params: {\n        parentId?: string | null;\n        node: ProjectBlueprintTreeNodeData;\n        index?: number;\n    }) => Promise<ProjectBlueprintTreeNodeData>;\n    updateNode?: (id: string, patch: BlueprintNodePatch) => Promise<ProjectBlueprintTreeNodeData>;\n    deleteNode?: (id: string) => Promise<ProjectBlueprintTreeNodeData | null>;\n    moveNode?: (id: string, newParentId: string | null, index: number) => Promise<ProjectBlueprintTreeNodeData>;\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
+            "typeText": "Readonly<{\n    loadRoot(): Promise<Partial<ProjectBlueprintTreeData>>;\n    addNode?: (params: {\n        parentId?: string | null;\n        node: ProjectBlueprintTreeNodeData;\n        index?: number;\n    }) => Promise<ProjectBlueprintTreeNodeData>;\n    updateNode?: (id: string, patch: ProjectBlueprintNodePatch) => Promise<ProjectBlueprintTreeNodeData>;\n    deleteNode?: (id: string) => Promise<ProjectBlueprintTreeNodeData | null>;\n    moveNode?: (id: string, newParentId: string | null, index: number) => Promise<ProjectBlueprintTreeNodeData>;\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -366,202 +246,8 @@
                   "name": "patch",
                   "type": {
                     "type": "reference",
-                    "name": "BlueprintNodePatch",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "ProjectBlueprintTreeNodeData",
+                    "name": "ProjectBlueprintNodePatch",
                     "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "deleteNode",
-              "parameters": [
-                {
-                  "name": "id",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "reference",
-                        "name": "ProjectBlueprintTreeNodeData",
-                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                      },
-                      {
-                        "type": "literal",
-                        "value": null
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "name": "moveNode",
-              "parameters": [
-                {
-                  "name": "id",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "newParentId",
-                  "type": {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      },
-                      {
-                        "type": "literal",
-                        "value": null
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "index",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "number"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "ProjectBlueprintTreeNodeData",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "probeLink",
-              "parameters": [
-                {
-                  "name": "url",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "LinkProbeResult",
-                    "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts"
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    },
-    "ProjectBlueprintClient": {
-      "name": "ProjectBlueprintClient",
-      "jsdoc": "",
-      "declarationKind": "class",
-      "classDecl": {
-        "constructorMeta": {
-          "signatureText": "constructor(gateway: ProjectBlueprintGateway)",
-          "parameters": [
-            {
-              "name": "gateway",
-              "type": {
-                "type": "reference",
-                "name": "ProjectBlueprintGateway",
-                "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts"
-              }
-            }
-          ]
-        },
-        "members": {
-          "methods": [
-            {
-              "name": "loadRoot",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "ProjectBlueprintTreeData",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "addNode",
-              "parameters": [
-                {
-                  "name": "params",
-                  "type": {
-                    "type": "unknown",
-                    "name": "{\n        parentId?: string | null;\n        node: ProjectBlueprintTreeNodeData;\n        index?: number;\n    }"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "ProjectBlueprintTreeNodeData",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "updateNode",
-              "parameters": [
-                {
-                  "name": "id",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "patch",
-                  "type": {
-                    "type": "reference",
-                    "name": "BlueprintNodePatch",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
                   }
                 }
               ],

@@ -1,39 +1,11 @@
-import type { LowcodeModelRelationRecord } from '@spark-appworks/spark-lowcode-api'
-import type {
-  DataResourceRelation,
-  DataResourceRelationFieldMapping,
-  DataViewCascade,
-  DependencyType,
-} from '@spark-appworks/spark-data'
+/**
+ * @module app:lowcode/data-space/lowcode-model-relation-adapter
+ * 职责：将正式模型关系映射到场景稳定表名与规范输出字段。边界：仅自动生成可解析的 AND 等值级联，其余返回诊断；AI 可用此入口理解默认视图级联来源。
+ */
+import type { DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
+import type { DataResourceRelation, DataViewCascade, DependencyType } from '@spark-appworks/spark-data'
 
-import type {
-  LowcodeAdaptedFrontendModel,
-  LowcodeAdaptedResource,
-  LowcodeDataSpaceAdapterDiagnostic,
-  LowcodeFrontendModelAdapterResult,
-} from './lowcode-frontend-model-adapter'
-import { LOWCODE_MODEL_VIEW_ID } from './lowcode-frontend-model-adapter'
-
-type RelationFieldPair = Readonly<{
-  parentResourceField: string
-  childResourceField: string
-  parentQualifier: string
-  childQualifier: string
-}>
-
-export type LowcodeModelRelationAdapterResult = Readonly<{
-  resourceRelations: readonly DataResourceRelation[]
-  viewCascades: readonly DataViewCascade[]
-  diagnostics: readonly LowcodeDataSpaceAdapterDiagnostic[]
-}>
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function text(value: unknown): string {
-  return value === undefined || value === null ? '' : String(value).trim()
-}
+function text(value: unknown): string { return value === undefined || value === null ? '' : String(value).trim() }
 
 function fieldReference(value: unknown): Readonly<{ qualifier: string; field: string }> | null {
   const reference = text(value)
@@ -42,51 +14,6 @@ function fieldReference(value: unknown): Readonly<{ qualifier: string; field: st
   return separator < 0
     ? { qualifier: '', field: reference }
     : { qualifier: reference.slice(0, separator), field: reference.slice(separator + 1) }
-}
-
-function collectFieldPairs(value: unknown, pairs: RelationFieldPair[]): boolean {
-  if (!isRecord(value)) return false
-  const children = value['Filters'] ?? value['filters'] ?? value['children']
-  if (Array.isArray(children)) {
-    return children.length > 0 && children.every(child => collectFieldPairs(child, pairs))
-  }
-
-  const valueFunction = value['ValueFun'] ?? value['valueFun']
-  if (!isRecord(valueFunction)) return false
-  const operator = text(value['Operator'] ?? value['operator']).toLowerCase()
-  const functionType = text(valueFunction['Type'] ?? valueFunction['type'])
-  if (!['equal', 'equals', '=', '=='].includes(operator) || functionType !== 'GetTableField') return false
-  const child = fieldReference(value['Field'] ?? value['field'])
-  const parent = fieldReference(valueFunction['Field'] ?? valueFunction['field'])
-  if (parent === null || child === null) return false
-  pairs.push({
-    parentResourceField: parent.field,
-    childResourceField: child.field,
-    parentQualifier: parent.qualifier,
-    childQualifier: child.qualifier,
-  })
-  return true
-}
-
-function parseFieldPairs(relation: LowcodeModelRelationRecord): readonly RelationFieldPair[] | null {
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(relation.filterExpression)
-  } catch {
-    return null
-  }
-  const pairs: RelationFieldPair[] = []
-  if (!collectFieldPairs(parsed, pairs)) return null
-  const unique = new Map(pairs.map(pair => [
-    `${pair.parentResourceField}\u0000${pair.childResourceField}`,
-    pair,
-  ]))
-  const result = [...unique.values()]
-  if (result.some(pair => (
-    (pair.parentQualifier !== '' && pair.parentQualifier !== relation.parentResourceName)
-    || (pair.childQualifier !== '' && pair.childQualifier !== relation.childResourceName)
-  ))) return null
-  return result.length === 0 ? null : result
 }
 
 function dependencyType(value: string): DependencyType | null {
@@ -98,136 +25,55 @@ function dependencyType(value: string): DependencyType | null {
   return null
 }
 
-function resourceFields(resource: LowcodeAdaptedResource): ReadonlySet<string> {
-  return new Set(resource.columns.map(column => column.name))
-}
-
-function viewField(model: LowcodeAdaptedFrontendModel, resourceField: string): string | null {
-  const field = model.fieldProjection.find(candidate => (
-    candidate.source === 'resource' && candidate.resourceField === resourceField
-  ))
-  return field?.viewField ?? null
-}
-
-function diagnostic(
-  relation: LowcodeModelRelationRecord,
-  code: string,
-  message: string,
-): LowcodeDataSpaceAdapterDiagnostic {
-  return {
-    code,
-    message,
-    dataSpaceId: relation.dataSpaceId,
-    sourceRelationId: relation.sourceRelationId,
-  }
-}
-
+/** 无状态关系适配器，可直接无参创建；只消费 readRelations 和 readModel 正式定义，不读取物理目录。 */
 export class LowcodeModelRelationAdapter {
   public adapt(
-    relations: readonly LowcodeModelRelationRecord[],
-    models: LowcodeFrontendModelAdapterResult,
-  ): LowcodeModelRelationAdapterResult {
-    const diagnostics: LowcodeDataSpaceAdapterDiagnostic[] = []
+    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>,
+    bindings: ReadonlyMap<string, Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>,
+  ): Readonly<{resourceRelations: DataResourceRelation[]; viewCascades: DataViewCascade[]; diagnostics: string[]}> {
     const resourceRelations: DataResourceRelation[] = []
     const viewCascades: DataViewCascade[] = []
-    const modelsById = new Map(models.models.map(model => [model.modelId, model]))
-    const relationCounts = new Map<string, number>()
+    const diagnostics: string[] = []
     for (const relation of relations) {
-      relationCounts.set(
-        relation.sourceRelationId,
-        (relationCounts.get(relation.sourceRelationId) ?? 0) + 1,
-      )
+      const parents = [...bindings].filter(([, model]) => model.id === relation.parentModelId)
+      const children = [...bindings].filter(([, model]) => model.id === relation.childModelId)
+      if (parents.length === 0 || children.length === 0) continue
+      const pairs: Array<{ sourceField: string; targetField: string }> = []
+      const collect = (tree: ReturnType<typeof relation.filterExpression.toJSON>): boolean => {
+        if ('logic' in tree) return tree.logic === 'and' && tree.filters.length > 0 && tree.filters.every(collect)
+        const value = tree.value
+        if (tree.operator !== 'eq' || value === null || typeof value !== 'object' || Array.isArray(value)
+          || !('Type' in value) || value['Type'] !== 'GetTableField' || !('Field' in value) || typeof value['Field'] !== 'string') return false
+        const source = fieldReference(value['Field'])
+        const target = fieldReference(tree.field)
+        if (!source || !target || (source.qualifier !== '' && source.qualifier !== relation.parentResourceName)
+          || (target.qualifier !== '' && target.qualifier !== relation.childResourceName)) return false
+        pairs.push({sourceField: source.field, targetField: target.field})
+        return true
+      }
+      if (!collect(relation.filterExpression.toJSON()) || dependencyType(relation.dependencyType) === null) {
+        diagnostics.push(`关系 ${relation.sourceRelationId} 无法自动生成等值视图级联`)
+        continue
+      }
+      for (const [parentTable, parent] of parents) for (const [childTable, child] of children) {
+        const mapped = pairs.map(pair => {
+          const source = parent.fields.find(field => field.name === pair.sourceField && field.output)
+          const target = child.fields.find(field => field.name === pair.targetField && field.output)
+          if (!source || !target) throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
+          return {sourceField: source.canonicalName, targetField: target.canonicalName}
+        })
+        resourceRelations.push({relationId: `${relation.sourceRelationId}:${parentTable}:${childTable}`,
+          sourceRelationId: relation.sourceRelationId, parentTable, childTable,
+          fieldMappings: mapped.map(pair => ({parentResourceField: pair.sourceField, childResourceField: pair.targetField})),
+          cascadeDelete: relation.cascadeDelete})
+        const trigger = dependencyType(relation.dependencyType)
+        if (trigger === null) throw new Error(`未知关系触发类型: ${relation.dependencyType}`)
+        viewCascades.push({cascadeId: `${relation.sourceRelationId}:${parentTable}:${childTable}`, sourceRelationId: relation.sourceRelationId,
+          parentTable, parentViewId: 'default', childTable, childViewId: 'default', filterBindings: mapped,
+          dependencyType: trigger, autoLoad: true})
+      }
     }
-
-    for (const relation of relations) {
-      if ((relationCounts.get(relation.sourceRelationId) ?? 0) > 1) {
-        diagnostics.push(diagnostic(
-          relation,
-          'duplicate-source-relation-id',
-          `原始模型关系 ID 重复: ${relation.sourceRelationId}`,
-        ))
-        continue
-      }
-      const parentModel = modelsById.get(relation.parentModelId)
-      const childModel = modelsById.get(relation.childModelId)
-      if (parentModel === undefined || childModel === undefined) {
-        diagnostics.push(diagnostic(
-          relation,
-          'relation-model-unresolved',
-          `关系模型未解析: ${relation.parentModelId}→${relation.childModelId}`,
-        ))
-        continue
-      }
-      if (parentModel.dataSpaceId !== relation.dataSpaceId || childModel.dataSpaceId !== relation.dataSpaceId) {
-        diagnostics.push(diagnostic(relation, 'cross-data-space-relation', '模型关系跨越数据空间'))
-        continue
-      }
-      if (parentModel.resource.resourceName !== relation.parentResourceName
-        || childModel.resource.resourceName !== relation.childResourceName) {
-        diagnostics.push(diagnostic(relation, 'relation-resource-readback-mismatch', '关系资源名称与模型目录 readback 不一致'))
-        continue
-      }
-      const pairs = parseFieldPairs(relation)
-      if (pairs === null) {
-        diagnostics.push(diagnostic(relation, 'unsupported-relation-filter', '关系 filter 不是受支持的 GetTableField 等值条件树'))
-        continue
-      }
-      const parentFields = resourceFields(parentModel.resource)
-      const childFields = resourceFields(childModel.resource)
-      if (pairs.some(pair => (
-        !parentFields.has(pair.parentResourceField) || !childFields.has(pair.childResourceField)
-      ))) {
-        diagnostics.push(diagnostic(relation, 'relation-field-unresolved', '关系 filter 引用了不存在的资源字段'))
-        continue
-      }
-      const trigger = dependencyType(relation.dependencyType)
-      if (trigger === null) {
-        diagnostics.push(diagnostic(relation, 'unsupported-dependency-type', `未知 depType: ${relation.dependencyType}`))
-        continue
-      }
-      const filterBindings = pairs.map(pair => {
-        const sourceField = viewField(parentModel, pair.parentResourceField)
-        const targetField = viewField(childModel, pair.childResourceField)
-        return sourceField === null || targetField === null ? null : { sourceField, targetField }
-      })
-      if (filterBindings.some(binding => binding === null)) {
-        diagnostics.push(diagnostic(relation, 'relation-view-field-unresolved', '关系资源字段未进入对应前端模型投影'))
-        continue
-      }
-
-      const fieldMappings: readonly DataResourceRelationFieldMapping[] = pairs.map(pair => ({
-        parentResourceField: pair.parentResourceField,
-        childResourceField: pair.childResourceField,
-      }))
-      const singleMapping = fieldMappings.length === 1 ? fieldMappings[0] : undefined
-      resourceRelations.push({
-        relationId: `resource-relation:${relation.sourceRelationId}`,
-        sourceRelationId: relation.sourceRelationId,
-        parentTable: parentModel.modelId,
-        childTable: childModel.modelId,
-        fieldMappings: fieldMappings.map(mapping => ({ ...mapping })),
-        ...(singleMapping === undefined ? {} : {
-          parentField: singleMapping.parentResourceField,
-          childField: singleMapping.childResourceField,
-        }),
-        cascadeDelete: relation.cascadeDelete,
-      })
-      viewCascades.push({
-        cascadeId: `view-cascade:${relation.sourceRelationId}`,
-        sourceRelationId: relation.sourceRelationId,
-        parentTable: parentModel.modelId,
-        parentViewId: LOWCODE_MODEL_VIEW_ID,
-        childTable: childModel.modelId,
-        childViewId: LOWCODE_MODEL_VIEW_ID,
-        filterBindings: filterBindings.map(binding => ({
-          sourceField: binding?.sourceField ?? '',
-          targetField: binding?.targetField ?? '',
-        })),
-        dependencyType: trigger,
-        autoLoad: true,
-      })
-    }
-
-    return { resourceRelations, viewCascades, diagnostics }
+    return {resourceRelations, viewCascades, diagnostics}
   }
+
 }

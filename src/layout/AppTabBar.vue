@@ -9,10 +9,10 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
     <div class="app-tab-bar__tabs">
       <div
         v-for="tab in tabs"
-        :key="tab.path"
+        :key="tab.id"
         class="app-tab-bar__tab"
-        :class="{ 'app-tab-bar__tab--active': tab.path === activeTab }"
-        @click="switchTo(tab.path)"
+        :class="{ 'app-tab-bar__tab--active': tab.id === activeTab }"
+        @click="perform(() => switchTo(tab.id))"
         @contextmenu.prevent="onContextMenu($event, tab)"
       >
         <span class="app-tab-bar__tab-icon" v-if="tab.icon"><NavIcon :name="tab.icon" /></span>
@@ -20,7 +20,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         <span
           v-if="tab.closable"
           class="app-tab-bar__tab-close"
-          @click.stop="closeTab(tab.path)"
+          @click.stop="perform(() => closeTab(tab.id))"
         >×</span>
       </div>
     </div>
@@ -49,6 +49,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { inject, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTabPages } from '@spark-appworks/spark-app'
+import { ElMessage } from 'element-plus'
 import type { TabPage } from '@spark-appworks/spark-app'
 import NavIcon from '@/components/NavIcon.vue'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
@@ -75,12 +76,16 @@ async function navigateTab(fullPath: string): Promise<void> {
     await projectSwitchService.switchAndReload(targetProjectId)
   }
 
-  await router.push(fullPath)
+  if (await router.push(fullPath)) throw new Error('页面导航已取消，原实例保留')
 }
 
 const { tabs, activeTab, closeTab, closeOthers, closeAll, switchTo } = useTabPages({
   navigate: navigateTab,
 })
+
+function perform(action: () => Promise<void>): void {
+  void action().catch(error => ElMessage.error(error instanceof Error ? error.message : String(error)))
+}
 
 /* ── 右键菜单 ── */
 const ctxVisible = ref(false)
@@ -99,13 +104,13 @@ function doCtxAction(action: 'close' | 'closeOthers' | 'closeAll') {
   if (!ctxTarget) return
   switch (action) {
     case 'close':
-      closeTab(ctxTarget.path)
+      perform(() => closeTab(ctxTarget?.id ?? ''))
       break
     case 'closeOthers':
-      closeOthers(ctxTarget.path)
+      perform(() => closeOthers(ctxTarget?.id ?? ''))
       break
     case 'closeAll':
-      closeAll()
+      perform(closeAll)
       break
   }
   ctxTarget = null

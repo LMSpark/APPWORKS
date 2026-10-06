@@ -52,11 +52,13 @@ import type {
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
 import { SparkPageRenderer, Spark } from '@spark-appworks/spark-component'
-import { loadBoundDataSpaceDataSet } from './lowcode/data-space/lowcode-data-space-runtime'
+import { loadScenarioDataSet } from './lowcode/data-space/lowcode-data-space-runtime'
+import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { addLogTransport, isRecord } from '@spark-appworks/spark-utils'
 
 import {
   activateLowcodeApplication,
+  createLowcodeProjectGateways,
   enterLowcodeApplicationCatalog,
   hasLowcodeSession,
   lowcodeApi,
@@ -192,7 +194,7 @@ function extractPageId(path: string): string | undefined {
 }
 
 function normalizeRoutePath(path: string): string {
-  const trimmed = path.trim()
+  const trimmed = path.split(/[?#]/, 1)[0]?.trim() ?? ''
   if (trimmed === '' || trimmed === '/') return '/'
   return `/${trimmed.replace(/^\/+/, '').replace(/\/+$/, '')}`
 }
@@ -220,7 +222,10 @@ async function ensureCurrentScopedRouteIsNavigable(router: Router): Promise<void
   if (navTree === null) return
 
   const scopedPath = normalizeRoutePath(stripTenantScope(window.location.pathname))
-  const isKnownPath = scopedPath === normalizeRoutePath(navTree.homePath ?? getNavHomePath())
+  const registeredRoute = router.resolve(window.location.pathname)
+  const isKnownPath = registeredRoute.meta['programmaticTool'] === true
+    || registeredRoute.meta['type'] === 'system-page'
+    || scopedPath === normalizeRoutePath(navTree.homePath ?? getNavHomePath())
     || navigationContainsPath(navTree.items, scopedPath)
   if (isKnownPath) return
 
@@ -403,8 +408,19 @@ async function startApp() {
         getProjectId: () => lowcodeApi.application.get()?.application.id ?? 'homepage',
         readPageFile: readLowcodePageFile,
         pageComponent: SparkPageRenderer,
-        loadRuntimeDataSet: async (binding) => {
-          const result = await loadBoundDataSpaceDataSet(binding)
+        loadScenario: async ({ projectId, scenarioId }) => {
+          const scope = lowcodeApi.readRequestScope()
+          const assertCurrent = () => {
+            if (lowcodeApi.readRequestScope().token !== scope.token || scope.headers['X-AppId'] !== projectId) {
+              throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
+            }
+          }
+          assertCurrent()
+          const text = await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
+          assertCurrent()
+          if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
+          const result = await loadScenarioDataSet({ scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent })
+          try { assertCurrent() } catch (failure) { result.dataSet.destroy(); throw failure }
           return result.dataSet
         },
         componentMap,
@@ -472,11 +488,15 @@ async function startApp() {
             if (urlScope.tenantId !== tenantId) {
               // 租户不匹配 → 重定向到当前租户首页
               const rest = stripTenantScope(to.path)
-              return buildTenantPath(currentScope, rest || getNavHomePath())
+              return { path: buildTenantPath(currentScope, rest || getNavHomePath()), query: to.query, hash: to.hash }
             }
             if (urlScope.projectId !== projectId) {
+              SparkAppRuntime.getDynamicRouter()?.assertPageRuntimesClean()
               if (urlScope.projectId === 'homepage') enterLowcodeApplicationCatalog()
               else await activateLowcodeApplication(urlScope.projectId)
+              SparkAppRuntime.getDynamicRouter()?.disposePageRuntimes()
+              await SparkAppRuntime.refreshRoutes()
+              return { path: to.path, query: to.query, hash: to.hash, replace: true }
             }
           }
           return undefined

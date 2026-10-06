@@ -1,7 +1,7 @@
 /**
  * @module app:services/page-design/page-design-headless
  * 职责：pageDesign 隔离式 headless ProjectWorkspace 工厂与 registry getter。
- * 边界：只创建/解析 headless editor，不执行 Agent Run 或四文件落盘。
+ * 边界：只创建/解析 headless editor，不执行 Agent Run 或三文件落盘。
  * AI用途：Agent Run 需要隔离式 editor 时，用本模块获取 ProjectWorkspace。
  */
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
@@ -12,7 +12,7 @@ import {
 
 /** Page Design Editor Resolve Context 的运行上下文。 */
 export type PageDesignEditorResolveContext = {
-  /** 需要解析的 headless 编辑器所对应的模块实例标识；用于从 headlessRegistry 中定位已创建的 ProjectWorkspace */
+  /** 需要解析的 headless 编辑器所对应的运行 requestId；用于从 headlessRegistry 中定位已创建的 ProjectWorkspace */
   moduleInstanceId: string
 }
 

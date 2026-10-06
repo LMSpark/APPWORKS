@@ -45,10 +45,7 @@
               "title": {
                 "type": "string"
               },
-              "blueprintKind": {
-                "type": "string"
-              },
-              "nodeKind": {
+              "kind": {
                 "type": "string"
               },
               "requirement": {
@@ -61,8 +58,7 @@
             "required": [
               "nodeId",
               "title",
-              "blueprintKind",
-              "nodeKind",
+              "kind",
               "requirement"
             ],
             "additionalProperties": false
@@ -124,10 +120,7 @@
                   "title": {
                     "type": "string"
                   },
-                  "blueprintKind": {
-                    "type": "string"
-                  },
-                  "nodeKind": {
+                  "kind": {
                     "type": "string"
                   },
                   "requirement": {
@@ -140,8 +133,7 @@
                 "required": [
                   "nodeId",
                   "title",
-                  "blueprintKind",
-                  "nodeKind",
+                  "kind",
                   "requirement"
                 ],
                 "additionalProperties": false
@@ -167,13 +159,13 @@
       },
       "modelProjectionRef": {
         "kind": "dts-class-model",
-        "rootClassName": "ProjectModel",
+        "rootClassName": "ProjectBlueprint",
         "manifestUrlRef": "dts-class-model"
       },
       "executableRef": {
         "kind": "js-module",
         "moduleSpecifier": "@spark-appworks/spark-project-model",
-        "exportName": "ProjectModel"
+        "exportName": "ProjectBlueprint"
       },
       "toolLoopNudge": {
         "templates": {
@@ -251,8 +243,8 @@
             "models": [
               {
                 "id": "node.projectPlanning.model",
-                "rootClassName": "ProjectModel",
-                "className": "ProjectModel",
+                "rootClassName": "ProjectBlueprint",
+                "className": "ProjectBlueprint",
                 "sourceRef": "$",
                 "completion": {
                   "memberName": "completeProjectPlanning",
@@ -284,8 +276,8 @@
                 }
               },
               "knowledge": {
-                "rootClassName": "ProjectModel",
-                "className": "ProjectModel",
+                "rootClassName": "ProjectBlueprint",
+                "className": "ProjectBlueprint",
                 "allowedActions": [
                   "readProjectPlanningInput",
                   "readBlueprintPlanningInputs",
@@ -312,7 +304,7 @@
             },
             "validation": {
               "action": {
-                "className": "ProjectModel",
+                "className": "ProjectBlueprint",
                 "actionName": "completeProjectPlanning",
                 "inputProjection": {
                   "summary": "{{ node.projectPlanning.result.summary }}"

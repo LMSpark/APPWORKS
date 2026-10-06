@@ -4,9 +4,8 @@
  * 边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。
  * AI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。
  */
-/** 页面四文件：路径常量、IO 类型、文本 parse/serialize。 */
-import { DataSet, getSparkNodeChildren, SparkNodeTree, type SparkNode } from '@spark-appworks/spark-data'
-import { parsePageData } from './compile-files'
+/** 页面三文件：路径常量、IO 类型、文本 parse/serialize。 */
+import { getSparkNodeChildren, SparkNodeTree, type SparkNode } from '@spark-appworks/spark-data'
 
 export function assertNonEmptyPageId(pageId: string): string {
   const normalized = pageId.trim()
@@ -16,17 +15,17 @@ export function assertNonEmptyPageId(pageId: string): string {
   return normalized
 }
 
-export const PAGE_NODE_FILE_NAMES: readonly ['rule.json', 'pagedata.json', 'script.js', 'style.css'] = [
+export const PAGE_TOOL_FILE_NAMES: readonly ['rule.json', 'script.js', 'style.css'] = [
   'rule.json',
-  'pagedata.json',
   'script.js',
   'style.css',
 ]
 
-export type PageNodeFileName = typeof PAGE_NODE_FILE_NAMES[number]
+/** 页面工具只允许rule.json、script.js、style.css三文件。 */
+export type PageToolFileName = typeof PAGE_TOOL_FILE_NAMES[number]
 
-/** Page Node Load Options 的调用配置。 */
-export type PageNodeLoadOptions = {
+/** Page Tool Load Options 的调用配置。 */
+export type PageToolLoadOptions = {
     /** force Reload 字段。 */
 forceReload?: boolean
 }
@@ -36,7 +35,7 @@ export function pageFilePath(pageId: string, filename: string): string {
 }
 
 export function pageFilePaths(pageId: string): readonly string[] {
-  return PAGE_NODE_FILE_NAMES.map(filename => pageFilePath(pageId, filename))
+  return PAGE_TOOL_FILE_NAMES.map(filename => pageFilePath(pageId, filename))
 }
 
 /** Page Content Load Result 的返回结果。 */
@@ -61,15 +60,11 @@ fromCache?: boolean
 notModified?: boolean
 }
 
-export type PageNodeFileVersionSummary = {
-    /** version 字段。 */
-version: number
-    /** 创建时间。 */
-createdAt: string
-    /** 是否 is Current。 */
-isCurrent: boolean
-    /** modified By 字段。 */
-modifiedBy: string | null
+/** N__filename快照摘要；缺少修改时间为null，编号不代表发布引用。 */
+export type PageToolFileVersionSummary = {
+  version: number
+  fileName: string
+  lastModified: number | null
 }
 
 /** Page File Create Options 的调用配置。 */
@@ -83,15 +78,6 @@ icon?: string
 export function tryParseRuleTextError(rawText: string): string | null {
   try {
     parseRuleText(rawText)
-    return null
-  } catch (error) {
-    return error instanceof Error ? error.message : String(error)
-  }
-}
-
-export function tryParsePageDataTextError(rawText: string, defaultDataSetName = ''): string | null {
-  try {
-    parsePageDataText(rawText, defaultDataSetName)
     return null
   } catch (error) {
     return error instanceof Error ? error.message : String(error)
@@ -112,15 +98,4 @@ export function serializeRuleTree(rule: SparkNode): string {
     ? firstChild
     : children
   return `${JSON.stringify(rootValue, null, 2)}\n`
-}
-
-export function parsePageDataText(rawText: string, defaultDataSetName = ''): DataSet {
-  if (!rawText.trim()) {
-    return DataSet.fromJson({ dataSetName: defaultDataSetName, tables: {} })
-  }
-  return parsePageData(rawText)
-}
-
-export function serializeDataSet(dataSet: DataSet): string {
-  return `${JSON.stringify(dataSet.toJson(), null, 2)}\n`
 }

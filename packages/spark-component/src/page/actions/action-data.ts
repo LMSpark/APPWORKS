@@ -49,8 +49,6 @@ import {
   type ActionNotifier,
 } from './executor-helpers'
 import { isCrudResult, isCrudSuccess, getCrudErrorMessage } from '../../components/containers/support/crud-result-helpers.js'
-import { getFieldVisibility, maskFieldValue } from '../../permission/PermissionChecker'
-import { FieldVisibility } from '@spark-appworks/spark-data'
 
 // ── 目标行解析 ────────────────────────────────────────────────────────────
 
@@ -204,7 +202,7 @@ export async function executeAppendRow(
   const view = ensureView(desc, ctx, notifier)
   if (!view) return
 
-  const idField = desc.idField ?? 'id'
+  const idField = desc.idField ?? view.primaryKey
 
   // prompt 模式：弹窗输入字段值后再追加
   if (desc.prompt) {
@@ -246,7 +244,7 @@ export async function executeAppendRow(
  */
 async function doAppend(operation: AppendOperation): Promise<void> {
   const { view, payload, idField, desc, notifier } = operation
-  if (!(idField in payload) || payload[idField] === undefined || payload[idField] === null) {
+  if (view.dataSet?.scenarioId === undefined && (!(idField in payload) || payload[idField] === undefined || payload[idField] === null)) {
     payload[idField] = inferNextRowId(view, idField)
   }
   const result = await view.addRow(payload)
@@ -290,7 +288,7 @@ export async function executeDelete(
     return
   }
 
-  const idField = desc.idField ?? 'id'
+  const idField = desc.idField ?? view.primaryKey
   const count = rows.length
 
   if (desc.target === 'selected') {
@@ -384,7 +382,7 @@ export async function executePatch(
     return
   }
 
-  const idField = desc.idField ?? 'id'
+  const idField = desc.idField ?? view.primaryKey
 
   // prompt 模式：弹窗输入字段值
   if (desc.prompt) {
@@ -545,7 +543,7 @@ export async function executeMove(
     return
   }
 
-  const idField = desc.idField ?? 'id'
+  const idField = desc.idField ?? view.primaryKey
   const id = resolveRowId(row, idField)
   if (id === null) {
     notifier.notifyError(`当前行缺少主键字段: ${idField}`)
@@ -585,17 +583,17 @@ export function executeMessageRow(
     return
   }
 
-  const text = formatRowMessage(row, desc)
+  const text = formatRowMessage(dataSource, row, desc)
   notifier.notify(desc.messageType ?? 'info', text)
 }
 
-function formatRowMessage(row: DataRow, desc: MessageRowAction): string {
-  const permittedRow = permissionSafeMessageRow(row)
+function formatRowMessage(view: DataView, row: DataRow, desc: MessageRowAction): string {
+  const permittedRow = permissionSafeMessageRow(view, row)
   if (desc.message) return interpolate(desc.message, {}, permittedRow)
   if (desc.messageFields && desc.messageFields.length > 0) {
     return desc.messageFields
-      .filter(field => getFieldVisibility(field, row) !== FieldVisibility.Hidden)
-      .map(field => `${field}: ${maskFieldValue({ field, value: row[field], row }) || '-'}`)
+      .filter(field => !field.startsWith('lingma_sys_') && view.fieldAccess(row, field).read !== 'invisible')
+      .map(field => `${field}: ${permittedRow[field] ?? '-'}`)
       .join(' | ')
   }
   const compact = Object.fromEntries(
@@ -606,15 +604,15 @@ function formatRowMessage(row: DataRow, desc: MessageRowAction): string {
   return JSON.stringify(compact)
 }
 
-function permissionSafeMessageRow(row: DataRow): DataRow {
+function permissionSafeMessageRow(view: DataView, row: DataRow): DataRow {
   const permitted: DataRow = {}
   for (const [field, value] of Object.entries(row)) {
     if (field.startsWith('lingma_sys_')) continue
-    const visibility = getFieldVisibility(field, row)
-    if (visibility === FieldVisibility.Hidden) {
+    const read = view.fieldAccess(row, field).read
+    if (read === 'invisible') {
       permitted[field] = ''
-    } else if (visibility === FieldVisibility.Masked) {
-      permitted[field] = maskFieldValue({ field, value, row })
+    } else if (read === 'masked') {
+      permitted[field] = '••••'
     } else {
       permitted[field] = value
     }
@@ -678,7 +676,7 @@ export async function executeClearRows(
 export async function executeSetField(desc: SetFieldAction, ctx: ActionExecutionContext): Promise<void> {
   const { dataSource, currentRow } = resolveActionDataCapabilities(desc.dataViewKey, ctx)
   if (!dataSource || !currentRow) return
-  const idField = desc.idField ?? 'id'
+  const idField = desc.idField ?? dataSource.primaryKey
   const id = resolveRowId(currentRow, idField)
   if (id === null) return
   await dataSource.editRowById(id, { [desc.field]: desc.value })
@@ -715,7 +713,7 @@ export async function executeSubmitCurrentForm(
     return
   }
 
-  const idField = desc.idField ?? 'id'
+  const idField = desc.idField ?? dataSource.primaryKey
   const formRow = formApi.getCurrentRow()
   const targetRow = formRow ?? dataSource.currentRow
   if (!targetRow) {
@@ -767,7 +765,8 @@ export async function executeSaveDataSet(
   ctx: ActionExecutionContext,
 ): Promise<void> {
   const notifier = createActionNotifier(ctx, desc)
-  const dataSet = ctx.getDataSet()
+  if (!desc.scenarioId.trim()) throw new Error('save-dataset 必须指定场景 scenarioId')
+  const dataSet = ctx.getDataSet(desc.scenarioId)
   if (!dataSet) {
     notifier.notify('warning', desc.emptyMessage ?? 'DataSet 未就绪')
     return

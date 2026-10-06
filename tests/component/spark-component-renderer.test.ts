@@ -1,6 +1,9 @@
 import { expect, test, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { SparkComponentRenderer, Spark, SPARK_REGISTRY_KEY } from '@spark-appworks/spark-component'
+import { PAGE_COMPONENT_REGISTRY } from '../../packages/spark-component/src/core/capability-keys'
+import { createPageComponentRegistry } from '../../packages/spark-component/src/page/context/page-component-registry'
+import { sparkProvide, createSparkCapabilityContext } from '@spark-appworks/spark-utils'
 import { defineComponent, h } from 'vue'
 import SparkComponentRendererSource from '../../packages/spark-component/src/components/SparkComponentRenderer.vue'
 
@@ -59,7 +62,7 @@ test('SparkComponentRenderer requires registry registration for generic Vue glob
   expect(wrapper.find('.spark-component-unregistered').exists()).toBe(true)
 })
 
-test('SparkComponentRenderer resolves Render* global components for page script dynamic renderers', () => {
+test('SparkComponentRenderer resolves page-owned Render* components for page script dynamic renderers', () => {
   const RenderStatusAction = defineComponent({
     name: 'RenderStatusAction',
     setup() {
@@ -67,10 +70,14 @@ test('SparkComponentRenderer resolves Render* global components for page script 
     }
   })
 
+  const pageRegistry = createPageComponentRegistry()
+  pageRegistry.registerRender('RenderStatusAction', RenderStatusAction)
+  const pageContext = createSparkCapabilityContext({id:'test-page',type:'spark-page'})
+  sparkProvide(pageContext, PAGE_COMPONENT_REGISTRY, pageRegistry)
   const wrapper = mount(SparkComponentRenderer, {
     props: {
       config: { type: 'RenderStatusAction' },
-      parentContext: rootContext
+      parentContext: pageContext
     },
     global: {
       components: {

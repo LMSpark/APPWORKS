@@ -1,29 +1,30 @@
 # 架构文档
 
-这个目录只放当前仍然成立的架构事实，不再保存历史迁移记录和一次性方案。
+本目录说明当前源码中的产品合同。领域细节以 [模型层级](../../packages/spark-project-model/src/MODEL-HIERARCHY.md) 为主入口。
 
-## 保留文档
+## 阅读导航
 
-1. [system-architecture.md](system-architecture.md)：系统总览——定位、主线、包分层、启动与路由、页面渲染、数据与权限、AI、SSOT 与门禁。
-2. [SPARK_PAGE_CONFIG_ARCHITECTURE.md](SPARK_PAGE_CONFIG_ARCHITECTURE.md)：`spark-project-model` 的项目模型、节点模型和配置页内容模型。
-3. [DATAFLOW_ARCHITECTURE.md](DATAFLOW_ARCHITECTURE.md)：项目节点、DataSet、DataView、Renderer 的数据流。
-4. [PLATFORM_TENANT_ROUTING.md](PLATFORM_TENANT_ROUTING.md)：平台、企业、项目蓝图和运行路由边界。
-5. [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)：权限快照、字段权限和动作权限。
+- [system-architecture.md](system-architecture.md)：系统定位、启动、包分层、路由与 AI。
+- [SPARK_PAGE_CONFIG_ARCHITECTURE.md](SPARK_PAGE_CONFIG_ARCHITECTURE.md)：蓝图、页面工具、场景文件和运行实例。
+- [DATAFLOW_ARCHITECTURE.md](DATAFLOW_ARCHITECTURE.md)：配置装配与 query/save 数据流。
+- [PLATFORM_TENANT_ROUTING.md](PLATFORM_TENANT_ROUTING.md)：平台、应用、企业与路由边界。
+- [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)：原查询上下文中的权限消费。
 
 ## 当前术语
 
-| 术语 | 含义 |
+| 对象 | owner 与职责 |
 |---|---|
-| `ProjectModel` | 软件项目根；持有 `design` 与 `session` |
-| `ProjectBlueprintDesign` | 蓝图节点与配置页设计内容聚合；平铺 `nodesById` + 配置页 Map |
-| `ProjectSession` | 设计过程态：选中节点、活动页、蓝图 dirty；不落盘 |
-| `ProjectBlueprintNode` | 非配置页的蓝图节点 class；按 `nodeKind` 区分运行交付形态 |
-| `ConfigPageNode` | 配置页节点；聚合 `rule` / `dataSet` / `script` / `style` 四个子模型 |
-| `ProjectWorkspace` | 设计门面：持有 `ProjectModel` 并编排蓝图与页面文件 IO |
-| `PageNodeLike` | 运行态只读页面：`load()` + `toRenderConfig()` |
-| `RuntimeNavigation` | 应用壳唯一导航合同；蓝图记录与授权证据装配后的输出 |
-| `description` | 节点功能描述，也是用户需求的单一真源 |
-| DevSystem | 项目模型消费层；通过 `ProjectWorkspace` 对接 lowcode，六阶段工作区 `BlueprintWorkspace` 直连 `lowcodeApi` |
+| ProjectBlueprint | 项目根，组合设计聚合与编辑会话 |
+| ProjectBlueprintDesign | 正式节点索引与页面工具索引；树是投影 |
+| ProjectSession | 选中节点、活动工具、草稿和 dirty 状态 |
+| ProjectBlueprintNode | nodeId 身份的正式蓝图节点，kind 与 capability 表达领域语义 |
+| PageTool | pageId 身份的可复用工具，只持 rule/script/style |
+| ScenarioViewFile | scenarioId 身份的场景 pagedata 编辑、基线与撤销 owner |
+| PageRuntime | instanceId 身份的一次调用，持工具与多个独立场景 DataSet |
+| ProjectWorkspace | 蓝图、工具、场景和引用 IO 编排 |
+| RuntimeNavigation | 后端授权事实与蓝图投影形成的应用壳导航合同 |
+
+节点的短需求是 capability.description，策划消费者读取模型投影。组件不从导航记录推断模型、字段或权限；运行调用不从全局活动页面取数据。
 
 ## 治理顺序
 
@@ -31,4 +32,4 @@
 理念 > 逻辑 > AI 生成代码规则 > SSOT || SOLID > 该删则删 || 该合则合 || 该拆则拆 > 迁移便利
 ```
 
-架构文档先说明理念和边界，再说明结构和调用链。类名、路径和函数名必须能在源码中找到；`verify:docs` 不检查这一点，修改架构相关代码时请同步更新这里。
+架构变更需同步本文档与真实消费者。门禁输出只证明其检查范围，不替代源码或浏览器行为证据。

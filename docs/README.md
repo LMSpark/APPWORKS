@@ -1,40 +1,33 @@
 # SPARK AppWorks 文档入口
 
-> 文档只保留当前能指导设计、开发、调试和评审的内容。历史计划、旧迁移记录、重复解释和过期博客不再保留。
-
-## 一句话主线
-
-SPARK AppWorks 是软件项目模型：一个项目由平铺项目节点组成，节点按类型分为模块、配置页、Vue 页面、动作、外链和引用；树只是节点集合的投影。
+SPARK AppWorks 用项目蓝图表达需求与节点关系，用页面工具表达可复用界面，用场景视图文件表达业务数据视图，用运行实例表达一次页面调用。
 
 ```text
-ProjectModel (design + session)
-  -> ProjectBlueprintNode 子类树 / ProjectBlueprintIndex
-  -> ConfigPageNode (rule / dataSet / script / style)
-  -> SparkPageRenderer / DevSystem / DTS ClassModel（内存 emit → JSON；Worker 按需加载）
+ProjectWorkspace -> ProjectBlueprint (design + session)
+                    -> 蓝图节点、PageTool (rule / script / style)
+ProjectWorkspace -> ScenarioViewFile -> ScenarioViewConfig
+PageRuntime -> PageTool + 多个独立场景 DataSet -> SparkPageRenderer
 ```
 
-后端记录仍叫 `Base_NavigationInfo`，但模型主语是 class 层级：`ProjectBlueprintDesign` 持有节点与配置页；`ProjectWorkspace` 负责设计操作与落盘。配置页内容在 `ConfigPageNode`，不是独立文件模型。
+后端 `Base_NavigationInfo` 记录经正式 API 映射为 nodeId、parentNodeId、projectId、kind、capability，以及可选 navigation/dataSpace/prototype 和 source。nodeId、工具 pageId、场景 scenarioId、运行 instanceId 各有独立职责。多个节点或调用可以使用同一个工具。
 
 ## 推荐阅读顺序
 
-1. [guides/QUICKSTART.md](guides/QUICKSTART.md)：最短上手路径。
-2. [architecture/system-architecture.md](architecture/system-architecture.md)：系统总览——定位、主线、包分层、启动与路由、页面渲染、数据与权限、AI。
-3. [SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md](SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md)：项目整体认知。
-4. [architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md](architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)：项目模型、节点模型和配置页内容模型。
-5. [architecture/DATAFLOW_ARCHITECTURE.md](architecture/DATAFLOW_ARCHITECTURE.md)：从项目节点到渲染运行时的数据流。
-6. [../packages/spark-ai/docs/class-model-knowledge-system-zh-cn.md](../packages/spark-ai/docs/class-model-knowledge-system-zh-cn.md)：DTS ClassModel 生成口径；AI 代码生成规则见仓库根 [AGENTS.md](../AGENTS.md)。
+1. [guides/QUICKSTART.md](guides/QUICKSTART.md)：安装与启动。
+2. [模型层级主合同](../packages/spark-project-model/src/MODEL-HIERARCHY.md)：领域身份、文件 owner、生命周期与版本。
+3. [architecture/system-architecture.md](architecture/system-architecture.md)：系统分层与启动路由。
+4. [SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md](SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md)：项目整体认知。
+5. [architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md](architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)：项目、工具、场景与调用边界。
+6. [architecture/DATAFLOW_ARCHITECTURE.md](architecture/DATAFLOW_ARCHITECTURE.md)：真实装配、查询和保存链。
+7. [DTS ClassModel](../packages/spark-ai/docs/class-model-knowledge-system-zh-cn.md)：知识生成与按需消费。
 
 ## 目录边界
 
-- [architecture/](architecture/README.md)：当前架构事实和跨包边界。
-- [guides/](guides/README.md)：仍然可执行的操作指南。
-- AI 相关文档在 [`packages/spark-ai/docs/`](../packages/spark-ai/docs)：ClassModel 知识体系、传输与会话、Agent Workflow。
-- 包内 README / API / ARCHITECTURE：只说明该包自己的公共面和边界。
-- [`.cursor/skills/`](../.cursor/skills)：随项目提交的 AI 技能（`appworks-*`），登记规则见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm)；技能是工作方法，不是产品事实源。
+- [architecture/](architecture/README.md)：产品架构事实与跨包合同。
+- [guides/](guides/README.md)：可执行操作指南。
+- [spark-ai 文档](../packages/spark-ai/docs)：AI 知识、传输、会话与工作流。
+- 包内 README/API：该包的公共入口与边界。
+- [AI 技能](../.cursor/skills)：工作方法，登记见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm)，不替代产品事实。
+- [AGENTS.md](../AGENTS.md)：AI 编码工作流。
 
-## 写作规则
-
-- 默认中文；英文只用于 API 名、文件名、命令、协议字段和第三方专有名词。
-- 新文档必须先判断能否合并到现有文档。
-- 计划类文档完成后删除；沉淀下来的规则合并进主文档。
-- 不再新增 blog-series、历史迁移散篇、日期版文件名或 `DM-*.md`。
+正文中的类、路径与行为以当前源码为准。新增说明先判断能否合并到现有文档；计划、历史调研与目标草案不能被当作运行合同。

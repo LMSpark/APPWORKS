@@ -1,211 +1,79 @@
 # SPARK 权限体系
 
-> 权限事实由 lowcode 后端一次性计算并返回；前端只渲染，并构造受约束的 mutation。本文以源码为准，总览见 [system-architecture.md](system-architecture.md)。
+> 权限事实由 SPARK 后端计算，数据与权限一起返回；前端消费原查询上下文，后端验证写入。本文依据当前 AppWorks、参考 `E:/r/sparkproject` SPARK API 和 `E:/lowcode-jdk17` 权限实现核对。源码入口见文末，总览见 [system-architecture.md](system-architecture.md)。
 
-## 1. 设计目标
+## 字段读写是两个通道
 
-1. 前端不推导授权：不按角色名、页面本地规则或配置猜权限。
-2. 缺少后端证据时失败关闭：没有行级权限集合就按隐藏处理，没有快照就拒绝模型级动作。
-3. 权限事实与数据同源：每次运行查询原子登记数据、原始行、总数、权限集合和系统键，共用同一基线。
-4. 展示与写入分离：渲染层的可见/脱敏只影响显示；能不能写，最终由后端权限集合与 mutation 准备函数共同约束。
+E/R/h/m 是后端返回的稀疏字段名单，各自只作用于命中的字段；未列入 h/m 的已返回字段可以正常读取。字段不存在、返回空值和受保护旧值是不同事实，不能互相代替。
 
-## 2. 数据模型
-
-定义在 `packages/spark-data/src/types.ts`。
-
-### 2.1 行级五个稀疏集合
-
-每个数据行可携带：
-
-```ts
-DataRow.lingma_sys_params: { r: string[]; e: string[]; h: string[]; m: string[]; d: boolean }
-DataRow.lingma_sys_key?: string   // 后端签发的当前行防篡改上下文
-```
-
-源码注释的约束：这是"后端最终返回的五个稀疏权限集合；字段集合互相独立，不得压缩为枚举"。`PermissionChecker` 中的实际用法：
-
-| 集合 | 判定用途 |
+| 返回项 | 含义与消费 |
 |---|---|
-| `r` | 必填字段集合（`isFieldRequired`）；同时参与可编辑判定 |
-| `e` | 可编辑字段集合 |
-| `h` | 隐藏字段集合 |
-| `m` | 脱敏字段集合 |
-| `d` | 该行是否可删除（布尔） |
+| `e`（E） | 字段写许可 |
+| `r`（R） | 必填字段；后端 `RowPermissionHandler` 同时将其加入 E，正式输出 `R ⊆ E` |
+| `h` | 原值不可见；即使键存在且返回 null，也不能恢复原值 |
+| `m` | 返回值已由后端保护，不能恢复原值 |
+| `d` | 当前行删除许可 |
+| `c` | 树形自引用模型中，当前行能否作为新增记录的父行 |
+| `allowAdd` | 模型新增动作许可，不代表新增草稿所有字段可写 |
 
-### 2.2 模型级快照
+读取结合实际返回值与 h/m；最终载荷同时包含 h/m 时前端投影为不可见。写入与读状态独立，h/m 不撤销 E。R 不是可读名单，不能据此把正常字段设为只读。
 
-```ts
-DataPermissionSnapshot {
-  formKey, dataSpaceId, modelId,
-  allowAdd: boolean,
-  systemKey: string,
-  originalRows: DataRow[],
-  authorizedFeatureTags: string[],
-}
-```
+本仓 `DataSpaceRowPermission.fieldAccess` 按 E 判定 write，按 `E && R` 判定 required；参考 sparkproject `DataRowAuth.fieldAccess` 按 `R || E` 判定 write，按 R 判定 required。对于后端正常的 `R ⊆ E` 输出两者等价；不能将参考实现描述成只有 E 命中，也不能自行补齐异常载荷。缺权限载荷时遵循具体查询入口的 missingAuthPolicy；本仓当前模型查询默认 `allow`。缺少原查询上下文、未返回行、空或重复主键，不适用该缺载荷策略，不能借此补权。
 
-`DataPermissionSnapshotInput` 在此基础上追加 `rows` 与 `total`，是 `DataView` 登记一次后端查询结果的唯一输入。
+隐藏或脱敏但允许写时使用只写交互：旧值不回显，输入初值使用组件 fallback，只有用户明确输入的新值进入变更。未输入、取消、失活和上下文失效都不应把空值或遮罩自动提交。显示遮罩 `••••` 是前端呈现，不是可写业务值。
 
-### 2.3 两个枚举
+## 模型、行和字段能力
 
-| 枚举 | 取值 | 含义 |
-|---|---|---|
-| `FieldVisibility`（spark-data） | `visible` / `masked` / `hidden` | 字段读通道的最终状态 |
-| `PermissionMode`（spark-utils） | `none` / `masked` / `invisible` | 页面/蓝图/导航携带的权限展示模式；页面未提供合法值时默认 `masked` |
+模型条件由后端 `PermissionAssembler` 汇总，不能从当前分页、空结果或首行名单猜整个模型权限。行编辑则是已返回字段写能力的投影：本仓按该行 E 非空，参考 sparkproject 按 R/E 非空。查看消费已返回且唯一的行身份；参考 `hasShowField` 对存在权限载荷的行返回可显示，因为 h 只隐藏指定字段，不能将整行推断为不可见。
 
-## 3. 权限事实如何进入前端
+删除独立消费 d，树父行新增子行独立消费 `c === true`，模型新增独立消费 allowAdd。行可编辑不授予删除或新增子行；模型新增不授予草稿字段权限。前端不重算角色、规则投票、隐藏/脱敏合并或后端条件。
+
+按钮、链接和声明式动作统一消费 DataView 的 `addActionState`、`editActionState`、`deleteActionState`、`createChildActionState` 和 `viewActionState`。未知功能标签没有原查询许可时拒绝；导航 `permissionMode` 不覆盖数据授权。工具调用的文本扫描 gate 也不代替权限验证。
+
+## 原查询 owner 与私有基线
 
 ```text
-dataSpace.runtime 查询 (GetData) ─┐
-permission.runtime (GetFormUserFunction) ─┴─> 宿主 toDataPermissionSnapshotInput
-        -> DataView.ingestPermissionSnapshot
-        -> DataView.rows (每行带 lingma_sys_params) + DataView.permissionSnapshot
+LowcodeDataSpaceAssembler：正式模型 + ScenarioViewFile
+    → DataSpaceRuntimeApi.bindModelView(DataView, model)
+    → GetData：场景、模型、正式字段投影
+    → DataSpaceQueryContext：数据、总数、权限与原行凭据
+    → DataView：公开业务行与集中呈现入口
 ```
 
-- 宿主唯一映射器：`src/lowcode/permission/lowcode-permission-to-data-permission.ts`。查询 `formKey` 与权限快照 `formKey` 不一致时抛错。
-- `allowAdd` 裁决：权限资源表对该资源明确为 `false` 时硬拒绝；否则采用同一次查询响应里的 `allowAdd`。功能标签 `authorizedFeatureTags` 直接取自权限运行快照。
-- `DataView.loadFromServer` 收到整包权限快照时走 `ingestPermissionSnapshot`；不是快照形状时才按普通行数据更新。
-- `ingestPermissionSnapshot` 要求每一行都有 `lingma_sys_params`，缺失即抛错；登记失败时会回滚行、总数和快照，不留半成品状态。
+查询 owner 持有原始返回行、权限名单和签发凭据，公开行剥离 `lingma_sys_params`、`lingma_sys_key`。消费者不得补写系统字段、替换基线或读取公开行来重建授权。当前 DataView 没有旧 `permissionSnapshot` 或 `ingestPermissionSnapshot` 登记通道，宿主也不再另行映射公开权限快照。
 
-## 4. 判定规则（`PermissionChecker`）
+权限索引使用查询声明的正式主键，绑定正式模型后核对主键身份；不猜 id/rowid，不从首行创建新增模板。`_pk` 只是前端行标识，不属于后端业务主键或提交字段。查询全部页通过后才发布上下文；执行域变更或上下文失效明确报错。查询失败保留可呈现的旧结果并暂停写入；刷新、清空、重置和结果替换不能覆盖未保存变更。
 
-全部是纯函数，输入行和快照，不读取外部状态。
+## 组件与脚本消费
 
-| 判定 | 规则 |
-|---|---|
-| `canCreate` | `snapshot.allowAdd === true` |
-| `canImport` / `canExport` | `authorizedFeatureTags` 含 `import` / `export` |
-| `canCreateChild` | 该行有权限集合，且标签含 `create-child` |
-| `canDelete` | 行的 `d === true` |
-| `canEdit` | 行有权限集合，且 `r` 与 `e` 合计非空 |
-| `isFieldEditable` | 字段属于 `r ∪ e` |
-| `getFieldVisibility` | 无行权限集合 → `hidden`；在 `h` → `hidden`；在 `m` → `masked`；否则 `visible` |
+`usePermission.resolveFieldState` 经绑定 DataView.fieldAccess 返回 readable、editable、displayValue 和 shouldRender；显示配置可进一步收窄呈现，不授予写许可。字段组件通过 `useFieldPermission` 统一桥接，required 来自 DataView；隐藏/脱敏且可编辑时抑制旧值。
 
-默认语义全部失败关闭：缺快照拒绝 `create` / `import` / `export`；缺行权限集合拒绝 `edit` / `delete` 并隐藏全部字段。
+`SUBTREE_FIELD_POLICY=unrestricted` 仅供筛选等明确的本地输入子树，使用独立模型，不修改业务 DataView 的授权。按钮与字段随查询状态、行和选择变化更新。行消息及同步 `onBeforeRender` 钩子也消费 DataView，不转发第二份权限对象；钩子控制展示，不能授权。
 
-`maskFieldValue`：隐藏返回空串，脱敏返回固定的 `••••`，否则返回原值字符串。前端不重新实现后端的脱敏规则，也不会还原脱敏值。
+脚本通过 `$page.getDataSet(scenarioId)` 或 `$page.resolveView('#scenarioId@table@view')` 获取明确场景，再调用 DataView.fieldAccess(row, field) 和动作状态方法。仅明确 mainScenarioId 的调用允许局部 `table@view`。脚本没有旧 `$dataSet` 注入或 permission 转发命名空间，权限随当前调用的原查询上下文消费。
 
-注意：`PermissionChecker` 各函数虽然接受 `permissionMode` 参数，但都以下划线忽略，判定只看行与快照。
+## 保存与后端强验证
 
-## 5. 动作权限（`PermissionResolver`）
+DataView.saveChanges 和 DataSet 的统一保存入口使用原查询 owner。同一批次要求同场景、同 owner、模型不重复；DataSpaceRuntimeApi 按执行域/场景/模型核验上下文归属，串行化同模型读写。请求为实际 `/api/DataOperation/BatchTableOperateRequestByCRUD`，场景身份通过 x-FormKey；不是旧 prepareMutation 准备命令。
 
-动作来自节点的 `permAction` 属性；没有时由内置 `action` 映射得到：
+更新与私有原行基线比较，仅封包真实差异；删除定位唯一原行。业务候选值不按前端 E/R 名单静默裁剪，正式模型负责字段身份与可提交输出校验，计算字段不能作为业务写入。调用方的系统字段及 `_pk` 被剥离，修改/删除回放对应原行 token，普通新增和树根新增使用原查询表级 token，树子新增回放唯一原父行 token。前端不解码 token 建立另一套授权。
 
-| 内置 `action` | 映射的权限动作 |
-|---|---|
-| `append-row`、`prompt-append` | `create` |
-| `delete-row`、`delete-current`、`delete-selected` | `delete` |
-| `prompt-edit`、`patch-row`、`patch-current`、`patch-selected`、`move-row`、`move-current`、`submit-current-form` | `edit` |
-| 其他 | 无权限动作，不拦截 |
+后端 `DataPermissionAspect` 和 `PermCompactToken` 负责验签、用户及行身份绑定、令牌验证、E/R/d 检查，以及必填和保存条件等实际校验。新增验证全部必填，更新验证本次提交涉及的必填字段。默认权限分支与历史凭据处理以后端源码为准，不能把前端呈现当最终安全边界。
 
-`isPermittedAction(action, context)`：
+树新增子行的呈现按父行 c。私有查询上下文按正式模型 ParentField 和 TopValue 区分根与子行，并通过正式字段映射定位原查询父行；子行只接受唯一父身份、明确 c=true 和非空原父行 token。缺父、重复身份、缺凭据及尚未回执的新增父行在 HTTP 前失败，不走后端表级 token 兼容分支。新增父行回执未提供签名 c 凭据时，须重新查询父行后再新增子行。后端继续检查签名、父身份、存在性和新增子行条件，allowAdd 或行 E 不能代替 c。该封包链已由运行 owner 单元测试验证，真实后端验收仍需实际请求证据。
 
-- `action` 为空：放行。`permissionMode === 'none'`：放行。
-- `create` / `import` / `export`：看快照。
-- `create-child`：需要有行，且 `canCreate` 与 `canCreateChild` 同时成立。
-- `delete` / `edit`：需要有行，再看行的权限集合；没有行直接拒绝。
-- 其他自定义动作名：看 `authorizedFeatureTags` 是否包含该名。
+实际回执必须核对模型、动作数量和行身份后才推进基线。DataView 只接纳后端实际确认字段，保留保存期间的新编辑；新增返回真实主键后重建本地身份。成功回执推进独立上下文，不就地修改其它视图共享的原权限。请求失败、过期或身份变化不假装保存成功，也不伪造回滚。源码与单元测试接通不等于真实后端验收已完成。
 
-分类：`create` / `import` / `export` / `create-child` 是模型级；`edit` / `delete` / `create-child` 是行级。`isModelActionAllowed` / `isRowActionAllowed` 只对各自类别的动作做判断，其余返回放行。
-
-代码注释的提醒：`PermissionResolver.ts` 文件头的 JSDoc 写着"缺少快照 = 基线允许"，与实际行为不符。实际代码对 `create` 等动作在缺少快照时是**拒绝**，以代码为准。
-
-## 6. 字段渲染
-
-### 6.1 状态计算
-
-`computeFieldState(config, row, mode)` 输出 `FieldRenderState`：
-
-- `readable`：可见性不是 `hidden`，且 `config.visible !== false`。
-- `editable`：`canEdit(row)` 且字段可编辑，且 `config.editable !== false`。
-- `shouldRender`：等于 `readable`。
-- `displayValue`：仅在可读时计算，经 `maskFieldValue`。
-
-### 6.2 字段组件的统一桥接
-
-字段组件统一通过 `useFieldPermission`，禁止散落地直接消费权限能力键。组合行为：
-
-| 场景 | 展示值 | 编辑器初值 |
-|---|---|---|
-| 无状态（没有行） | 正常 | 正常；`readable` 为真、`editable` 为假 |
-| 可见，不可编辑 | 原值 | — |
-| 脱敏，不可编辑 | `••••` | — |
-| 隐藏，不可编辑 | 空串 | — |
-| 脱敏或隐藏，**可编辑** | 空串 | 回落为组件的 `fallbackValue`，不回显脱敏值 |
-
-组件是否渲染：`readable || editable`。表格单元格同理，隐藏返回空串，脱敏返回 `••••`。
-
-### 6.3 `usePermission`
-
-`usePermission()` 是唯一的 Vue composable 桥，内部消费 `PAGE_PERMISSION_MODE` 与 `SUBTREE_FIELD_POLICY` 两个能力键：
-
-- `isPermitted` 会带上页面的权限模式。
-- `resolveFieldState` 在子树字段策略为 `unrestricted` 时传入模式 `none`，否则传页面模式。注意 `Checker` 层的字段判定当前并不读取该参数。
-
-页面模式由 `SparkPageRenderer` 从路由元信息 `permissionMode` 读取，非法值回落为 `masked`。
-
-## 7. 脚本侧 API
-
-`PermissionFilter` 提供给页面脚本（经 `ScriptContext` 暴露）：
-
-| 函数 | 作用 |
-|---|---|
-| `filterDeletableRows` / `filterEditableRows` | 按 `d` / 可编辑性过滤行 |
-| `filterFields` | 保留可见字段，并丢弃以 `_` 开头的字段 |
-| `filterDisplayableFields` | 丢弃隐藏字段，以 `_` 开头的字段原样保留 |
-| `getEditableFields` / `getVisibleFields` | 在给定字段列表里筛选 |
-| `extractPermissionSnapshot` | 从数据源的 `permissionSnapshot` 取快照；形状不符返回 `null` |
-
-这些是展示层过滤，**不是安全边界**。
-
-## 8. 写入约束
-
-### 8.1 运行时 mutation 的准备
-
-`DataSpaceRuntimeApi.prepareMutation`（`spark-lowcode-api`）只生成命令，不在包内执行 HTTP。它强制：
-
-- `formKey`、`dataSpaceId`、`modelId` 必须与 preimage 一致。
-- 业务变更不能提交系统字段，字段必须属于前端模型。
-- 新增：`preimage.allowAdd` 为真，并注入 `lingma_sys_key`。
-- 修改：字段必须属于该行的 `r ∪ e`，主键只能用于定位；该行必须带 `lingma_sys_key`。
-- 删除：该行 `d` 必须为真，并带 `lingma_sys_key`。
-- 至少有一项变更。
-
-产出的命令固定 `risk: 'medium'`，要求记录 journal 与读回确认，并附带可恢复到 preimage 的补偿信息。
-
-### 8.2 旧 CRUD 通道
-
-`CrudService` 上传数据前会剥离 `lingma_sys_params` 与 `lingma_sys_key`（`sanitizeDataForUpload`），系统字段不随业务载荷上传。
-
-### 8.3 动作里的消息
-
-动作向用户展示行消息时，系统字段被去掉，隐藏字段变空串，脱敏字段显示 `••••`，不泄漏原值。
-
-## 9. 渲染前拦截 `onBeforeRender`
-
-节点属性 `onBeforeRender` 是同步钩子（`components/support/beforeRender.ts`）：
-
-- 入参包含节点 `id`、`type`、安全副本 `props`、行、`dataSource`、**当前模型的 `permissionSnapshot`**、宿主类型。
-- 返回 `boolean` 表示可见性；返回对象可带 `visible` / `display` 与要合并回节点属性的补丁。
-- 必须同步返回；返回 Promise 会被忽略并告警，抛错同样被忽略并告警，节点回落为原可见性。
-
-它适合做展示层条件，不是授权手段。
-
-## 10. 禁止事项
-
-1. 不要在前端重新实现脱敏规则，也不要把 `••••` 当成输入初值写回。
-2. 不要把 `hidden` 理解成"绝对不渲染任何宿主"：可编辑的字段即使隐藏也可能渲染输入控件（见 6.2）。
-3. 不要把 `PermissionFilter` 当安全边界；写入的最终约束在后端与 mutation 准备函数。
-4. 不要散落地用 `sparkConsume` 读取权限能力键，统一走 `usePermission()` / `useFieldPermission`。
-5. 不要在宿主里再造第二套标签或 `allowAdd` 推导，统一走宿主映射器。
-
-## 11. 源码入口与测试
+## 源码与验证入口
 
 | 内容 | 位置 |
 |---|---|
-| 类型与快照登记 | `packages/spark-data/src/types.ts`、`data-view.ts`（`ingestPermissionSnapshot`） |
-| 判定与过滤 | `packages/spark-component/src/permission/`（`PermissionChecker`、`PermissionResolver`、`PermissionFilter`、`FieldRenderHelper`、`usePermission`） |
-| 字段桥接 | `packages/spark-component/src/components/fields/context/useFieldPermission.ts` |
-| 宿主映射器 | `src/lowcode/permission/lowcode-permission-to-data-permission.ts` |
-| mutation 准备 | `packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-mutation.ts` |
-| 测试 | `tests/auth-nav/permission-checker.test.ts`、`permission-filter.test.ts`、`permission-resolver.test.ts`、`lowcode-permission-to-data-permission.test.ts`；`packages/spark-data/src/tests/permission/runtime-permission-snapshot.test.ts`、`crud-service-permission.test.ts`；`packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts` |
+| 双通道与行能力 | `packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts` |
+| 原查询与保存基线 | `packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts` |
+| 查询/保存 owner 与实际请求 | `data-space-runtime-api.ts`、`protocol/data-space-request.ts`（同 runtime 目录） |
+| DataView 查询、呈现与回执 | `packages/spark-data/src/data-view.ts` |
+| 模型装配 | `src/lowcode/data-space/lowcode-data-space-assembler.ts` |
+| 组件消费 | `packages/spark-component/src/permission/`、`components/fields/context/useFieldPermission.ts` |
+| 参考 SPARK API | `E:/r/sparkproject/packages/data/spark-api/src/protocol/permissions.ts`、`public/query-permission.ts` |
+| 后端字段及强验证 | `RowPermissionHandler.java`、`PermissionAssembler.java`、`DataPermissionAspect.java`、`PermCompactToken.java`（lowcode-jdk17） |
+| 权限/保存合同测试 | `packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-permission-parity.test.ts`、`data-space-save-parity.test.ts`；`tests/auth-nav/`、`tests/renderer/` 中权限消费者测试 |

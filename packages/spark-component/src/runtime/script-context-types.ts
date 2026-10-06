@@ -11,7 +11,7 @@
  * ## 设计意图：跨前端框架的业务脚本层
  *
  * `script.js` 沙箱的核心目标是**让业务逻辑与具体前端框架解耦**：
- * - 业务脚本只能看到此文件定义的**框架无关抽象接口**（`$page / $route / $dataSet`）
+ * - 业务脚本只能看到此文件定义的**框架无关抽象接口**（`$page / $route`）
  * - 底层实现（Vue Router / Element Plus）由**渲染层**注入，脚本不感知
  * - 同一份 `script.js` 理论上可在任何实现了 `ScriptContext` 的渲染层上运行
  *
@@ -25,10 +25,8 @@
  * ⚠️ **禁止将此文件改名为 `script-api.ts`**，脚本沙箱契约依赖当前模块边界。
  */
 
-import type { DataPermissionSnapshot, FieldVisibility, DataRow } from '@spark-appworks/spark-data'
-import type { FieldRenderState, PermissionActionContext } from '@spark-appworks/spark-data'
+import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import type {
-  FieldRenderConfig,
   ComponentInstanceSnapshot,
   ContextSnapshot,
 } from '@spark-appworks/spark-utils'
@@ -61,7 +59,7 @@ export type PageRoute = {
   /** 路径参数，如 `{ id: '123' }` */
   params: Record<string, string | string[]>
   /** Query 参数，如 `{ tab: 'info' }` */
-  query: Record<string, string | string[] | null>
+  query: Record<string, string | ReadonlyArray<string | null> | null>
   /** Hash 片段，如 `#detail` */
   hash: string
 }
@@ -78,12 +76,12 @@ export type PageRoute = {
  * - `$route` — 路由快照（只读，不依赖 Vue Router）
  * - `$el` — 当前页面容器元素
  * - `$query` / `$queryAll` — DOM 查询（谨慎使用）
- * - `$refreshData` — 刷新数据（可选指定表名）
+ * - `$page.resolveView(binding).requestData()` — 刷新明确绑定的视图
  * - `$page` — UI 交互服务（消息 / 确认 / 导航）
  *
  * **渲染层附加（非核心契约，实现层注入）**：
- * - `$dataSet` — DataSet 实例（由渲染层以具体类型注入，不在此契约层定义）
- * - `permission` — 权限 helper 命名空间（字段/动作权限判断）
+ * - `$page.getDataSet(scenarioId)` — 指定场景 DataSet
+ * - 数据权限由实际原查询上下文经 DataView 集中消费
  * - `SparkData` — SPARK 数据工具命名空间（在 ScriptContext 外单独注入）
  * - `h` — Vue 渲染函数（仅供 Render* 渲染函数，非业务逻辑）
  *
@@ -110,7 +108,7 @@ export type ScriptContext = {
 
   /**
    * 当前路由快照（底层 Vue Router 实现，只读，framework-agnostic）。
-   * 通过代理实时反映当前路由，但接口类型不依赖 Vue Router。
+   * 创建页面调用时冻结的路由快照，接口类型不依赖 Vue Router。
    */
   $route: PageRoute
 
@@ -124,29 +122,13 @@ export type ScriptContext = {
   $queryAll: (selector: string) => NodeListOf<Element>
 
   /**
-   * 刷新数据——重新触发指定 DataView 的远端加载接口。
-   * @param key 可选视图键；格式为 `'tableName'`（等同 `'tableName@default'`）
-   *            或 `'tableName@viewId'`（指定具体视图）。
-   *            省略则刷新页面内所有有远端加载接口的 DataView。
-   */
-  $refreshData: (key?: string) => Promise<void>
-
-  /**
    * UI 交互服务（框架无关，替代 ElMessage / ElMessageBox）。
    *
    * ✅ 推荐：所有消息提示、确认框、输入框、导航均通过此接口调用。
    *
    * 类型直接来自 page-config 的 runtime service contract，渲染层注入对应实现。
    */
-  $page: PageServiceCapability
-
-  /**
-   * 权限 helper 命名空间。
-   *
-   * 由渲染层注入，结构上对齐组件层公开的 `permission` API，
-   * 可用于动作权限判断、字段权限状态解析与字段显示格式化。
-   */
-  permission: PermissionApiInScript
+  $page: PageServiceCapability & Pick<PageRuntime, 'getDataSet' | 'resolveView'>
 
   /**
    * 脚本日志接口（已桥接到框架 Logger 传输链）。
@@ -171,66 +153,6 @@ export type ScriptContext = {
    * ```
    */
   $moduleContext: ContextSnapshot | null
-}
-
-/** 沙箱权限 API — 纯函数集，无类/工厂/单例。
- *
- * 所有函数可选接受 `permissionMode` 参数（脚本通常省略）。
- * 函数直接来自组件层 `permission/` 模块导出。
- */
-export type PermissionApiInScript = {
-  /** 判断指定动作在当前权限上下文中是否被允许。 */
-  isPermittedAction(action: string | undefined, context: PermissionActionContext): boolean
-  /** 判断动作是否属于模型级权限（如 create/import/export）。 */
-  isModelScopedPermAction(action: string | undefined): boolean
-  /** 判断动作是否属于行级权限（如 delete/edit/create-child）。 */
-  isRowScopedPermAction(action: string | undefined): boolean
-
-  /** 检查模型是否允许新建记录。 */
-  canCreate(snapshot?: DataPermissionSnapshot | null): boolean
-  /** 检查模型是否允许导入数据。 */
-  canImport(snapshot?: DataPermissionSnapshot | null): boolean
-  /** 检查模型是否允许导出数据。 */
-  canExport(snapshot?: DataPermissionSnapshot | null): boolean
-
-  /** 检查指定行是否允许删除。 */
-  canDelete(row: DataRow): boolean
-  /** 检查指定行是否允许创建子节点。 */
-  canCreateChild(row: DataRow, snapshot?: DataPermissionSnapshot | null): boolean
-  /** 检查指定行是否允许编辑。 */
-  canEdit(row: DataRow): boolean
-
-  /** 检查指定字段在当前行是否可见。 */
-  isFieldVisible(field: string, row: DataRow): boolean
-  /** 检查指定字段在当前行是否可编辑。 */
-  isFieldEditable(field: string, row: DataRow): boolean
-  /** 获取指定字段在当前行的可见性级别。 */
-  getFieldVisibility(field: string, row: DataRow): FieldVisibility
-
-  /** 解析字段的完整权限渲染状态（可见性 + 可编辑性 + 脱敏规则）。 */
-  resolveFieldPermissionState(
-    field: string | undefined,
-    row: DataRow | null | undefined,
-    config?: Omit<FieldRenderConfig, 'field'>,
-  ): FieldRenderState | null
-  /** 根据字段渲染配置与行数据计算字段渲染状态。 */
-  computeFieldState(config: FieldRenderConfig, row: DataRow): FieldRenderState
-
-  /** 过滤出允许删除的行集合。 */
-  filterDeletableRows(rows: DataRow[]): DataRow[]
-  /** 过滤出允许编辑的行集合。 */
-  filterEditableRows(rows: DataRow[]): DataRow[]
-  /** 过滤行中不可见字段，仅保留可见业务字段。 */
-  filterFields(row: DataRow): Record<string, unknown>
-  /** 从候选字段列表中返回当前行可编辑的字段名。 */
-  getEditableFields(row: DataRow, allFields: string[]): string[]
-  /** 从候选字段列表中返回当前行可见的字段名。 */
-  getVisibleFields(row: DataRow, allFields: string[]): string[]
-  /** 过滤行中不可展示字段，保留权限元数据与服务端已脱敏值。 */
-  filterDisplayableFields(row: DataRow): DataRow
-
-  /** 从数据源对象中提取后端最终权限快照。 */
-  extractPermissionSnapshot(dataSource: { permissionSnapshot?: DataPermissionSnapshot | null } | null | undefined): DataPermissionSnapshot | null
 }
 
 /** 页面级组件访问 API（脚本可用） */

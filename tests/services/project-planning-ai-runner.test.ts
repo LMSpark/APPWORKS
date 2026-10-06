@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ProjectModel, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import {
   createAiRunAdapter,
   type AiRunAdapterState,
@@ -43,28 +43,20 @@ function createEditor(projectId = 'demo'): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId,
     pageFiles: { readPageFile: async () => '' },
-    blueprint: { loadRoot: async () => ({ children: [] }) },
+    blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
   })
   seedPlanningProject(editor.project)
   return editor
 }
 
-function seedPlanningProject(project: ProjectModel): void {
+function seedPlanningProject(project: ProjectBlueprint): void {
   project.replaceBlueprintTree({
-    id: 'homepage_root',
-    title: 'Demo',
-    blueprintKind: 'project',
-    nodeKind: 'module',
-    childPlacement: 'header',
-    description: '订单与库存管理',
+    nodeId: 'homepage_root', parentNodeId: '', projectId: project.projectId, kind: 'module',
+    capability: { name: 'Demo', description: '订单与库存管理' }, source: {},
     children: [
       {
-        id: 'orders',
-        title: '订单',
-        blueprintKind: 'page',
-        nodeKind: 'page',
-        path: '/orders',
-        description: '订单页',
+        nodeId: 'orders', parentNodeId: 'homepage_root', projectId: project.projectId, kind: 'page',
+        capability: { name: '订单', description: '订单页' }, source: {},
       },
     ],
   })
@@ -156,15 +148,13 @@ describe('runProjectPlanningAiSession', () => {
         {
           nodeId: 'homepage_root',
           title: 'Demo',
-          blueprintKind: 'project',
-          nodeKind: 'module',
+          kind: 'module',
           requirement: '订单与库存管理',
         },
         {
           nodeId: 'orders',
           title: '订单',
-          blueprintKind: 'page',
-          nodeKind: 'page',
+          kind: 'page',
           requirement: '订单页',
         },
       ],
@@ -241,12 +231,8 @@ describe('runProjectPlanningAiSession', () => {
     const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
     editor.project.replaceBlueprintChildren([
       {
-        id: 'orders',
-        title: '订单',
-        blueprintKind: 'page',
-        nodeKind: 'page',
-        path: '/orders',
-        description: '订单页',
+        nodeId: 'orders', parentNodeId: 'homepage_root', projectId: editor.project.projectId, kind: 'page',
+        capability: { name: '订单', description: '订单页' }, source: {},
       },
     ])
 

@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-query-table",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/protocol/data-space-query-table",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-query-table\n职责：构造模型查询封包并解码原结果快照。\n边界：保留后端权限与正式主键，不从普通 id 字段猜测身份。\nAI用途：核对请求模型 Name、输出投影与结果元数据。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceQueryTable"
+    ]
+  },
+  "$defs": {
+    "DataSpaceQuerySnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQuerySnapshot",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "countReported": {
+          "type": "boolean"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "allowAdd": {
+          "type": "boolean"
+        },
+        "systemKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryTable",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyResult.params": {
+          "type": "object",
+          "properties": {
+            "result": true
+          },
+          "additionalProperties": false
+        },
+        "method.applyResult.return": {
+          "$ref": "#/$defs/DataSpaceQuerySnapshot"
+        },
+        "method.buildRequest.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildRequest.return": {
+          "$ref": "data-space-wire-contract.ts.json#/$defs/DataSpaceWireQueryRequest"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.610Z",
+  "models": {
+    "DataSpaceQuerySnapshot": {
+      "name": "DataSpaceQuerySnapshot",
+      "jsdoc": "冻结的后端原行、总数及权限凭据；countReported 区分实际总数与行数推导。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    total: number;\n    countReported: boolean;\n    primaryKey: string;\n    allowAdd: boolean;\n    systemKey: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    total: number;\n    countReported: boolean;\n    primaryKey: string;\n    allowAdd: boolean;\n    systemKey: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "countReported",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAdd",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryTable": {
+      "name": "DataSpaceQueryTable",
+      "jsdoc": "API 内部模型查询表；不向组件暴露另一套 DataTable，也不保存物理资源身份。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "规范化并冻结场景和模型 Name；缺少任一身份直接失败。",
+          "signatureText": "constructor(identity: DataSpaceQueryIdentity)",
+          "parameters": [
+            {
+              "name": "identity",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryIdentity",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "applyResult",
+              "parameters": [
+                {
+                  "name": "result",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQuerySnapshot",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts"
+              }
+            },
+            {
+              "name": "buildRequest",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryOptions",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceWireQueryRequest",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

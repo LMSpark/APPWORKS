@@ -17,7 +17,7 @@ pnpm run test:run
 - 既有项目、节点、FormKey、数据空间和前端模型身份由 lowcode 平台数据库保持。
 - AppWorks 只生成只读审计、characterization 和待执行差异，不生成新身份补齐缺口。
 - 数据库迁移由平台运维流程执行，不能通过 AppWorks 构建或启动过程隐式触发。
-- mutation 缺少写前镜像、幂等、短事务、journal、readback 或补偿能力时必须拒绝。
+- 业务 mutation 必须使用原 query context 的凭据与权限；文件保存必须明确报告读回结果，不能承诺后端没有提供的事务或补偿。
 
 ## 3. DevSystem 项目蓝图
 
@@ -27,7 +27,7 @@ pnpm run test:run
 |------|------|------|
 | 3.1 | 查看左侧结构 | 显示项目蓝图层级，不把全部节点称为菜单 |
 | 3.2 | 选择模块、需求、原型、数据空间、页面或报表节点 | 基本信息与该节点 capability 对齐 |
-| 3.3 | 选择真实页面 | 页面只能消费已绑定的数据空间，并保留 `formKey + dataSpaceId + modelId` 闭包 |
+| 3.3 | 选择真实页面 | PageTool 与场景独立；PageRuntime 只消费声明场景，正式 modelId/模型Name 由装配校验 |
 | 3.4 | 选择子页面 | 子页面属于蓝图层级；是否输出到运行菜单由运行投影决定 |
 | 3.5 | 尝试无治理写能力的保存 | 明确报错并保留本地 dirty 状态，不静默成功 |
 
@@ -36,7 +36,7 @@ pnpm run test:run
 | 步骤 | 操作 | 期望 |
 |------|------|------|
 | 4.1 | 页面有效描述为空时启动 AI 编辑 | mutation 被 gate 拒绝 |
-| 4.2 | 补齐描述后重试 | 仅进入受约束 AI 执行链，不绕过页面四文件模型 |
+| 4.2 | 补齐描述后重试 | 经 ProjectWorkspace 编辑 PageTool 三文件；场景编辑必须明确 scenarioId |
 | 4.3 | `implGate=closed` | 页面设计 mutation 拒绝 |
 | 4.4 | 检查数据绑定 | 页面不直接引用物理表名，不拥有第二份数据定义 |
 

@@ -1,8 +1,8 @@
 /**
  * @module @spark-appworks/spark-data:types
- * 职责：提供 spark-data 数据管线中的 types 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。
- * 边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。
- * AI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。
+ * 职责：定义数据行、模型绑定、表与视图元数据、资源关系、输入级联和保存协议。
+ * 边界：保持框架和后端无关，查询输入与私有权限保存上下文分离，不承载页面调用生命周期。
+ * AI用途：确认数据配置与运行消费的边界，以及单场景多视图的序列化形状。
  */
 /**
  * @packageDocumentation
@@ -16,7 +16,7 @@
  * │ 4. 权限快照                DataPermissionSnapshot                  │
  * │ 5. 树 API 端点             TreeApi, HttpEndpoint                 │
  * │ 6. 表级元数据              TableMetadata, CrudApi                │
- * │ 7. 过滤 & 排序             FilterExpression, SortExpression      │
+ * │ 7. 过滤 & 排序             DataViewFilterTree, SortExpression      │
  * │ 8. 视图级元数据            ViewMetadata, AggregateType           │
  * │ 9. 树结构配置             TreeConfig, 树节点类型                 │
  * │ 10. 资源关系 & 视图级联    DataResourceRelation, DataViewCascade       │
@@ -29,6 +29,7 @@
  * └──────────────────────────────────────────────────────────────┘
  */
 
+import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
 import type { DataTable } from './data-table'
 import type { DataView } from './data-view'
 import type { LoggerApi, Method } from '@spark-appworks/spark-utils'
@@ -498,101 +499,6 @@ export type TableMetadata = TableSemanticMetadata & {
 // 树形过滤表达式和排序数组，用于视图级数据筛选和排序。
 // ═══════════════════════════════════════════════════════
 
-/**
- * 过滤操作符。
- *
- * - `==` / `!=` / `>` / `>=` / `<` / `<=` — 标量比较，value 为单个标量
- * - `in` / `not in` — 集合成员，value 为数组
- * - `like` / `not like` — SQL LIKE 模式（`%` 通配），通常由后端执行
- * - `is null` / `is not null` — 空值判断，value 不使用
- * - `between` / `not between` — 区间，value 为 `[min, max]` 两元素数组
- * - `startsWith` / `endsWith` / `contains` — 字符串前缀/后缀/包含，前端内存过滤可用
- */
-export type FilterOperator =
-  | '==' | '!=' | '>' | '>=' | '<' | '<='
-  | 'in' | 'not in' | 'like' | 'not like'
-  | 'is null' | 'is not null'
-  | 'between' | 'not between'
-  | 'startsWith' | 'endsWith' | 'contains'
-
-/**
- * 过滤条件的值侧类型。
- *
- * - 标量（`string | number | boolean | null`）：静态常量值
- * - `{ kind: 'field', field: string }`：动态引用父视图当前行的字段值
- * - `FilterValueExpression[]`：`in / between` 等多值操作符使用的数组
- */
-export type FilterValueExpression =
-  | string
-  | number
-  | boolean
-  | null
-  | FilterFieldValueReference
-  | FilterValueExpression[]
-
-/** 过滤值侧字段引用：运行时从父视图当前行或上下文行读取字段值。 */
-export type FilterFieldValueReference = {
-  /** 固定判别值，表示 value 不是常量，而是字段引用。 */
-  kind: 'field'
-  /** 被引用的字段名。 */
-  field: string
-}
-
-/** 过滤叶子条件：对单个字段执行一个比较操作。 */
-export type FilterLeafExpression = {
-  /** 被过滤的字段名。 */
-  field: string
-  /** 过滤操作符。 */
-  op: FilterOperator
-  /** 过滤右侧值，可为常量、字段引用或数组值。 */
-  value: FilterValueExpression
-}
-
-/** 过滤逻辑组合：用 AND/OR 组合多个子表达式。 */
-export type FilterLogicExpression = {
-  /** 逻辑组合类型。 */
-  type: 'and' | 'or'
-  /** 子过滤表达式列表。 */
-  children: FilterExpression[]
-}
-
-/** 过滤叶子条件取反：对单个字段比较结果执行 NOT。 */
-export type FilterNegatedConditionExpression = {
-  /** 固定判别值，表示该叶子条件取反。 */
-  type: '!condition'
-  /** 被过滤的字段名。 */
-  field: string
-  /** 过滤操作符。 */
-  op: FilterOperator
-  /** 过滤右侧值，可为常量、字段引用或数组值。 */
-  value: FilterValueExpression
-}
-
-/** 过滤逻辑组合取反：对 AND/OR 子表达式整体执行 NOT。 */
-export type FilterNegatedLogicExpression = {
-  /** 取反逻辑组合类型。 */
-  type: '!and' | '!or'
-  /** 子过滤表达式列表。 */
-  children: FilterExpression[]
-}
-
-/**
- * 过滤表达式——树形判别联合。
- *
- * 四种形状：
- * - `{ field, op, value }` — 叶子条件（字段、操作符、值）
- * - `{ type: 'and' | 'or', children }` — 逻辑组合（AND/OR，可嵌套）
- * - `{ type: '!condition', field, op, value }` — 叶子条件取反（NOT）
- * - `{ type: '!and' | '!or', children }` — 逻辑组合取反（NAND/NOR）
- *
- * 叶子节点无 `type` 字段，通过是否存在 `field` 属性识别；组合节点通过 `type` 判别。
- */
-export type FilterExpression =
-  | FilterLeafExpression
-  | FilterLogicExpression
-  | FilterNegatedConditionExpression
-  | FilterNegatedLogicExpression
-
 /** 排序方向（小写） */
 export type SortDirection = 'asc' | 'desc'
 
@@ -716,7 +622,7 @@ export type ViewMetadata = {
    */
   rows?: DataRow[]
   /** 过滤表达式 */
-  filterExpression?: FilterExpression
+  filterExpression?: DataViewFilterTree
   /** 排序表达式 */
   sortExpression?: SortExpression
   /** 请求成功后自动将 currentRow 设为第一行 */
@@ -754,7 +660,7 @@ export type ViewMetadata = {
   /**
    * 是否在 DataSet 初始化后自动加载数据（默认 false）。
    *
-   * 设为 `true` 时，渲染层（如 usePageDataSet）在构建 DataSet 后自动调用 `view.requestData()`，
+   * 设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，
    * 业务脚本无需在 `__init__` 中手动编写加载代码。
    * 仅对有配置 `api` 且为 default 视图的主表有意义。
    */
@@ -1128,7 +1034,6 @@ export type DataSource = {
   /** 当前选中行集合（勾选行 / 级联选中行） */
   selectedRows?: readonly DataRow[]
   /** 后端最终权限快照；缺失时权限组件必须 fail-closed。 */
-  permissionSnapshot?: DataPermissionSnapshot | null
   /** 当前查询结果总行数，用于分页器展示总量 */
   total?: number
   /** 当前页码，通常从 1 开始 */
@@ -1311,7 +1216,7 @@ export type DataSetContract = {
   /** 删除 DataView 输入级联 */
   removeCascade(selector: DataViewCascadeSelector): void
   /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */
-  resolveCascadeFilter(rel: DataViewCascade): FilterExpression | undefined | null
+  resolveCascadeFilter(rel: DataViewCascade): DataViewFilterTree | undefined | null
   /** 获取数据表 */
   getTable(name: string): DataTable | undefined
   /** 获取数据视图（委托到 DataTable） */
@@ -1530,7 +1435,7 @@ export type QueryParams = {
   /** 排序字符串 */
   sort?: string
   /** 过滤条件 */
-  filter?: Record<string, unknown> | FilterExpression
+  filter?: DataViewFilterTree
   /** 搜索关键字 */
   search?: string
   /** 要查询的字段列表 */
@@ -1597,21 +1502,4 @@ export type DataPermissionSets = Readonly<{
   h: readonly string[]
   m: readonly string[]
   d: boolean
-}>
-
-/** 一次运行查询原子登记的权限事实、原始行和稳定身份。 */
-export type DataPermissionSnapshot = Readonly<{
-  formKey: string
-  dataSpaceId: string
-  modelId: string
-  allowAdd: boolean
-  systemKey: string
-  originalRows: ReadonlyArray<Readonly<DataRow>>
-  authorizedFeatureTags: readonly string[]
-}>
-
-/** DataTable/DataView 登记后端运行查询结果的唯一输入。 */
-export type DataPermissionSnapshotInput = DataPermissionSnapshot & Readonly<{
-  rows: readonly DataRow[]
-  total: number
 }>

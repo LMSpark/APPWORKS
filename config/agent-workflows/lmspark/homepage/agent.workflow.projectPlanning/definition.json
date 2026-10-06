@@ -8,6 +8,94 @@
     "designVersion": 1
   },
   "workflow": {
+    "variables": [
+      {
+        "name": "projectScopeKey",
+        "title": "Project Scope Key",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "projectId",
+        "title": "Project ID",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "requirement",
+        "title": "Project Requirement",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "blueprintNodes",
+        "title": "Project Blueprint Planning Nodes",
+        "required": true,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "requirement": {
+                "type": "string"
+              },
+              "planningAttachmentRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "nodeId",
+              "title",
+              "kind",
+              "requirement"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      {
+        "name": "tenantId",
+        "title": "Tenant ID",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "planningAttachmentRef",
+        "title": "Planning Attachment Ref",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "project-planning.delivery",
+        "title": "Project Planning Delivery",
+        "scope": "workflow",
+        "description": "Coordinate project planning input, ClassModel runtime execution, and project blueprint delivery.",
+        "constraints": [
+          "Workflow definition declares runtime binding; app layer injects executable capabilities."
+        ]
+      }
+    ],
     "runtimeBinding": {
       "registration": {
         "alias": "projectPlanning",
@@ -46,10 +134,7 @@
                   "title": {
                     "type": "string"
                   },
-                  "blueprintKind": {
-                    "type": "string"
-                  },
-                  "nodeKind": {
+                  "kind": {
                     "type": "string"
                   },
                   "requirement": {
@@ -62,8 +147,7 @@
                 "required": [
                   "nodeId",
                   "title",
-                  "blueprintKind",
-                  "nodeKind",
+                  "kind",
                   "requirement"
                 ],
                 "additionalProperties": false
@@ -89,13 +173,13 @@
       },
       "modelProjectionRef": {
         "kind": "dts-class-model",
-        "rootClassName": "ProjectModel",
+        "rootClassName": "ProjectBlueprint",
         "manifestUrlRef": "dts-class-model"
       },
       "executableRef": {
         "kind": "js-module",
         "moduleSpecifier": "@spark-appworks/spark-project-model",
-        "exportName": "ProjectModel"
+        "exportName": "ProjectBlueprint"
       },
       "toolLoopNudge": {
         "templates": {
@@ -142,98 +226,6 @@
         "identityField": "projectScopeKey"
       }
     },
-    "variables": [
-      {
-        "name": "projectScopeKey",
-        "title": "Project Scope Key",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "projectId",
-        "title": "Project ID",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "requirement",
-        "title": "Project Requirement",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "blueprintNodes",
-        "title": "Project Blueprint Planning Nodes",
-        "required": true,
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "nodeId": {
-                "type": "string"
-              },
-              "title": {
-                "type": "string"
-              },
-              "blueprintKind": {
-                "type": "string"
-              },
-              "nodeKind": {
-                "type": "string"
-              },
-              "requirement": {
-                "type": "string"
-              },
-              "planningAttachmentRef": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "nodeId",
-              "title",
-              "blueprintKind",
-              "nodeKind",
-              "requirement"
-            ],
-            "additionalProperties": false
-          }
-        }
-      },
-      {
-        "name": "tenantId",
-        "title": "Tenant ID",
-        "required": false,
-        "schema": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "planningAttachmentRef",
-        "title": "Planning Attachment Ref",
-        "required": false,
-        "schema": {
-          "type": "string"
-        }
-      }
-    ],
-    "capabilities": [
-      {
-        "id": "project-planning.delivery",
-        "title": "Project Planning Delivery",
-        "description": "Coordinate project planning input, ClassModel runtime execution, and project blueprint delivery.",
-        "scope": "workflow",
-        "constraints": [
-          "Workflow definition declares runtime binding; app layer injects executable capabilities."
-        ]
-      }
-    ],
     "graph": {
       "nodes": [
         {
@@ -253,8 +245,8 @@
             "models": [
               {
                 "id": "node.projectPlanning.model",
-                "rootClassName": "ProjectModel",
-                "className": "ProjectModel",
+                "rootClassName": "ProjectBlueprint",
+                "className": "ProjectBlueprint",
                 "sourceRef": "$",
                 "completion": {
                   "memberName": "completeProjectPlanning",
@@ -286,8 +278,8 @@
                 }
               },
               "knowledge": {
-                "rootClassName": "ProjectModel",
-                "className": "ProjectModel",
+                "rootClassName": "ProjectBlueprint",
+                "className": "ProjectBlueprint",
                 "allowedActions": [
                   "readProjectPlanningInput",
                   "readBlueprintPlanningInputs",
@@ -314,7 +306,7 @@
             },
             "validation": {
               "action": {
-                "className": "ProjectModel",
+                "className": "ProjectBlueprint",
                 "actionName": "completeProjectPlanning",
                 "inputProjection": {
                   "summary": "{{ node.projectPlanning.result.summary }}"
@@ -332,6 +324,7 @@
               {
                 "id": "project-planning.compose",
                 "title": "Compose Project Plan",
+                "scope": "node",
                 "description": "Let projectPlanning inspect model knowledge and produce complete project blueprint changes through runtime tools.",
                 "inputs": {
                   "projectScopeKey": "{{ start.projectScopeKey }}",
@@ -342,7 +335,6 @@
                 "outputs": {
                   "result": "projectPlanning.result"
                 },
-                "scope": "node",
                 "constraints": [
                   "Workflow definition names the models and member-level data flow; runtime chooses ClassModel actions and script calls."
                 ]

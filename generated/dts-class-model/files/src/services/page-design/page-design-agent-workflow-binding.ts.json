@@ -22,6 +22,12 @@
       "type": "object",
       "title": "PageDesignRunInput",
       "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
         "pageId": {
           "type": "string"
         },
@@ -51,6 +57,7 @@
         }
       },
       "required": [
+        "requestId",
         "pageId",
         "description",
         "effectiveDescription"
@@ -108,16 +115,26 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T13:19:33.169Z",
+  "generatedAt": "2026-10-06T20:24:06.030Z",
   "models": {
     "PageDesignRunInput": {
       "name": "PageDesignRunInput",
       "jsdoc": "Page Design Run Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** description 字段。 */\n    description: string;\n    /** readPlanningProjection 的 effectiveDescription；runner 必填。 */\n    effectiveDescription: string;\n    /** 项目根 path 段 id；用于 systemPrompt 给出 concrete /project[id] 示例。 */\n    projectId?: string;\n    /** planning Title 字段。 */\n    planningTitle?: string;\n    /** planning Path 路径。 */\n    planningPath?: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n}",
+        "declarationTypeText": "{\n    requestId: string;\n    scenarioId?: string;\n    /** page Id 标识。 */\n    pageId: string;\n    /** description 字段。 */\n    description: string;\n    /** readPlanningProjection 的 effectiveDescription；runner 必填。 */\n    effectiveDescription: string;\n    /** 项目根 path 段 id；用于 systemPrompt 给出 concrete /project[id] 示例。 */\n    projectId?: string;\n    /** planning Title 字段。 */\n    planningTitle?: string;\n    /** planning Path 路径。 */\n    planningPath?: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "pageId",
               "jsdoc": "page Id 标识。",
@@ -199,11 +216,11 @@
       "jsdoc": "Page Design Editor Getter Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 按 moduleInstanceId（即 pageId）返回 pageDesign 编辑器。 */\n    getPageDesignEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 按 moduleInstanceId（即 requestId）返回 pageDesign 编辑器。 */\n    getPageDesignEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 按 moduleInstanceId（即 pageId）返回 pageDesign 编辑器。 */\n    getPageDesignEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n}>",
+            "typeText": "Readonly<{\n    /** 按 moduleInstanceId（即 requestId）返回 pageDesign 编辑器。 */\n    getPageDesignEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -211,7 +228,7 @@
           "methods": [
             {
               "name": "getPageDesignEditor",
-              "jsdoc": "按 moduleInstanceId（即 pageId）返回 pageDesign 编辑器。",
+              "jsdoc": "按 moduleInstanceId（即 requestId）返回 pageDesign 编辑器。",
               "parameters": [
                 {
                   "name": "context",

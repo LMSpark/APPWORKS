@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "project/project-design",
-    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-design\n职责：提供项目蓝图设计聚合，支撑 blueprint、page content、project session 与远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectBlueprintDesign — 项目蓝图设计内容：元数据 + 节点树 + 配置页 Map。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-design\n职责：项目身份、节点索引和独立页面工具owner。\n边界：蓝图节点与工具不互相继承，工具dirty不随树重载丢弃。\nAI用途：经ProjectBlueprint编辑节点或打开明确pageId工具。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ProjectBlueprintDesignNodeEditResult",
       "ProjectBlueprintDesign"
@@ -21,8 +21,7 @@
       "title": "ProjectBlueprintDesignNodeEditResult",
       "properties": {
         "node": {
-          "type": "object",
-          "title": "TNode"
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
         },
         "result": {
           "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraftApplyResult"
@@ -43,7 +42,7 @@
           "type": "object",
           "properties": {
             "options": {
-              "$ref": "project-types.ts.json#/$defs/ProjectModelInitOptions"
+              "$ref": "project-types.ts.json#/$defs/ProjectBlueprintInitOptions"
             }
           },
           "additionalProperties": false
@@ -60,8 +59,7 @@
         "method.getChildNodes.return": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "TNode"
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
           }
         },
         "method.forEachNode.params": {
@@ -69,28 +67,16 @@
           "properties": {
             "callback": {
               "type": "object",
-              "title": "(node: TNode) => void"
+              "title": "(node: ProjectBlueprintNode) => void"
             }
           },
           "additionalProperties": false
         },
         "method.forEachNode.return": true,
-        "method.replaceBlueprintTree.params": {
-          "type": "object",
-          "properties": {
-            "root": {
-              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.replaceBlueprintTree.return": {
-          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
-        },
         "method.replaceProjectInfo.params": {
           "type": "object",
           "properties": {
-            "project": {
+            "input": {
               "$ref": "project-types.ts.json#/$defs/ProjectInfoInput"
             }
           },
@@ -98,6 +84,18 @@
         },
         "method.replaceProjectInfo.return": {
           "$ref": "project-types.ts.json#/$defs/ProjectInfo"
+        },
+        "method.replaceBlueprintTree.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceBlueprintTree.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
         },
         "method.replaceBlueprintChildren.params": {
           "type": "object",
@@ -117,23 +115,26 @@
         "method.findNodeById.params": {
           "type": "object",
           "properties": {
-            "nodeId": {
+            "id": {
               "type": "string"
             }
           },
           "additionalProperties": false
         },
         "method.findNodeById.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "TNode"
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "method.findNodeLocation.params": {
           "type": "object",
           "properties": {
-            "nodeId": {
+            "id": {
               "type": "string"
             }
           },
@@ -149,7 +150,7 @@
             }
           ]
         },
-        "method.findConfigPageByPageId.params": {
+        "method.findPageTool.params": {
           "type": "object",
           "properties": {
             "pageId": {
@@ -158,16 +159,38 @@
           },
           "additionalProperties": false
         },
-        "method.findConfigPageByPageId.return": {
+        "method.findPageTool.return": {
           "anyOf": [
             {
-              "$ref": "../page/config-page.ts.json#/$defs/ConfigPageNode"
+              "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
             },
             {
               "type": "null"
             }
           ]
         },
+        "method.openPageDesign.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openPageDesign.return": {
+          "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
+        },
+        "method.closePageDesign.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.closePageDesign.return": true,
         "method.applyBlueprintNodeEdit.params": {
           "type": "object",
           "properties": {
@@ -180,28 +203,6 @@
         "method.applyBlueprintNodeEdit.return": {
           "$ref": "#/$defs/ProjectBlueprintDesignNodeEditResult"
         },
-        "method.openPageDesign.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.openPageDesign.return": {
-          "$ref": "../page/config-page.ts.json#/$defs/ConfigPageNode"
-        },
-        "method.closePageDesign.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.closePageDesign.return": true,
         "method.readPlanningProjection.params": {
           "type": "object",
           "properties": {},
@@ -252,7 +253,7 @@
         "method.removeNode.params": {
           "type": "object",
           "properties": {
-            "nodeId": {
+            "id": {
               "type": "string"
             }
           },
@@ -288,25 +289,23 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T07:40:20.651Z",
+  "generatedAt": "2026-10-06T20:49:03.387Z",
   "models": {
     "ProjectBlueprintDesignNodeEditResult": {
       "name": "ProjectBlueprintDesignNodeEditResult",
-      "jsdoc": "Project Blueprint Design Node Edit Result 的返回结果。",
+      "jsdoc": "实际编辑节点实体及其分组补丁诊断。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** node 字段。 */\n    node: TNode;\n    /** 操作结果。 */\n    result: BlueprintNodeDraftApplyResult;\n}",
+        "declarationTypeText": "{\n    node: ProjectBlueprintNode;\n    result: BlueprintNodeDraftApplyResult;\n}",
         "members": {
           "attributes": [
             {
               "name": "node",
-              "jsdoc": "node 字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "result",
-              "jsdoc": "操作结果。",
               "readable": true,
               "writable": true
             }
@@ -316,17 +315,18 @@
     },
     "ProjectBlueprintDesign": {
       "name": "ProjectBlueprintDesign",
-      "jsdoc": "项目蓝图设计根：项目元数据、蓝图节点与配置页缓存。",
+      "jsdoc": "固定项目身份下持有节点索引与独立PageTool集合，蓝图重载保留工具编辑态。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(options: ProjectModelInitOptions)",
+          "jsdoc": "绑定明确项目身份，不捏造可保存蓝图根；节点由真实装载提供。",
+          "signatureText": "constructor(options: ProjectBlueprintInitOptions)",
           "parameters": [
             {
               "name": "options",
               "type": {
                 "type": "reference",
-                "name": "ProjectModelInitOptions",
+                "name": "ProjectBlueprintInitOptions",
                 "sourcePath": "packages/spark-project-model/src/project/project-types.ts"
               }
             }
@@ -336,7 +336,6 @@
           "methods": [
             {
               "name": "getChildNodes",
-              "jsdoc": "读取 Child Nodes。",
               "parameters": [
                 {
                   "name": "nodeId",
@@ -353,8 +352,8 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "TNode",
-                  "refersToTypeParameter": true
+                  "name": "ProjectBlueprintNode",
+                  "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                 }
               }
             },
@@ -373,8 +372,8 @@
                               "name": "node",
                               "type": {
                                 "type": "reference",
-                                "name": "TNode",
-                                "refersToTypeParameter": true
+                                "name": "ProjectBlueprintNode",
+                                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                               }
                             }
                           ],
@@ -394,29 +393,10 @@
               }
             },
             {
-              "name": "replaceBlueprintTree",
-              "jsdoc": "替换项目蓝图根。",
-              "parameters": [
-                {
-                  "name": "root",
-                  "type": {
-                    "type": "reference",
-                    "name": "ProjectBlueprintTreeData",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "ProjectBlueprintTreeData",
-                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-              }
-            },
-            {
               "name": "replaceProjectInfo",
               "parameters": [
                 {
-                  "name": "project",
+                  "name": "input",
                   "type": {
                     "type": "reference",
                     "name": "ProjectInfoInput",
@@ -431,8 +411,25 @@
               }
             },
             {
+              "name": "replaceBlueprintTree",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
               "name": "replaceBlueprintChildren",
-              "jsdoc": "替换项目蓝图根级子节点。",
               "parameters": [
                 {
                   "name": "children",
@@ -456,7 +453,7 @@
               "name": "findNodeById",
               "parameters": [
                 {
-                  "name": "nodeId",
+                  "name": "id",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
@@ -468,8 +465,8 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "TNode",
-                    "refersToTypeParameter": true
+                    "name": "ProjectBlueprintNode",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
                   },
                   {
                     "type": "literal",
@@ -482,7 +479,7 @@
               "name": "findNodeLocation",
               "parameters": [
                 {
-                  "name": "nodeId",
+                  "name": "id",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
@@ -505,7 +502,7 @@
               }
             },
             {
-              "name": "findConfigPageByPageId",
+              "name": "findPageTool",
               "parameters": [
                 {
                   "name": "pageId",
@@ -520,38 +517,12 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "ConfigPageNode",
-                    "sourcePath": "packages/spark-project-model/src/page/config-page.ts"
+                    "name": "PageTool",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
                   },
                   {
                     "type": "literal",
                     "value": null
-                  }
-                ]
-              }
-            },
-            {
-              "name": "applyBlueprintNodeEdit",
-              "jsdoc": "应用项目蓝图节点编辑。",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "BlueprintNodeDraft",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "ProjectBlueprintDesignNodeEditResult",
-                "sourcePath": "packages/spark-project-model/src/project/project-design.ts",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "TNode",
-                    "refersToTypeParameter": true
                   }
                 ]
               }
@@ -569,8 +540,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "ConfigPageNode",
-                "sourcePath": "packages/spark-project-model/src/page/config-page.ts"
+                "name": "PageTool",
+                "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
               }
             },
             {
@@ -590,8 +561,25 @@
               }
             },
             {
+              "name": "applyBlueprintNodeEdit",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintNodeDraft",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintDesignNodeEditResult",
+                "sourcePath": "packages/spark-project-model/src/project/project-design.ts"
+              }
+            },
+            {
               "name": "readPlanningProjection",
-              "jsdoc": "读取策划轴投影：各 page/sub-page 的 description 与 descriptionContext。",
               "parameters": [],
               "type": {
                 "type": "array",
@@ -678,10 +666,9 @@
             },
             {
               "name": "removeNode",
-              "jsdoc": "删除 Node。",
               "parameters": [
                 {
-                  "name": "nodeId",
+                  "name": "id",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
@@ -705,7 +692,6 @@
             },
             {
               "name": "refreshNavRefs",
-              "jsdoc": "刷新项目蓝图上下文引用。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

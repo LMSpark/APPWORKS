@@ -27,6 +27,15 @@ export { SparkData } from './spark-data'
 export { DataSet } from './dataset'
 export { DataTable } from './data-table'
 export { DataView } from './data-view'
+export { DataViewFilter } from './query/filter/data-view-filter'
+export type { DataViewFilterTree, DataViewFilterOperator, DataViewFilterJsonValue } from './query/filter/data-view-filter-contract'
+export type {
+  DataViewFilterField, DataViewFilterFunctionContext, DataViewFilterValueFunction,
+  DataViewFilterFunctionField, DataViewFilterIssue, DataViewFilterValidationContext,
+} from './query/filter/data-view-filter-contract'
+export {
+  getDataViewFilterFieldOperators, getDataViewFilterFunctionDefinitions, isUnaryDataViewFilterOperator,
+} from './query/filter/data-view-filter-catalog'
 export { isDataRow } from './core/data-row-guards'
 
 export type { FieldRenderState, PermissionActionContext } from './script-types'
@@ -174,9 +183,6 @@ export type {
 
   // 视图配置
   ViewMetadata,
-  FilterExpression,
-  FilterOperator,
-  FilterValueExpression,
   SortExpression,
   SortDirection,
   SortField,
@@ -196,8 +202,6 @@ export type {
 
   // lowcode 后端最终权限快照
   DataPermissionSets,
-  DataPermissionSnapshot,
-  DataPermissionSnapshotInput,
   DataViewFieldProjection,
   DataViewQueryContext,
 } from './types'

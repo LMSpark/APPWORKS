@@ -1,8 +1,8 @@
 <!--
 @module @spark-appworks/spark-component:page/renderer/SparkPageRenderer
-职责：维护 @spark-appworks/spark-component 中 page/renderer/SparkPageRenderer 的模块能力，围绕 PageRuntimeErrorPhase、PageRuntimeErrorPayload、Props 提供稳定的公开契约。
-边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
-AI用途：需要定位 page/renderer/SparkPageRenderer 的声明、导出和使用边界时，从本模块开始。
+职责：渲染 PageRuntime 物化定义并装载当前调用的场景、脚本和样式。
+边界：使用调用独立的注册表、路由快照和失效检查，释放时销毁其运行实例。
+AI用途：接入页面调用渲染或检查多实例隔离、脚本响应更新和资源释放。
 -->
 <template>
   <div v-if="loading" class="spark-page-loading">
@@ -19,7 +19,7 @@ AI用途：需要定位 page/renderer/SparkPageRenderer 的声明、导出和使
     <component :is="'style'" v-if="scopedCss">{{ scopedCss }}</component>
 
     <!-- 页面内容树（rule.json → buildPageChildren → children，递归渲染） -->
-    <div ref="pageContainer" :data-page="currentPageId" class="spark-page-container">
+    <div ref="pageContainer" :data-page="currentInstanceId" class="spark-page-container">
       <slot name="content" :children="children">
         <SparkComponentRenderer
           v-for="(child, i) in children"
@@ -32,159 +32,62 @@ AI用途：需要定位 page/renderer/SparkPageRenderer 的声明、导出和使
 </template>
 
 <script setup lang="ts">
-/**
- * SparkPageRenderer — 页面级 h(type, props, children) 渲染器
- *
- * 对齐 h() 三段式模型（与 RendererTable / RendererForm 同构）：
- *   type     = 'spark-page'（Props extends SparkNode，withDefaults 设定）
- *   props    = pageNode / pageId / enable* / 钩子等
- *   children = rule.json 经 buildPageChildren() 归并后的 SparkNode[]（渲染器内部生成）
- *
- * spark-project-model 负责 PageNode：
- *   rule / data / script / css 均从已加载 PageNode 的内存态进入渲染层
- *
- * spark-component 负责运行时物化：
- *   rule.json 是"声明式 children"
- *   加载 → buildPageChildren（严格 SparkNode 校验、事件绑定、ID 去重）
- *   → children（SparkNode[]）→ SparkComponentRenderer 递归渲染
- *
- * spark-page props 应用流水线（applyNodeProps）：
- *   1. css    → setScopedCss（作用域隔离注入）
- *   2. script → compileFunctions → registerRenderComponents
- *   3. data   → DataSet 初始化 → sparkProvide(PAGE_DATASET)
- *   4. rule   → buildPageChildren → children（驱动模板渲染）
- *
- * @component
- * @example
- * ```vue
- * <SparkPageRenderer :pageNode="pageNode" />
- * ```
- */
-import {
-  cloneVNode,
-  computed,
-  ref,
-  watch,
-  nextTick,
-  getCurrentInstance,
-  shallowRef,
-  defineComponent,
-  markRaw,
-  onErrorCaptured,
-  onUnmounted,
-  isVNode,
-  type VNode,
-  type VNodeArrayChildren,
-} from 'vue'
-import { type SparkNode, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
-import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
-import { Logger, isCallable, isPermissionMode, type HttpClientBase } from '@spark-appworks/spark-utils'
-import type { DataSet } from '@spark-appworks/spark-data'
-import { DataSetCrudTool } from '@spark-appworks/spark-data'
-import { SparkNodeTree } from '@spark-appworks/spark-data'
-import type {
-  PageDataSpaceBinding,
-  PageNodeLike,
-  PageNodeRenderConfig,
-} from '@spark-appworks/spark-project-model'
+import { cloneVNode, toRaw, ref, watch, nextTick, getCurrentInstance, shallowRef, defineComponent, markRaw, onErrorCaptured, onUnmounted, isVNode, type VNode, type VNodeArrayChildren } from 'vue'
+import { type SparkNode, getSparkNodeChildren, nodeId, SparkNodeTree } from '@spark-appworks/spark-data'
+import { Logger, isCallable } from '@spark-appworks/spark-utils'
+import type { PageRuntime, PageToolDefinition } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '../../runtime'
-
-import { PAGE_DATASET } from '../../core/capability-keys'
-import {
-  PAGE_SERVICE,
-  PAGE_PERMISSION_MODE,
-} from '../../core/capability-keys.js'
-import {
-  MODULE_CONTEXT,
-  CSS_SCOPE,
-} from '../../core/capability-keys'
-import type { PageCssScopeCapability } from '../../core/capability-keys'
+import { PAGE_RUNTIME, PAGE_SERVICE, PAGE_PERMISSION_MODE, MODULE_CONTEXT, CSS_SCOPE } from '../../core/capability-keys'
 import { useRendererSetup } from './useRendererSetup'
 import { useCssScope } from './useCssScope'
-import { usePageDataSet } from './usePageDataSet'
 import { compileFunctions } from '../createSandbox'
 import { buildPageService, type PageServiceOverrides } from '../services/buildPageService'
 import { buildPageContext } from '../context/buildPageContext'
 import { buildPageChildren } from '../binding'
 import type { PageContext } from '../context/types'
-import {
-  sparkBindPageRootContext,
-  sparkResolveContextOwner,
-  sparkUnbindPageRootContext,
-} from '../../core/capability-context.js'
+import { sparkBindPageRootContext, sparkResolveContextOwner, sparkUnbindPageRootContext } from '../../core/capability-context'
 import SparkComponentRenderer from '../../components/SparkComponentRenderer.vue'
-
 const logger = Logger('SparkPageRenderer')
-const currentInstance = getCurrentInstance()
-
-/** 页面运行时错误发生阶段。 */
+/** 页面调用失败所处阶段，区分装载、脚本编译、初始化、函数执行和渲染。 */
 type PageRuntimeErrorPhase = 'load' | 'script-compile' | 'init' | 'script-function' | 'render'
-
-/** 页面运行时错误上报载荷。 */
-type PageRuntimeErrorPayload = {
-  /** 发生错误的页面运行阶段。 */
-  phase: PageRuntimeErrorPhase
-  /** 面向用户和日志的错误消息。 */
-  message: string
-  /** 出错页面 ID。 */
-  pageId: string
-  /** 错误发生时间。 */
-  at: string
+/** 当前页面运行失败诊断；包含阶段、工具身份和发生时间，不携带业务行或权限凭据。 */
+type PageRuntimeErrorPayload = { phase: PageRuntimeErrorPhase; message: string; pageId: string; at: string }
+/** 渲染器调用输入；运行实例与路由快照必须由宿主提供，回调用于装载和错误呈现。 */
+type Props = {
+ pageRuntime: PageRuntime
+ routeSnapshot: PageRoute
+ enableCssScope?: boolean
+ messageService?: PageServiceOverrides['messageService']
+ confirmService?: PageServiceOverrides['confirmService']
+ beforeLoad?: (pageId: string) => void | Promise<void>
+ afterLoad?: (state: PageToolDefinition) => void | Promise<void>
+ onError?: (error: Error) => void
+ onRuntimeError?: (payload: PageRuntimeErrorPayload) => void
 }
-
-type RenderFunction = {
-  (props?: Record<string, unknown>): unknown}
-type RenderFunctionRef = ReturnType<typeof shallowRef<RenderFunction | null>>
-type RenderFunctionRevisionRef = ReturnType<typeof shallowRef<number>>
-type RenderFunctionRegistration = {
-  fnRef: RenderFunctionRef
-  revisionRef: RenderFunctionRevisionRef
-  invalidatePage?: () => void}
-const RENDER_FUNCTION_REGISTRY_KEY = Symbol.for('spark-appworks:render-function-registry')
-const renderFunctionRegistries = new WeakMap<object, Map<string, RenderFunctionRegistration>>()
-
-type VueComponentRegistry = {
-  component(name: string): unknown
-  component(name: string, component: object): void}
-
-function getRenderFunctionRegistry(app: object): Map<string, RenderFunctionRegistration> {
-  const stored = readStoredRenderFunctionRegistry(app)
-  if (stored !== null) return stored
-
-  const existing = renderFunctionRegistries.get(app)
-  if (existing) return existing
-  const created = new Map<string, RenderFunctionRegistration>()
-  renderFunctionRegistries.set(app, created)
-  storeRenderFunctionRegistry(app, created)
-  return created
+const props = withDefaults(defineProps<Props>(), { enableCssScope: true })
+const { router, sparkProvide, sparkConsume, loading, error, componentRegistry, pageRuntimeServices, runLoad } = useRendererSetup('spark-page', logger)
+const instance = getCurrentInstance()
+const capabilityContext = instance ? sparkResolveContextOwner(instance) : null
+const moduleContext = sparkConsume(MODULE_CONTEXT)
+const pageService = buildPageService(router, {messageService:props.messageService,confirmService:props.confirmService,pageService:pageRuntimeServices.pageService})
+sparkProvide(PAGE_SERVICE,pageService)
+sparkProvide(PAGE_PERMISSION_MODE,'masked')
+const currentInstanceId = ref('')
+const children = shallowRef<SparkNode[]>([])
+const pageContainer = ref<HTMLElement|null>(null)
+const {scopedCss,setScopedCss} = useCssScope({enableScope:props.enableCssScope})
+sparkProvide(CSS_SCOPE,{inject(css:string){ setScopedCss(currentInstanceId.value,css) }})
+let activeRuntime:PageRuntime|undefined
+let controller:AbortController|undefined
+let pageContext:PageContext|undefined
+let functions:Record<string,(...args:unknown[])=>unknown> = {}
+let nodeTree:SparkNodeTree|null = null
+let revision = 0
+const renderRevision = ref(0)
+const invalidate = () => { renderRevision.value++ }
+function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
+ return value !== null && (typeof value === 'object' || typeof value === 'function') && typeof Reflect.get(value,'then') === 'function'
 }
-
-function isRenderFunctionRegistryMap(value: unknown): value is Map<string, RenderFunctionRegistration> {
-  return value instanceof Map
-}
-
-function readStoredRenderFunctionRegistry(app: object): Map<string, RenderFunctionRegistration> | null {
-  const value = Reflect.get(app, RENDER_FUNCTION_REGISTRY_KEY)
-  return isRenderFunctionRegistryMap(value) ? value : null
-}
-
-function storeRenderFunctionRegistry(
-  app: object,
-  registry: Map<string, RenderFunctionRegistration>,
-): void {
-  if (Reflect.get(app, RENDER_FUNCTION_REGISTRY_KEY) === registry) return
-  Object.defineProperty(app, RENDER_FUNCTION_REGISTRY_KEY, {
-    value: registry,
-    configurable: false,
-    enumerable: false,
-    writable: false,
-  })
-}
-
-function invalidateRenderFunctionRegistration(registration: RenderFunctionRegistration): void {
-  registration.revisionRef.value = (registration.revisionRef.value ?? 0) + 1
-}
-
 function isRenderEventProp(key: string, value: unknown): boolean {
   if (!key.startsWith('on') || key.length <= 2) return false
   if (key.startsWith('onVnode')) return false
@@ -266,558 +169,92 @@ function wrapScriptVNode(vnode: VNode, invalidate: () => void): VNode {
   return cloned
 }
 
-function invalidateRenderFunctionsForPage(
-  app: object,
-  pageFunctions: Record<string, (...args: unknown[]) => unknown>,
-): void {
-  const fnMap = getRenderFunctionRegistry(app)
-  const invalidated = new Set<RenderFunctionRegistration>()
-  for (const name of Object.keys(pageFunctions)) {
-    if (!name.startsWith('Render')) continue
-    const registration = fnMap.get(name)
-    if (!registration || invalidated.has(registration)) continue
-    invalidateRenderFunctionRegistration(registration)
-    invalidated.add(registration)
+
+function report(phase:PageRuntimeErrorPhase,runtime:PageRuntime,errorLike:unknown):void {
+ const message=errorLike instanceof Error ? errorLike.stack ?? errorLike.message : String(errorLike)
+ props.onRuntimeError?.({phase,message,pageId:runtime.pageId,at:new Date().toISOString()})
+}
+function registerRenders(current:Record<string,(...args:unknown[])=>unknown>,alive:()=>boolean):void {
+ componentRegistry.clearRenders()
+ for(const [name,fn] of Object.entries(current)) {
+  if(!name.startsWith('Render'))continue
+  const component=markRaw(defineComponent({name,setup:(_, {attrs})=>()=>{
+   renderRevision.value
+   if(!alive())return null
+   return wrapScriptRenderOutput(fn({...attrs}),()=>{if(alive())invalidate()})
+  }}))
+  componentRegistry.registerRender(name,component)
+  componentRegistry.registerRender(name.charAt(0).toLowerCase()+name.slice(1),component)
+ }
+}
+function release():void {
+ controller?.abort();controller=undefined
+ componentRegistry.clearRenders();functions={};children.value=[];pageContext=undefined;nodeTree=null
+ activeRuntime?.dispose();activeRuntime=undefined
+}
+async function loadConfig():Promise<void> {
+ const runtime=toRaw(props.pageRuntime)
+ if(activeRuntime && activeRuntime!==runtime && activeRuntime.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 页面存在未保存编辑')
+ if(activeRuntime===runtime && runtime.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 页面存在未保存编辑')
+ const token=++revision
+ if(activeRuntime!==runtime)release()
+ else {controller?.abort();componentRegistry.clearRenders()}
+ activeRuntime=runtime;controller=new AbortController()
+ const signal=controller.signal
+ const alive=()=>token===revision && !signal.aborted && !runtime.destroyed && toRaw(props.pageRuntime)===runtime
+ currentInstanceId.value=runtime.instanceId
+ await runLoad(async(isStale)=>{
+  const current=()=>alive() && !isStale()
+  if(props.beforeLoad)await props.beforeLoad(runtime.pageId)
+  if(!current())return
+  await runtime.load()
+  if(!current())return
+  const definition=runtime.materialize()
+  const route=props.routeSnapshot
+  for(const scenarioId of runtime.call.scenarioIds) {
+   const ds=runtime.getDataSet(scenarioId)
+   if(!ds)throw new Error(`页面场景尚未装载: ${scenarioId}`)
+   ds.setAppServices(pageRuntimeServices);ds.setPageRoute(route)
   }
-}
-
-function createPageRoute(route: RouteLocationNormalizedLoaded): PageRoute {
-  return {
-    get path() { return route.path },
-    get fullPath() { return route.fullPath },
-    get name() { return route.name ?? null },
-    get params() { return toPageRouteParams(route.params) },
-    get query() { return toPageRouteQuery(route.query) },
-    get hash() { return route.hash },
+  sparkProvide(PAGE_RUNTIME,runtime)
+  pageContext=buildPageContext({pageRuntime:runtime,signal,pageRoute:route,pageContainer,pageService,getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
+  setScopedCss(runtime.instanceId,definition.css ?? '')
+  try {functions=compileFunctions(definition.script ?? '',pageContext)}
+  catch(errorLike){report('script-compile',runtime,errorLike);throw errorLike}
+  const currentFunctions=functions
+  const callFunc=(name:string,...args:unknown[]):unknown=>{
+   if(!current())throw new Error('PAGE_RUNTIME_STALE: 页面脚本已失效')
+   const fn=currentFunctions[name];if(!fn)return undefined
+   try {
+    const result=fn(...args)
+    if(isPromiseLike(result))return Promise.resolve(result).then(value=>{if(current())invalidate();return value},errorLike=>{if(current())report('script-function',runtime,errorLike);throw errorLike})
+    invalidate();return result
+   }catch(errorLike){if(current())report('script-function',runtime,errorLike);throw errorLike}
   }
+  registerRenders(currentFunctions,current)
+  nodeTree=SparkNodeTree.fromPageChildren(definition.rule)
+  children.value=buildPageChildren(getSparkNodeChildren(nodeTree.root.children),{callFunc,actionCtx:{
+   getDataSet(scenarioId:string){if(!current())throw new Error('PAGE_RUNTIME_STALE');return runtime.getDataSet(scenarioId) ?? null},
+   resolveView(binding:string){if(!current())throw new Error('PAGE_RUNTIME_STALE');return runtime.resolveView(binding) ?? null},
+   getPageService:()=>pageService,getRouter:()=>router,
+  }})
+  if(props.afterLoad)await props.afterLoad(definition)
+  if(!current())return
+ },errorLike=>{if(alive()){report('load',runtime,errorLike);props.onError?.(errorLike)}})
+ if(!alive() || error.value)return
+ await nextTick()
+ if(!alive())return
+ try {await functions['__init__']?.()}catch(errorLike){if(alive())report('init',runtime,errorLike)}
+ if(!alive())return
+ for(const id of runtime.call.scenarioIds){const ds=runtime.getDataSet(id);ds?.triggerAutoLoad();ds?.initAutoSelection()}
+ invalidate()
 }
-
-function toPageRouteParams(params: RouteLocationNormalizedLoaded['params']): Record<string, string | string[]> {
-  const result: Record<string, string | string[]> = {}
-  for (const [key, value] of Object.entries(params)) {
-    if (typeof value === 'string') result[key] = value
-    else if (Array.isArray(value)) result[key] = value.filter((item): item is string => typeof item === 'string')
-  }
-  return result
-}
-
-function toPageRouteQuery(query: RouteLocationNormalizedLoaded['query']): Record<string, string | string[] | null> {
-  const result: Record<string, string | string[] | null> = {}
-  for (const [key, value] of Object.entries(query)) {
-    if (typeof value === 'string' || value === null) result[key] = value
-    else if (Array.isArray(value)) result[key] = value.filter((item): item is string => typeof item === 'string')
-  }
-  return result
-}
-
-function readRouteString(value: unknown): string | undefined {
-  if (typeof value === 'string' && value.length > 0) return value
-  if (Array.isArray(value)) return value.find((item): item is string => typeof item === 'string' && item.length > 0)
-  return undefined
-}
-
-function resolveCurrentPageId(
-  route: RouteLocationNormalizedLoaded,
-  pageId?: string,
-  pageNodePageId?: string,
-): string {
-  const resolved =
-    pageId ??
-    pageNodePageId ??
-    readRouteString(route.meta['pageId']) ??
-    readRouteString(route.params['id']) ??
-    readRouteString(route.name)
-  if (!resolved) throw new Error('配置无效: 无法确定页面ID')
-  return resolved
-}
-
-function registerRenderFunctionsForPage(
-  app: VueComponentRegistry & object,
-  pageFunctions: Record<string, (...args: unknown[]) => unknown>,
-): void {
-  const fnMap = getRenderFunctionRegistry(app)
-
-  for (const [name, fn] of Object.entries(pageFunctions)) {
-    if (!name.startsWith('Render') || typeof fn !== 'function') continue
-    const camelName = name.charAt(0).toLowerCase() + name.slice(1)
-    const invalidatePage = () => invalidateRenderFunctionsForPage(app, pageFunctions)
-    const renderFunction = createRenderFunction(fn)
-
-    const existingRef = fnMap.get(name) ?? fnMap.get(camelName)
-    if (existingRef) {
-      existingRef.fnRef.value = renderFunction
-      existingRef.invalidatePage = invalidatePage
-      fnMap.set(name, existingRef)
-      fnMap.set(camelName, existingRef)
-      invalidateRenderFunctionRegistration(existingRef)
-      continue
-    }
-
-    const fnRef = shallowRef<RenderFunction | null>(renderFunction)
-    const registration: RenderFunctionRegistration = {
-      fnRef,
-      revisionRef: shallowRef(0),
-      invalidatePage,
-    }
-    fnMap.set(name, registration)
-    fnMap.set(camelName, registration)
-
-    const component = markRaw(defineComponent({
-      name,
-      setup: (_, { attrs }) => () => {
-        registration.revisionRef.value
-        const invalidate = () => {
-          if (registration.invalidatePage) {
-            registration.invalidatePage()
-            return
-          }
-          invalidateRenderFunctionRegistration(registration)
-        }
-        return wrapScriptRenderOutput(registration.fnRef.value?.({ ...attrs }), invalidate)
-      },
-    }))
-    if (app.component(name) === undefined) app.component(name, component)
-    if (app.component(camelName) === undefined) app.component(camelName, component)
-  }
-}
-
-function createRenderFunction(fn: (...args: unknown[]) => unknown): RenderFunction {
-  return (propsBag?: Record<string, unknown>) => fn(propsBag)
-}
-
-// ==================== Props — h(type, props, children) ====================
-
-/**
- * SparkPageRenderer props — 对齐 h(type, props, children) 三段式。
- *
- * - type     = 'spark-page'（withDefaults 设定默认值）
- * - props    = pageNode / pageId / enable* / 钩子等（本接口所有字段）
- * - children = rule.json 经 buildPageChildren 归并后由渲染器内部生成，不作为外部输入
- */
-type Props = Omit<SparkNode, 'type'> & {
-  /** 组件类型（withDefaults 默认 'spark-page'，外部调用无需显式传入） */
-    type?: string
-    /** 页面节点唯一入口；渲染器只消费 PageNode 内存态。 */
-    pageNode: PageNodeLike
-    /** 外部变更版本号；同一 PageNode 内存内容变化时触发重渲染。 */
-    pageNodeRevision?: number
-    /** 页面唯一标识符（可选校验值；默认取 pageNode.pageId） */
-    pageId?: string
-    /** 是否启用 CSS 作用域隔离 @default true */
-    enableCssScope?: boolean
-    /** 是否启用 DataSet 自动初始化 @default true */
-    enableDataSet?: boolean
-    /** UI 消息服务接口 */
-    messageService?: PageServiceOverrides['messageService']
-    /** UI 确认对话框服务接口 */
-    confirmService?: PageServiceOverrides['confirmService']
-    /** 页面加载前钩子（loadNodeProps 之前） */
-    beforeLoad?: (pageId: string) => void | Promise<void>
-    /** 页面加载后钩子（applyNodeProps 之后） */
-    afterLoad?: (state: PageNodeRenderConfig) => void | Promise<void>
-    /**
-     * 运行态 DataSet 装载器：页面有 dataSpaceBinding 时必填。
-     * 有绑定则禁止再用 pagedata.json 作为运行数据真源。
-     */
-    loadRuntimeDataSet?: (binding: PageDataSpaceBinding) => Promise<DataSet>
-    /** 错误处理函数 */
-    onError?: (error: Error) => void
-    /** 运行时错误回调（供外层采集脚本编译/初始化/加载错误）。 */
-    onRuntimeError?: (payload: PageRuntimeErrorPayload) => void}
-
-const props = withDefaults(defineProps<Props>(), {
-  type: 'spark-page',
-  enableDataSet: true,
-  enableCssScope: true,
-})
-
-// ==================== 基础设施 ====================
-
-const { router, sparkProvide, sparkConsume, loading, error, componentRegistry, pageRuntimeServices, runLoad } = useRendererSetup('spark-page', logger)
-const route = useRoute()
-const vueApp = currentInstance?.appContext.app
-const moduleContextCapability = sparkConsume(MODULE_CONTEXT)
-
-// PAGE_SERVICE
-const pageService = buildPageService(router, {
-  messageService: props.messageService,
-  confirmService: props.confirmService,
-  pageService: pageRuntimeServices.pageService,
-})
-sparkProvide(PAGE_SERVICE, pageService)
-
-// ==================== 响应式状态 ====================
-
-const currentPageId = ref('')
-const children = shallowRef<SparkNode[]>([])
-const pageFunctions = shallowRef<Record<string, (...args: unknown[]) => unknown>>({})
-let _inFlightPageId: string | null = null
-let _loadObjectKeySeq = 0
-const _loadObjectKeys = new WeakMap<object, number>()
-// ── SparkNodeTree：rule.json 的 SSoT（设计时编辑入口）──
-let _nodeTree: SparkNodeTree | null = null
-// ── DataSetCrudTool：设计时编辑入口（pagedata）；运行态有 binding 时由 loadRuntimeDataSet 装载 ──
-let _crudTool: DataSetCrudTool | null = null
-const pageContainer = ref<HTMLElement | null>(null)
-const currentCapabilityContext = currentInstance
-  ? sparkResolveContextOwner(currentInstance)
-  : null
-
-// ── CSS 作用域 ──
-const { scopedCss, setScopedCss } = useCssScope({ enableScope: props.enableCssScope })
-sparkProvide(CSS_SCOPE, { inject(css: string) { setScopedCss(currentPageId.value, css) } } satisfies PageCssScopeCapability)
-
-// ── 页面权限模式 ──
-// 与导航节点默认语义保持一致：未提供 permissionMode 时默认 'masked'。
-
-sparkProvide(PAGE_PERMISSION_MODE, isPermissionMode(route.meta['permissionMode']) ? route.meta['permissionMode'] : 'masked')
-
-// ── DataSet ──
-const pds = usePageDataSet({ enableDataSet: props.enableDataSet })
-
-// ── 脚本沙箱上下文 ──
-const pageRoute = createPageRoute(route)
-const pageContext: PageContext = buildPageContext({
-  getDataSet: () => pds.dataSet,
-  getModuleContext: () => moduleContextCapability?.getCurrent() ?? null,
-  getComponentRegistry: () => componentRegistry,
-  pageRoute,
-  pageContainer,
-  pageService,
-})
-
-// ── 稳定的 actionCtx（闭包引用不变，无需每次 applyNodeProps 重建）──
-const actionCtx = {
-  getDataSet: () => pds.dataSet,
-  getPageService: () => pageService,
-  getRouter: () => router,
-}
-const reportedRuntimeErrorObjects = new WeakSet<object>()
-
-function loadObjectKey(value: object): string {
-  const existing = _loadObjectKeys.get(value)
-  if (existing !== undefined) return `o:${existing}`
-  const next = ++_loadObjectKeySeq
-  _loadObjectKeys.set(value, next)
-  return `o:${next}`
-}
-
-function loadValueKey(value: unknown): string {
-  if ((typeof value === 'object' || typeof value === 'function') && value !== null) {
-    return loadObjectKey(value)
-  }
-  return `${typeof value}:${String(value ?? '')}`
-}
-
-function resolveLoadKey(pageId: string): string {
-  return [
-    pageId,
-    loadValueKey(props.pageNode),
-    loadValueKey(props.pageNodeRevision ?? 0),
-  ].join('|')
-}
-
-const loadSourceKey = computed(() => {
-  const targetPageId = resolveCurrentPageId(route, props.pageId, props.pageNode.pageId)
-  return resolveLoadKey(targetPageId)
-})
-
-function formatRuntimeError(errorLike: unknown): string {
-  if (errorLike instanceof Error) return errorLike.stack ?? errorLike.message
-  if (typeof errorLike === 'string') return errorLike
-  try {
-    return JSON.stringify(errorLike, null, 2)
-  } catch {
-    return String(errorLike)
-  }
-}
-
-function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
-  if ((typeof value !== 'object' && typeof value !== 'function') || value === null) return false
-  return typeof Reflect.get(value, 'then') === 'function'
-}
-
-function isObjectLike(value: unknown): value is object {
-  return (typeof value === 'object' || typeof value === 'function') && value !== null
-}
-
-function markRuntimeErrorReported(errorLike: unknown): void {
-  if (isObjectLike(errorLike)) reportedRuntimeErrorObjects.add(errorLike)
-}
-
-function wasRuntimeErrorReported(errorLike: unknown): boolean {
-  return isObjectLike(errorLike) && reportedRuntimeErrorObjects.has(errorLike)
-}
-
-function reportRuntimeError(phase: PageRuntimeErrorPhase, pageId: string, errorLike: unknown): void {
-  markRuntimeErrorReported(errorLike)
-  const message = formatRuntimeError(errorLike)
-  props.onRuntimeError?.({
-    phase,
-    message,
-    pageId,
-    at: new Date().toISOString(),
-  })
-}
-
-function invalidateCurrentRenderFunctions(): void {
-  if (!vueApp) return
-  invalidateRenderFunctionsForPage(vueApp, pageFunctions.value)
-}
-
-onErrorCaptured((capturedError, _instance, info) => {
-  if (wasRuntimeErrorReported(capturedError)) return
-  const suffix = info ? `\n\n[vueInfo]\n${info}` : ''
-  reportRuntimeError('render', currentPageId.value || 'unknown', `${formatRuntimeError(capturedError)}${suffix}`)
-})
-
-// ==================== 脚本编译 ====================
-
-function executeScript(pageId: string, scriptText: string): void {
-  if (!scriptText) { pageFunctions.value = {}; return }
-  try {
-    pageFunctions.value = compileFunctions(scriptText, pageContext)
-    logger.info('📜 脚本编译成功', { pageId, functions: Object.keys(pageFunctions.value) })
-  } catch (e) {
-    logger.error('脚本编译失败', { pageId, error: e })
-    reportRuntimeError('script-compile', pageId, e)
-    pageFunctions.value = {}
-  }
-}
-
-function callPageFunction(functionName: string, ...args: unknown[]): unknown {
-  const fn = pageFunctions.value[functionName]
-  if (typeof fn === 'function') {
-    try {
-      const result = fn(...args)
-      if (isPromiseLike(result)) {
-        return Promise.resolve(result)
-          .then((value: unknown) => {
-            invalidateCurrentRenderFunctions()
-            return value
-          })
-          .catch((e: unknown) => {
-            logger.error(`[SparkPageRenderer] 事件函数执行失败: ${functionName}`, { error: e })
-            reportRuntimeError('script-function', currentPageId.value || props.pageId || props.pageNode.pageId, e)
-            invalidateCurrentRenderFunctions()
-            throw e
-          })
-      }
-      invalidateCurrentRenderFunctions()
-      return result
-    } catch (e) {
-      logger.error(`[SparkPageRenderer] 事件函数执行失败: ${functionName}`, { error: e })
-      reportRuntimeError('script-function', currentPageId.value || props.pageId || props.pageNode.pageId, e)
-      invalidateCurrentRenderFunctions()
-      throw e
-    }
-  }
-  if (import.meta.env.DEV) {
-    logger.warn(`[SparkPageRenderer] 事件函数未定义: ${functionName}`)
-  }
-  return undefined
-}
-
-// ==================== 配置加载流水线 ====================
-
-/** 加载 spark-page props：只从 PageNode 获取内存态。 */
-async function loadNodeProps(pageId: string, options: { forceReload?: boolean } = {}): Promise<PageNodeRenderConfig> {
-  if (props.pageNode.pageId !== pageId) {
-    throw new Error(`页面节点不匹配: 路由 ${pageId}, 节点 ${props.pageNode.pageId}`)
-  }
-  await props.pageNode.load({ forceReload: options.forceReload === true })
-  return props.pageNode.toRenderConfig()
-}
-
-/**
- * 解析运行态 DataSet：有 dataSpaceBinding 时必须走宿主注入装载器；否则沿用四文件 hydrate（设计轴）。
- */
-async function resolveRuntimeDataSet(nodeProps: PageNodeRenderConfig): Promise<DataSet> {
-  const binding = nodeProps.dataSpaceBinding
-  if (binding === null) return nodeProps.data
-  if (props.loadRuntimeDataSet === undefined) {
-    throw new Error(
-      `页面 ${nodeProps.pageId} 已绑定数据空间（${binding.formKey}/${binding.dataSpaceId}/${binding.modelId}），但未注入 loadRuntimeDataSet`,
-    )
-  }
-  return props.loadRuntimeDataSet(binding)
-}
-
-/**
- * spark-page props 应用流水线：将节点 props 应用到渲染状态。
- *
- * 时序：
- *   1. css    → setScopedCss
- *   2. script → compileFunctions → registerRenderComponents
- *   3. data   → DataSet 初始化 → sparkProvide(PAGE_DATASET)
- *   4. rule   → SparkNodeTree → buildPageChildren → children（驱动模板渲染）
- *   ── loading=false → SparkComponentRenderer 挂载 ──
- *   5. nextTick → __init__ + initAutoSelection
- */
-function applyNodeProps(pageId: string, nodeProps: PageNodeRenderConfig): void {
-  // 1. css → 作用域隔离
-  setScopedCss(pageId, nodeProps.css ?? '')
-
-  // 2. script → 沙箱编译 + Render* 组件注册
-  executeScript(pageId, nodeProps.script ?? '')
-  if (vueApp) registerRenderFunctionsForPage(vueApp, pageFunctions.value)
-
-  // 3. data → DataSet 初始化 + PAGE_DATASET 能力注入
-  if (pds.dataSet) pds.clearDataSet()
-  pds.initDataSet(nodeProps.data)
-  const ds = pds.dataSet
-  if (ds) {
-    const loaderClient = readPageNodeHttpClient(props.pageNode)
-    if (loaderClient) ds.setSharedHttpClient(loaderClient)
-    ds.setAppServices(pageRuntimeServices)
-    ds.setPageRoute(pageRoute)
-    sparkProvide(PAGE_DATASET, ds)
-    _crudTool = DataSetCrudTool.fromDataSet(ds)
-  } else {
-    _crudTool = null
-  }
-
-  // 4. rule → SparkNodeTree → buildPageChildren → children
-  _nodeTree = SparkNodeTree.fromPageChildren(nodeProps.rule)
-  rebuildChildren()
-}
-
-function readPageNodeHttpClient(pageNode: PageNodeLike): HttpClientBase | undefined {
-  if (!('getHttpClient' in pageNode)) return undefined
-  const getHttpClient = Reflect.get(pageNode, 'getHttpClient')
-  if (typeof getHttpClient !== 'function') return undefined
-  const client: unknown = Reflect.apply(getHttpClient, pageNode, [])
-  return isHttpClientBase(client) ? client : undefined
-}
-
-function isHttpClientBase(value: unknown): value is HttpClientBase {
-  return value !== null && typeof value === 'object'
-}
-
-// ==================== 加载入口 ====================
-
-/** 完整加载流程：解析当前 pageId → beforeLoad → loadNodeProps → applyNodeProps → afterLoad。 */
-async function loadConfig(options: { force?: boolean } = {}): Promise<void> {
-  const targetPageId = resolveCurrentPageId(route, props.pageId, props.pageNode.pageId)
-  if (!options.force && loading.value && _inFlightPageId === targetPageId) return
-
-  _inFlightPageId = targetPageId
-  let didApply = false
-
-  try {
-    await runLoad(async (isStale) => {
-      currentPageId.value = targetPageId
-      if (props.beforeLoad) await props.beforeLoad(targetPageId)
-      if (isStale()) return
-      const nodeProps = await loadNodeProps(targetPageId, { forceReload: options.force === true })
-      if (isStale()) return
-      const runtimeData = await resolveRuntimeDataSet(nodeProps)
-      if (isStale()) return
-      const appliedProps: PageNodeRenderConfig = { ...nodeProps, data: runtimeData }
-      applyNodeProps(targetPageId, appliedProps)
-      didApply = true
-      if (isStale()) return
-      if (props.afterLoad) await props.afterLoad(appliedProps)
-    }, (error) => {
-      reportRuntimeError('load', targetPageId, error)
-      props.onError?.(error)
-    })
-  } finally {
-    if (_inFlightPageId === targetPageId) _inFlightPageId = null
-  }
-
-  // loading=false 后等待 DOM 渲染完成，再执行 __init__ + initAutoSelection
-  // 此时组件已挂载、DataSet 已就绪
-  if (!error.value && didApply) {
-    await nextTick()
-    const init = pageFunctions.value['__init__']
-    if (typeof init === 'function') {
-      try {
-        const initResult = init()
-        if (isPromiseLike(initResult)) await initResult
-        logger.info('✅ __init__ 执行成功')
-      } catch (e) {
-        logger.error('__init__ 执行失败', { error: e })
-        reportRuntimeError('init', currentPageId.value || targetPageId, e)
-      }
-    }
-    pds.dataSet?.triggerAutoLoad()
-    pds.dataSet?.initAutoSelection()
-    invalidateCurrentRenderFunctions()
-  }
-}
-
-/**
- * 从 SparkNodeTree 重建渲染用 children。
- *
- * 设计时编辑 nodeTree 后调用此方法即可刷新 UI，无需重新加载四文件。
- */
-function rebuildChildren(): void {
-  if (!_nodeTree) {
-    children.value = []
-    return
-  }
-  const ruleNodes = getSparkNodeChildren(_nodeTree.root.children)
-  children.value = buildPageChildren(ruleNodes, {
-    callFunc: callPageFunction,
-    actionCtx,
-  })
-}
-
-function requestLoad(): void {
-  void loadConfig().catch(e => logger.error('loadConfig 失败', e))
-}
-
-// ==================== 生命周期 ====================
-
-// 页面加载输入 = 页面定位 + PageNode 内存态。
-// immediate: true 替代 onMounted + watch 二合一——loadConfig 是异步流水线，
-// DOM 依赖在 await nextTick() 之后才访问，此时组件已挂载，无需等 onMounted。
-// 同 pageId 下 pageNodeRevision 变化也会触发重载，避免“页面 ID 没变但四文件已更新”时 UI 停留旧状态。
-watch(
-  loadSourceKey,
-  (nextKey) => {
-    if (nextKey === '') return
-    requestLoad()
-  },
-  { immediate: true, flush: 'post' },
-)
-
-watch(
-  pageContainer,
-  (nextContainer, prevContainer) => {
-    if (prevContainer) {
-      sparkUnbindPageRootContext(prevContainer)
-    }
-    if (nextContainer && currentCapabilityContext) {
-      sparkBindPageRootContext(nextContainer, currentCapabilityContext)
-    }
-  },
-  { immediate: true },
-)
-
-onUnmounted(() => {
-  if (pageContainer.value) {
-    sparkUnbindPageRootContext(pageContainer.value)
-  }
-})
-
-// ==================== Expose ====================
-
-defineExpose({
-  reload: () => loadConfig({ force: true }),
-  loadConfig,
-  pageContext,
-  get dataSet(): DataSet | null { return pds.dataSet },
-  /** rule.json 的 SSoT 节点树（设计时编辑入口）。页面未加载时为 null。 */
-  get nodeTree(): SparkNodeTree | null { return _nodeTree },
-  /** 从 nodeTree 重建渲染 children。设计时编辑 nodeTree 后调用以刷新 UI。 */
-  rebuildChildren,
-  /** pagedata.json 的 SSoT CRUD 工具（设计时编辑入口）。页面未加载时为 null。 */
-  get crudTool(): DataSetCrudTool | null { return _crudTool },
-})
+onErrorCaptured(errorLike=>{if(activeRuntime && !controller?.signal.aborted)report('render',activeRuntime,errorLike)})
+watch(()=>props.pageRuntime,()=>{void loadConfig().catch(errorLike=>{error.value=String(errorLike);props.onError?.(errorLike instanceof Error ? errorLike : new Error(String(errorLike)))})},{immediate:true,flush:'post'})
+watch(pageContainer,(next,prev)=>{if(prev)sparkUnbindPageRootContext(prev);if(next && capabilityContext)sparkBindPageRootContext(next,capabilityContext)},{immediate:true})
+onUnmounted(()=>{revision++;if(pageContainer.value)sparkUnbindPageRootContext(pageContainer.value);release()})
+defineExpose({loadConfig,reload:loadConfig,get pageContext(){return pageContext},get pageRuntime(){return activeRuntime},get nodeTree(){return nodeTree}})
 </script>
-
 <style scoped>
 .spark-page-loading {
   display: flex;

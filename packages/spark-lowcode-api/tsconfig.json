@@ -8,6 +8,7 @@
     "target": "ES2020",
     "noEmit": true,
     "paths": {
+      "@spark-appworks/spark-data": ["../spark-data/src/index.ts"],
       "@spark-appworks/spark-lowcode-api": ["./src/index.ts"],
       "@spark-appworks/spark-lowcode-api/contracts": ["./src/contracts/index.ts"],
       "@spark-appworks/spark-utils": ["../spark-utils/src/index.ts"]

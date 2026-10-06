@@ -1,72 +1,72 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import {
-  buildPageDesignToolLoopNudge,
-  formatPageDesignSystemPrompt,
-} from '@/services/page-design/page-design-agent-workflow-binding'
-import { PAGE_DATA_DESIGN_ALLOWED_OPERATIONS } from '@/services/page-data-design/page-data-design-agent-run-provider'
+import { buildPageDesignToolLoopNudge, formatPageDesignSystemPrompt } from '@/services/page-design/page-design-agent-workflow-binding'
+import { createAgentWorkflowDefinitionFromDesign, parseWorkflowDesignJson } from '@/services/workflow-designs'
+import { PageTool, ProjectWorkspace, ScenarioViewFile } from '@spark-appworks/spark-project-model'
+import { createAppAgentWorkflowRuntimeBindings } from '@/services/ai/agent-workflow-bindings'
 
-const FIXTURE_PAGE_ID = 'leave-request-page'
+const baseInput = { requestId: 'request-A', pageId: 'leave-request-page', description: '补充表单',
+  effectiveDescription: '请假申请列表及明细', planningTitle: '请假申请', projectId: 'demo' }
+const SCENARIO_ONLY_OPERATIONS = { nodeTree: false, dataSet: true, script: false, style: false, blueprint: false } as const
 
-const baseInput = {
-  pageId: FIXTURE_PAGE_ID,
-  description: '补主从表',
-  effectiveDescription: '请假单列表需要明细表',
-  planningTitle: '请假申请',
-  planningPath: '/leave-request',
-  projectId: 'homepage',
-} as const
-
-describe('buildPageDesignToolLoopNudge', () => {
-  it('interpolates pageId with current script contract', () => {
-    const nudge = buildPageDesignToolLoopNudge('model_script_retry', FIXTURE_PAGE_ID)
-    expect(nudge).toContain(FIXTURE_PAGE_ID)
-    expect(nudge).toContain('RECOVERY_HINT')
-    expect(nudge).not.toContain('createTable')
-    expect(nudge).toContain('openPageDesign')
-    expect(nudge).toContain('字符串 pageId')
-  })
-
-  it('nudges execution phase with pageId context only', () => {
-    const nudge = buildPageDesignToolLoopNudge('execution_phase', FIXTURE_PAGE_ID)
-    expect(nudge).toContain(FIXTURE_PAGE_ID)
-    expect(nudge).toContain('model_script')
-    expect(nudge).toContain('目录/指南阶段已完成')
-    expect(nudge).toContain('setFileText')
-  })
-
-  it('uses data-only nudges when allowedOperations is pageDataDesign preset', () => {
-    const nudge = buildPageDesignToolLoopNudge(
-      'execution_phase',
-      FIXTURE_PAGE_ID,
-      PAGE_DATA_DESIGN_ALLOWED_OPERATIONS,
-    )
-    expect(nudge).toContain('editDataSet')
-    expect(nudge).toContain('pagedata.json')
-    expect(nudge).toContain('nodeTree')
-  })
-})
-
-describe('formatPageDesignSystemPrompt', () => {
-  it('includes data-only boundary when allowedOperations is pageDataDesign preset', () => {
-    const prompt = formatPageDesignSystemPrompt({
-      ...baseInput,
-      allowedOperations: PAGE_DATA_DESIGN_ALLOWED_OPERATIONS,
-    })
-    expect(prompt).toContain('pageDataDesign preset')
-    expect(prompt).toContain('pagedata.json')
-    expect(prompt).toContain('禁止 editNodeTree')
-    expect(prompt).toContain('model_action_guide 只用 kind / actionName')
-    expect(prompt).toContain('禁止 member / select / query')
+describe('pageDesign formal workflow contract', () => {
+  it('uses three page files and explicitly supplied scenario views', () => {
+    const prompt = formatPageDesignSystemPrompt({ ...baseInput, scenarioId: 'SCENE-A' })
+    expect(prompt).toContain('ProjectWorkspace')
+    expect(prompt).toContain('PageTool')
+    expect(prompt).toContain('ScenarioViewFile')
+    expect(prompt).toContain('loadScenarioViews({ scenarioId: "SCENE-A" })')
+    expect(prompt).toContain('views.setText')
+    expect(prompt).toContain('#scenarioId@table@view')
+    expect(prompt).toContain('mainScenarioId')
+    expect(prompt).not.toContain('pagedata.json')
     expect(prompt).not.toContain('ConfigPageNode')
+    expect(prompt).not.toContain('editDataSet')
   })
-
-  it('uses full pageDesign knowledge index without data-only boundary by default', () => {
-    const prompt = formatPageDesignSystemPrompt({ ...baseInput })
-    expect(prompt).toContain('ConfigPageNode')
-    expect(prompt).toContain('model_query 只用 kind / keyword / includeMembers')
-    expect(prompt).toContain('禁止 member / select / query')
-    expect(prompt).toContain('script 是 JavaScript async function body')
-    expect(prompt).toContain('style.css')
-    expect(prompt).not.toContain('pageDataDesign preset')
+  it('requires explicit scenario identity for scene-only operations', () => {
+    expect(() => formatPageDesignSystemPrompt({ ...baseInput, allowedOperations: SCENARIO_ONLY_OPERATIONS })).toThrow('scenarioId')
+    expect(formatPageDesignSystemPrompt({ ...baseInput })).toContain('未提供 scenarioId')
+  })
+  it('nudges with the real PageTool and ScenarioViewFile operations', () => {
+    expect(buildPageDesignToolLoopNudge('execution_phase', baseInput.pageId)).toContain('this.project.openPageDesign')
+    expect(buildPageDesignToolLoopNudge('execution_phase', baseInput.pageId, SCENARIO_ONLY_OPERATIONS)).toContain('页面三文件本轮禁止修改')
+    expect(buildPageDesignToolLoopNudge('model_script_retry', baseInput.pageId)).toContain('RECOVERY_HINT')
+  })
+  it('requires requestId in the app prompt consumer', () => {
+    expect(() => createAppAgentWorkflowRuntimeBindings({}).systemPromptInterpolator({
+      editorSource: 'pageDesign', template: '', hints: [], input: { pageId: 'orders', description: 'd', effectiveDescription: 'd' },
+    })).toThrow('requestId')
+  })
+  it('keeps saved assets equal to the executable design projection', () => {
+    const base = 'config/agent-workflows/lmspark/homepage/agent.workflow.pageDesign/'
+    const design = JSON.parse(readFileSync(`${base}design.json`, 'utf8'))
+    const definition = JSON.parse(readFileSync(`${base}definition.json`, 'utf8'))
+    const projected = createAgentWorkflowDefinitionFromDesign(design, { publishedAt: definition.x_spark.publishedAt })
+    expect(projected).toEqual(definition)
+    expect(definition.workflow.runtimeBinding.inputContract.identityField).toBe('requestId')
+    expect(definition.workflow.runtimeBinding.resolveInstance.identityField).toBe('requestId')
+    expect(definition.workflow.runtimeBinding.modelProjectionRef.rootClassName).toBe('ProjectWorkspace')
+  })
+  it('binds sequence endpoints to existing models and actual class members', () => {
+    const design = parseWorkflowDesignJson(readFileSync('config/agent-workflows/lmspark/homepage/agent.workflow.pageDesign/design.json', 'utf8'))
+    const prototypes: Record<string, object> = { PageTool: PageTool.prototype, ProjectWorkspace: ProjectWorkspace.prototype, ScenarioViewFile: ScenarioViewFile.prototype }
+    for (const line of design.workflow.graph.lines) {
+      for (const endpoint of [line.from, line.to]) {
+        const node = design.workflow.graph.nodes.find(item => item.id === endpoint.nodeId)
+        expect(node).toBeDefined()
+        if (node?.type !== 'node') {
+          expect(endpoint.modelId).toBe('$workflow')
+          expect(endpoint.memberName).toBe(endpoint.nodeId === 'start' ? 'pageId' : 'result')
+          continue
+        }
+        const model = node.data?.models?.find(item => item['id'] === endpoint.modelId)
+        expect(model).toBeDefined()
+        const className = model?.['className']
+        if (typeof className !== 'string') throw new Error('Missing endpoint class')
+        const prototype = prototypes[className]
+        if (prototype === undefined) throw new Error(`Unknown endpoint class ${className}`)
+        expect(endpoint.memberName in prototype).toBe(true)
+      }
+    }
   })
 })

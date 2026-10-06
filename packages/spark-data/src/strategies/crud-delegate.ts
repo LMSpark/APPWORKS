@@ -219,7 +219,8 @@ constructor(
 
     return this.withMutating(async () => {
       const svc = this.ensureCrudService()
-      const pk = serverPk ?? { [this.host.primaryKey]: id }
+      const pk = serverPk ?? this._extractPkPayload(id, originalRow)
+      this.assertBusinessPk(pk)
       const result = await svc.update<DataRow>(pk, requestData, this.getCrudConfig())
       if (result.success && result.data) {
         this.host.updateRowById(id, result.data)
@@ -242,7 +243,9 @@ constructor(
 
     return this.withMutating(async () => {
       const svc = this.ensureCrudService()
-      const pk = serverPk ?? { [this.host.primaryKey]: id }
+      const row = this.host.rows.find(item => this.host.getPkKey(item) === id)
+      const pk = serverPk ?? this._extractPkPayload(id, row)
+      this.assertBusinessPk(pk)
       const result = await svc.delete(pk, this.getCrudConfig())
       if (result.success) {
         this.host.deleteRowById(id)
@@ -361,21 +364,28 @@ constructor(
 
   /**
    * 从本地 ID 构建服务端 PK payload。
-   * 尝试从 rows 中查找行以提取真实 PK 字段，否则回退到单字段。
+   * 从原始行提取业务主键；只有单列业务键可直接使用本地 ID。
    */
   /** 使用预构建 Map 查找行（批量操作用，避免 O(n²)） */
   private _buildServerPkFromIdWithMap(id: string | number, rowMap: Map<string | number, DataRow>): Record<string, unknown> {
     return this._extractPkPayload(id, rowMap.get(id))
   }
 
-  /** 从行对象提取 PK payload，找不到行时回退到单字段 */
+  /** 合成主键缺少原始行时禁止提交，不能拆解组合值推测业务字段。 */
   private _extractPkPayload(id: string | number, row: DataRow | undefined): Record<string, unknown> {
     if (row) {
-      const result: Record<string, unknown> = {}
-      for (const f of this.host.effectivePkFields) result[f] = row[f]
+      const result = this.host.buildServerPk(row)
+      this.assertBusinessPk(result)
       return result
     }
+    if (this.host.primaryKey === '_pk') {
+      throw new Error('Cannot submit without the original business primary key fields')
+    }
     return { [this.host.primaryKey]: id }
+  }
+
+  private assertBusinessPk(pk: Record<string, unknown>): void {
+    if (Object.hasOwn(pk, '_pk')) throw new Error('_pk cannot be submitted as a business primary key')
   }
 
   // ─────────────────────────────────────────────

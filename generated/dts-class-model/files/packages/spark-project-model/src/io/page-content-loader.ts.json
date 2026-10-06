@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/io/page-content-loader.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "io/page-content-loader",
-    "jsdoc": "@module @spark-appworks/spark-project-model:io/page-content-loader\n职责：按项目与页面身份读取四文件，并维护当前前端会话内的内容缓存。\n边界：只依赖注入的语义读取器，不拥有任何服务器 URL 或认证协议。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/page-content-loader\n职责：按项目与页面身份读取三文件，并维护当前前端会话内的内容缓存。\n边界：只依赖注入的语义读取器，不拥有任何服务器 URL 或认证协议。\nAI用途：经Workspace读取工具工作副本并确认缓存身份与失效规则。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PageFileReadCommand",
@@ -22,6 +22,9 @@
       "type": "object",
       "title": "PageFileReadCommand",
       "properties": {
+        "versionId": {
+          "type": "string"
+        },
         "projectId": {
           "type": "string"
         },
@@ -30,7 +33,7 @@
         },
         "fileName": {
           "type": "object",
-          "title": "PageNodeFileName"
+          "title": "PageToolFileName"
         }
       },
       "additionalProperties": false
@@ -82,10 +85,10 @@
             },
             "filename": {
               "type": "object",
-              "title": "PageNodeFileName"
+              "title": "PageToolFileName"
             },
             "options": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageNodeLoadOptions"
+              "$ref": "../page/page-file.ts.json#/$defs/PageToolLoadOptions"
             }
           },
           "additionalProperties": false
@@ -174,23 +177,28 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T10:53:59.039Z",
+  "generatedAt": "2026-10-06T20:49:03.420Z",
   "models": {
     "PageFileReadCommand": {
       "name": "PageFileReadCommand",
-      "jsdoc": "",
+      "jsdoc": "以项目和pageId读取一个工具文件；versionId发布指针省略时读取工作副本。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    projectId: string;\n    pageId: string;\n    fileName: PageNodeFileName;\n}>",
+        "declarationTypeText": "Readonly<{\n    versionId?: string;\n    projectId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    projectId: string;\n    pageId: string;\n    fileName: PageNodeFileName;\n}>",
+            "typeText": "Readonly<{\n    versionId?: string;\n    projectId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "versionId",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "projectId",
               "readable": true,
@@ -212,7 +220,7 @@
     },
     "PageFileReader": {
       "name": "PageFileReader",
-      "jsdoc": "",
+      "jsdoc": "宿主提供的真实文本读取能力，失败不得回退本地空文件。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "(command: PageFileReadCommand) => Promise<string>",
@@ -221,7 +229,7 @@
     },
     "PageContentLoaderOptions": {
       "name": "PageContentLoaderOptions",
-      "jsdoc": "",
+      "jsdoc": "注入项目身份读取器与三文件文本能力，缓存由本loader持有。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    getProjectId?: () => string;\n    projectId?: string;\n    readPageFile?: PageFileReader;\n}>",
@@ -260,10 +268,11 @@
     },
     "PageContentLoader": {
       "name": "PageContentLoader",
-      "jsdoc": "页面四文件加载器；远端合同由宿主注入，缓存不跨应用身份。",
+      "jsdoc": "页面三文件加载器；远端合同由宿主注入，缓存不跨应用身份。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "注入项目身份和真实读取能力，缓存不跨项目或失效请求。",
           "signatureText": "constructor(options?: PageContentLoaderOptions)",
           "parameters": [
             {
@@ -295,7 +304,7 @@
                   "name": "filename",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeFileName",
+                    "name": "PageToolFileName",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 },
@@ -303,7 +312,7 @@
                   "name": "options",
                   "type": {
                     "type": "reference",
-                    "name": "PageNodeLoadOptions",
+                    "name": "PageToolLoadOptions",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   },
                   "flags": {

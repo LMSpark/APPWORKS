@@ -24,7 +24,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:44:44.279Z",
+  "generatedAt": "2026-10-05T19:49:37.394Z",
   "models": {
     "TableMetadataLike": {
       "name": "TableMetadataLike",

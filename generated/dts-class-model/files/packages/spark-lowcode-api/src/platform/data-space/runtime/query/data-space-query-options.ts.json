@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-options",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-options",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-options\n职责：捕获 DataView 正式模型绑定与查询参数。\n边界：拒绝未知字段或重复输出，不用视图显示名推断场景模型。\nAI用途：把视图执行参数转为明确模型查询命令。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "DataSpaceViewQueryCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceViewQueryCommand",
+      "properties": {
+        "identity": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        },
+        "options": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.618Z",
+  "models": {
+    "DataSpaceViewQueryCommand": {
+      "name": "DataSpaceViewQueryCommand",
+      "jsdoc": "从视图绑定和参数捕获的场景模型身份与查询选项快照。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options: DataSpaceQueryOptions;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options: DataSpaceQueryOptions;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

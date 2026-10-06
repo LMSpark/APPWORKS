@@ -5,13 +5,13 @@
  * AI用途：需要判断 renderer filter 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。
  */
 import type { SparkNodeProps } from '../../shared-types'
-import type { SparkNode } from '@spark-appworks/spark-data'
+import type { SparkNode, DataViewFilterFunctionContext } from '@spark-appworks/spark-data'
 
 /**
  * `r-filter` / `RendererFilter` 完整属性定义。
  *
  * SSOT 设计：r-filter 通过 `dataViewKey` 自治绑定 DataView，
- * 自己维护 filterModel / FilterExpression / DataView.setFilter 同步。
+ * 自己维护 filterModel / DataViewFilterTree / DataView.setFilter 同步。
  * 父容器（r-table 等）不再注入桥接字段；嵌入 r-table 时可省略 dataViewKey，
  * 由 r-table 提供的 DATA_SOURCE 能力向下注入。
  */
@@ -36,6 +36,8 @@ export type RFilterProps = SparkNodeProps & {
      * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。
      */
     dataViewKey?: string
+    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */
+    filterFunctionContext?: DataViewFilterFunctionContext
     /** 是否允许折叠。 */
     collapsible?: boolean
     /** 初始是否折叠。 */

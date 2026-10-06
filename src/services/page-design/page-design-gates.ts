@@ -9,8 +9,9 @@
  * allowedOperations 非空时，对 model_script 做操作域 marker 硬拦截。
  */
 import type { JsonParams } from '@spark-appworks/spark-json-document'
+import { PAGE_TOOL_FILE_NAMES } from '@spark-appworks/spark-project-model'
 import type {
-  PageNodeFileName,
+  PageToolFileName,
   ProjectBlueprintImplGate,
   ProjectPageNodeSummary,
 } from '@spark-appworks/spark-project-model'
@@ -19,7 +20,7 @@ import type {
 export type PageDesignAllowedOperations = Readonly<{
   /** 是否允许读写节点树（editNodeTree / getNodeTree） */
   nodeTree?: boolean
-  /** 是否允许读写数据集（editDataSet / getDataSetTool） */
+  /** 是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText） */
   dataSet?: boolean
   /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */
   script?: boolean
@@ -37,12 +38,14 @@ const PAGE_DESIGN_OPERATION_KEYS: ReadonlyArray<keyof PageDesignAllowedOperation
   'blueprint',
 ]
 
-/** 页面设计运行上下文：绑定到 pageId，控制本次 run 的操作域与输出约束 */
+/** 页面设计运行上下文：绑定到 requestId，控制本次 run 的操作域与输出约束 */
 export type PageDesignRunContext = Readonly<{
+  pageId: string
+  scenarioId?: string
   /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */
   allowedOperations?: PageDesignAllowedOperations
-  /** 交付阶段允许保存的文件名列表；为空时不限制输出文件范围 */
-  deliverySaveFileNames?: readonly PageNodeFileName[]
+  /** 交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。 */
+  deliverySaveFileNames?: readonly PageToolFileName[]
 }>
 
 export function isPageDesignDataSetOnlyMode(
@@ -58,32 +61,36 @@ export function isPageDesignDataSetOnlyMode(
 
 const pageDesignRunContexts = new Map<string, PageDesignRunContext>()
 
-export function bindPageDesignRunContext(pageId: string, context: PageDesignRunContext): void {
-  const normalized = pageId.trim()
+export function bindPageDesignRunContext(requestId: string, context: PageDesignRunContext): void {
+  const normalized = requestId.trim()
   if (normalized.length === 0) {
-    throw new Error('pageDesign run context requires a non-empty pageId.')
+    throw new Error('pageDesign run context requires a non-empty requestId.')
   }
-  pageDesignRunContexts.set(normalized, context)
+  if (!context.pageId.trim()) throw new Error('pageDesign run context requires pageId')
+  const deliverySaveFileNames = readDeliverySaveFileNamesFromAgentArgs(context)
+  pageDesignRunContexts.set(normalized, { ...context,
+    ...(deliverySaveFileNames === undefined ? {} : { deliverySaveFileNames }) })
 }
 
-export function clearPageDesignRunContext(pageId: string): void {
-  pageDesignRunContexts.delete(pageId.trim())
+export function clearPageDesignRunContext(requestId: string): void {
+  pageDesignRunContexts.delete(requestId.trim())
 }
 
-export function readPageDesignRunContext(pageId: string): PageDesignRunContext | undefined {
-  return pageDesignRunContexts.get(pageId.trim())
+export function readPageDesignRunContext(requestId: string): PageDesignRunContext | undefined {
+  return pageDesignRunContexts.get(requestId.trim())
 }
 
 export function bindPageDesignRunContextFromAgentArgs(
-  pageId: string,
+  requestId: string,
   args: Record<string, unknown>,
 ): void {
   const patch = readPageDesignRunContextFromAgentArgs(args)
   if (patch === undefined) return
-  const existing = readPageDesignRunContext(pageId)
-  bindPageDesignRunContext(pageId, {
+  const existing = readPageDesignRunContext(requestId)
+  bindPageDesignRunContext(requestId, {
     ...(existing ?? {}),
     ...patch,
+    pageId: patch.pageId.trim() ? patch.pageId : (existing?.pageId ?? ''),
   })
 }
 
@@ -92,8 +99,11 @@ function readPageDesignRunContextFromAgentArgs(
 ): PageDesignRunContext | undefined {
   const allowedOperations = readAllowedOperationsFromAgentArgs(args)
   const deliverySaveFileNames = readDeliverySaveFileNamesFromAgentArgs(args)
-  if (allowedOperations === undefined && deliverySaveFileNames === undefined) return undefined
+  const pageId = typeof args['pageId'] === 'string' ? args['pageId'].trim() : ''
+  if (!pageId && allowedOperations === undefined && deliverySaveFileNames === undefined) return undefined
   return {
+    pageId,
+    ...(typeof args['scenarioId'] === 'string' ? { scenarioId: args['scenarioId'] } : {}),
     ...(allowedOperations === undefined ? {} : { allowedOperations }),
     ...(deliverySaveFileNames === undefined ? {} : { deliverySaveFileNames }),
   }
@@ -124,11 +134,16 @@ function isJsonRecord(value: unknown): value is Record<string, unknown> {
 
 function readDeliverySaveFileNamesFromAgentArgs(
   args: Record<string, unknown>,
-): readonly PageNodeFileName[] | undefined {
+): readonly PageToolFileName[] | undefined {
   const value = args['deliverySaveFileNames']
-  if (!Array.isArray(value)) return undefined
-  const names = value.filter((item): item is PageNodeFileName => typeof item === 'string')
-  return names.length > 0 ? names : undefined
+  if (!Object.hasOwn(args, 'deliverySaveFileNames')) return undefined
+  if (!Array.isArray(value) || value.length === 0) throw new Error('PAGE_DESIGN_SAVE_SCOPE_INVALID: 保存范围必须为非空文件名数组')
+  const names = value.map(item => {
+    const name = PAGE_TOOL_FILE_NAMES.find(file => file === item)
+    if (name === undefined) throw new Error('PAGE_DESIGN_SAVE_SCOPE_INVALID: 保存范围包含未知文件名')
+    return name
+  })
+  return Object.freeze(names)
 }
 
 /** Page Design Run Mode 的语义模型。 */
@@ -225,7 +240,7 @@ export function assertPageDesignRunGateAllowed(
 
 const OPERATION_FALSE_SCRIPT_MARKERS = {
   nodeTree: ['editNodeTree', 'getNodeTree'],
-  dataSet: ['editDataSet', 'getDataSetTool'],
+  dataSet: ['loadScenarioViews', 'saveScenarioViews', 'getScenarioViews', 'setText'],
   script: ['setFileText', 'getFileText', 'writePageFile'],
   style: ['setFileText', 'getFileText', 'writePageFile'],
   blueprint: [
@@ -295,7 +310,7 @@ export function evaluatePageDesignScriptOperationGate(
   return {
     ok: false,
     reason: `pageDesign: model_script 禁止调用 ${marker}；当前 allowedOperations 未放行该操作域。`,
-    fix: '调整 allowedOperations，或改写 script 只调用已放行的 API（如 editDataSet / editNodeTree）。',
+    fix: '调整 allowedOperations，或改写 script 只调用已放行的 API（如 loadScenarioViews / editNodeTree）。',
   }
 }
 

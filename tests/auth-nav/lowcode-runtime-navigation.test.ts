@@ -10,40 +10,27 @@ import {
   lowcodeEnterpriseDisplayName,
 } from '@/lowcode/lowcode-runtime'
 
-function record(
-  input: Readonly<{
-    id: string
-    parentId?: string
-    title: string
-    kind?: LowcodeProjectBlueprintRecord['kind']
-    runtimeTarget?: string
-    formKey?: string
-    order?: number
-  }>,
-): LowcodeProjectBlueprintRecord {
+type BlueprintFixtureInput = Readonly<{
+  nodeId: string
+  parentNodeId?: string
+  name: string
+  title: string
+  kind?: LowcodeProjectBlueprintRecord['kind']
+  target?: string
+  scenarioId?: string
+  order?: number
+}>
+
+function record(input: BlueprintFixtureInput): LowcodeProjectBlueprintRecord {
   return {
-    id: input.id,
-    parentId: input.parentId ?? '',
+    nodeId: input.nodeId,
+    parentNodeId: input.parentNodeId ?? '',
     projectId: 'PROJECT-1',
-    title: input.title,
     kind: input.kind ?? 'page',
-    description: '',
-    planningContent: '',
-    prototypeHtml: '',
-    formKey: input.formKey ?? '',
-    dataSpaceType: '',
-    runtimeTarget: input.runtimeTarget ?? '',
-    fileVersionId: '',
-    difficultyFactor: 0,
-    manhour: 0,
-    quantity: 0,
-    sum: 0,
-    total: 0,
-    personInCharge: '',
-    status: '',
-    navigationType: 0,
-    runtimeNavigationCandidate: true,
-    order: input.order ?? 0,
+    capability: { name: input.name },
+    navigation: { title: input.title, ...(input.target === undefined ? {} : { target: input.target }), order: input.order ?? 0,
+      publishInMenu: true, showChildren: true, beginGroup: false },
+    ...(input.scenarioId ? { dataSpace: { scenarioId: input.scenarioId, models: [] } } : {}),
     source: {},
   }
 }
@@ -95,20 +82,21 @@ describe('lowcode project navigation projection', () => {
     expect(catalog.items.every((child) => child.itemKind === 'system-page')).toBe(true)
   })
 
-  it('uses the first real nested page as the application home path', () => {
+  it.each(['Payroll.Calculate', 'Payroll.Calculate.Renamed'])('keeps the menu title and nested home path for capability %s', (name) => {
     const projection = assembleLowcodeRuntimeNavigation({
       applicationName: 'SPARK薪酬管理',
       projectId: 'PROJECT-1',
       navigationRootId: 'ROOT-1',
       records: [
-        record({ id: 'module-1', title: '工资管理', kind: 'module', order: 0 }),
+        record({ nodeId: 'module-1', name: 'Payroll', title: '工资管理', kind: 'module', order: 0 }),
         record({
-          id: 'page-1',
-          parentId: 'module-1',
+          nodeId: 'page-1',
+          parentNodeId: 'module-1',
+          name,
           title: '工资核算',
           kind: 'page',
-          runtimeTarget: 'vue:payroll/salary-calculation',
-          formKey: 'FORM-1',
+          target: 'vue:payroll/salary-calculation',
+          scenarioId: 'FORM-1',
           order: 1,
         }),
       ],
@@ -131,13 +119,14 @@ describe('lowcode project navigation projection', () => {
     })
 
     expect(projection.homePath).toBe('/payroll/salary-calculation')
-    expect(projection.items[0]?.dataSpaceId).toBeUndefined()
+    expect(projection.items[0]).not.toHaveProperty('dataSpaceId')
     expect(projection.items[0]?.children?.[0]).toMatchObject({
+      title: '工资核算',
       path: '/payroll/salary-calculation',
-      formKey: 'FORM-1',
       itemKind: 'system-page',
     })
-    expect(projection.items[0]?.children?.[0]?.dataSpaceId).toBeUndefined()
+    expect(projection.items[0]?.children?.[0]).not.toHaveProperty('formKey')
+    expect(projection.items[0]?.children?.[0]).not.toHaveProperty('dataSpaceId')
     expect(projection.items.at(-1)).toMatchObject({
       id: 'appworks-system-tools',
       title: 'SPARK 工具',
@@ -152,6 +141,32 @@ describe('lowcode project navigation projection', () => {
       '/dev',
       '/dbms',
     ])
-    expect(projection.items.at(-1)?.children?.every((child) => child.dataSpaceId === undefined)).toBe(true)
+    expect(projection.items.at(-1)?.children?.every((child) => !('dataSpaceId' in child))).toBe(true)
+  })
+
+  it('keeps the cfg tool target separate from the scenario call parameter', () => {
+    const tool = record({ nodeId: 'NODE-1', name: 'Orders.Query', title: '订单查询',
+      target: 'cfg:shared/orders', scenarioId: 'SCENE-1' })
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [tool], authorization: { items: [{ id: 'NODE-1', target: 'cfg:shared/orders',
+        targetKind: 'route', formKey: 'SCENE-1', children: [] }], contexts: [] },
+    })
+
+    expect(tool.navigation?.target).toBe('cfg:shared/orders')
+    expect(projection.items[0]).toMatchObject({ id: 'NODE-1', title: '订单查询',
+      itemKind: 'page', path: '/__page/NODE-1?scenarioId=SCENE-1', tool: { projectId: 'PROJECT-1', pageId: 'shared/orders' } })
+    expect(projection.items[0]).not.toHaveProperty('formKey')
+    expect(projection.items[0]?.path).not.toContain('shared/orders')
+  })
+
+  it('preserves native scene call parameters and hash while projecting the Vue resource', () => {
+    const target = 'vue:/orders?scenarioId=SCENE-1&item=A&item=B&bare&empty=#details'
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '测试应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [record({ nodeId: 'native', name: 'Orders', title: '订单', target })],
+      authorization: { items: [{ id: 'native', target, targetKind: 'vue', formKey: null, children: [] }], contexts: [] },
+    })
+    expect(projection.items[0]?.path).toBe('/orders?scenarioId=SCENE-1&item=A&item=B&bare&empty=#details')
   })
 })

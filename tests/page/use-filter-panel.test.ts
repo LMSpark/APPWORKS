@@ -1,6 +1,6 @@
 import { effectScope, nextTick, shallowRef } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
-import type { CrudApi, FilterExpression, DataRow, TableResourceType } from '@spark-appworks/spark-data'
+import type { CrudApi, DataViewFilterTree, DataRow, TableResourceType } from '@spark-appworks/spark-data'
 import { useFilterPanel, type FilterPanelState } from '../../packages/spark-component/src/components/containers/runtime/container-filter'
 import type { SparkNode } from '@spark-appworks/spark-data'
 
@@ -8,9 +8,9 @@ type FilterViewLike = {
   rows: DataRow[]
   columns?: Array<{ name: string }>
   getColumn?: (name: string) => unknown
-  filterExpression?: FilterExpression
-  setFilter: (expr: FilterExpression | undefined) => Promise<void>
-  executeFilter: (expr: FilterExpression | undefined) => Promise<void>
+  filterExpression?: DataViewFilterTree
+  setFilter: (expr: DataViewFilterTree | undefined) => Promise<void>
+  executeFilter: (expr: DataViewFilterTree | undefined) => Promise<void>
   refresh: () => Promise<void>
   dataTable?: {
     api?: CrudApi
@@ -20,12 +20,12 @@ type FilterViewLike = {
 function createView(options?: {
   rows?: DataRow[]
   columns?: Array<{ name: string }>
-  filterExpression?: FilterExpression
+  filterExpression?: DataViewFilterTree
   api?: CrudApi
   resourceType?: TableResourceType
 }) {
-  const setFilter = vi.fn<(expr: FilterExpression | undefined) => Promise<void>>().mockResolvedValue()
-  const executeFilter = vi.fn<(expr: FilterExpression | undefined) => Promise<void>>().mockResolvedValue()
+  const setFilter = vi.fn<(expr: DataViewFilterTree | undefined) => Promise<void>>().mockResolvedValue()
+  const executeFilter = vi.fn<(expr: DataViewFilterTree | undefined) => Promise<void>>().mockResolvedValue()
   const refresh = vi.fn<() => Promise<void>>().mockResolvedValue()
   const columnMap = new Map((options?.columns ?? []).map(column => [column.name, column]))
   const view: FilterViewLike = {
@@ -78,12 +78,35 @@ async function mountTableFilters(view: FilterViewLike, filterChildren: SparkNode
 }
 
 describe('useFilterPanel', () => {
+  it('invalid input predicates remain visible and do not execute a partial query', async () => {
+    const { view, setFilter } = createView({ resourceType: 'static-data' })
+    const { scope, api } = await mountTableFilters(view, [{ type: 'r-text', props: { field: 'Name', filterOperator: 'obsolete' } }])
+    api.filterModel['Name'] = 'keep this draft'
+    await nextTick()
+    await Promise.resolve()
+    expect(api.filterError.value).toContain('运算符')
+    expect(api.filterModel['Name']).toBe('keep this draft')
+    expect(await api.searchFilters()).toBe(false)
+    expect(setFilter).not.toHaveBeenCalled()
+    scope.stop()
+  })
+
+  it('reports a rejected result replacement without reporting search success', async () => {
+    const { view } = createView({ resourceType: 'static-data' })
+    view.executeFilter = vi.fn().mockRejectedValue(new Error('未保存修改'))
+    const { scope, api } = await mountTableFilters(view, [{ type: 'r-text', props: { field: 'Name' } }])
+    api.filterModel['Name'] = 'draft'
+    await nextTick()
+    expect(await api.searchFilters()).toBe(false)
+    expect(api.filterError.value).toContain('未保存修改')
+    scope.stop()
+  })
   it('无筛选配置时不会覆盖视图自带 filterExpression', async () => {
     const { view, setFilter, refresh } = createView({
       rows: [{ id: 1, status: '草稿' }],
       filterExpression: {
         field: 'status',
-        op: '==',
+        operator: 'eq',
         value: '草稿',
       },
       api: {
@@ -122,7 +145,7 @@ describe('useFilterPanel', () => {
         type: 'r-select',
         props: {
           field: 'status',
-          filterOperator: '==',
+          filterOperator: 'eq',
         },
         children: [],
       },
@@ -136,7 +159,7 @@ describe('useFilterPanel', () => {
 
     expect(setFilter).toHaveBeenCalledWith({
       field: 'status',
-      op: '==',
+      operator: 'eq',
       value: '草稿',
     })
     expect(refresh).not.toHaveBeenCalled()
@@ -160,7 +183,7 @@ describe('useFilterPanel', () => {
         type: 'r-select',
         props: {
           field: 'status',
-          filterOperator: '==',
+          filterOperator: 'eq',
         },
         children: [],
       },
@@ -174,7 +197,7 @@ describe('useFilterPanel', () => {
 
     expect(setFilter).toHaveBeenCalledWith({
       field: 'status',
-      op: '==',
+      operator: 'eq',
       value: '草稿',
     })
     expect(refresh).toHaveBeenCalledTimes(1)
@@ -218,7 +241,7 @@ describe('useFilterPanel', () => {
 
     expect(setFilter).toHaveBeenLastCalledWith({
       field: 'amount',
-      op: '>=',
+      operator: 'gte',
       value: 100,
     })
     expect(api.activeFilterCount.value).toBe(1)
@@ -229,7 +252,7 @@ describe('useFilterPanel', () => {
 
     expect(setFilter).toHaveBeenLastCalledWith({
       field: 'amount',
-      op: '<=',
+      operator: 'lte',
       value: 200,
     })
 
@@ -238,9 +261,8 @@ describe('useFilterPanel', () => {
     await Promise.resolve()
 
     expect(setFilter).toHaveBeenLastCalledWith({
-      field: 'amount',
-      op: 'between',
-      value: [100, 200],
+      logic: 'and',
+      filters: [{ field: 'amount', operator: 'gte', value: 100 }, { field: 'amount', operator: 'lte', value: 200 }],
     })
     scope.stop()
   })
@@ -261,7 +283,7 @@ describe('useFilterPanel', () => {
         type: 'r-select',
         props: {
           field: 'total',
-          filterOperator: '>=',
+          filterOperator: 'gte',
           filterValueRefField: 'minTotal',
         },
         children: [],
@@ -272,8 +294,8 @@ describe('useFilterPanel', () => {
 
     expect(setFilter).toHaveBeenCalledWith({
       field: 'total',
-      op: '>=',
-      value: { kind: 'field', field: 'minTotal' },
+      operator: 'gte',
+      value: { Type: 'GetTableField', Field: 'minTotal' },
     })
     expect(api.filterConfigs.value).toEqual([])
     expect(api.hasFilters.value).toBe(false)
@@ -299,7 +321,7 @@ describe('useFilterPanel', () => {
         type: 'r-select',
         props: {
           field: 'total',
-          filterOperator: '>=',
+          filterOperator: 'gte',
           filterValueRefField: 'minTotal',
         },
         children: [],
@@ -308,7 +330,7 @@ describe('useFilterPanel', () => {
         type: 'r-select',
         props: {
           field: 'status',
-          filterOperator: '==',
+          filterOperator: 'eq',
         },
         children: [],
       },
@@ -321,16 +343,16 @@ describe('useFilterPanel', () => {
     await Promise.resolve()
 
     expect(setFilter).toHaveBeenLastCalledWith({
-      type: 'and',
-      children: [
+      logic: 'and',
+      filters: [
         {
           field: 'total',
-          op: '>=',
-          value: { kind: 'field', field: 'minTotal' },
+          operator: 'gte',
+          value: { Type: 'GetTableField', Field: 'minTotal' },
         },
         {
           field: 'status',
-          op: '==',
+          operator: 'eq',
           value: '草稿',
         },
       ],
@@ -340,8 +362,8 @@ describe('useFilterPanel', () => {
 
     expect(setFilter).toHaveBeenLastCalledWith({
       field: 'total',
-      op: '>=',
-      value: { kind: 'field', field: 'minTotal' },
+      operator: 'gte',
+      value: { Type: 'GetTableField', Field: 'minTotal' },
     })
     expect(api.activeFilterCount.value).toBe(0)
     scope.stop()
@@ -362,7 +384,7 @@ describe('useFilterPanel', () => {
         type: 'r-select',
         props: {
           field: 'total',
-          filterOperator: '>=',
+          filterOperator: 'gte',
           filterValueRefField: 'missingField',
         },
         children: [],

@@ -64,6 +64,9 @@ function parseContext(value: unknown): LowcodeApplicationContext {
 export class LowcodeApplicationStore {
   private readonly storage: LowcodeSessionStorage | undefined
   private readonly applicationKey: string
+  private executionRevision = 0
+
+  public get revision(): number { return this.executionRevision }
 
   public constructor(options: LowcodeApplicationStoreOptions = {}) {
     this.storage = options.storage ?? browserStorage()
@@ -85,11 +88,18 @@ export class LowcodeApplicationStore {
   /** 持久化应用上下文；字段格式非法时抛 LowcodeApiError。 */
   public save(context: LowcodeApplicationContext): void {
     const normalized = parseContext(context)
+    const previous = this.get()
+    if (previous?.application.id !== normalized.application.id
+      || previous.application.enterpriseId !== normalized.application.enterpriseId
+      || previous.application.enterpriseShortName !== normalized.application.enterpriseShortName) {
+      this.executionRevision += 1
+    }
     this.storage?.setItem(this.applicationKey, JSON.stringify(normalized))
   }
 
   /** 清除已选应用上下文。 */
   public clear(): void {
+    this.executionRevision += 1
     this.storage?.removeItem(this.applicationKey)
   }
 }

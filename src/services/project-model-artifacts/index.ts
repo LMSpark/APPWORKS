@@ -10,19 +10,6 @@
  */
 
 export {
-  PAGE_DATA_JSON_SCHEMA,
-  buildDataSetMetadataFromDesignerProjection,
-  canUseStructuredPageDataEditor,
-  hasDesignerProjectionChanges,
-  projectDesignerRelations,
-  projectDesignerTables,
-  reconcileDesignerTableUiState,
-  type DesignerRelationProjection,
-  type DesignerTableUiState,
-  type DesignerTableProjection,
-} from './page-data-designer'
-
-export {
   createRuleJsonSchema,
   createRuleTreePolicy,
 } from './rule-editor'

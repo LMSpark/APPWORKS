@@ -35,7 +35,7 @@ import {
   useSparkPageComponent,
 } from '../../internal'
 import type { RLinkProps } from './RendererLink.props'
-import { usePermission, extractPermissionSnapshot } from '../../../permission'
+import { usePermission } from '../../../permission'
 
 const props = withDefaults(defineProps<RLinkProps>(), {
   type: 'r-link',
@@ -71,10 +71,7 @@ function resolvePermissionScopeRows(): DataRow[] {
 
 const permissionAllowed = computed(() => {
   const actionNode = readActionNode()
-  const dataSource = sparkConsume(DATA_SOURCE)
-  const permissionSnapshot = extractPermissionSnapshot(dataSource)
-
-  if (!permission.isModelActionAllowed(actionNode, permissionSnapshot)) return false
+  if (!permission.isModelActionAllowed(actionNode)) return false
 
   const scopeRows = resolvePermissionScopeRows()
   if (scopeRows.length === 0) {

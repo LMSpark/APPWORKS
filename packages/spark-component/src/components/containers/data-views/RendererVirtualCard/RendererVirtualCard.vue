@@ -327,7 +327,6 @@ function absoluteIndex(page: number, index: number): number {
 function scopeBase() {
   return {
     dataSource: dataState.resolvedView.value,
-    permissionSnapshot: dataState.permissionSnapshot.value,
     moduleContext: moduleContext.value,
   }
 }

@@ -93,24 +93,24 @@
         },
         {
           "type": "object",
-          "title": "ProjectModelDomain.PageNodeFileName"
+          "title": "ProjectBlueprintDomain.PageToolFileName"
         }
       ]
     }
   },
-  "generatedAt": "2026-08-10T13:19:33.177Z",
+  "generatedAt": "2026-10-06T20:59:52.019Z",
   "models": {
     "EditableProjectOption": {
       "name": "EditableProjectOption",
       "jsdoc": "Editable Project Option 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ProjectModelDomain.ProjectSummary & {\n    /** tenant Id 标识。 */\n    tenantId: string;\n}",
+        "declarationTypeText": "ProjectBlueprintDomain.ProjectSummary & {\n    /** tenant Id 标识。 */\n    tenantId: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "ProjectModelDomain.ProjectSummary",
-            "targetName": "ProjectModelDomain.ProjectSummary"
+            "typeText": "ProjectBlueprintDomain.ProjectSummary",
+            "targetName": "ProjectBlueprintDomain.ProjectSummary"
           },
           {
             "kind": "intersection",
@@ -194,7 +194,7 @@
       "jsdoc": "Dev Workspace Tab 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'props' | 'preview' | ProjectModelDomain.PageNodeFileName",
+        "declarationTypeText": "'props' | 'preview' | ProjectBlueprintDomain.PageToolFileName",
         "declarationRelations": [
           {
             "kind": "union",
@@ -206,8 +206,8 @@
           },
           {
             "kind": "union",
-            "typeText": "ProjectModelDomain.PageNodeFileName",
-            "targetName": "ProjectModelDomain.PageNodeFileName"
+            "typeText": "ProjectBlueprintDomain.PageToolFileName",
+            "targetName": "ProjectBlueprintDomain.PageToolFileName"
           }
         ],
         "members": {}

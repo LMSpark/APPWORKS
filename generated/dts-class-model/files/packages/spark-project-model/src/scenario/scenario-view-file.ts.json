@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/scenario-view-file",
+    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/scenario-view-file",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-file\n职责：场景共享文件的编辑历史与保存基线。\n边界：一个场景一个owner，新建草稿不能冒充已持久化。\nAI用途：编辑场景视图并保持并发保存期间的新修改。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ScenarioViewFile"
+    ]
+  },
+  "$defs": {
+    "ScenarioViewFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewFile",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "initialText": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createDraft.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createDraft.return": {
+          "$ref": "#/$defs/ScenarioViewFile"
+        },
+        "method.getText.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getText.return": {
+          "type": "string"
+        },
+        "method.setText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setText.return": true,
+        "method.loadText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadText.return": true,
+        "method.markSaved.params": {
+          "type": "object",
+          "properties": {
+            "submittedText": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markSaved.return": true,
+        "method.undo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.undo.return": {
+          "type": "boolean"
+        },
+        "method.redo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.redo.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.265Z",
+  "models": {
+    "ScenarioViewFile": {
+      "name": "ScenarioViewFile",
+      "jsdoc": "场景共享配置的编辑 owner；保存回执仅标记实际提交文本，不能清除等待期间的新编辑。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "从真实已读取的单场景文件建立保存基线；新增文件应调用 createDraft。",
+          "signatureText": "constructor(scenarioId: string, initialText: string)",
+          "parameters": [
+            {
+              "name": "scenarioId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "initialText",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "createDraft",
+              "jsdoc": "验证单场景配置并创建尚未持久化的脏草稿，不能据此声称远端保存成功。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioViewFile",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+              }
+            },
+            {
+              "name": "getText",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "setText",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "loadText",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "markSaved",
+              "parameters": [
+                {
+                  "name": "submittedText",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "undo",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "redo",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

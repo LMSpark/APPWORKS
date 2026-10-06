@@ -104,8 +104,8 @@ function verifyGraph(workflowId, graph, label) {
   }
   const nodes = Array.isArray(graph.nodes) ? graph.nodes : []
   const lines = Array.isArray(graph.lines) ? graph.lines : []
-  const expectedBusinessNodeCount = workflowId === 'agent.workflow.pageDesign' ? 7 : 1
-  const expectedLineCount = workflowId === 'agent.workflow.pageDesign' ? 15 : 5
+  const expectedBusinessNodeCount = workflowId === 'agent.workflow.pageDesign' ? 5 : 1
+  const expectedLineCount = workflowId === 'agent.workflow.pageDesign' ? 6 : 5
   expectEqual(nodes.length, expectedBusinessNodeCount + 2, `${workflowId} ${label}.nodes.length`)
   expectEqual(lines.length, expectedLineCount, `${workflowId} ${label}.lines.length`)
   expectEqual(nodes[0]?.type, 'start', `${workflowId} ${label}.nodes[0].type`)
@@ -115,7 +115,7 @@ function verifyGraph(workflowId, graph, label) {
     verifyBusinessNode(workflowId, node, label)
   }
   for (const line of lines) {
-    verifyLine(workflowId, line, label)
+    verifyLine({ workflowId, line, label, nodes })
   }
   if (Object.prototype.hasOwnProperty.call(graph, 'edges')) {
     errors.push(`${workflowId} ${label}.workflow.graph must not contain legacy edges`)
@@ -139,7 +139,7 @@ function verifyBusinessNode(workflowId, node, label) {
   }
 }
 
-function verifyLine(workflowId, line, label) {
+function verifyLine({ workflowId, line, label, nodes }) {
   if (!isRecord(line)) {
     errors.push(`${workflowId} ${label}.line must be an object`)
     return
@@ -154,6 +154,14 @@ function verifyLine(workflowId, line, label) {
       if (typeof endpoint[field] !== 'string' || endpoint[field].trim().length === 0) {
         errors.push(`${workflowId} ${label}.${line.id}.${side}.${field} must be a non-empty string`)
       }
+    }
+    const node = nodes.find(candidate => candidate.id === endpoint.nodeId)
+    if (!node) {
+      errors.push(`${workflowId} ${label}.${line.id}.${side}.nodeId must reference an existing node`)
+    } else if (node.type === 'start' || node.type === 'output') {
+      expectEqual(endpoint.modelId, '$workflow', `${workflowId} ${label}.${line.id}.${side}.modelId`)
+    } else if (!node.data?.models?.some(model => model.id === endpoint.modelId)) {
+      errors.push(`${workflowId} ${label}.${line.id}.${side}.modelId must reference a model of its node`)
     }
   }
 }

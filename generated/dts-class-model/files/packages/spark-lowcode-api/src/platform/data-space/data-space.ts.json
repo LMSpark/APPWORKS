@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/data-space",
-    "jsdoc": "数据空间领域模型与前端模型实体：设计态快照的类型合同与构造期不变量校验。\n{@link DataSpaceFrontendModel} 在实例化时 fail-fast 校验身份、字段唯一性与关系归属，不可绕过。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/data-space\n职责：数据空间设计态资源、字段和关系合同及前端模型实体。边界：构造期校验身份和关系归属，运行查询字段由正式 readModel 定义；AI 可用此入口区分设计资源与查询模型。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DataSpaceResourceType",
@@ -375,7 +375,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T12:23:46.927Z",
+  "generatedAt": "2026-10-06T21:07:56.023Z",
   "models": {
     "DataSpaceResourceType": {
       "name": "DataSpaceResourceType",
@@ -883,6 +883,7 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "复制设计态输入并校验非空身份、字段唯一性及同场景关系归属；无效输入立即失败。",
           "signatureText": "constructor(snapshot: DataSpaceFrontendModelSnapshot)",
           "parameters": [
             {

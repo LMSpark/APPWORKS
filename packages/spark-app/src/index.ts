@@ -170,6 +170,7 @@ export type { PrimaryPreset, NavPreset, NavColorSet, StylePreset, StyleColorSet 
 // ── Navigation Access（DynamicRouter 同步读取接口） ──
 export {
   setDynamicRouter,
+  getDynamicRouter,
   refreshRoutes,
   getNavTree,
   getNavHomePath,

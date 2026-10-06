@@ -5,10 +5,10 @@
 AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/components/NodeLayoutConfig。
 -->
 <template>
-  <div v-if="flags.isDirectoryNode.value">
+  <div v-if="flags.isModule.value && state.blueprintDraft.navigation">
     <el-divider content-position="left">布局配置</el-divider>
     <el-form-item label="子项布局" class="fi fi--wide">
-      <el-radio-group v-model="state.blueprintDraft.childPlacement" @change="state.markBlueprintDirty">
+      <el-radio-group v-model="state.blueprintDraft.navigation.placement" @change="state.markBlueprintDirty">
         <el-radio-button
           v-for="option in CHILD_PLACEMENT_OPTIONS"
           :key="option.value || '__default__'"

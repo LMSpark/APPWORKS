@@ -93,6 +93,7 @@ describe('SparkNode runtime contract', () => {
     const rule: SparkNode = node
     const actionCtx: BuildPageChildrenOptions['actionCtx'] = {
       getDataSet: () => null,
+      resolveView: () => null,
       getPageService: () => null,
       getRouter: () => null,
     }

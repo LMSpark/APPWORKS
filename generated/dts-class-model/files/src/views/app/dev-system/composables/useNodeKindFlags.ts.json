@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/dev-system/composables/useNodeKindFlags.ts",
     "packageName": "app",
     "modulePath": "views/app/dev-system/composables/useNodeKindFlags",
-    "jsdoc": "@module app:views/app/dev-system/composables/useNodeKindFlags\n职责：提供 DevSystem 的 useNodeKindFlags 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/composables/useNodeKindFlags。",
+    "jsdoc": "@module app:views/app/dev-system/composables/useNodeKindFlags\n职责：从正式五种业务kind计算界面条件。\n边界：只读四组草稿kind，不按URL或树层级猜种类。\nAI用途：按module/page/embedded/service/content选择属性编辑控件。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-08-09T22:05:30.988Z",
+  "generatedAt": "2026-10-06T21:12:48.636Z",
   "models": {}
 }

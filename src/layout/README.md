@@ -8,7 +8,6 @@
 - `AppHeader.vue`、`AppSidebar.vue`、`AppFooter.vue`、`AppTabBar.vue`：导航与壳层组成部分。
 - `NavHeaderBar.vue`、`NavContextSelector.vue`：导航上下文切换与平台头部交互。
 - `ThemeConfigurator.vue`：主题配置入口。
-- `demo-nav.ts`：示例导航数据。
 
 ## 放置原则
 

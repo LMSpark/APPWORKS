@@ -10,7 +10,6 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
       <div class="file-header">
         <div class="file-header__meta">
           <span class="file-page-id"><NavIcon name="Tickets" :size="14" /> {{ state.activePageId.value }}</span>
-          <el-tag v-if="resolvedActiveFile === 'pagedata.json' && state.pageDataError.value" size="small" type="danger" effect="dark">DataSet 解析失败</el-tag>
         </div>
         <div class="file-header__actions">
           <el-tooltip content="从服务端重新加载此文件" placement="bottom" :show-after="600">
@@ -29,19 +28,6 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
               <NavIcon name="DocumentChecked" :size="14" /> 保存
             </el-button>
           </el-tooltip>
-          <span v-if="resolvedActiveFile === 'pagedata.json'" class="action-divider" />
-          <el-button-group v-if="resolvedActiveFile === 'pagedata.json'" class="action-group">
-            <el-tooltip content="结构合法时进入 DataSet 可视化设计器" placement="bottom" :show-after="600">
-              <el-button size="small" :type="pageDataViewMode === 'visual' ? 'primary' : 'default'" :disabled="Boolean(state.pageDataError.value)" @click="setPageDataViewMode('visual')">
-                <NavIcon name="Coin" :size="14" /> 可视化
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="直接编辑 pagedata.json 原始文本" placement="bottom" :show-after="600">
-              <el-button size="small" :type="pageDataViewMode === 'text' ? 'primary' : 'default'" @click="setPageDataViewMode('text')">
-                <NavIcon name="Document" :size="14" /> 文本
-              </el-button>
-            </el-tooltip>
-          </el-button-group>
           <span class="action-divider" />
           <el-button
             size="small"
@@ -65,23 +51,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
       </el-tabs>
 
       <div class="editor-body" v-loading="!fileEditor.isReady.value">
-        <div v-if="resolvedActiveFile === 'pagedata.json'" class="editor-area" :class="{ 'editor-area--dataset': pageDataViewMode === 'visual' }">
-          <DevDataSetDesigner
-            v-if="pageDataViewMode === 'visual'"
-            :state="state"
-            class="code-input editor-dataset"
-          />
-          <el-input
-            v-else
-            :model-value="fileEditor.text.value"
-            type="textarea"
-            resize="none"
-            readonly
-            class="code-input code-input--pagedata-text"
-          />
-        </div>
-
-        <div v-else class="editor-area">
+        <div class="editor-area">
           <JsonTreeEditor
             v-if="resolvedActiveFile === 'rule.json'"
             type="json-tree-editor"
@@ -115,20 +85,19 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <div v-if="showVersionPanel" class="version-side">
             <div class="vs-header">
               <span class="vs-title">版本历史</span>
-              <el-button size="small" type="primary" :loading="creatingVersion" @click="createVersion">
+              <el-button size="small" type="primary" :disabled="versionBusy" :loading="creatingVersion" @click="createVersion">
                 <NavIcon name="Plus" :size="12" /> 存档
               </el-button>
             </div>
             <div class="vs-file">{{ resolvedActiveFile }}</div>
             <div v-loading="remoteVersionLoading" class="vs-list">
               <div v-if="remotePageVersions.length === 0 && !remoteVersionLoading" class="vs-empty">暂无版本</div>
-              <div v-for="v in remotePageVersions" :key="v.version" class="vs-row" :class="{ 'vs-row--current': v.isCurrent }">
+              <div v-for="v in remotePageVersions" :key="v.fileName" class="vs-row">
                 <span class="version-badge">v{{ v.version }}</span>
-                <span class="vs-time">{{ formatVersionTime(v.createdAt) }}</span>
-                <el-tag v-if="v.isCurrent" size="small" type="success" effect="plain" round>当前</el-tag>
+                <span class="vs-time">{{ formatVersionTime(v.lastModified) }}</span>
                 <span class="vs-spacer" />
-                <el-button v-if="!v.isCurrent" size="small" type="primary" text :loading="restoringVersion === v.version" @click="restoreVersion(v.version)">恢复</el-button>
-                <el-button v-if="!v.isCurrent" size="small" type="danger" text @click="confirmDeleteVersion(v)"><NavIcon name="Delete" :size="12" /></el-button>
+                <el-button size="small" type="primary" text :disabled="versionBusy || fileEditor.isDirty.value" :loading="restoringVersion === v.version" @click="restoreVersion(v.version)">恢复</el-button>
+                <el-button size="small" type="danger" text :disabled="versionBusy" @click="confirmDeleteVersion(v)"><NavIcon name="Delete" :size="12" /></el-button>
               </div>
             </div>
           </div>
@@ -140,40 +109,42 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { SparkCodeEditor, JsonTreeEditor } from '@spark-appworks/spark-component'
 import { createRuleJsonSchema, createRuleTreePolicy } from '@/services/project-model-artifacts'
 import { ElMessageBox } from 'element-plus'
 import { useDevFileEditor } from './composables/useDevFileEditor'
 import type { DevState } from './useDevState'
-import type { PageNodeFileName, PageNodeFileVersionSummary } from '@spark-appworks/spark-project-model'
+import type { PageToolFileName, PageToolFileVersionSummary } from '@spark-appworks/spark-project-model'
 import NavIcon from '@/components/NavIcon.vue'
-import DevDataSetDesigner from './DevDataSetDesigner.vue'
 
 const rulePolicy = createRuleTreePolicy()
 const RULE_JSON_SCHEMA = createRuleJsonSchema()
 
 const props = withDefaults(defineProps<{
   state: DevState
-  activeFile?: PageNodeFileName
+  activeFile?: PageToolFileName
   showTabs?: boolean
 }>(), {
   showTabs: true,
 })
 
 const emit = defineEmits<{
-  (e: 'active-file-change', file: PageNodeFileName): void
+  (e: 'active-file-change', file: PageToolFileName): void
 }>()
 
-const localActiveFile = ref<PageNodeFileName>('rule.json')
+const localActiveFile = ref<PageToolFileName>('rule.json')
 const showVersionPanel = ref(false)
 const remoteVersionLoading = ref(false)
 const restoringVersion = ref<number | null>(null)
 const creatingVersion = ref(false)
-const remotePageVersions = ref<PageNodeFileVersionSummary[]>([])
-const pageDataViewMode = ref<'visual' | 'text'>('visual')
-const pageDataViewModePinned = ref(false)
-const resolvedActiveFile = computed<PageNodeFileName>(() => props.activeFile ?? localActiveFile.value)
+const deletingVersion = ref(false)
+const versionBusy = computed(() => creatingVersion.value || restoringVersion.value !== null || deletingVersion.value || props.state.pageIoBusy.value)
+let versionRevision = 0
+let disposed = false
+onBeforeUnmount(() => { disposed = true; versionRevision++ })
+const remotePageVersions = ref<PageToolFileVersionSummary[]>([])
+const resolvedActiveFile = computed<PageToolFileName>(() => props.activeFile ?? localActiveFile.value)
 const showTabs = computed(() => props.showTabs)
 const fileEditor = useDevFileEditor(props.state, resolvedActiveFile)
 const host = computed(() => props.state.editor)
@@ -198,26 +169,11 @@ watch(resolvedActiveFile, (nextFile) => {
   emit('active-file-change', nextFile)
 }, { immediate: true })
 
-watch(() => props.state.activePageId.value, () => {
+watch([resolvedActiveFile, () => props.state.activePageId.value], () => {
+  versionRevision++
+  remoteVersionLoading.value = false
   showVersionPanel.value = false
   remotePageVersions.value = []
-})
-
-watch([resolvedActiveFile, () => props.state.activePageId.value], () => {
-  if (resolvedActiveFile.value !== 'pagedata.json') return
-  resetPageDataViewMode()
-}, { immediate: true })
-
-watch(() => props.state.pageDataError.value, (nextError) => {
-  if (resolvedActiveFile.value !== 'pagedata.json') return
-  if (nextError) {
-    pageDataViewMode.value = 'text'
-    pageDataViewModePinned.value = false
-    return
-  }
-  if (!pageDataViewModePinned.value) {
-    pageDataViewMode.value = 'visual'
-  }
 })
 
 function isCodeFile(name: string): boolean {
@@ -230,20 +186,9 @@ function resolveCodeLanguage(name: string): 'javascript' | 'css' {
 
 function fileIcon(name: string): string {
   if (name === 'rule.json') return 'Crop'
-  if (name === 'pagedata.json') return 'Coin'
   if (name === 'script.js') return 'Lightning'
   if (name === 'style.css') return 'Brush'
   return 'Document'
-}
-
-function resetPageDataViewMode() {
-  pageDataViewModePinned.value = false
-  pageDataViewMode.value = props.state.pageDataError.value ? 'text' : 'visual'
-}
-
-function setPageDataViewMode(mode: 'visual' | 'text') {
-  pageDataViewModePinned.value = true
-  pageDataViewMode.value = mode
 }
 
 function saveFile() {
@@ -256,32 +201,40 @@ function refreshFile() {
 
 async function loadVersions() {
   if (!alignActivePage()) return
+  const revision = ++versionRevision
+  const fileName = resolvedActiveFile.value
   remoteVersionLoading.value = true
   try {
-    remotePageVersions.value = await host.value.listRemotePageVersions(resolvedActiveFile.value)
+    const versions = await host.value.listRemotePageVersions(fileName)
+    if (!disposed && revision === versionRevision && showVersionPanel.value) remotePageVersions.value = versions
   } catch (e) {
+    if (disposed || revision !== versionRevision) return
     props.state.addStatus(`读取后端版本失败: ${String(e)}`, 'error')
     remotePageVersions.value = []
   } finally {
-    remoteVersionLoading.value = false
+    if (!disposed && revision === versionRevision) remoteVersionLoading.value = false
   }
 }
 
 function toggleVersionPanel() {
   showVersionPanel.value = !showVersionPanel.value
+  versionRevision++
+  remoteVersionLoading.value = false
   if (showVersionPanel.value) {
     void loadVersions()
   }
 }
 
 async function restoreVersion(version: number) {
+  if (versionBusy.value || fileEditor.isDirty.value) return
   const pageId = props.state.activePageId.value
+  const fileName = resolvedActiveFile.value
   if (!pageId || !alignActivePage()) return
   restoringVersion.value = version
   try {
-    await host.value.restoreRemotePageVersion(version, resolvedActiveFile.value)
-    props.state.addStatus(`页面 ${pageId} 已将 ${resolvedActiveFile.value} 版本 v${version} 恢复为当前版`, 'success')
-    await loadVersions()
+    await host.value.restoreRemotePageVersion(version, fileName)
+    props.state.addStatus(`页面 ${pageId} 已将 ${fileName} 快照 v${version} 恢复为工作文件`, 'success')
+    if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()
   } catch (e) {
     props.state.addStatus(`恢复版本失败: ${String(e)}`, 'error')
   } finally {
@@ -290,13 +243,18 @@ async function restoreVersion(version: number) {
 }
 
 async function createVersion() {
+  if (versionBusy.value) return
   if (!alignActivePage()) return
+  const pageId = props.state.activePageId.value
+  const fileName = resolvedActiveFile.value
   creatingVersion.value = true
   try {
     await fileEditor.save()
-    await host.value.createRemotePageVersion(resolvedActiveFile.value)
-    props.state.addStatus(`${resolvedActiveFile.value} 已创建新版本快照`, 'success')
-    await loadVersions()
+    if (disposed || pageId !== props.state.activePageId.value || fileName !== resolvedActiveFile.value) throw new Error('保存期间编辑目标已切换，未创建快照')
+    if (fileEditor.isFileDirty(fileName)) throw new Error('保存期间文件已修改，请先保存最新修改')
+    await host.value.createRemotePageVersion(fileName)
+    props.state.addStatus(`${fileName} 已创建新版本快照`, 'success')
+    if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()
   } catch (e) {
     props.state.addStatus(`创建版本快照失败: ${String(e)}`, 'error')
   } finally {
@@ -304,7 +262,10 @@ async function createVersion() {
   }
 }
 
-async function confirmDeleteVersion(row: PageNodeFileVersionSummary) {
+async function confirmDeleteVersion(row: PageToolFileVersionSummary) {
+  if (versionBusy.value) return
+  const pageId = props.state.activePageId.value
+  const fileName = resolvedActiveFile.value
   try {
     await ElMessageBox.confirm(
       `确定删除版本 v${row.version} 吗？此操作不可撤销。`,
@@ -314,24 +275,26 @@ async function confirmDeleteVersion(row: PageNodeFileVersionSummary) {
   } catch {
     return
   }
-  if (!alignActivePage()) return
+  if (disposed || pageId !== props.state.activePageId.value || fileName !== resolvedActiveFile.value || !showVersionPanel.value || versionBusy.value || !alignActivePage()) return
+  deletingVersion.value = true
   try {
-    await host.value.deleteRemotePageVersion(row.version, resolvedActiveFile.value)
-    props.state.addStatus(`${resolvedActiveFile.value} 版本 v${row.version} 已删除`, 'success')
-    await loadVersions()
+    await host.value.deleteRemotePageVersion(row.version, fileName)
+    props.state.addStatus(`${fileName} 版本 v${row.version} 已删除`, 'success')
+    if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()
   } catch (e) {
     props.state.addStatus(`删除版本失败: ${String(e)}`, 'error')
-  }
+  } finally { deletingVersion.value = false }
 }
 
-function formatVersionTime(raw: string | null | undefined): string {
-  if (!raw) return '-'
+function formatVersionTime(raw: number | null): string {
+  if (raw === null) return '-'
   try {
     const d = new Date(raw)
+    if (!Number.isFinite(d.getTime())) return '-'
     const pad = (n: number) => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
   } catch {
-    return raw
+    return '-'
   }
 }
 </script>
@@ -432,14 +395,7 @@ function formatVersionTime(raw: string | null | undefined): string {
   padding: 8px 12px 12px;
 }
 
-.editor-area--dataset {
-  padding: 0;
-  background: #f8fafc;
-}
 
-.editor-dataset {
-  min-width: 0;
-}
 
 .code-input {
   flex: 1;
@@ -452,16 +408,7 @@ function formatVersionTime(raw: string | null | undefined): string {
   min-height: 0;
 }
 
-.code-input--pagedata-text :deep(.el-textarea),
-.code-input--pagedata-text :deep(.el-textarea__inner) {
-  height: 100%;
-  min-height: 100%;
-}
 
-.code-input--pagedata-text :deep(.el-textarea__inner) {
-  resize: none;
-  border-radius: 8px;
-}
 
 .code-input :deep(textarea) {
   font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
@@ -532,11 +479,6 @@ function formatVersionTime(raw: string | null | undefined): string {
   padding: 6px 4px;
   font-size: 12px;
   border-bottom: 1px solid var(--el-border-color-extra-light);
-}
-
-.vs-row--current {
-  background: var(--el-color-success-light-9);
-  border-radius: 4px;
 }
 
 .vs-time {

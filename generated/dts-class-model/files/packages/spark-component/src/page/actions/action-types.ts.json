@@ -1014,6 +1014,9 @@
           "type": "object",
           "title": "Record<string, unknown>"
         },
+        "scenarioId": {
+          "type": "string"
+        },
         "mode": {
           "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataSetSaveChangesMode"
         },
@@ -1034,7 +1037,8 @@
         }
       },
       "required": [
-        "action"
+        "action",
+        "scenarioId"
       ],
       "additionalProperties": false
     },
@@ -1045,13 +1049,36 @@
       "$defs": {
         "method.getDataSet.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
           "additionalProperties": false
         },
         "method.getDataSet.return": {
           "anyOf": [
             {
               "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataSetContract"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.resolveView.params": {
+          "type": "object",
+          "properties": {
+            "binding": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveView.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
             },
             {
               "type": "null"
@@ -1152,7 +1179,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T19:56:58.378Z",
+  "generatedAt": "2026-10-06T19:50:59.447Z",
   "models": {
     "ActionUiDecorator": {
       "name": "ActionUiDecorator",
@@ -2311,7 +2338,7 @@
       "jsdoc": "提交当前 DataSet 范围内的 staged/editing 变更。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'save-dataset';\n    /** mode 字段。 */\n    mode?: DataSetSaveChangesMode;\n    /** request Id 标识。 */\n    requestId?: string;\n    /** request Id Strategy 字段。 */\n    requestIdStrategy?: 'auto';\n    /** apply Editing Rows 字段。 */\n    applyEditingRows?: boolean;\n    /** views 字段。 */\n    views?: DataSetSaveChangesViewSelector[];\n}",
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'save-dataset';\n    scenarioId: string;\n    /** mode 字段。 */\n    mode?: DataSetSaveChangesMode;\n    /** request Id 标识。 */\n    requestId?: string;\n    /** request Id Strategy 字段。 */\n    requestIdStrategy?: 'auto';\n    /** apply Editing Rows 字段。 */\n    applyEditingRows?: boolean;\n    /** views 字段。 */\n    views?: DataSetSaveChangesViewSelector[];\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -2325,7 +2352,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** action 字段。 */\n    action: 'save-dataset';\n    /** mode 字段。 */\n    mode?: DataSetSaveChangesMode;\n    /** request Id 标识。 */\n    requestId?: string;\n    /** request Id Strategy 字段。 */\n    requestIdStrategy?: 'auto';\n    /** apply Editing Rows 字段。 */\n    applyEditingRows?: boolean;\n    /** views 字段。 */\n    views?: DataSetSaveChangesViewSelector[];\n}"
+            "typeText": "{\n    /** action 字段。 */\n    action: 'save-dataset';\n    scenarioId: string;\n    /** mode 字段。 */\n    mode?: DataSetSaveChangesMode;\n    /** request Id 标识。 */\n    requestId?: string;\n    /** request Id Strategy 字段。 */\n    requestIdStrategy?: 'auto';\n    /** apply Editing Rows 字段。 */\n    applyEditingRows?: boolean;\n    /** views 字段。 */\n    views?: DataSetSaveChangesViewSelector[];\n}"
           }
         ],
         "members": {
@@ -2333,6 +2360,11 @@
             {
               "name": "action",
               "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
               "readable": true,
               "writable": true
             },
@@ -2375,19 +2407,52 @@
       "jsdoc": "动作执行上下文：执行器与调用方（容器/渲染器）之间的依赖注入接口。\n执行器不直接持有 Vue 组件或 DataSet 引用，而是通过此接口的工厂函数按需获取，\n从而保持执行器框架无关性并支持懒解析。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null */\n    getDataSet: () => DataSetContract | null;\n    /**\n     * 可选：获取容器作用域 DataView（调用方已确定 DataView 时提供）。\n     *\n     * 适用于容器明确持有 DataView 的场景（如 r-table 内置按钮），\n     * 此时可省略 descriptor 上的 DataViewKey，避免误报\"数据视图未就绪\"。\n     */\n    getDataSource?: () => DataView | null;\n    /** 获取页面服务能力（消息/确认/弹窗等 UI 交互）；未注册时返回 null */\n    getPageService: () => PageServiceCapability | null;\n    /** 获取路由器（navigate 动作使用）；非路由环境返回 null */\n    getRouter: () => RouterLike | null;\n}",
+        "declarationTypeText": "{\n    /** 获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null */\n    getDataSet: (scenarioId: string) => DataSetContract | null;\n    resolveView: (binding: string) => DataView | null;\n    /**\n     * 可选：获取容器作用域 DataView（调用方已确定 DataView 时提供）。\n     *\n     * 适用于容器明确持有 DataView 的场景（如 r-table 内置按钮），\n     * 此时可省略 descriptor 上的 DataViewKey，避免误报\"数据视图未就绪\"。\n     */\n    getDataSource?: () => DataView | null;\n    /** 获取页面服务能力（消息/确认/弹窗等 UI 交互）；未注册时返回 null */\n    getPageService: () => PageServiceCapability | null;\n    /** 获取路由器（navigate 动作使用）；非路由环境返回 null */\n    getRouter: () => RouterLike | null;\n}",
         "members": {
           "methods": [
             {
               "name": "getDataSet",
               "jsdoc": "获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
               "type": {
                 "type": "union",
                 "types": [
                   {
                     "type": "reference",
                     "name": "DataSetContract"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolveView",
+              "parameters": [
+                {
+                  "name": "binding",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
                   },
                   {
                     "type": "literal",

@@ -11,13 +11,6 @@
  */
 
 export { default as SparkPageRenderer } from './renderer/SparkPageRenderer.vue'
-export { usePageDataSet } from './renderer/usePageDataSet.js'
-
-export type {
-  UsePageDataSetOptions,
-  UsePageDataSetReturn,
-} from './renderer/usePageDataSet.js'
-
 export type {
   PageContext,
 } from './context/types.js'

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { SparkData, DataView } from '../index'
-import type { DataRow, CrudApi } from '../types'
+import { SparkData, DataView, RequestState } from '../index'
+import type { DataRow, CrudApi, CrudResult } from '../types'
 import { setMember } from './test-type-helpers'
 
 // ─────────────────────────────────────────────
@@ -344,48 +344,200 @@ describe('commitMode=immediate: direct remote CRUD', () => {
   })
 })
 
-describe('dirty state cleanup on data reset operations', () => {
-  it('resetState clears dirty tracking', async () => {
+describe('unsaved change protection on data replacement', () => {
+  it.each([false, true])('refuses configuration changes before applying a partial config, editing=%s', async (editing) => {
+    const { view } = createStagedView()
+    if (editing) view.updateEditingValue(1, 'name', 'Draft')
+    else await view.editRowById(1, { name: 'Dirty' })
+    expect(() => view.configure({
+      page: 9, pageSize: 50, queryContext: { search: false },
+      filterExpression: { field: 'name', operator: 'eq', value: 'Bob' },
+    })).toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(view.page).toBe(1)
+    expect(view.pageSize).toBe(20)
+    expect(view.queryContext).toEqual({})
+    expect(view.filterExpression).toBeUndefined()
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(!editing)
+    if (editing) expect(view.getEditingPatch(1)).toEqual({ name: 'Draft' })
+  })
+
+  it.each(['page', 'pageSize', 'sort', 'filter', 'executeFilter'].flatMap(entry =>
+    [false, true].map(editing => ({ entry, editing }))))
+    ('rejects $entry before changing query inputs, editing=$editing', async ({ entry, editing }) => {
+      const { view } = createStagedView()
+      if (editing) view.updateEditingValue(1, 'name', 'Draft')
+      else await view.editRowById(1, { name: 'Dirty' })
+      view.page = 3
+      view.pageSize = 10
+      const rows = view.rows.map(row => ({ ...row }))
+      const changed = vi.fn()
+      view.events.on('configChanged', changed)
+      const pending = entry === 'page' ? view.setPage(4)
+        : entry === 'pageSize' ? view.setPageSize(50)
+        : entry === 'sort' ? view.setSort([{ field: 'name', direction: 'asc' }])
+        : entry === 'filter' ? view.setFilter({ field: 'name', operator: 'eq', value: 'Alice' })
+        : view.executeFilter(undefined)
+      await expect(pending).rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+      expect(view.page).toBe(3)
+      expect(view.pageSize).toBe(10)
+      expect(view.sortExpression).toBeUndefined()
+      expect(view.filterExpression).toBeUndefined()
+      expect(view.rows).toEqual(rows)
+      expect(changed).not.toHaveBeenCalled()
+      expect(view.dirtyTracking.hasPendingChanges()).toBe(!editing)
+      if (editing) expect(view.getEditingPatch(1)).toEqual({ name: 'Draft' })
+    })
+
+  it.each(['request', 'load'])('rejects a dirty $entry before issuing a query', async (entry) => {
     const { view } = createStagedView()
     await view.editRowById(1, { name: 'Dirty' })
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
-
-    view.resetState()
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    const list = vi.spyOn(view.crud, 'list').mockResolvedValue({ success: true, data: [] })
+    await expect(entry === 'request' ? view.requestData() : view.loadFromServer())
+      .rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(list).not.toHaveBeenCalled()
+    expect(view.requestState).toBe(RequestState.Idle)
+    expect(view.rows[0]?.['name']).toBe('Dirty')
+    list.mockRestore()
   })
 
-  it('clearAll clears dirty tracking', async () => {
+  it.each([false, true])('parent clearing preserves an unsaved child, editing=%s', async (editing) => {
+    const ds = SparkData.createDataSet({
+      dataSetName: 'ProtectedCascade',
+      tables: {
+        Parents: {
+          tableName: 'Parents', columns: [{ name: 'id', type: 'number', isPrimaryKey: true }],
+          views: { default: { rows: [{ id: 1 }], autoCurrentFirst: false, autoSelectFirst: false } },
+        },
+        Children: {
+          tableName: 'Children', columns: [{ name: 'id', type: 'number', isPrimaryKey: true }, { name: 'name', type: 'string' }],
+          views: { default: { rows: [{ id: 10, name: 'Original' }], commitMode: 'staged', autoCurrentFirst: false, autoSelectFirst: false } },
+        },
+      },
+      viewCascades: [{
+        parentTable: 'Parents', parentViewId: 'default', childTable: 'Children', childViewId: 'default',
+        dependencyType: 'allRows', filterBindings: [{ sourceField: 'id', targetField: 'id' }], autoLoad: false,
+      }],
+    })
+    const parent = ds.getView('Parents', 'default')!
+    const child = ds.getView('Children', 'default')!
+    if (editing) child.updateEditingValue(10, 'name', 'Draft')
+    else await child.editRowById(10, { name: 'Dirty' })
+    expect(() => parent.clearAll()).not.toThrow()
+    await Promise.resolve()
+    expect(parent.rows).toEqual([])
+    expect(child.rows[0]?.['name']).toBe(editing ? 'Original' : 'Dirty')
+    expect(child.dirtyTracking.hasPendingChanges()).toBe(!editing)
+    if (editing) expect(child.getEditingPatch(10)).toEqual({ name: 'Draft' })
+    ds.destroy()
+  })
+
+  it.each([
+    { entry: 'reset', editing: false }, { entry: 'reset', editing: true },
+    { entry: 'clear', editing: false }, { entry: 'clear', editing: true },
+  ])('$entry refuses clearing with editing=$editing', async ({ entry, editing }) => {
     const { view } = createStagedView()
-    await view.editRowById(2, { name: 'Dirty' })
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
-
-    view.clearAll()
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    if (editing) view.updateEditingValue(1, 'name', 'Draft')
+    else await view.editRowById(1, { name: 'Dirty' })
+    const rows = view.rows.map(row => ({ ...row }))
+    view.requestState = RequestState.Loaded
+    expect(() => entry === 'reset' ? view.resetState() : view.clearAll()).toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(view.rows).toEqual(rows)
+    expect(view.requestState).toBe(RequestState.Loaded)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(!editing)
+    if (editing) expect(view.getEditingPatch(1)).toEqual({ name: 'Draft' })
   })
 
-  it('replaceRows clears dirty tracking', async () => {
+  it('destroy releases pending and editing rows through internal cleanup', async () => {
     const { view } = createStagedView()
     await view.editRowById(1, { name: 'Dirty' })
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
-
-    view.replaceRows([{ id: 3, name: 'Charlie' }])
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    view.updateEditingValue(2, 'name', 'Draft')
+    expect(() => view.destroy()).not.toThrow()
+    expect(view.isDestroyed()).toBe(true)
+    expect(view.rows).toEqual([])
+    expect(view.hasEditingChanges()).toBe(false)
   })
 
-  it('refresh clears dirty tracking', async () => {
+  it.each([
+    { entry: 'replace', editing: false }, { entry: 'replace', editing: true },
+    { entry: 'server', editing: false }, { entry: 'server', editing: true },
+  ])('$entry refuses result replacement with editing=$editing', async ({ entry, editing }) => {
     const { view } = createStagedView()
-    await view.addRow({ id: 99, name: 'Staged' })
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    if (editing) view.updateEditingValue(1, 'name', 'Draft')
+    else await view.editRowById(1, { name: 'Dirty' })
+    view.total = 2
+    view.setCurrentRow(view.rows[0]!)
+    const rows = view.rows.map(row => ({ ...row }))
+    const replace = () => entry === 'replace'
+      ? view.replaceRows([{ id: 3, name: 'Charlie' }])
+      : view.updateFromServer({ rows: [{ id: 3, name: 'Charlie' }], total: 1, page: 2 })
+    expect(replace).toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(view.rows).toEqual(rows)
+    expect(view.total).toBe(2)
+    expect(view.page).toBe(1)
+    expect(view.currentRow?.['id']).toBe(1)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(!editing)
+    if (editing) expect(view.getEditingPatch(1)).toEqual({ name: 'Draft' })
+  })
 
-    // refresh() is async and calls requestData → which requires API
-    // We just verify the dirty state is cleared synchronously before the request
-    // by calling refresh in a try/catch (no API configured so it will fail, but dirty is already cleared)
-    try {
-      await view.refresh()
-    } catch {
-      // Expected: no API configured
-    }
+  it.each([false, true])('retains edits made while a query is pending, editing=%s', async (editing) => {
+    const { view } = createStagedView()
+    let complete: ((result: CrudResult<DataRow[]>) => void) | undefined
+    const response = new Promise<CrudResult<DataRow[]>>(resolve => { complete = resolve })
+    const list = vi.spyOn(view.crud, 'list').mockReturnValue(response)
+    const pending = view.loadFromServer()
+    if (editing) view.updateEditingValue(1, 'name', 'Draft')
+    else await view.editRowById(1, { name: 'Dirty' })
+    complete!({ success: true, data: [{ id: 3, name: 'Server' }] })
+    await expect(pending).rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(!editing)
+    if (editing) expect(view.getEditingPatch(1)).toEqual({ name: 'Draft' })
+    else expect(view.rows[0]?.['name']).toBe('Dirty')
+    list.mockRestore()
+  })
+
+  it.each(['create', 'update', 'delete', 'editing'])('refresh refuses unsaved %s without changing rows or request state', async (operation) => {
+    const { view } = createStagedView()
+    if (operation === 'create') await view.addRow({ id: 99, name: 'Staged' })
+    else if (operation === 'update') await view.editRowById(1, { name: 'Changed' })
+    else if (operation === 'delete') await view.removeRow(2)
+    else view.updateEditingValue(1, 'name', 'Draft')
+    view.requestState = RequestState.Loaded
+    const rows = view.rows.map(row => ({ ...row }))
+    const request = vi.spyOn(view, 'requestData').mockResolvedValue()
+
+    await expect(view.refresh()).rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(request).not.toHaveBeenCalled()
+    expect(view.requestState).toBe(RequestState.Loaded)
+    expect(view.rows).toEqual(rows)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(operation !== 'editing')
+    expect(view.hasEditingChanges()).toBe(operation === 'editing')
+    if (operation === 'editing') expect(view.getEditingPatch(1)).toEqual({ name: 'Draft' })
+    request.mockRestore()
+  })
+
+  it('refresh proceeds after saving staged changes', async () => {
+    const { view } = createStagedView()
+    const api = setupMockApi(view)
+    await view.editRowById(1, { name: 'Saved' })
+    expect((await view.saveChanges()).success).toBe(true)
+    expect(api.update).toHaveBeenCalledOnce()
+    const request = vi.spyOn(view, 'requestData').mockResolvedValue()
+    await view.refresh()
+    expect(request).toHaveBeenCalledOnce()
     expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    request.mockRestore()
+  })
+
+  it('refresh proceeds after explicitly discarding editing rows', async () => {
+    const { view } = createStagedView()
+    view.updateEditingValue(1, 'name', 'Draft')
+    expect(view.discardEditingRows()).toBe(1)
+    const request = vi.spyOn(view, 'requestData').mockResolvedValue()
+    await view.refresh()
+    expect(request).toHaveBeenCalledOnce()
+    expect(view.hasEditingChanges()).toBe(false)
+    request.mockRestore()
   })
 })
 

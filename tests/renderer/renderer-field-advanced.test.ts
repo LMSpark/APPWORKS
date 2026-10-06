@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { defineComponent, h, reactive } from 'vue'
+import { defineComponent, h, reactive, toRaw } from 'vue'
 import type { PageServiceCapability } from '@spark-appworks/spark-component'
 import {
   FieldText,
@@ -9,6 +9,9 @@ import {
 } from '@spark-appworks/spark-component'
 import { mountFieldInContext } from '../helpers/mount-field-in-context'
 import { requireHtmlInput, requireHtmlTextArea, requireTextControl } from '../helpers/runtime-guards'
+import { SparkData } from '@spark-appworks/spark-data'
+import { DataSpaceQueryTable } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 function createPageService(overrides?: Partial<PageServiceCapability>): PageServiceCapability {
   return {
@@ -48,17 +51,40 @@ function resolveFieldType(component: object, componentProps?: Record<string, unk
   return 'r-field-test'
 }
 
-function mountWithFieldContext(
+async function mountWithFieldContext(
   component: object,
   model: Record<string, unknown>,
   pageService?: PageServiceCapability,
   componentProps?: Record<string, unknown>,
   options?: { hostType?: string }
 ) {
+  let dataSource
+  let boundModel = model
+  if (Object.hasOwn(model, 'lingma_sys_params')) {
+    const ds = SparkData.createDataSet({ dataSetName: 'AdvancedFields', scenarioId: 'SCENE', tables: {
+      Fields: { tableName: 'Fields', modelBinding: { modelId: 'MODEL', modelName: 'Fields' },
+        columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'content', type: 'string' }],
+        views: { default: { autoCurrentFirst: false, autoSelectFirst: false } },
+      },
+    } })
+    dataSource = ds.getView('Fields', 'default')
+    if (!dataSource) throw new Error('missing test view')
+    const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Fields' })
+    const context = new DataSpaceQueryContext({ identity: table.identity, scope: 'advanced', readScope: () => 'advanced',
+      snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: { Items: [{ id: 'row', ...toRaw(model) }], Count: 1 } } }),
+    })
+    dataSource.bindQueryExecutor({ executeQuery: async () => context })
+    await dataSource.loadFromServer()
+    const row = dataSource.rows[0]
+    if (!row) throw new Error('missing test row')
+    dataSource.setCurrentRow(row)
+    boundModel = row
+  }
   return mountFieldInContext({
     component,
     type: resolveFieldType(component, componentProps),
-    model,
+    model: boundModel,
+    ...(dataSource === undefined ? {} : { dataSource }),
     fieldName: 'content',
     pageService,
     hostType: options?.hostType ?? 'r-form',
@@ -134,14 +160,13 @@ function mountWithFieldContext(
 function createEditableFieldModel(content: unknown): Record<string, unknown> {
   return reactive<Record<string, unknown>>({
     content,
-    lingma_sys_params: { r: [], e: ['content'], h: [], m: [], d: false },
   })
 }
 
-describe('advanced renderer fields', () => {
+describe('advanced renderer fields', async () => {
   it('textarea should sync multiline value into context data', async () => {
     const model = createEditableFieldModel('line1')
-    const wrapper = mountWithFieldContext(FieldTextarea, model)
+    const wrapper = await mountWithFieldContext(FieldTextarea, model)
 
     await wrapper.find('textarea').setValue('line1\nline2')
     expect(model['content']).toBe('line1\nline2')
@@ -149,16 +174,16 @@ describe('advanced renderer fields', () => {
 
   it('html editor should sync source html into context data', async () => {
     const model = createEditableFieldModel('<p>old</p>')
-    const wrapper = mountWithFieldContext(FieldHtmlEditor, model)
+    const wrapper = await mountWithFieldContext(FieldHtmlEditor, model)
 
     await wrapper.find('.toggle-source').trigger('click')
     await wrapper.find('textarea').setValue('<p><strong>new</strong></p>')
     expect(model['content']).toBe('<p><strong>new</strong></p>')
   })
 
-  it('date field should switch to range mode when range filtering is enabled', () => {
+  it('date field should switch to range mode when range filtering is enabled', async () => {
     const model = createEditableFieldModel(['2026-01-01', '2026-01-31'])
-    const wrapper = mountWithFieldContext(FieldDate, model, undefined, { filterMode: 'range' })
+    const wrapper = await mountWithFieldContext(FieldDate, model, undefined, { filterMode: 'range' })
 
     const picker = wrapper.findComponent({ name: 'ElDatePicker' })
     expect(picker.props('type')).toBe('daterange')
@@ -167,7 +192,7 @@ describe('advanced renderer fields', () => {
 
   it('number field should sync range input back into context data', async () => {
     const model = createEditableFieldModel([1, 5])
-    const wrapper = mountWithFieldContext(FieldNumber, model, undefined, { filterMode: 'range' })
+    const wrapper = await mountWithFieldContext(FieldNumber, model, undefined, { filterMode: 'range' })
 
     const inputs = wrapper.findAll('.el-input-number-stub')
     await inputs[0]?.setValue('2')
@@ -178,7 +203,7 @@ describe('advanced renderer fields', () => {
 
   it('file browser should sync selected file names into context data', async () => {
     const model = createEditableFieldModel('')
-    const wrapper = mountWithFieldContext(FieldFileBrowser, model, createPageService({
+    const wrapper = await mountWithFieldContext(FieldFileBrowser, model, createPageService({
       browseFiles: async () => [
         { name: 'alpha.txt', size: 1, type: 'text/plain', lastModified: 1, file: new File(['a'], 'alpha.txt') },
         { name: 'beta.txt', size: 1, type: 'text/plain', lastModified: 2, file: new File(['b'], 'beta.txt') },
@@ -196,7 +221,7 @@ describe('advanced renderer fields', () => {
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     let browseCalls = 0
-    const wrapper = mountWithFieldContext(FieldFileBrowser, model, createPageService({
+    const wrapper = await mountWithFieldContext(FieldFileBrowser, model, createPageService({
       browseFiles: async () => {
         browseCalls += 1
         return [
@@ -238,7 +263,7 @@ describe('advanced renderer fields', () => {
       },
     })
 
-    const editableWrapper = mountWithFieldContext(FieldUpload, editableModel, pageService, { action: '/api/upload' })
+    const editableWrapper = await mountWithFieldContext(FieldUpload, editableModel, pageService, { action: '/api/upload' })
     expect(editableWrapper.find('.primary-action-button').text()).toBe('点击上传')
     await editableWrapper.find('.primary-action-button').trigger('click')
     expect(uploadCalls).toBe(1)
@@ -249,7 +274,7 @@ describe('advanced renderer fields', () => {
       content: '/files/existing.pdf',
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
-    const readonlyWrapper = mountWithFieldContext(FieldUpload, readonlyModel, pageService, { action: '/api/upload' })
+    const readonlyWrapper = await mountWithFieldContext(FieldUpload, readonlyModel, pageService, { action: '/api/upload' })
     expect(readonlyWrapper.find('.primary-action-button').text()).toBe('浏览')
     await readonlyWrapper.find('.primary-action-button').trigger('click')
     expect(uploadCalls).toBe(1)
@@ -284,7 +309,7 @@ describe('advanced renderer fields', () => {
     })
 
     const editableModel = createEditableFieldModel('')
-    const editableWrapper = mountWithFieldContext(FieldFilePath, editableModel, pageService, { action: '/api/upload' })
+    const editableWrapper = await mountWithFieldContext(FieldFilePath, editableModel, pageService, { action: '/api/upload' })
     expect(editableWrapper.find('.primary-action-button').text()).toBe('上传')
     await editableWrapper.find('.primary-action-button').trigger('click')
     expect(uploadCalls).toBe(1)
@@ -295,7 +320,7 @@ describe('advanced renderer fields', () => {
       content: '/files/existing.txt',
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
-    const readonlyWrapper = mountWithFieldContext(FieldFilePath, readonlyModel, pageService, { action: '/api/upload' })
+    const readonlyWrapper = await mountWithFieldContext(FieldFilePath, readonlyModel, pageService, { action: '/api/upload' })
     expect(readonlyWrapper.find('.primary-action-button').text()).toBe('浏览')
     await readonlyWrapper.find('.primary-action-button').trigger('click')
     expect(uploadCalls).toBe(1)
@@ -330,7 +355,7 @@ describe('advanced renderer fields', () => {
     })
 
     const editableModel = createEditableFieldModel('')
-    const editableWrapper = mountWithFieldContext(FieldImage, editableModel, pageService, { action: '/api/upload-image' })
+    const editableWrapper = await mountWithFieldContext(FieldImage, editableModel, pageService, { action: '/api/upload-image' })
     await editableWrapper.find('.primary-action-button').trigger('click')
     expect(uploadCalls).toBe(1)
     expect(editableModel['content']).toBe('/img/preview.png')
@@ -339,7 +364,7 @@ describe('advanced renderer fields', () => {
       content: '/img/existing.png',
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
-    const readonlyWrapper = mountWithFieldContext(FieldImage, readonlyModel, pageService, { action: '/api/upload-image' })
+    const readonlyWrapper = await mountWithFieldContext(FieldImage, readonlyModel, pageService, { action: '/api/upload-image' })
     expect(readonlyWrapper.find('.image-preview').exists()).toBe(true)
     expect(readonlyWrapper.find('.primary-action-button').text()).toBe('浏览')
     await readonlyWrapper.find('.primary-action-button').trigger('click')
@@ -348,48 +373,48 @@ describe('advanced renderer fields', () => {
     expect(readonlyModel['content']).toBe('/img/existing.png')
   })
 
-  it('file path field should remain hidden when permission marks field hidden', () => {
+  it('file path field should remain hidden when permission marks field hidden', async () => {
     const hiddenModel = reactive<Record<string, unknown>>({
       content: '/files/secret.txt',
       lingma_sys_params: { r: [], e: [], h: ['content'], m: [], d: false },
     })
 
-    const wrapper = mountWithFieldContext(FieldFilePath, hiddenModel, createPageService())
+    const wrapper = await mountWithFieldContext(FieldFilePath, hiddenModel, createPageService())
 
     expect(wrapper.find('.el-form-item-stub').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('/files/secret.txt')
   })
 
-  it('textarea should remain rendered when the field is visible but empty', () => {
+  it('textarea should remain rendered when the field is visible but empty', async () => {
     const model = reactive<Record<string, unknown>>({
       content: '',
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
 
-    const wrapper = mountWithFieldContext(FieldTextarea, model, createPageService())
+    const wrapper = await mountWithFieldContext(FieldTextarea, model, createPageService())
 
     expect(wrapper.find('.el-form-item-stub').exists()).toBe(true)
     expect(wrapper.find('textarea').exists()).toBe(true)
     expect(requireHtmlTextArea(wrapper.find('textarea').element, 'textarea field').value).toBe('')
   })
 
-  it('textarea should hide when hidden permission is explicit even if there is no field value', () => {
+  it('textarea should hide when hidden permission is explicit even if there is no field value', async () => {
     const model = reactive<Record<string, unknown>>({
       lingma_sys_params: { r: [], e: [], h: ['content'], m: [], d: false },
     })
 
-    const wrapper = mountWithFieldContext(FieldTextarea, model, createPageService())
+    const wrapper = await mountWithFieldContext(FieldTextarea, model, createPageService())
 
     expect(wrapper.find('.el-form-item-stub').exists()).toBe(false)
   })
 
-  it('detail field should remove the whole block together with caption when hidden', () => {
+  it('detail field should remove the whole block together with caption when hidden', async () => {
     const model = reactive<Record<string, unknown>>({
       content: 'secret value',
       lingma_sys_params: { r: [], e: [], h: ['content'], m: [], d: false },
     })
 
-    const wrapper = mountWithFieldContext(FieldText, model, createPageService(), {
+    const wrapper = await mountWithFieldContext(FieldText, model, createPageService(), {
       label: '内容',
     }, {
       hostType: 'r-detail',
@@ -401,13 +426,13 @@ describe('advanced renderer fields', () => {
     expect(wrapper.text()).not.toContain('secret value')
   })
 
-  it('form field should stay writable without leaking hidden read-channel value', () => {
+  it('form field should stay writable without leaking hidden read-channel value', async () => {
     const model = reactive<Record<string, unknown>>({
       content: 'secret value',
       lingma_sys_params: { r: [], e: ['content'], h: ['content'], m: [], d: false },
     })
 
-    const wrapper = mountWithFieldContext(FieldText, model, createPageService(), {
+    const wrapper = await mountWithFieldContext(FieldText, model, createPageService(), {
       label: '密码',
     })
 
@@ -417,13 +442,13 @@ describe('advanced renderer fields', () => {
     expect(wrapper.text()).not.toContain('secret value')
   })
 
-  it('form field should not reuse backend masked text as editable input value', () => {
+  it('form field should not reuse backend masked text as editable input value', async () => {
     const model = reactive<Record<string, unknown>>({
       content: '138****1234',
       lingma_sys_params: { r: [], e: ['content'], h: [], m: ['content'], d: false },
     })
 
-    const wrapper = mountWithFieldContext(FieldText, model, createPageService(), {
+    const wrapper = await mountWithFieldContext(FieldText, model, createPageService(), {
       label: '手机号',
     })
 
@@ -432,13 +457,13 @@ describe('advanced renderer fields', () => {
     expect(wrapper.text()).not.toContain('138****1234')
   })
 
-  it('image field should not expose a masked raw image value', () => {
+  it('image field should not expose a masked raw image value', async () => {
     const maskedModel = reactive<Record<string, unknown>>({
       content: '/img/mosaic-secret.png',
       lingma_sys_params: { r: [], e: [], h: [], m: ['content'], d: false },
     })
 
-    const wrapper = mountWithFieldContext(FieldImage, maskedModel, createPageService())
+    const wrapper = await mountWithFieldContext(FieldImage, maskedModel, createPageService())
 
     expect(wrapper.find('.image-preview').exists()).toBe(false)
     expect(requireHtmlInput(wrapper.find('input').element, 'masked image input').value).toBe('••••')
@@ -446,7 +471,7 @@ describe('advanced renderer fields', () => {
 
   it('entity picker should sync selected entity values into context data', async () => {
     const model = createEditableFieldModel('')
-    const wrapper = mountWithFieldContext(FieldEntityPicker, model, createPageService({
+    const wrapper = await mountWithFieldContext(FieldEntityPicker, model, createPageService({
       selectEntities: async () => [
         { label: '张三', value: 'user-1' },
       ],
@@ -470,7 +495,7 @@ describe('advanced renderer fields', () => {
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
     let selectorCalls = 0
-    const wrapper = mountWithFieldContext(FieldEntityPicker, model, createPageService({
+    const wrapper = await mountWithFieldContext(FieldEntityPicker, model, createPageService({
       selectEntities: async () => {
         selectorCalls += 1
         return [{ label: '研发部', value: 'dept-2' }]
@@ -492,7 +517,7 @@ describe('advanced renderer fields', () => {
 
   it('user picker should use people-specific defaults and sync selected value', async () => {
     const model = createEditableFieldModel('')
-    const wrapper = mountWithFieldContext(FieldUserPicker, model, createPageService({
+    const wrapper = await mountWithFieldContext(FieldUserPicker, model, createPageService({
       selectEntities: async () => [{ label: '张三', value: 'user-1' }],
     }), {
       options: [{ label: '张三', value: 'user-1' }],
@@ -508,7 +533,7 @@ describe('advanced renderer fields', () => {
       content: 'dept-1',
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
-    const wrapper = mountWithFieldContext(FieldDeptPicker, model, createPageService({
+    const wrapper = await mountWithFieldContext(FieldDeptPicker, model, createPageService({
       selectEntities: async () => [{ label: '研发部', value: 'dept-2' }],
     }), {
       options: [{ label: '研发部', value: 'dept-2' }],
@@ -522,7 +547,7 @@ describe('advanced renderer fields', () => {
   it('product picker should support multi-select array mode', async () => {
     const selectedProducts: string[] = []
     const model = createEditableFieldModel(selectedProducts)
-    const wrapper = mountWithFieldContext(FieldProductPicker, model, createPageService({
+    const wrapper = await mountWithFieldContext(FieldProductPicker, model, createPageService({
       selectEntities: async () => [
         { label: '商品A', value: 'sku-1' },
         { label: '商品B', value: 'sku-2' },

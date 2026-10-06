@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/page/content/rule-file.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "page/content/rule-file",
-    "jsdoc": "@module @spark-appworks/spark-project-model:page/content/rule-file\n职责：提供项目模型层 rule-file 能力，围绕 PageRuleFile 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 四文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectModel/ProjectWorkspace 行为时，用本模块定位 page/content/rule-file。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/content/rule-file\n职责：提供项目模型层 rule-file 能力，围绕 PageRuleFile 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 三文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectBlueprint/ProjectWorkspace 行为时，用本模块定位 page/content/rule-file。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "PageRuleFile"
@@ -71,7 +71,11 @@
         "method.loadText.return": true,
         "method.markSaved.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "submittedText": {
+              "type": "string"
+            }
+          },
           "additionalProperties": false
         },
         "method.markSaved.return": true,
@@ -128,14 +132,15 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T07:44:12.940Z",
+  "generatedAt": "2026-10-06T20:49:03.385Z",
   "models": {
     "PageRuleFile": {
       "name": "PageRuleFile",
-      "jsdoc": "",
+      "jsdoc": "rule.json节点树编辑owner，拥有撤销历史和已保存文本基线。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "绑定明确pageId并建立空规则的内存基线。",
           "signatureText": "constructor(pageId: string)",
           "parameters": [
             {
@@ -207,7 +212,15 @@
             },
             {
               "name": "markSaved",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "submittedText",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"

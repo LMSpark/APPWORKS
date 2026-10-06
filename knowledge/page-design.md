@@ -1,51 +1,56 @@
 # 页面设计
 
-### 四文件内存编辑——不直接操作文件
+> 本文件是 AI 编码知识，不替代源码合同。2026-10 场景整合已更新下列旧四文件及继承入口规则；历史发现来源保留，当前入口以 PageTool、ProjectWorkspace、ScenarioViewFile、PageRuntime 为准。
 
-- **场景**：AI 修改页面设计内容（规则、数据集、脚本、样式）
-- **规则**：通过 `model_script` 调用 `editDataSet` / `editNodeTree` / `editRule` 等方法操作内存模型，不直接读写磁盘文件。四文件（rule.json + dataSet.json + script.ts + style.css）是落盘产物，不是编辑入口。
-- **违反后果**：直接操作文件 → 绕过内存模型，丢失运行时状态，与 Vue 响应式脱钩，用户看到的内容与磁盘不一致
+### 工具三文件与场景配置分别编辑
 
-### 落盘由 ProjectWorkspace 编排
+- **场景**：AI 修改规则、脚本、样式或场景视图。
+- **规则**：pageDesign 的 this 是本次请求的 ProjectWorkspace；`this.project.openPageDesign(pageId)` 返回 PageTool。工具文件仅 rule.json、script.js、style.css，通过 `setFileText` 或 `editNodeTree` 编辑。场景配置通过显式 `loadScenarioViews({scenarioId})` 返回 ScenarioViewFile，再用 `setText` 编辑经 ScenarioViewConfig 校验的内容；不能把场景配置塞回工具文件或修改正式物理模型定义。
+- **违反后果**：混用工具和场景身份会覆盖共享场景或回生第二套数据定义。
+- **发现来源**：原页面内存编辑记录；2026-10 按当前 PageTool/ScenarioViewFile 合同替换旧入口。
 
-- **场景**：AI 完成编辑后想确认数据已持久化
-- **规则**：落盘由 `ProjectWorkspace.save*` 系列方法编排，不是模型自身的方法。AI 不应假设 save 时机，也不应在未调用 save 的情况下通知用户"已完成"。
-- **违反后果**：假设 save 时机 → 数据未持久化就通知完成，用户刷新页面丢失改动
+### 保存由工作区编排，回执才是持久化事实
 
-### ConfigPageNode 是配置页入口
+- **场景**：编辑后需要确认文件已经保存。
+- **规则**：ProjectWorkspace 的页面与场景保存分别执行实际 IO，保留原文、冲突检查和字节回读。只有实际确认回执可以说明持久化成功；多个文件部分成功时保留逐文件已写/已确认事实，不宣称整批回滚，也不清掉等待期间的新编辑。
+- **违反后果**：把内存修改或上传候选当保存结果，会在刷新后丢失改动或错误报告交付。
 
-- **场景**：AI 需要操作某个页面的配置
-- **规则**：通过 `ProjectModel.openPageDesign(pageId)` 获取 `ConfigPageNode` 实例。它包含 rule、dataSet、script、style 四个子模型。不要尝试从其他路径获取页面配置。
-- **违反后果**：绕过 `openPageDesign` 获取的实例可能缺少闸门初始化，导致权限检查或状态同步失败
+### requestId 隔离每次 AI 运行
 
-### 树结构用 items[] + parentId
+- **场景**：同一工具同时有两个编辑器或两次 AI 请求。
+- **规则**：pageDesign 的 Host、工作区上下文、getter、gate、交付回执和清理都以 requestId 定位，pageId/scenarioId 只表示本次目标。Host.ensure 保留首次工厂，因此每次运行使用独立 Host；不能用全局 pageId→workspace Map、动态 alias 或队列替代请求隔离。修改当前请求持有的编辑器，不假设所有同page编辑器都是同一Vue对象。
+- **违反后果**：A 请求可能消费 B 编辑器，释放 A 时又删除 B 的上下文。
+- **发现来源**：同page A/B 并发与释放回归。
 
-- **场景**：AI 需要操作节点树（如添加、移动、删除节点）
-- **规则**：树结构用 `items[]` + `parentId` 平铺表示，不用嵌套 `children` 当真源。所有树操作通过 `SparkNodeTree` 的方法（`addNode`、`removeNode`、`moveNode`），不要自己组装 children 结构。
-- **违反后果**：用嵌套 children 当真源 → 树操作（移动、插入）复杂度爆炸，与现有工具链不兼容，操作后 parentId 与 children 不一致
+### 组件树与蓝图树是不同合同
 
-### AI 与 Vue 共享同一实例
+- **场景**：添加、移动或删除页面组件。
+- **规则**：PageTool.editNodeTree 提供 SparkNodeTree，调用其命名参数的 addNode、removeNode、moveNode、setProps 等方法。组件树当前真源是单根 spark-page 及嵌套 children，写入由不可变重写和历史栈维护；不能套用蓝图 nodeId/parentNodeId 的记录结构。rule.json 可为单组件、组件数组或 spark-page，解析后统一为单根。
+- **违反后果**：把蓝图平铺协议强加给组件树，会破坏组件子树与撤销重做。
+- **发现来源**：原树编辑记录；2026-10 按 SparkNodeTree.fromRuleJson/公开写方法纠正。
 
-- **场景**：AI 修改模型字段后，用户界面需要立即反映
-- **规则**：AI 与 Vue 共享同一模型实例，写字段或调 API 即可，不需要 draft、不需要 projection DTO、不需要手动触发 UI 更新。
-- **违反后果**：创建副本/draft 修改 → 修改不会反映到 UI，用户看不到变化；手动触发更新 → 与 Vue 响应式系统冲突
+### 运行调用不复用编辑数据
 
-### rule.json 的特殊结构
+- **场景**：同一工具在不同场景或两个标签中运行。
+- **规则**：PageRuntime 持有唯一 instanceId、明确 scenarioIds 和可选 mainScenarioId，独立装配每次调用的 DataSet。工具只提供三文件定义，不持有运行数据；关闭仅 dispose 本实例。SparkPageRenderer 消费 pageRuntime 与调用路由快照，脚本、样式与 Render 组件保持实例范围。
+- **违反后果**：复用运行 DataSet 或按工具ID释放，会使两个调用串状态或互相销毁。
 
-- **场景**：AI 修改页面规则配置
-- **规则**：`rule.json` 不是自由结构，有严格的 schema 约束（条件表达式、权限规则、联动规则各有固定格式）。修改 rule 时应通过 `ConfigPageNode` 的 rule 子模型 API，不要直接拼 JSON。
-- **违反后果**：拼出的 JSON 不符合 schema → 前端解析报错或运行时行为异常
+### 场景、稳定表名与正式模型分别定位
 
-### 有 PageDataSpaceBinding 时运行 DataSet 不以 pagedata 为真源
+- **场景**：编辑多视图配置、关系或组件绑定。
+- **规则**：后端正式模型提供字段和查询身份；单场景 SysForm/<scenarioId>/pagedata.json 通过 modelBinding 引用模型并配置稳定 tableName、多 DataView 和 viewCascades。完整绑定为 #scenarioId@tableName@viewId；局部 table@view 只由明确 mainScenarioId 补全，不自动选第一个场景。应用/租户留在请求scope和后端可信目录，不进入业务 JSON。
+- **违反后果**：强制表名等于模型ID、推断场景或在配置重定义字段，会导致双真源及跨场景串用。
+- **发现来源**：DataSet 整合 SPARK 数据空间语义审核及当前运行装配合同。
 
-- **场景**：配置页蓝图节点带齐 `formKey + dataSpaceId + modelId`（`PageDataSpaceBinding`），运行态打开该页
-- **规则**：运行态 DataSet 只经宿主 `loadBoundDataSpaceDataSet`（DataSpace 设计 + `PermissionRuntimeSnapshot` → `LowcodeDataSpaceAssembler`）装载。`pagedata.json` 仅属设计/AI 轴与无绑定预览；`SparkPageRenderer` 在 binding 存在时必须调用注入的 `loadRuntimeDataSet`，禁止再用四文件 hydrate 当运行数据。
-- **违反后果**：设计器草稿与平台权限/模型双真源并行 → UI 授权与查询结果和平台不一致；缺装载器时 fail-closed 抛错
-- **发现来源**：2026-08 系统结构 SSOT 归并（批次 F）
+### 版本快照不等于发布指针
 
-### 绑定页面的 DataSet 身份：一个模型一张表，场景与模型绑定是唯一身份来源
+- **场景**：创建、列举或恢复文件快照。
+- **规则**：裸文件保存工作内容；历史来自后端真实 N__filename 和 lastModified，summary 为 version/fileName/lastModified|null。候选编号仅用于快照创建，上传禁止覆盖且核对最终filePath和字节回读后才可更新发布引用。正式发布读取 source.VersionId 的 rule/script/style 分段；恢复写回工作文件不切发布指针。
+- **违反后果**：用最大版本推断current、伪造时间或恢复时切指针，会改变已发布行为。
 
-- **场景**：读写由 `LowcodeDataSpaceAssembler` 装配出的 DataSet，或编写引用它的页面规则/脚本
-- **规则**：`DataSet.scenarioId` 存绑定的 `formKey`（对应请求头 `x-FormKey`）；每个前端模型对应一张 `DataTable`，`tableName` 即 `modelId`，`DataTable.modelBinding{modelId,modelName}` 是模型身份的唯一来源（`modelName` 用于查询，后端改名只改它，不改 `tableName`）；表内只有一个 `default` 视图（常量 `LOWCODE_MODEL_VIEW_ID`）。同一物理资源的多个模型是多张互相独立的表，不合并。`resourceId` 仅描述资源，不是表身份；查询路由不再依赖视图 `queryContext`。没有按资源建表、以 `modelId` 作 `viewId` 的旧写法，也没有兼容层，旧页面规则只能经迁移预览一次性改写。
-- **违反后果**：把 `resourceId` 当 `tableName` 或把 `modelId` 当 `viewId` 引用 → `getTable/getView` 取不到；同资源多模型被合并 → 视图、权限与查询串用
-- **发现来源**：2026-10 DataSet 整合 SPARK 数据空间（P2）
+### 树子新增不能复用表级凭据
+
+- **场景**：模型正式定义包含自引用ParentField，新增记录的父身份不是TopValue或空根。
+- **规则**：私有查询上下文从正式Name映射父字段，要求原查询唯一父行、明确c=true和原父行token；未回执或回执未提供c/token的新父行须重新查询。不得从树组件配置猜父身份，或回退表token走旧页面兼容分支。后端仍负责验签及强校验。
+- **违反后果**：呈现有c按钮却出站表token，子行保存不符合正式父凭据合同；用公开行重建授权会丢失真实签名基线。
+- **发现来源**：2026-10-07对照DataPermissionAspect、DataSpaceQueryContext及17项真实runtime owner回归。

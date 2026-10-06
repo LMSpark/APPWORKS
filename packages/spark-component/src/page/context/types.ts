@@ -10,7 +10,7 @@
  * 页面渲染器 Props（编排层）已迁移至 SparkPageRenderer.vue <script> 块。
  */
 
-import type { DataSetContract, SparkData } from '@spark-appworks/spark-data'
+import type { SparkData } from '@spark-appworks/spark-data'
 import type { ComponentInstanceSnapshot } from '@spark-appworks/spark-utils'
 import type { ScriptContext } from '../../runtime'
 import type { h } from 'vue'
@@ -33,15 +33,13 @@ export type PageComponentAccessApi = {
  *
  * 继承 `ScriptContext`（spark-project-model，框架无关契约），
  * 在此基础上添加 spark-component 层具体注入字段：
- * - `$dataSet` — DataSet 实例（具体类型）
+ * - `$page.getDataSet(scenarioId)` — 当前调用的指定场景数据
  * - `$components` — 覆盖为更完整的 `PageComponentAccessApi`
  * - `SparkData` — 数据工具命名空间
  * - `h` — 渲染函数（Render* 专用）
  * - Timer API — 沙箱白名单
  */
 export type PageContext = ScriptContext & {
-  /** 页面 DataSet（比 ScriptContext 额外注入的具体类型） */
-    $dataSet: DataSetContract | null
     /** 组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法） */
     $components: PageComponentAccessApi
     /** SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用） */

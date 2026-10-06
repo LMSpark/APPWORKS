@@ -11,6 +11,7 @@
     "noEmitOnError": true,
     "removeComments": false,
     "paths": {
+      "@spark-appworks/spark-data": ["../spark-data/dist/index.d.ts"],
       "@spark-appworks/spark-utils": ["../spark-utils/dist/index.d.ts"]
     }
   },

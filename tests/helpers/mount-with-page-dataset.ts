@@ -1,10 +1,11 @@
+import { createTestPageRuntime } from './create-test-page-runtime'
 import { mount } from '@vue/test-utils'
 import type { ComponentMountingOptions } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import type { Component } from 'vue'
 import { PAGE_RUNTIME_SERVICES } from '@spark-appworks/spark-component'
-import { PAGE_COMPONENT_REGISTRY, PAGE_DATASET, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import { PAGE_COMPONENT_REGISTRY, PAGE_RUNTIME, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import type { DataSetContract, DataView } from '@spark-appworks/spark-data'
 import type { PageComponentRegistry } from '@spark-appworks/spark-component'
 import { createPageComponentRegistry } from '../../packages/spark-component/src/page/context/page-component-registry'
@@ -38,7 +39,7 @@ export function mountWithPageDataSet(
     setup() {
       const node: SparkNode = { type: 'test-page-root' }
       const { sparkProvide } = useSparkComponent(node)
-      sparkProvide(PAGE_DATASET, options.dataSet)
+      sparkProvide(PAGE_RUNTIME, createTestPageRuntime(options.dataSet))
       sparkProvide(PAGE_COMPONENT_REGISTRY, pageComponentRegistry)
       sparkProvide(PAGE_RUNTIME_SERVICES, { logger: TEST_APP_LOGGER })
       return () => h(component, options.props ?? {}, options.slots ?? {})

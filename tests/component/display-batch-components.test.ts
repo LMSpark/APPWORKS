@@ -1,4 +1,6 @@
-import type { SparkNode } from '@spark-appworks/spark-data'
+import { SparkData, type DataView, type SparkNode } from '@spark-appworks/spark-data'
+import { DataSpaceQueryTable } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 /**
  * Tests for Batch 4-6 display components:
  * - DisplayIcon (display-icon)
@@ -8,7 +10,7 @@ import type { SparkNode } from '@spark-appworks/spark-data'
  */
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, reactive } from 'vue'
+import { defineComponent, h } from 'vue'
 import type { Component } from 'vue'
 import {
   DisplayIcon,
@@ -18,6 +20,7 @@ import {
   Spark,
   useSparkComponent,
   DATA_ROW,
+  DATA_SOURCE,
   SPARK_REGISTRY_KEY,
 } from '@spark-appworks/spark-component'
 
@@ -72,7 +75,7 @@ function mountDisplayComponent(
   component: Component,
   config: SparkNode & Record<string, unknown>,
   stubs: Record<string, Component> | undefined,
-  dataRow?: Record<string, unknown>,
+  dataSource?: DataView,
 ) {
   const { registry, rootContext } = Spark.createSystem()
 
@@ -80,8 +83,9 @@ function mountDisplayComponent(
     setup() {
       const node: SparkNode = { type: 'test-parent' }
       const { sparkProvide } = useSparkComponent(node, { parentContext: rootContext })
-      if (dataRow) {
-        sparkProvide(DATA_ROW, dataRow)
+      if (dataSource) {
+        sparkProvide(DATA_SOURCE, dataSource)
+        sparkProvide(DATA_ROW, dataSource.currentRow)
       }
       return () => h(component, config)
     },
@@ -95,6 +99,31 @@ function mountDisplayComponent(
       },
     },
   })
+}
+
+async function createDisplayView(row: Record<string, unknown>): Promise<DataView> {
+  const dataSet = SparkData.createDataSet({
+    dataSetName: 'DisplayImages', scenarioId: 'SCENE',
+    tables: {
+      Images: {
+        tableName: 'Images', modelBinding: { modelId: 'MODEL', modelName: 'Images' },
+        columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'avatar', type: 'string' }],
+        views: { default: {} },
+      },
+    },
+  })
+  const view = dataSet.getView('Images', 'default')!
+  const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Images' })
+  const context = new DataSpaceQueryContext({
+    identity: table.identity, scope: 'scene', readScope: () => 'scene',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'rowid', data: {
+      Items: [{ rowid: 'ROW', ...row }], Count: 1,
+    } } }),
+  })
+  view.bindQueryExecutor({ executeQuery: async () => context })
+  await view.loadFromServer()
+  view.setCurrentRowById('ROW')
+  return view
 }
 
 // ── Tests ──
@@ -173,8 +202,8 @@ describe('DisplayImage (display-image)', () => {
     expect(stub.attributes('data-src')).toBe('https://example.com/logo.png')
   })
 
-  it('should resolve src from data row field', () => {
-    const dataRow = reactive({
+  it('should resolve src from data row field', async () => {
+    const dataRow = await createDisplayView({
       avatar: 'https://example.com/photo.jpg',
       lingma_sys_params: { r: [], e: [], h: [], m: [], d: false },
     })
@@ -190,8 +219,8 @@ describe('DisplayImage (display-image)', () => {
     expect(stub.attributes('data-src')).toBe('https://example.com/photo.jpg')
   })
 
-  it('should not expose a hidden image field from the backend permission row', () => {
-    const dataRow = reactive({
+  it('should not expose a hidden image field from the backend permission row', async () => {
+    const dataRow = await createDisplayView({
       avatar: 'https://example.com/private.jpg',
       lingma_sys_params: { r: [], e: [], h: ['avatar'], m: [], d: false },
     })
@@ -205,8 +234,8 @@ describe('DisplayImage (display-image)', () => {
     expect(wrapper.find('.el-image-stub').attributes('data-src')).toBe('')
   })
 
-  it('should replace a masked image field instead of rendering its raw URL', () => {
-    const dataRow = reactive({
+  it('should replace a masked image field instead of rendering its raw URL', async () => {
+    const dataRow = await createDisplayView({
       avatar: 'https://example.com/private.jpg',
       lingma_sys_params: { r: [], e: [], h: [], m: ['avatar'], d: false },
     })

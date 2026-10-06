@@ -2,7 +2,7 @@
  * @module app:services/page-design-ai-runner
  * 职责：提供应用层 pageDesign 的 page-design-ai-runner 能力，围绕 PageDesignAiRunOptions、PageDesignAiRunEvents、PageDesignAiRunCommand 等 4 个公开契约 接线 AI runner、业务门禁、知识服务或编辑器状态。
  * 边界：只编排 app 层页面设计流程，不替代 spark-ai Host，也不直接实现底层组件渲染器。
- * AI用途：排查 pageDesign 会话、工具门禁或页面四文件生成链路时，用本模块定位 services/page-design-ai-runner。
+ * AI用途：排查 pageDesign 会话、工具门禁或页面三文件生成链路时，用本模块定位 services/page-design-ai-runner。
  */
 /**
  * DevSystem 面板内 pageDesign AI — 使用 DevSystem 当前 ProjectWorkspace。
@@ -18,11 +18,11 @@ import type {
   AiRunTraceSink,
 } from '@spark-appworks/spark-app'
 import type { AiAgentToolCallRecord } from '@spark-appworks/spark-ai/agent'
-import { AI_AGENT_HOST } from '@spark-appworks/spark-ai/agent'
+import { createAiAgentHost, AI_AGENT_HOST } from '@spark-appworks/spark-ai/agent'
 import type { SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
 import {
-  PAGE_NODE_FILE_NAMES,
-  type PageNodeFileName,
+  PAGE_TOOL_FILE_NAMES,
+  type PageToolFileName,
   type ProjectActivePageProjection,
   type ProjectWorkspace,
 } from '@spark-appworks/spark-project-model'
@@ -35,17 +35,21 @@ import {
   type PageDesignRunMode,
 } from '@/services/page-design/page-design-agent-workflow-binding'
 import { activatePageDesignAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
-import { createAiDeliveryFailureError } from '@/services/ai/ai-delivery-port'
+import { createAiAgentTurnCallbacks } from '@/services/ai/ai-turn-bridge'
+import { createAiDeliveryFailureError, type AiDeliveryResult } from '@/services/ai/ai-delivery-port'
 import { createPageDesignInlineDeliveryPort } from '@/services/page-design/page-design-agent-run-provider'
 import {
   bindPageDesignRunContext,
   clearPageDesignRunContext,
+  readPageDesignRunContext,
 } from '@/services/page-design/page-design-gates'
 
 /** Page Design Ai Run Options 的调用配置。 */
 export type PageDesignAiRunOptions = {
     /** description 字段。 */
 description: string
+  requestId?: string
+  scenarioId?: string
     /** mode 字段。 */
 mode?: PageDesignRunMode
     /** allowed Operations 字段。 */
@@ -84,23 +88,29 @@ onAbort?: AiRunAbortHandler
 userMessage?: string
   /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */
   saveDirtyFilesAfterRun?: boolean
-  /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 四文件。 */
-  deliverySaveFileNames?: readonly PageNodeFileName[]
+  /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */
+  deliverySaveFileNames?: readonly PageToolFileName[]
 }
 
 /** Page Design Ai Run Result 的返回结果。 */
 export type PageDesignAiRunResult = {
+  requestId: string
+  scenarioId?: string
+  delivery: AiDeliveryResult
     /** saw Tool Call 字段。 */
 sawToolCall: boolean
     /** files 字段。 */
 files: ProjectActivePageProjection
     /** dirty File Names 字段。 */
-dirtyFileNames: PageNodeFileName[]
+dirtyFileNames: PageToolFileName[]
     /** saved Dirty File Names 字段。 */
-savedDirtyFileNames: PageNodeFileName[]
+savedDirtyFileNames: PageToolFileName[]
 }
 
 export async function runPageDesignAiSession(command: PageDesignAiRunCommand): Promise<PageDesignAiRunResult> {
+  const requestId = command.requestId?.trim() ?? crypto.randomUUID()
+  if (!requestId) throw new Error('pageDesign requires requestId')
+  if (readPageDesignRunContext(requestId) !== undefined) throw new Error('PAGE_DESIGN_REQUEST_ACTIVE: requestId 已被占用')
   const pageId = command.pageId.trim()
   const description = command.description.trim()
   if (!pageId) throw new Error('pageDesign AI requires a pageId.')
@@ -111,7 +121,7 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
     throw new Error('AI Host 未注册，无法启动 pageDesign。')
   }
 
-  assertActivePageNodeLoaded(command.editor, pageId)
+  assertActivePageToolLoaded(command.editor, pageId)
 
   const planning = resolvePageDesignPlanningContext(command.editor.project, pageId)
   const summary = command.editor.project.readPlanningProjection().find(item => item.pageId === pageId)
@@ -120,17 +130,21 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
   }
   assertPageDesignRunGateAllowed(summary, command.mode)
 
+  if (command.scenarioId !== undefined) await command.editor.loadScenarioViews({ scenarioId: command.scenarioId })
   const pageDesignHost = await activatePageDesignAgentWorkflow({
-    host: aiAgentHost,
+    host: createAiAgentHost({ turnCallbacks: createAiAgentTurnCallbacks(), maxToolRounds: 16 }),
     getPageDesignEditor: (context) => {
-      if (context.moduleInstanceId !== pageId) {
-        throw new Error(`pageDesign editor mismatch: expected "${pageId}", got "${context.moduleInstanceId}".`)
+      if (context.moduleInstanceId !== requestId) {
+        throw new Error(`pageDesign editor mismatch: expected "${requestId}", got "${context.moduleInstanceId}".`)
       }
       return command.editor
     },
   })
 
-  bindPageDesignRunContext(pageId, {
+  if (readPageDesignRunContext(requestId) !== undefined) throw new Error('PAGE_DESIGN_REQUEST_ACTIVE: requestId 已被占用')
+  bindPageDesignRunContext(requestId, {
+    pageId,
+    ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }),
     ...(command.allowedOperations === undefined ? {} : { allowedOperations: command.allowedOperations }),
     ...(command.deliverySaveFileNames === undefined ? {} : { deliverySaveFileNames: command.deliverySaveFileNames }),
   })
@@ -142,7 +156,7 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
     host: pageDesignHost,
     alias: PAGE_DESIGN_MODULE_ID,
     input: buildPageDesignRunInput({
-      pageId,
+      requestId, pageId,
       projectId: command.editor.project.projectId,
       options: command,
       planning,
@@ -160,17 +174,18 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
     userMessage: command.userMessage ?? description,
     })
   } finally {
-    clearPageDesignRunContext(pageId)
+    clearPageDesignRunContext(requestId)
   }
 
   const delivery = createPageDesignInlineDeliveryPort({
+    ...(command.allowedOperations === undefined ? {} : { allowedOperations: command.allowedOperations }),
     autoSave: command.saveDirtyFilesAfterRun === true,
     ...(command.deliverySaveFileNames === undefined
       ? {}
       : { saveFileNames: command.deliverySaveFileNames }),
   })
-  const deliveryResult = await delivery.save({ editor: command.editor, pageId })
-  await delivery.trace({ editor: command.editor, pageId }, deliveryResult)
+  const deliveryResult = { ...await delivery.save({ editor: command.editor, pageId, requestId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }) }), requestId, pageId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }) }
+  await delivery.trace({ editor: command.editor, pageId, requestId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }) }, deliveryResult)
   if (deliveryResult.status === 'failed') {
     throw createAiDeliveryFailureError(
       deliveryResult.message ?? 'pageDesign delivery failed.',
@@ -180,9 +195,12 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
   const savedDirtyFileNames = deliveryResult.artifacts
     .filter(artifact => artifact.kind === 'page-file' && artifact.status === 'saved')
     .map(artifact => artifact.name)
-    .filter(isPageNodeFileName)
+    .filter(isPageToolFileName)
 
   return {
+    requestId,
+    ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }),
+    delivery: deliveryResult,
     sawToolCall,
     files: command.editor.project.readActivePageProjection(),
     dirtyFileNames: readDirtyFileNames(command.editor),
@@ -190,8 +208,8 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
   }
 }
 
-function isPageNodeFileName(value: string): value is PageNodeFileName {
-  return PAGE_NODE_FILE_NAMES.some(fileName => fileName === value)
+function isPageToolFileName(value: string): value is PageToolFileName {
+  return PAGE_TOOL_FILE_NAMES.some(fileName => fileName === value)
 }
 
 type CreatePageDesignTraceSinkOptions = Readonly<{
@@ -225,24 +243,25 @@ function createPageDesignTraceSink(options: CreatePageDesignTraceSinkOptions): A
   }
 }
 
-function assertActivePageNodeLoaded(editor: ProjectWorkspace, pageId: string): void {
+function assertActivePageToolLoaded(editor: ProjectWorkspace, pageId: string): void {
   const activePage = editor.project.getActivePage()
   if (activePage === null) {
-    throw new Error('pageDesign AI requires the current PageNode to be opened before editing.')
+    throw new Error('pageDesign AI requires the current PageTool to be opened before editing.')
   }
   if (activePage.pageId !== pageId) {
-    throw new Error(`pageDesign AI active PageNode mismatch: expected "${pageId}", got "${activePage.pageId}".`)
+    throw new Error(`pageDesign AI active PageTool mismatch: expected "${pageId}", got "${activePage.pageId}".`)
   }
   if (!activePage.isLoaded) {
-    throw new Error(`pageDesign AI requires PageNode "${pageId}" to be loaded before editing.`)
+    throw new Error(`pageDesign AI requires PageTool "${pageId}" to be loaded before editing.`)
   }
 }
 
-function readDirtyFileNames(editor: ProjectWorkspace): PageNodeFileName[] {
+function readDirtyFileNames(editor: ProjectWorkspace): PageToolFileName[] {
   return Array.from(editor.project.readDirtyProjection().dirtyFiles)
 }
 
 type BuildPageDesignRunInputCommand = Readonly<{
+  requestId: string
   pageId: string
   projectId: string
   options: PageDesignAiRunOptions
@@ -250,9 +269,10 @@ type BuildPageDesignRunInputCommand = Readonly<{
 }>
 
 function buildPageDesignRunInput(command: BuildPageDesignRunInputCommand): PageDesignRunInput {
-  const { pageId, projectId, options, planning } = command
+  const { requestId, pageId, projectId, options, planning } = command
   const input: PageDesignRunInput = {
-    pageId,
+    requestId, pageId,
+    ...(options.scenarioId === undefined ? {} : { scenarioId: options.scenarioId }),
     description: options.description.trim(),
     effectiveDescription: planning.effectiveDescription,
     projectId,

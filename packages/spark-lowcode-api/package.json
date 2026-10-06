@@ -37,6 +37,7 @@
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js}\" --fix"
   },
   "dependencies": {
+    "@spark-appworks/spark-data": "workspace:*",
     "@spark-appworks/spark-utils": "workspace:*"
   },
   "devDependencies": {

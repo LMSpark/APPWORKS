@@ -13,7 +13,8 @@ import { SelectionDelegate } from '../strategies/selection-delegate'
 import { LocalMutationDelegate } from '../strategies/local-mutation-delegate'
 import { CrudDelegate } from '../strategies/crud-delegate'
 import { createRequest } from '@spark-appworks/spark-utils'
-import type { CrudApi, FilterExpression } from '../types'
+import type { CrudApi } from '../types'
+import type { DataViewFilterTree } from '../query/filter/data-view-filter-contract'
 import { setMember } from './test-type-helpers'
 
 function createMockHttpClient() {
@@ -252,11 +253,11 @@ describe('M5: CrudService shared HTTP client', () => {
       list: { url: '/api/filter-expression-cases/query', method: 'POST' },
     }, mockClient)
 
-    const filter: FilterExpression = {
-      type: 'and',
-      children: [
-        { field: 'status', op: '==', value: 'open' },
-        { field: 'amount', op: '>=', value: { kind: 'field', field: 'threshold' } },
+    const filter: DataViewFilterTree = {
+      logic: 'and',
+      filters: [
+        { field: 'status', operator: 'eq', value: 'open' },
+        { field: 'amount', operator: 'gte', value: { Type: 'GetTableField', Field: 'threshold' } },
       ],
     }
 
@@ -428,6 +429,105 @@ describe('S1: DataView public delegate accessors', () => {
 // ============================================================
 // L1: 委托类导出验证
 // ============================================================
+describe('CRUD business key submission', () => {
+  function fixture() {
+    const ds = DataSet.fromJson({
+      dataSetName: 'Composite',
+      tables: {
+        Items: {
+          tableName: 'Items',
+          columns: [
+            { name: 'orderId', type: 'number', isPrimaryKey: true },
+            { name: 'productId', type: 'number', isPrimaryKey: true },
+            { name: 'name', type: 'string' },
+          ],
+          api: { update: { url: '/items', method: 'POST' }, delete: { url: '/items', method: 'POST' } },
+          views: { default: { rows: [{ orderId: 0, productId: 10, name: 'Original' }] } },
+        },
+      },
+    })
+    const view = ds.getView('Items', 'default')!
+    const service = view.crudService!
+    const update = vi.spyOn(service, 'update').mockResolvedValue({ success: true })
+    const remove = vi.spyOn(service, 'delete').mockResolvedValue({ success: true })
+    const batchRemove = vi.spyOn(service, 'batchDelete').mockResolvedValue({ success: true })
+    return { ds, view, update, remove, batchRemove }
+  }
+
+  it.each(['update', 'delete', 'batch-delete'])('submits original composite values for %s', async (operation) => {
+    const { view, update, remove, batchRemove } = fixture()
+    const id = view.getPkKey(view.rows[0]!)!
+    expect(id).toBe('0+10')
+    if (operation === 'update') {
+      await view.crud.updateRecord(id, { name: 'Changed', _pk: 'forged' })
+      expect(update).toHaveBeenCalledWith({ orderId: 0, productId: 10 }, { orderId: 0, productId: 10, name: 'Changed' }, undefined)
+    } else if (operation === 'delete') {
+      await view.crud.deleteRecord(id)
+      expect(remove).toHaveBeenCalledWith({ orderId: 0, productId: 10 }, undefined)
+    } else {
+      await view.crud.batchDeleteRecords([id])
+      expect(batchRemove).toHaveBeenCalledWith([{ orderId: 0, productId: 10 }], undefined)
+    }
+  })
+
+  it.each(['update', 'delete', 'batch-delete'])('rejects missing composite source fields before %s transport', async (operation) => {
+    const { view, update, remove, batchRemove } = fixture()
+    const id = 'missing+key'
+    const run = operation === 'update'
+      ? view.crud.updateRecord(id, { name: 'Changed' })
+      : operation === 'delete'
+        ? view.crud.deleteRecord(id)
+        : view.crud.batchDeleteRecords([view.getPkKey(view.rows[0]!)!, id])
+    await expect(run).rejects.toThrow('business primary key')
+    expect(update).not.toHaveBeenCalled()
+    expect(remove).not.toHaveBeenCalled()
+    expect(batchRemove).not.toHaveBeenCalled()
+    expect(view.rows).toHaveLength(1)
+  })
+
+  it('rejects an explicit synthetic key before transport', async () => {
+    const { view, update, remove } = fixture()
+    await expect(view.crud.updateRecord('0+10', { name: 'Changed' }, { _pk: '0+10' })).rejects.toThrow('_pk')
+    await expect(view.crud.deleteRecord('0+10', { _pk: '0+10' })).rejects.toThrow('_pk')
+    expect(update).not.toHaveBeenCalled()
+    expect(remove).not.toHaveBeenCalled()
+  })
+
+  it('refuses a transaction delete when the composite source snapshot is missing', async () => {
+    const { ds, view } = fixture()
+    view.commitMode = 'staged'
+    const client = createMockHttpClient()
+    vi.mocked(client.post).mockResolvedValue({ results: [] })
+    ds.setSharedHttpClient(client)
+    const id = view.getPkKey(view.rows[0]!)!
+    await view.removeRow(id)
+    vi.spyOn(view.dirtyTracking, 'getPendingDeleteSnapshot').mockReturnValue(undefined)
+    await expect(ds.saveChanges({ mode: 'transaction', transaction: { endpoint: { url: '/transaction', method: 'POST' } } })).rejects.toThrow('business primary key')
+    expect(client.post).not.toHaveBeenCalled()
+    expect(view.dirtyTracking.isPendingDelete(id)).toBe(true)
+  })
+
+  it.each(['create', 'update', 'delete'])('omits computed keys from the transaction %s payload', async (operation) => {
+    const { ds, view } = fixture()
+    view.commitMode = 'staged'
+    const client = createMockHttpClient()
+    vi.mocked(client.post).mockResolvedValue({ results: [] })
+    ds.setSharedHttpClient(client)
+    const id = view.getPkKey(view.rows[0]!)!
+    if (operation === 'create') await view.addRow({ orderId: 1, productId: 2, name: 'Added' })
+    else if (operation === 'update') await view.editRowById(id, { name: 'Changed' })
+    else await view.removeRow(id)
+    await ds.saveChanges({ mode: 'transaction', transaction: { endpoint: { url: '/transaction', method: 'POST' } } })
+    const expected = operation === 'create'
+      ? { data: { orderId: 1, productId: 2, name: 'Added' } }
+      : operation === 'update'
+        ? { pk: { orderId: 0, productId: 10 }, data: { orderId: 0, productId: 10, name: 'Changed' } }
+        : { pk: { orderId: 0, productId: 10 } }
+    expect(client.post).toHaveBeenCalledOnce()
+    expect(vi.mocked(client.post).mock.calls[0]?.[1]).toEqual({ operations: [expect.objectContaining({ op: operation, ...expected })] })
+  })
+})
+
 describe('L1: delegate class exports from index', () => {
   it('SelectionDelegate should be importable from index', () => {
     expect(SelectionDelegate).toBeDefined()

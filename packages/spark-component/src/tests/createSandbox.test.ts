@@ -6,7 +6,7 @@
  * - compileFunctions 编译 & 执行
  * - __init__ 函数
  * - 函数间互相调用
- * - 沙箱上下文变量访问（$dataSet / $page / 自定义）
+ * - 沙箱上下文变量访问（$page / $route / 自定义）
  * - 原型链访问拦截（prototype pollution 防护）
  * - 边界场景（空脚本、语法错误）
  */
@@ -16,17 +16,6 @@ import { compileFunctions } from '../page/createSandbox'
 import type { PageContext } from '../page/context/types'
 import { SparkData } from '@spark-appworks/spark-data'
 import { h } from 'vue'
-import * as permissionApi from '../permission/index'
-
-const scriptPermissionApi: PageContext['permission'] = {
-  ...permissionApi,
-  resolveFieldPermissionState(input, row, config) {
-    if (input !== null && typeof input === 'object') {
-      return permissionApi.resolveFieldPermissionState(input)
-    }
-    return permissionApi.resolveFieldPermissionState({ field: input, row, config })
-  },
-}
 
 function createMockComponents(): PageContext['$components'] {
   return {
@@ -39,6 +28,7 @@ function createMockComponents(): PageContext['$components'] {
 
 function createMockPageService(): PageContext['$page'] {
   return {
+    getDataSet: vi.fn(() => undefined), resolveView: vi.fn(() => undefined),
     showDialog: vi.fn(async () => 'confirm' as const),
     selectEntities: vi.fn(async () => []),
     browseFiles: vi.fn(async () => []),
@@ -75,11 +65,8 @@ function createMockContext(overrides: Partial<PageContext> = {}): PageContext {
     $el: () => null,
     $query: () => null,
     $queryAll: () => document.querySelectorAll('.noop'),
-    $dataSet: null,
     $components: createMockComponents(),
-    $refreshData: async () => {},
     $page: createMockPageService(),
-    permission: scriptPermissionApi,
     SparkData,
     h,
     setTimeout: pageSetTimeout,
@@ -137,6 +124,12 @@ describe('createSandbox — compileFunctions', () => {
     expect(fns['square']!(5)).toBe(25)
   })
 
+  it('提取同行顶层声明并排除嵌套或字符串中的声明', () => {
+    const fns = compileFunctions(`let count=0; function RenderActions(){ function nested(){return 9}; return ++count }; const next=()=>RenderActions(); const text="function fake(){}"`, createMockContext())
+    expect(Object.keys(fns).sort()).toEqual(['RenderActions', 'next'])
+    expect(fns['next']?.()).toBe(1)
+  })
+
   // ── __init__ ────────────────────────────────────────────────────────────────
 
   it('__init__ 函数应被返回', () => {
@@ -173,44 +166,20 @@ describe('createSandbox — compileFunctions', () => {
   it('函数应能访问沙箱上下文变量', () => {
     const ctx = createMockContext()
     const script = `
-      function getDataSet() { return $dataSet }
+      function getDataSet() { return $page.getDataSet("SCENE") }
       function callPage() { $page.showMessage('hi', 'info'); return true }
     `
     const fns = compileFunctions(script, ctx)
-    expect(fns['getDataSet']!()).toBeNull()
+    expect(fns['getDataSet']!()).toBeUndefined()
     expect(fns['callPage']!()).toBe(true)
     expect(ctx.$page.showMessage).toHaveBeenCalledWith('hi', 'info')
   })
 
-  it('函数应能访问注入的 permission API', () => {
+  it('沙箱不注入旧 permission 转发命名空间', () => {
     const ctx = createMockContext()
-    const script = `
-      function canCreate() {
-        return permission.isPermittedAction('create', {
-          permissionSnapshot: {
-            formKey: 'FORM-1', dataSpaceId: 'SPACE-1', modelId: 'MODEL-1',
-            allowAdd: true, systemKey: 'TABLE-KEY', originalRows: [], authorizedFeatureTags: []
-          }
-        })
-      }
-
-      function canEditField() {
-        var state = permission.resolveFieldPermissionState({
-          field: 'name',
-          row: {
-            id: 1,
-            name: 'Alice',
-            lingma_sys_params: { r: [], e: ['name'], h: [], m: [], d: false }
-          }
-        })
-        return state ? state.editable : false
-      }
-    `
-    const fns = compileFunctions(script, ctx)
-    expect(fns['canCreate']!()).toBe(true)
-    expect(fns['canEditField']!()).toBe(true)
+    const fns = compileFunctions('function oldPermission() { return typeof permission }', ctx)
+    expect(fns['oldPermission']!()).toBe('undefined')
   })
-
   it('应支持通过 $components 使用 ID 寻址访问组件信息', () => {
     const ctx = createMockContext({
       $components: {

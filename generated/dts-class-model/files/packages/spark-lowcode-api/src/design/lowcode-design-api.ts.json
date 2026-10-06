@@ -7,16 +7,38 @@
     "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "design/lowcode-design-api",
-    "jsdoc": "lowcode 文件服务只读门面：读取设计态文本资产与目录列表。\n写入/替换须走带 journal 的治理通道；本模块不提供 mutating API。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:design/lowcode-design-api\n职责：读取设计文件原文、原字节与实际目录快照，确认文件删除。\n边界：请求后核对 scope；列表不推断发布指针，删除回列确认不提供 CAS。\nAI用途：按实际 N__filename 历史定位文件，上传确认交给文件上传 owner。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeFileLocator",
       "LowcodeFileDirectory",
       "LowcodeFileEntry",
+      "LowcodeFileVersionSummary",
       "LowcodeDesignApi"
     ]
   },
   "$defs": {
+    "LowcodeDesignApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDesignApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    },
     "LowcodeFileLocator": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -68,6 +90,26 @@
       },
       "additionalProperties": false
     },
+    "LowcodeFileVersionSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileVersionSummary",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "LowcodeDesignApi": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -76,11 +118,24 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "http": {
-              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            "options": {
+              "$ref": "#/$defs/LowcodeDesignApiOptions"
             }
           },
           "additionalProperties": false
+        },
+        "method.readFileBytes.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFileBytes.return": {
+          "type": "object",
+          "title": "Promise<Uint8Array>"
         },
         "method.readTextFile.params": {
           "type": "object",
@@ -107,12 +162,73 @@
         "method.listFiles.return": {
           "type": "object",
           "title": "Promise<readonly LowcodeFileEntry[]>"
+        },
+        "method.listFileVersions.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listFileVersions.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeFileVersionSummary[]>"
+        },
+        "method.removeFile.params": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
         }
       }
     }
   },
-  "generatedAt": "2026-08-10T07:44:53.305Z",
+  "generatedAt": "2026-10-06T21:05:20.133Z",
   "models": {
+    "LowcodeDesignApiOptions": {
+      "name": "LowcodeDesignApiOptions",
+      "jsdoc": "实际 HTTP 通道与请求身份读取器；token 变化使迟到响应失效。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
     "LowcodeFileLocator": {
       "name": "LowcodeFileLocator",
       "jsdoc": "单文件读取定位；appType/customPath/fileName 组合须与后端文件命名空间一致，跨企业读需显式 `isCrossEnterprise`。",
@@ -183,7 +299,7 @@
     },
     "LowcodeFileEntry": {
       "name": "LowcodeFileEntry",
-      "jsdoc": "",
+      "jsdoc": "后端实际文件名和修改时间；未知时间保留 null，不生成伪时间。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    name: string;\n    lastModified: number | null;\n}>",
@@ -210,25 +326,85 @@
         }
       }
     },
+    "LowcodeFileVersionSummary": {
+      "name": "LowcodeFileVersionSummary",
+      "jsdoc": "实际存在的规范 N__filename 快照及非负安全编号；最大编号只供调用方分配候选，不代表当前或发布版本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDesignApi": {
       "name": "LowcodeDesignApi",
-      "jsdoc": "",
+      "jsdoc": "设计文件读取和删除 owner；保留原字节，版本列表严格匹配同文件规范名并拒绝重复编号。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(http: HttpClientBase)",
+          "jsdoc": "持有 HTTP 与 scope 读取器，文件读取和删除均使用实际请求身份。",
+          "signatureText": "constructor(options: LowcodeDesignApiOptions)",
           "parameters": [
             {
-              "name": "http",
+              "name": "options",
               "type": {
                 "type": "reference",
-                "name": "HttpClientBase"
+                "name": "LowcodeDesignApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
               }
             }
           ]
         },
         "members": {
           "methods": [
+            {
+              "name": "readFileBytes",
+              "jsdoc": "下载原始文件字节，不解包 AjaxResult 或转换文本。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Uint8Array"
+                  }
+                ]
+              }
+            },
             {
               "name": "readTextFile",
               "jsdoc": "读取 UTF-8 文本文件全文；Result 非 string 视为协议错误。",
@@ -273,6 +449,54 @@
                   {
                     "type": "unknown",
                     "name": "readonly LowcodeFileEntry[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listFileVersions",
+              "jsdoc": "仅返回目录实际存在的规范编号快照；裸工作文件不代表任何版本。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeFileVersionSummary[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeFile",
+              "jsdoc": "正式后端删除端点以请求参数定位；不重试，成功后回列确认文件消失。",
+              "parameters": [
+                {
+                  "name": "locator",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
                   }
                 ]
               }

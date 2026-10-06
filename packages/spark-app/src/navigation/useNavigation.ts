@@ -5,7 +5,7 @@
  * AI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/useNavigation。
  */
 import { computed, inject, provide, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, type LocationQueryRaw } from 'vue-router'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { readPrototypeProperty } from '@spark-appworks/spark-utils/internal'
 import type { NavigationContext } from './nav-types'
@@ -413,10 +413,10 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     // 同步到 URL query（不含待移除的 key）
     if (state.config.paramName !== undefined && state.config.paramName !== '') {
       const paramName = state.config.paramName
-      const newQuery: Record<string, string> = {}
+      const newQuery: LocationQueryRaw = {}
       for (const [k, v] of Object.entries(route.query)) {
         if (k === paramName) continue
-        if (typeof v === 'string') newQuery[k] = v
+        newQuery[k] = Array.isArray(v) ? [...v] : v
       }
       if (value !== null) {
         newQuery[paramName] = String(value)
@@ -429,7 +429,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
    * 导航操作
    * ──────────────────────────────────────────── */
 
-  function pushNamedRoute(routeName: string | symbol, routePath: string): void {
+  function pushNamedRoute(routeName: string | symbol, routePath: string, inputPath: string): void {
     const tenantId = route.params['tenantId']
     const projectId = route.params['projectId']
     const params: Record<string, string> = {}
@@ -441,8 +441,11 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
         params['projectId'] = projectId
       }
     }
+    const requested = router.resolve(inputPath)
     void router.push({
       name: routeName,
+      query: requested.query,
+      hash: requested.hash,
       ...(Object.keys(params).length > 0 ? { params } : {}),
     })
   }
@@ -498,7 +501,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       }
     }
 
-    const normalizedInputPath = normalizePath(path)
+    const normalizedInputPath = normalizePath(path.split(/[?#]/, 1)[0] ?? '')
     const exactSystemRoute = router
       .getRoutes()
       .find((routeRecord) =>
@@ -507,12 +510,12 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       )
 
     if (exactSystemRoute?.name !== undefined) {
-      pushNamedRoute(exactSystemRoute.name, exactSystemRoute.path)
+      pushNamedRoute(exactSystemRoute.name, exactSystemRoute.path, path)
       return
     }
 
     const targetPath = addTenantPrefix(path)
-    const targetComparablePath = normalizeComparablePath(targetPath)
+    const targetComparablePath = normalizeComparablePath(targetPath.split(/[?#]/, 1)[0] ?? '')
 
     // 从路由表查找 vue-component 路由（路由注册时由 DynamicRouter 写入 meta.type）
     const vueRoute = router
@@ -523,7 +526,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       )
 
     if (vueRoute?.name !== undefined) {
-      pushNamedRoute(vueRoute.name, vueRoute.path)
+      pushNamedRoute(vueRoute.name, vueRoute.path, targetPath)
       return
     }
 
@@ -535,7 +538,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       )
 
     if (crossProjectRoute?.name !== undefined) {
-      pushNamedRoute(crossProjectRoute.name, crossProjectRoute.path)
+      pushNamedRoute(crossProjectRoute.name, crossProjectRoute.path, targetPath)
       return
     }
 
@@ -567,7 +570,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
           const currentProjectId = typeof route.params['projectId'] === 'string' ? route.params['projectId'] : undefined
           if (targetProjectId && currentProjectId && targetProjectId !== currentProjectId && _options?.onCrossAppNavigate) {
             // 跨项目：提取 projectId 之后的路径段
-            const innerPath = `/${segments.slice(3).join('/')}`
+            const innerPath = `/${segments.slice(3).join('/')}${parsed.search}${parsed.hash}`
             void _options.onCrossAppNavigate(targetProjectId, innerPath)
           } else {
             void router.push(parsed.pathname + parsed.search + parsed.hash)

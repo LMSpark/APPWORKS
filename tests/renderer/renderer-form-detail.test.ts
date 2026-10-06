@@ -2,14 +2,19 @@ import { describe, it, expect } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 import { RendererForm, RendererDetail, FieldText } from '@spark-appworks/spark-component'
 import { SparkData } from '@spark-appworks/spark-data'
+import type { DataView } from '@spark-appworks/spark-data'
+import { DataSpaceQueryTable } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import { getMountedComponentApi, mountWithPageDataSet } from '../helpers/mount-with-page-dataset'
 import { requireRecord, requireString } from '../helpers/runtime-guards'
 
-function setPermissionSnapshot(view: object, allowAdd: boolean, authorizedFeatureTags: string[] = []): void {
-  Reflect.set(view, 'permissionSnapshot', {
-    formKey: 'FORM', dataSpaceId: 'SPACE', modelId: 'MODEL', allowAdd,
-    systemKey: 'SYSTEM', originalRows: [], authorizedFeatureTags,
+async function loadFieldQuery(view: DataView): Promise<void> {
+  const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Users' })
+  const context = new DataSpaceQueryContext({ identity: table.identity, scope: 'form', readScope: () => 'form',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: { Items: view.rows, Count: view.rows.length } } }),
   })
+  view.bindQueryExecutor({ executeQuery: async () => context })
+  await view.loadFromServer()
 }
 
 function readConfigType(config: unknown): string {
@@ -97,7 +102,6 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
     })
     const formView = ds.getView('Users', 'default')!
     formView.selection.setCurrentRow(formView.rows[0] ?? null)
-    setPermissionSnapshot(formView, true)
 
     const wrapper = mountWithPageDataSet(RendererForm, {
       dataSet: ds,
@@ -161,12 +165,14 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
     expect(wrapper.find('.spark-action-stub[data-type="form-toolbar-prop-action"]').exists()).toBe(true)
   })
 
-  it('should allow direct Vue children to render R fields inside RendererForm slot', () => {
+  it('should allow direct Vue children to render R fields inside RendererForm slot', async () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'FormDirectVueDS',
+      scenarioId: 'SCENE',
       tables: {
         Users: {
           tableName: 'Users',
+          modelBinding: { modelId: 'MODEL', modelName: 'Users' },
           columns: [
             { name: 'id', type: 'number' as const },
             { name: 'name', type: 'string' as const },
@@ -184,6 +190,7 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
       },
     })
     const formView = ds.getView('Users', 'default')!
+    await loadFieldQuery(formView)
     formView.selection.setCurrentRow(formView.rows[0] ?? null)
 
     const DirectFormFields = defineComponent({
@@ -239,7 +246,6 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
     })
     const detailView = ds.getView('Users', 'default')!
     detailView.selection.setCurrentRow(detailView.rows[0] ?? null)
-    setPermissionSnapshot(detailView, false, ['export'])
 
     const wrapper = mountWithPageDataSet(RendererDetail, {
       dataSet: ds,
@@ -505,9 +511,11 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
   it('r-form field should show correct value via DATA_ROW after initAutoSelection', async () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'FormFieldValueDS',
+      scenarioId: 'SCENE',
       tables: {
         Users: {
           tableName: 'Users',
+          modelBinding: { modelId: 'MODEL', modelName: 'Users' },
           columns: [
             { name: 'id', type: 'number' as const },
             { name: 'name', type: 'string' as const },
@@ -551,6 +559,7 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
     await nextTick()
     expect(wrapper.find('.el-input-stub').exists()).toBe(false)
 
+    await loadFieldQuery(ds.getView('Users', 'default')!)
     // 触发 initAutoSelection（模拟运行时 PageRenderer 行为）
     ds.initAutoSelection()
     await nextTick()

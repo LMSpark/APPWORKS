@@ -1,108 +1,44 @@
 <!--
 @module app:views/app/dev-system/components/NodeBasicInfo
-职责：提供 DevSystem 的 NodeBasicInfo 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。
-边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
-AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/components/NodeBasicInfo。
+职责：直接编辑正式kind及能力、导航、数据空间、原型四组草稿。
+边界：节点身份只读，模型名称是后端只读依赖投影，不保留旧平铺字段。
+AI用途：为选中节点配置四组领域信息并标记蓝图dirty。
 -->
 <template>
   <div>
-    <el-divider content-position="left">基础信息</el-divider>
-    <el-form-item label="节点 ID" class="fi fi--wide">
-      <el-input :model-value="state.blueprintDraft.id" disabled placeholder="NODE_ID" />
-    </el-form-item>
-    <el-form-item label="标题" class="fi fi--wide">
-      <el-input v-model="state.blueprintDraft.title" placeholder="显示名称" @change="state.markBlueprintDirty" />
-    </el-form-item>
-    <div class="fi-inline-row">
-      <el-form-item label="图标" class="fi fi--narrow fi-inline-row__icon">
-        <IconPicker
-          v-model="state.blueprintDraft.icon"
-          class="icon-picker-compact"
-          placeholder="选择图标"
-          width="220"
-          @update:model-value="state.markBlueprintDirty"
-        />
-      </el-form-item>
-      <el-form-item label="蓝图业务类型" class="fi fi--medium fi-inline-row__type">
-        <el-select v-model="state.blueprintDraft.blueprintKind" @change="state.markBlueprintDirty">
-          <el-option v-for="option in blueprintKindOptions" :key="option.value" :label="option.label" :value="option.value" />
-        </el-select>
-      </el-form-item>
-    </div>
-    <el-form-item label="运行交付投影" class="fi fi--wide">
-        <el-radio-group :model-value="nodeKindUiValue" class="type-radio-group" @change="onNodeKindUiChange">
-          <el-radio-button value="system-directory">系统模块</el-radio-button>
-          <el-radio-button value="module" :disabled="moduleKindDisabled">模块</el-radio-button>
-          <el-radio-button value="system-page">系统页面</el-radio-button>
-          <el-radio-button value="system-action">系统动作</el-radio-button>
-          <el-radio-button value="page">普通页面</el-radio-button>
-          <el-radio-button value="link">超链接</el-radio-button>
-          <el-radio-button value="nested-page">子页面</el-radio-button>
-          <el-radio-button value="ref">跨工程引用</el-radio-button>
-        </el-radio-group>
-    </el-form-item>
-    <el-form-item label="功能描述" class="fi fi--wide">
-      <el-input
-        v-model="state.blueprintDraft.description"
-        type="textarea"
-        :autosize="{ minRows: 4, maxRows: 12 }"
-        placeholder="页面功能策划，也是 AI 用户需求。&#10;示例：级联操作演示页 — 展示 DataSet 主从表联动，父表选中行变更自动驱动子表数据过滤与刷新。"
-        @change="state.markBlueprintDirty"
-      />
-    </el-form-item>
+    <el-divider content-position="left">能力信息</el-divider>
+    <el-form-item label="节点 ID"><el-input :model-value="state.blueprintDraft.nodeId" disabled /></el-form-item>
+    <el-form-item label="能力名称"><el-input v-model="state.blueprintDraft.capability.name" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item label="业务种类"><el-select v-model="state.blueprintDraft.kind" @change="state.markBlueprintDirty"><el-option v-for="option in kindOptions" :key="option.value" :label="option.label" :value="option.value" /></el-select></el-form-item>
+    <el-form-item label="功能描述"><el-input v-model="state.blueprintDraft.capability.description" type="textarea" :autosize="{minRows:4,maxRows:12}" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item label="提供导航"><el-switch v-model="hasNavigation" /></el-form-item>
+    <template v-if="state.blueprintDraft.navigation">
+      <el-divider content-position="left">导航信息</el-divider>
+      <el-form-item label="菜单标题"><el-input v-model="state.blueprintDraft.navigation.title" @change="state.markBlueprintDirty" /></el-form-item>
+      <el-form-item label="图标"><IconPicker :model-value="state.blueprintDraft.navigation.icon ?? ''" @update:model-value="state.blueprintDraft.navigation.icon = $event; state.markBlueprintDirty()" /></el-form-item>
+      <el-form-item label="工具或页面目标"><el-input v-model="state.blueprintDraft.navigation.target" @change="state.markBlueprintDirty" /></el-form-item>
+    </template>
+    <el-form-item label="绑定数据空间"><el-switch v-model="hasDataSpace" /></el-form-item>
+    <template v-if="state.blueprintDraft.dataSpace">
+      <el-divider content-position="left">数据空间</el-divider>
+      <el-form-item label="场景 ID"><el-input v-model="state.blueprintDraft.dataSpace.scenarioId" @change="state.markBlueprintDirty" /></el-form-item>
+      <el-form-item label="模型名称"><el-input :model-value="modelNames" readonly placeholder="由正式场景模型定义提供" /></el-form-item>
+    </template>
+    <el-form-item label="提供原型"><el-switch v-model="hasPrototype" /></el-form-item>
+    <el-form-item v-if="state.blueprintDraft.prototype" label="原型描述"><el-input v-model="state.blueprintDraft.prototype.htmlDescription" type="textarea" :rows="6" @change="state.markBlueprintDirty" /></el-form-item>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
+import { PROJECT_BLUEPRINT_NODE_KINDS } from '@spark-appworks/spark-utils'
 import type { ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
-import { isRuntimeNavigationItemKind } from '@spark-appworks/spark-utils'
-import { isNestedConfigPageNode } from '@spark-appworks/spark-project-model'
 import type { DevState } from '../useDevState'
 import IconPicker from '@/components/IconPicker.vue'
-
-const props = defineProps<{
-  state: DevState
-  moduleKindDisabled: boolean
-}>()
-
-const blueprintKindOptions: ReadonlyArray<{ value: ProjectBlueprintNodeKind; label: string }> = [
-  { value: 'project', label: '项目' },
-  { value: 'module', label: '模块' },
-  { value: 'requirement', label: '需求' },
-  { value: 'prototype', label: '原型' },
-  { value: 'data-space', label: '数据空间' },
-  { value: 'page', label: '页面' },
-  { value: 'sub-page', label: '子页面' },
-  { value: 'report', label: '报表' },
-  { value: 'workflow', label: '工作流' },
-  { value: 'integration', label: '集成' },
-  { value: 'action', label: '动作' },
-  { value: 'external', label: '外部资源' },
-  { value: 'permission-management', label: '权限管理' },
-  { value: 'unresolved', label: '待确认' },
-]
-
-const nodeKindUiValue = computed(() =>
-  isNestedConfigPageNode(props.state.blueprintDraft) ? 'nested-page' : props.state.blueprintDraft.nodeKind,
-)
-
-function onNodeKindUiChange(value: string): void {
-  if (value === 'nested-page') {
-    props.state.applyNestedConfigPagePreset()
-    return
-  }
-  if (isRuntimeNavigationItemKind(value)) props.state.handleNodeKindChange(value)
-}
+const props = defineProps<{state:DevState}>()
+const labels:Record<ProjectBlueprintNodeKind,string>={module:'模块',page:'页面',embedded:'嵌入内容',service:'服务',content:'内容'}
+const kindOptions=PROJECT_BLUEPRINT_NODE_KINDS.map(value=>({value,label:labels[value]}))
+const hasNavigation = computed({get:()=>props.state.blueprintDraft.navigation !== undefined,set:(enabled:boolean)=>{if(enabled)props.state.blueprintDraft.navigation={title:props.state.blueprintDraft.capability.name,order:0,publishInMenu:true,showChildren:true,beginGroup:false};else delete props.state.blueprintDraft.navigation;props.state.markBlueprintDirty()}})
+const hasDataSpace = computed({get:()=>props.state.blueprintDraft.dataSpace !== undefined,set:(enabled:boolean)=>{if(enabled)props.state.blueprintDraft.dataSpace={scenarioId:'',models:[]};else delete props.state.blueprintDraft.dataSpace;props.state.markBlueprintDirty()}})
+const hasPrototype = computed({get:()=>props.state.blueprintDraft.prototype !== undefined,set:(enabled:boolean)=>{if(enabled)props.state.blueprintDraft.prototype={htmlDescription:''};else delete props.state.blueprintDraft.prototype;props.state.markBlueprintDirty()}})
+const modelNames = computed(()=>props.state.blueprintDraft.dataSpace?.models.map(model=>model.metaName).join(', ') ?? '')
 </script>
-
-<style scoped>
-.fi-inline-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-.icon-picker-compact {
-  width: 100%;
-}
-</style>

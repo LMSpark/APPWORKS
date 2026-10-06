@@ -43,23 +43,15 @@ function createEditor(projectId = 'hr-enterprise-planning-smoke'): ProjectWorksp
   const editor = new ProjectWorkspace({
     projectId,
     pageFiles: { readPageFile: async () => '' },
-    blueprint: { loadRoot: async () => ({ children: [] }) },
+    blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
   })
   editor.project.replaceBlueprintTree({
-    id: 'root',
-    title: 'Root',
-    blueprintKind: 'project',
-    nodeKind: 'module',
-    childPlacement: 'header',
-    description: '默认项目需求',
+    nodeId: 'root', parentNodeId: '', projectId, kind: 'module',
+    capability: { name: 'Root', description: '默认项目需求' }, source: {},
     children: [
       {
-        id: 'people',
-        title: 'People',
-        blueprintKind: 'page',
-        nodeKind: 'page',
-        path: '/people',
-        description: 'People page',
+        nodeId: 'people', parentNodeId: 'root', projectId, kind: 'page',
+        capability: { name: 'People', description: 'People page' }, source: {},
       },
     ],
   })
@@ -134,15 +126,13 @@ describe('prepareProjectPlanningAgentRun', () => {
         {
           nodeId: 'root',
           title: 'Root',
-          blueprintKind: 'project',
-          nodeKind: 'module',
+          kind: 'module',
           requirement: '默认项目需求',
         },
         {
           nodeId: 'people',
           title: 'People',
-          blueprintKind: 'page',
-          nodeKind: 'page',
+          kind: 'page',
           requirement: 'People page',
         },
       ],
@@ -153,12 +143,8 @@ describe('prepareProjectPlanningAgentRun', () => {
     const editor = createEditor()
     editor.project.replaceBlueprintChildren([
       {
-        id: 'people',
-        title: 'People',
-        blueprintKind: 'page',
-        nodeKind: 'page',
-        path: '/people',
-        description: 'People page',
+        nodeId: 'people', parentNodeId: 'root', projectId: editor.project.projectId, kind: 'page',
+        capability: { name: 'People', description: 'People page' }, source: {},
       },
     ])
     mocks.createHeadlessProjectPlanningEditor.mockReturnValue(editor)
@@ -187,12 +173,8 @@ describe('prepareProjectPlanningAgentRun', () => {
     const editor = createEditor()
     editor.project.replaceBlueprintChildren([
       {
-        id: 'people',
-        title: 'People',
-        blueprintKind: 'page',
-        nodeKind: 'page',
-        path: '/people',
-        description: 'People page',
+        nodeId: 'people', parentNodeId: 'root', projectId: editor.project.projectId, kind: 'page',
+        capability: { name: 'People', description: 'People page' }, source: {},
       },
     ])
     mocks.createHeadlessProjectPlanningEditor.mockReturnValue(editor)
@@ -225,12 +207,8 @@ describe('prepareProjectPlanningAgentRun', () => {
     const editor = createEditor()
     editor.project.replaceBlueprintChildren([
       {
-        id: 'people',
-        title: 'People',
-        blueprintKind: 'page',
-        nodeKind: 'page',
-        path: '/people',
-        description: 'People page',
+        nodeId: 'people', parentNodeId: 'root', projectId: editor.project.projectId, kind: 'page',
+        capability: { name: 'People', description: 'People page' }, source: {},
       },
     ])
     mocks.createHeadlessProjectPlanningEditor.mockReturnValue(editor)

@@ -354,6 +354,7 @@ idField?: string
 export type SaveDataSetAction = ActionDescriptorBase & ActionUiDecorator & {
     /** action 字段。 */
 action: 'save-dataset'
+scenarioId: string
         /** mode 字段。 */
 mode?: DataSetSaveChangesMode
         /** request Id 标识。 */
@@ -387,7 +388,8 @@ export function isActionDescriptor(value: unknown): value is ActionDescriptor {
  */
 export type ActionExecutionContext = {
   /** 获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null */
-  getDataSet: () => DataSetContract | null
+  getDataSet: (scenarioId: string) => DataSetContract | null
+  resolveView: (binding: string) => DataView | null
   /**
    * 可选：获取容器作用域 DataView（调用方已确定 DataView 时提供）。
    *

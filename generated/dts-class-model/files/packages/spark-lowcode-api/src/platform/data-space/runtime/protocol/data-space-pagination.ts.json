@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-pagination",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/protocol/data-space-pagination",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-pagination\n职责：收集并核对后端原始查询页。\n边界：先核对原 rows/total，再发布全量结果；禁止预先过滤原行。\nAI用途：配置页大小、总量上限与执行域检查。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "DataSpacePageResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpacePageResponse",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "T"
+          }
+        },
+        "total": true
+      },
+      "additionalProperties": false
+    },
+    "DataSpacePageCollection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpacePageCollection",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "T"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpacePageCollectionOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpacePageCollectionOptions",
+      "properties": {
+        "pageSize": {
+          "type": "number"
+        },
+        "maxRows": {
+          "type": "number"
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.key.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "T"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.key.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.608Z",
+  "models": {
+    "DataSpacePageResponse": {
+      "name": "DataSpacePageResponse",
+      "jsdoc": "未经筛选的原始页及后端 total；缺少或非法元数据会拒绝全量收集。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows?: readonly T[];\n    total?: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows?: readonly T[];\n    total?: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpacePageCollection": {
+      "name": "DataSpacePageCollection",
+      "jsdoc": "全部页通过数量与总数校验后的冻结原行集合。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows: readonly T[];\n    total: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows: readonly T[];\n    total: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpacePageCollectionOptions": {
+      "name": "DataSpacePageCollectionOptions",
+      "jsdoc": "分页上限、取消和执行域检查；可选 key 用于检查原行身份重复。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageSize?: number;\n    maxRows?: number;\n    signal?: AbortSignal;\n    assertCurrent?: () => void;\n    key?: (row: T) => unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageSize?: number;\n    maxRows?: number;\n    signal?: AbortSignal;\n    assertCurrent?: () => void;\n    key?: (row: T) => unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "key",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpacePageFetcher": {
+      "name": "DataSpacePageFetcher",
+      "jsdoc": "按显式页码读取原行与 total 的异步页读取器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(page: DataSpaceQueryPage) => Promise<DataSpacePageResponse<T>>",
+        "members": {}
+      }
+    }
+  }
+}

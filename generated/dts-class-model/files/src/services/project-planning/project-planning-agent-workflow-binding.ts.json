@@ -7,7 +7,7 @@
     "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
     "packageName": "app",
     "modulePath": "services/project-planning/project-planning-agent-workflow-binding",
-    "jsdoc": "@module app:services/project-planning/project-planning-agent-workflow-binding\n职责：承载 projectPlanning Agent Workflow 的应用侧领域 binding，连接 ProjectModel、输入构造、prompt 和 gate。\n边界：不手写 workflow definition，不直接注册 AiAgentHost；只提供解释器所需 app 能力与领域纯函数。\nAI用途：排查 projectPlanning AI 输入、prompt、gate 或 editorSource 接线时，用本模块确认迁移后的业务逻辑。",
+    "jsdoc": "@module app:services/project-planning/project-planning-agent-workflow-binding\n职责：承载 projectPlanning Agent Workflow 的应用侧领域 binding，连接 ProjectBlueprint、输入构造、prompt 和 gate。\n边界：不手写 workflow definition，不直接注册 AiAgentHost；只提供解释器所需 app 能力与领域纯函数。\nAI用途：排查 projectPlanning AI 输入、prompt、gate 或 editorSource 接线时，用本模块确认迁移后的业务逻辑。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectPlanningRunInput",
@@ -88,10 +88,7 @@
         "title": {
           "type": "string"
         },
-        "blueprintKind": {
-          "type": "string"
-        },
-        "nodeKind": {
+        "kind": {
           "type": "string"
         },
         "requirement": {
@@ -114,10 +111,7 @@
         "title": {
           "type": "string"
         },
-        "blueprintKind": {
-          "type": "string"
-        },
-        "nodeKind": {
+        "kind": {
           "type": "string"
         },
         "requirement": {
@@ -244,7 +238,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:03:27.230Z",
+  "generatedAt": "2026-10-06T19:55:09.112Z",
   "models": {
     "ProjectPlanningRunInput": {
       "name": "ProjectPlanningRunInput",
@@ -355,11 +349,11 @@
       "jsdoc": "Blueprint Planning Agent Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -378,14 +372,8 @@
               "writable": false
             },
             {
-              "name": "blueprintKind",
+              "name": "kind",
               "jsdoc": "蓝图业务类型。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "nodeKind",
-              "jsdoc": "可选运行交付投影类型。",
               "readable": true,
               "writable": false
             },
@@ -410,11 +398,11 @@
       "jsdoc": "Blueprint Planning Run Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    blueprintKind: string;\n    /** 可选运行交付投影类型。 */\n    nodeKind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -433,14 +421,8 @@
               "writable": false
             },
             {
-              "name": "blueprintKind",
+              "name": "kind",
               "jsdoc": "蓝图业务类型。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "nodeKind",
-              "jsdoc": "可选运行交付投影类型。",
               "readable": true,
               "writable": false
             },
@@ -465,11 +447,11 @@
       "jsdoc": "Resolve Project Planning Run Input Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectModel。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectBlueprint。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectBlueprint。 */\n    planningAttachmentRef?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectModel。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。 */\n    planningAttachmentRef?: string;\n}>",
+            "typeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectBlueprint。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectBlueprint。 */\n    planningAttachmentRef?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -477,13 +459,13 @@
           "attributes": [
             {
               "name": "requirementOverride",
-              "jsdoc": "Agent Run 可注入一次性需求，不写回 ProjectModel。",
+              "jsdoc": "Agent Run 可注入一次性需求，不写回 ProjectBlueprint。",
               "readable": true,
               "writable": false
             },
             {
               "name": "planningAttachmentRef",
-              "jsdoc": "Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectModel。",
+              "jsdoc": "Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectBlueprint。",
               "readable": true,
               "writable": false
             }

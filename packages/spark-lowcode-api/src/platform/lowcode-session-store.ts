@@ -85,6 +85,9 @@ export class LowcodeSessionStore {
   private readonly storage: LowcodeSessionStorage | undefined
   private readonly sessionKey: string
   private memorySession: LowcodeSession | null = null
+  private executionRevision = 0
+
+  public get revision(): number { return this.executionRevision }
 
   public constructor(options: LowcodeSessionStoreOptions = {}) {
     this.storage = options.storage
@@ -108,12 +111,17 @@ export class LowcodeSessionStore {
 
   /** 保存会话到内存与 storage（若已配置）。 */
   public save(session: LowcodeSession): void {
+    const previous = this.memorySession
+    if (previous?.identity !== session.identity || previous.enterprise !== session.enterprise) {
+      this.executionRevision += 1
+    }
     this.memorySession = session
     this.storage?.setItem(this.sessionKey, JSON.stringify(session))
   }
 
   /** 清空内存与 storage 中的会话。 */
   public clear(): void {
+    this.executionRevision += 1
     this.memorySession = null
     this.storage?.removeItem(this.sessionKey)
   }

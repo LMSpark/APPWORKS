@@ -77,7 +77,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-12T20:32:06.116Z",
+  "generatedAt": "2026-10-06T19:47:05.412Z",
   "models": {
     "PageServiceOverrides": {
       "name": "PageServiceOverrides",

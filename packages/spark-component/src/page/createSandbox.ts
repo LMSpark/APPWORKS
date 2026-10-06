@@ -1,9 +1,10 @@
 /**
  * @module @spark-appworks/spark-component:page/createSandbox
- * 职责：提供 create Sandbox 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。
- * 边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。
- * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
+ * 职责：解析页面脚本的顶层函数并在统一 PageContext 作用域编译。
+ * 边界：上下文由当前页面调用提供，只返回可调用函数，不负责页面生命周期和路由。
+ * AI用途：确认页面函数与 Render 函数如何获取当前调用能力及相互调用。
  */
+import { javascriptLanguage } from '@codemirror/lang-javascript'
 /**
  * 脚本沙箱工具
  */
@@ -18,23 +19,23 @@ import { pageLogger } from './services/pageLogger'
  *        `const/let/var foo = () =>`、`const/let/var foo = function`、
  *        `const/let/var foo = async () =>`
  */
-/** 从文本中按正则分组 1 提取所有匹配名称 */
-function collectGroupMatches(text: string, pattern: RegExp, target: Set<string>): void {
-  for (const m of text.matchAll(pattern)) if (m[1]) target.add(m[1])
-}
-
 function extractNamesFromScript(scriptText: string): string[] {
   const names = new Set<string>()
-
-  // 函数声明：function foo() / async function foo()
-  collectGroupMatches(scriptText, /(?:^|\n)\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, names)
-
-  // 变量赋值函数：const/let/var foo = (...) => / function
-  collectGroupMatches(scriptText, /(?:^|\n)\s*(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:function|\(|[a-zA-Z_$][a-zA-Z0-9_$]*\s*=>)/g, names)
-
-  // 始终包含 __init__（即使脚本未定义，compileFunctions 会过滤掉 undefined）
+  const tree = javascriptLanguage.parser.parse(scriptText)
+  for (let statement = tree.topNode.firstChild; statement; statement = statement.nextSibling) {
+    if (statement.name === 'FunctionDeclaration') {
+      const name = statement.getChild('VariableDefinition')
+      if (name) names.add(scriptText.slice(name.from, name.to))
+    } else if (statement.name === 'VariableDeclaration') {
+      let name: string | undefined
+      for (let part = statement.firstChild; part; part = part.nextSibling) {
+        if (part.name === 'VariableDefinition') name = scriptText.slice(part.from, part.to)
+        else if (name && ['ArrowFunction', 'FunctionExpression'].includes(part.name)) names.add(name)
+        else if (part.name === ',') name = undefined
+      }
+    }
+  }
   names.add('__init__')
-
   return Array.from(names)
 }
 
@@ -64,7 +65,7 @@ export function compileFunctions(
       : '\nreturn {}'
 
     // ✅ 使用 with 语句创建动态作用域，让变量每次访问都从 __ctx 获取最新值
-    // 这样 $dataSet 的 getter 才能正常工作
+    // 页面能力访问由当前 call 上下文持有
     // 注意：with 在非严格模式下工作，所以不能在函数内添加 'use strict'
     //
     // ⚠️ returnStatement 必须放在 with 块内部：

@@ -7,16 +7,14 @@
 import { computed, toValue, watch } from 'vue'
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 import {
-  diagnoseDataViewKey,
   resolveDataViewCapabilities,
-  resolveDataViewKey,
   type DataMember,
   type DataViewKeyDiagnostic,
   type DataViewMemberDiagnostic,
   type DataView,
   type DataRow,
 } from '@spark-appworks/spark-data'
-import { PAGE_DATASET } from '../../internal'
+import { PAGE_RUNTIME } from '../../internal'
 import type { SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
 import type {
   DataViewState,
@@ -60,7 +58,7 @@ type UseContainerDataSourceOptions<TSource> = {
   contextDataMember?: MaybeRefOrGetter<DataMember | `${DataMember}` | undefined>
   /** 在 contextDataMember 解析结果上继续读取的字段路径。 */
   contextDataField?: MaybeRefOrGetter<string | undefined>
-  /** capability 消费入口，用于读取 PAGE_DATASET。 */
+  /** capability 消费入口，用于读取 PAGE_RUNTIME。 */
   sparkConsume: SparkCapabilityConsumer
   /** 将解析到的 DataView 映射成容器实际消费的数据源形态。 */
   mapView: (view: DataView) => TSource
@@ -109,30 +107,28 @@ export type ContainerDataSourceState<TSource> = {
 }
 
 function useContainerDataSourceCore<TSource>(options: UseContainerDataSourceOptions<TSource>): ContainerDataSourceState<TSource> {
-  const pageDataSet = options.sparkConsume(PAGE_DATASET)
-
-  // 1. 先诊断 dataViewKey。诊断只负责日志提示，不参与 resolvedView 兜底选择。
-  const diagnostic = computed(() => {
-    const rawKey = toValue(options.dataViewKey)
-    if (typeof rawKey !== 'string' || rawKey.trim().length === 0) return null
-    return diagnoseDataViewKey(rawKey, pageDataSet)
+  const runtime = options.sparkConsume(PAGE_RUNTIME)
+  const boundView = computed(() => {
+    const key = toValue(options.dataViewKey)
+    if (key === undefined) return null
+    if (!runtime) throw new Error('PAGE_RUNTIME_MISSING: 显式绑定缺少页面运行实例')
+    const view = runtime.resolveView(key)
+    if (!view) throw new Error(`DATA_VIEW_MISSING: ${key}`)
+    return view
   })
-
-  // 2. 再解析 DataView 上下文能力，供 dataMember/dataField 绑定和行上下文复用。
-  const contextCapabilities = computed(() =>
-    resolveDataViewCapabilities({
-      dataViewKey: toValue(options.dataViewKey),
-      dataMember: toValue(options.contextDataMember),
-      dataField: toValue(options.contextDataField),
-    }, pageDataSet),
-  )
+  const contextCapabilities = computed(() => {
+    const view = boundView.value
+    return resolveDataViewCapabilities({
+      dataViewKey: view ? `${view.tableName}@${view.viewId}` : undefined,
+      dataMember: toValue(options.contextDataMember), dataField: toValue(options.contextDataField),
+    }, view?.dataSet)
+  })
 
   // 3. 按优先级选择数据源：外部显式传入 > dataViewKey > 上下文能力 > 父级继承。
   const resolvedView = computed<TSource | null>(() => {
+    const view = boundView.value
     const provided = resolveMaybeValue(options.externalDataSource)
     if (provided !== undefined) return provided
-
-    const view = resolveDataViewKey(toValue(options.dataViewKey), pageDataSet)
     if (view) return options.mapView(view)
 
     if (contextCapabilities.value.dataSource) {
@@ -147,6 +143,7 @@ function useContainerDataSourceCore<TSource>(options: UseContainerDataSourceOpti
 
   // 4. 行数据同样按显式来源优先；找不到时尝试从当前视图 currentRow 或继承源读取。
   const resolvedDataRow = computed<DataRow | null>(() => {
+    boundView.value
     const provided = resolveMaybeValue(options.externalDataSource)
     if (provided !== undefined) return pickRowFromSource(provided)
 
@@ -163,7 +160,6 @@ function useContainerDataSourceCore<TSource>(options: UseContainerDataSourceOpti
   if (options.skipEffects !== true) {
     useContainerDataSourceEffects({
       resolvedView,
-      diagnostic,
       ...(options.provideDataSource ? { provideDataSource: options.provideDataSource } : {}),
       logger: options.logger ?? DEFAULT_DATA_SOURCE_LOGGER,
       logPrefix: options.logPrefix ?? 'useContainerDataSource',

@@ -58,12 +58,12 @@
 - **违反后果**：留下死别名 → 消费方误以为入口仍在，或 typecheck 指向不存在文件
 - **发现来源**：2026-08 SSOT G1
 
-### 四文件名只认 PAGE_NODE_FILE_NAMES
+### 工具三文件名只认 PAGE_TOOL_FILE_NAMES
 
-- **场景**：清除页面缓存、枚举 rule/pagedata/script/style
-- **规则**：只使用 `@spark-appworks/spark-project-model` 的 `PAGE_NODE_FILE_NAMES`；禁止在 app 层再维护本地 `PAGE_FILES` 字面量数组
-- **违反后果**：四文件清单双真源，改名或增删文件时漏清缓存
-- **发现来源**：2026-08 SSOT G2
+- **场景**：清除工具缓存、枚举 rule/script/style。
+- **规则**：只使用 `@spark-appworks/spark-project-model` 的 `PAGE_TOOL_FILE_NAMES`；场景配置由 ScenarioViewFile 独立管理，不加入工具文件数组。
+- **违反后果**：文件清单双真源，或把场景文件错误当成工具资产清理。
+- **发现来源**：2026-08 SSOT G2；2026-10 随工具/场景分离同步正式常量。
 
 ### pnpm 11 不再读取 package.json 的 pnpm.overrides
 

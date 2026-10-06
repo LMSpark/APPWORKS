@@ -42,6 +42,9 @@
         "dataViewKey": {
           "type": "string"
         },
+        "filterFunctionContext": {
+          "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
         "collapsible": {
           "type": "boolean"
         },
@@ -86,11 +89,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:13:17.746Z",
+  "generatedAt": "2026-10-06T05:52:54.283Z",
   "models": {
     "RFilterProps": {
       "name": "RFilterProps",
-      "jsdoc": "`r-filter` / `RendererFilter` 完整属性定义。\nSSOT 设计：r-filter 通过 `dataViewKey` 自治绑定 DataView，\n自己维护 filterModel / FilterExpression / DataView.setFilter 同步。\n父容器（r-table 等）不再注入桥接字段；嵌入 r-table 时可省略 dataViewKey，\n由 r-table 提供的 DATA_SOURCE 能力向下注入。",
+      "jsdoc": "`r-filter` / `RendererFilter` 完整属性定义。\nSSOT 设计：r-filter 通过 `dataViewKey` 自治绑定 DataView，\n自己维护 filterModel / DataViewFilterTree / DataView.setFilter 同步。\n父容器（r-table 等）不再注入桥接字段；嵌入 r-table 时可省略 dataViewKey，\n由 r-table 提供的 DATA_SOURCE 能力向下注入。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "RendererFilter",
@@ -100,7 +103,7 @@
         "directory": "containers/zones"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 默认筛选项节点列表（首选入口）。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），\n     * RendererFilter.vue 本身不消费此字段。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & {\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 默认筛选项节点列表（首选入口）。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），\n     * RendererFilter.vue 本身不消费此字段。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -109,7 +112,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 默认筛选项节点列表（首选入口）。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），\n     * RendererFilter.vue 本身不消费此字段。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}"
+            "typeText": "{\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 默认筛选项节点列表（首选入口）。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），\n     * RendererFilter.vue 本身不消费此字段。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}"
           }
         ],
         "members": {
@@ -141,6 +144,12 @@
             {
               "name": "dataViewKey",
               "jsdoc": "DataView 定位键（dataViewKey）。\n@remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterFunctionContext",
+              "jsdoc": "值函数的明确编辑上下文；不从页面表名猜后端模型名称。",
               "readable": true,
               "writable": false
             },

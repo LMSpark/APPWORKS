@@ -34,7 +34,3 @@ export type {
   PageRoute,
   ScriptContext,
 } from './script-context-types'
-
-export type {
-  PermissionApiInScript,
-} from './script-context-types'

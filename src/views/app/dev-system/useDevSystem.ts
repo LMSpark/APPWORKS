@@ -7,20 +7,20 @@
 /**
  * useDevSystem — 当前编辑 scope 项目蓝图设计器的单入口编排器。
  *
- * DevSystem 经当前 ProjectWorkspace 编辑对应 scope 的 ProjectModel（领域实例）；
+ * DevSystem 经当前 ProjectWorkspace 编辑对应 scope 的 ProjectBlueprint（领域实例）；
  * 左侧项目蓝图树，右侧节点属性与（若为配置页）页面内容。
  */
 import { computed, onScopeDispose, ref, watch } from 'vue'
 import { useTenantRouter } from '@/composables/useTenantRouter'
 import { buildTenantPath } from '@/services/tenant-scope'
 import { useDevState, type DevWorkspaceTab } from './useDevState'
-import type { PageNodeFileName } from '@spark-appworks/spark-project-model'
+import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import { onPageConfigChange } from '@/services/sse-events'
 
 export function useDevSystem() {
   const { router } = useTenantRouter()
   const state = useDevState()
-  const isPageFileName = (value: string): value is PageNodeFileName =>
+  const isPageFileName = (value: string): value is PageToolFileName =>
     state.pageFileNames.some((name) => name === value)
 
   // ─── 工作区 Tab 状态 ───────────────────────────────────
@@ -28,7 +28,7 @@ export function useDevSystem() {
   const previewRefreshToken = ref(0)
   const pageDesignAiPrompt = ref('')
 
-  const currentWorkspaceFile = computed<PageNodeFileName | null>(() =>
+  const currentWorkspaceFile = computed<PageToolFileName | null>(() =>
     isPageFileName(workTab.value) ? workTab.value : null,
   )
 
@@ -44,7 +44,7 @@ export function useDevSystem() {
 
   // ─── 派生能力 ──────────────────────────────────────────
   const canPreviewCurrentPage = computed(
-    () => Boolean(state.blueprintDraft.path || state.activePageId.value),
+    () => Boolean(state.blueprintDraft.navigation?.target) || Boolean(state.activePageId.value),
   )
   const activePageDescription = computed(() => {
     const pageId = state.activePageId.value
@@ -55,7 +55,7 @@ export function useDevSystem() {
   const canSaveCleanNode = computed(() => {
     if (workTab.value !== 'props') return false
     const node = state.selectedNode.value
-    return Boolean(node) && !state.isSystemRootDirectory(node)
+    return Boolean(node)
   })
   const canSaveFromHeader = computed(() => state.hasAnyDirty.value || canSaveCleanNode.value)
   const headerSaveLabel = computed(() => state.hasAnyDirty.value ? '全部保存' : '保存')
@@ -64,7 +64,7 @@ export function useDevSystem() {
   )
 
   // 选中节点时自动切到节点属性页签
-  watch(() => state.selectedNode.value?.id ?? '', (nextId, prevId) => {
+  watch(() => state.selectedNode.value?.nodeId ?? '', (nextId, prevId) => {
     if (nextId && nextId !== prevId) {
       workTab.value = 'props'
     }
@@ -103,7 +103,7 @@ export function useDevSystem() {
     await state.runPageDesignAi({ description })
   }
 
-  function isWorkspaceTabDirty(name: PageNodeFileName): boolean {
+  function isWorkspaceTabDirty(name: PageToolFileName): boolean {
     void state.projectRevision.value
     return state.project.readDirtyProjection().dirtyFiles.has(name)
   }

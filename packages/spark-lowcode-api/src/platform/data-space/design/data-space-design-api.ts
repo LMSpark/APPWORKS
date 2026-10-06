@@ -1,8 +1,14 @@
 /**
- * 数据空间设计态只读 API：从 QYVirtualPlat 设计表拉取数据空间/模型/字段/关系快照。
- * 变更须走 {@link prepareMutation}，与 runtime 入口分离；读操作依赖固定 FormKey 与 catalog 目录解析。
+ * @module @spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-api
+ * 职责：读取场景正式模型与关系，并保留目录设计审计及 mutation 命令准备入口。
+ * 边界：正式读取复用 runtime query 与请求 scope；不以物理目录替代运行模型，不执行设计写入。
+ * AI用途：装配场景视图或创建草稿时核对真实模型 Name、输出字段和关系归属。
  */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import { DataViewFilter } from '@spark-appworks/spark-data'
+import type { DataSpaceRuntimeApi } from '../runtime/data-space-runtime-api.js'
+import type { DataSpaceRequestScope } from '../runtime/data-space-runtime-contract.js'
+import { decodeDataSpaceFilter } from '../runtime/protocol/data-space-filter.js'
 
 import {
   LowcodeCatalogApi,
@@ -90,6 +96,118 @@ const DATA_SPACE_TABLE = 'Base_DataSet'
 const MODEL_TABLE = 'Base_DataModel'
 const FIELD_TABLE = 'Base_DataModel_Field'
 const RELATION_TABLE = 'Base_DataModel_Relation'
+
+/** 正式元数据查询的消费行；保留字段原值，不包含可由调用方替换的查询凭据。 */
+type DataSpaceFormalRow = Readonly<Record<string, unknown>>
+/** designScenarioId 查询元数据，dataSpaceId 校验模型归属；二者不从菜单或请求应用推导。 */
+type DataSpaceFormalReadInput = Readonly<{
+  designScenarioId: string
+  dataSpaceId: string
+  metaName: string
+  assertCurrent?: () => void
+}>
+/** name 是正式字段 Name，canonicalName 是输出别名；type 是原 FieldType，未知时保持空值。 */
+type DataSpaceFormalField = Readonly<{
+  id: string; modelId: string; name: string; canonicalName: string; type: string
+  primaryKey: boolean; description: string; output: boolean; computed: boolean
+  order: number; orderType: string; raw: DataSpaceFormalRow
+}>
+/** 正式模型输出合同；来源名与查询模型 Name 分离，不依赖物理目录投影。 */
+type DataSpaceFormalModel = Readonly<{
+  id: string; metaName: string; name: string; sourceName: string; sourceId: string
+  sourceType: string; primaryKey: string; businessMain: boolean
+  fields: readonly DataSpaceFormalField[]; raw: DataSpaceFormalRow
+}>
+/** 单场景模型目录或关系读取身份；调用方 guard 与请求 scope 共同拒绝迟到结果。 */
+type DataSpaceFormalScenarioReadInput = Omit<DataSpaceFormalReadInput, 'metaName'>
+/** 正式关系消费合同；过滤由唯一 codec 解码，视图和字段引用由场景装配验证。 */
+type DataSpaceFormalRelation = Omit<LowcodeModelRelationRecord, 'filterExpression'> & Readonly<{
+  filterExpression: DataViewFilter
+}>
+/** 注入既有 HTTP、共享 query/save owner 与实时应用登录 scope，不另造身份来源。 */
+type DataSpaceDesignApiOptions = Readonly<{
+  http: HttpClientBase
+  runtime: DataSpaceRuntimeApi
+  readScope: () => DataSpaceRequestScope
+}>
+type DataSpaceFormalQueryCommand = Readonly<{
+  designScenarioId: string
+  metaName: string
+  filter: DataViewFilter
+  assertCurrent: () => void
+}>
+
+function formalText(row: DataSpaceFormalRow, keys: readonly string[]): string {
+  for (const key of keys) {
+    if (typeof row[key] === 'boolean') continue
+    const value = text(row[key])
+    if (value) return value
+  }
+  return ''
+}
+
+function formalRowId(row: DataSpaceFormalRow): string {
+  return formalText(row, ['rowid', 'ROWID', 'RowID', 'rowId', 'id', 'Id'])
+}
+
+function formalComputedValue(value: unknown): boolean {
+  if (value === undefined || value === null || value === '') return false
+  if (typeof value !== 'string') return true
+  try { const parsed: unknown = JSON.parse(value); return parsed !== null && parsed !== '' } catch { return Boolean(value.trim()) }
+}
+
+function formalDatabaseTable(row: DataSpaceFormalRow): boolean {
+  return ['数据库表', '表', 'table'].includes(formalText(row, ['Type', 'type']))
+}
+
+function formalField(row: DataSpaceFormalRow, sourcePrimaryKey: string): DataSpaceFormalField {
+  const name = requiredText(formalText(row, ['Name', 'name']), '正式字段 Name')
+  const order = Number(row['Order'] ?? row['order'])
+  return Object.freeze({ id: requiredText(formalRowId(row), '正式字段 ID'),
+    modelId: formalText(row, ['dataModelId', 'DataModelId', 'datamodelid']), name,
+    canonicalName: formalText(row, ['AsName', 'asName', 'asname']) || name,
+    type: formalText(row, ['FieldType', 'fieldType', 'fieldtype']),
+    primaryKey: sourcePrimaryKey ? name === sourcePrimaryKey : binary(row['IsPKey'] ?? row['isPKey']),
+    description: formalText(row, ['description', 'Description']),
+    output: binary(row['IsOutput'] ?? row['isOutput']),
+    computed: formalComputedValue(row['ValueFun'] ?? row['valueFun']) || Boolean(text(row['Expression'] ?? row['expression'])),
+    order: Number.isSafeInteger(order) && order >= 0 ? order : 0,
+    orderType: formalText(row, ['OrderType', 'orderType', 'ordertype']), raw: row })
+}
+
+function sameFormalKey(left: DataSpaceFormalField, right: DataSpaceFormalField): boolean {
+  return left.name === right.name && left.canonicalName === right.canonicalName && left.type === right.type
+    && left.output === right.output && left.computed === right.computed
+    && ['Group', 'Value', 'ValueFun', 'Expression'].every(key => {
+      const read = (row: DataSpaceFormalRow) => Object.keys(row).find(name => name.toLowerCase() === key.toLowerCase())
+      const leftKey = read(left.raw); const rightKey = read(right.raw)
+      if (leftKey === undefined || rightKey === undefined) return leftKey === rightKey
+      return JSON.stringify(left.raw[leftKey]) === JSON.stringify(right.raw[rightKey])
+    })
+}
+
+function projectFormalModel(row: DataSpaceFormalRow, fieldRows: readonly DataSpaceFormalRow[], sourcePrimaryKey: string): DataSpaceFormalModel {
+  const id = requiredText(formalRowId(row), '正式模型 ID')
+  const metaName = requiredText(formalText(row, ['Name', 'name']), '正式模型 Name')
+  const fields = Object.freeze(fieldRows.map(field => formalField(field, sourcePrimaryKey)))
+  const declared = formalText(row, ['PrimaryKeyFields', 'primaryKeyFields', 'primarykeyfields'])
+  const candidates = sourcePrimaryKey ? fields.filter(field => field.name === sourcePrimaryKey)
+    : fields.filter(field => declared !== '' && (field.name === declared || field.canonicalName === declared))
+  const key = candidates[0]
+  const declaredMatches = fields.filter(field => field.name === declared || field.canonicalName === declared)
+  if (!key || (sourcePrimaryKey === '' && candidates.length !== 1)
+    || candidates.some(field => !sameFormalKey(key, field) || !field.primaryKey || !field.output || field.computed
+      || field.name.toLowerCase() === 'lingma_sys_ent')
+    || fields.some(field => field.canonicalName === key.canonicalName && !candidates.includes(field))
+    || (sourcePrimaryKey && declared && (!declaredMatches.length || declaredMatches.some(field => field.name !== sourcePrimaryKey)))) {
+    throw new LowcodeApiError(0, `数据空间模型 ${metaName} 的正式主键无法映射到唯一有效输出字段`)
+  }
+  return Object.freeze({ id, metaName, name: metaName,
+    sourceName: requiredText(formalText(row, ['MetaName', 'metaName', 'metaname']), '正式模型来源名'),
+    sourceId: formalText(row, ['DbId', 'dbId', 'DBID', 'dbid', 'PId', 'pid']),
+    sourceType: formalText(row, ['Type', 'type']), primaryKey: key.canonicalName,
+    businessMain: binary(row['IsBusinessMain'] ?? row['isBusinessMain']), fields, raw: row })
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -274,18 +392,18 @@ function modelQuery(row: Record<string, unknown>): DataSpaceFrontendModelQuery {
 }
 
 function dataSpaceRelations(
-  rows: DesignRows,
+  rows: readonly DataSpaceFormalRow[],
 ): readonly LowcodeModelRelationRecord[] {
-  return rows.relations.map((row) => {
+  return rows.map((row) => {
     return {
-      sourceRelationId: requiredText(row['rowid'], 'relation rowid'),
-      dataSpaceId: requiredText(row['dataSetId'], 'relation dataSetId'),
-      parentModelId: requiredText(row['parentModId'], 'relation parentModId'),
-      childModelId: requiredText(row['childModId'], 'relation childModId'),
-      parentResourceName: requiredText(row['parentTable'], 'relation parentTable'),
-      childResourceName: requiredText(row['childTable'], 'relation childTable'),
+      sourceRelationId: requiredText(formalRowId(row), 'relation rowid'),
+      dataSpaceId: requiredText(formalText(row, ['dataSetId', 'DataSetId', 'datasetid']), 'relation dataSetId'),
+      parentModelId: requiredText(formalText(row, ['parentModId', 'ParentModId', 'parentmodid']), 'relation parentModId'),
+      childModelId: requiredText(formalText(row, ['childModId', 'ChildModId', 'childmodid']), 'relation childModId'),
+      parentResourceName: requiredText(formalText(row, ['parentTable', 'ParentTable', 'parenttable']), 'relation parentTable'),
+      childResourceName: requiredText(formalText(row, ['childTable', 'ChildTable', 'childtable']), 'relation childTable'),
       filterExpression: serializedText(row['filter'] ?? row['Filter']),
-      dependencyType: text(row['depType'] ?? row['dependencyType']),
+      dependencyType: formalText(row, ['depType', 'DepType', 'deptype', 'dependencyType']),
       cascadeDelete: binary(row['cascadeDel'] ?? row['cascadeDelete']),
     }
   })
@@ -348,7 +466,7 @@ function frontendModels(command: DataSpaceFrontendModelsCommand): Readonly<{
     }
     resourcesByModelId.set(modelId, resourceReference({ modelId, row, rows, catalog, catalogApi }))
   }
-  const relations = dataSpaceRelations(rows)
+  const relations = dataSpaceRelations(rows.relations)
   const models = rows.models.map((row) => {
     const modelId = requiredText(row['rowid'], 'model rowid')
     const resource = resourcesByModelId.get(modelId)
@@ -374,10 +492,152 @@ function frontendModels(command: DataSpaceFrontendModelsCommand): Readonly<{
 export class DataSpaceDesignApi {
   private readonly client: LowcodeClient
   private readonly catalog: LowcodeCatalogApi
+  private readonly runtime: DataSpaceRuntimeApi
+  private readonly readScope: () => DataSpaceRequestScope
 
-  public constructor(http: HttpClientBase) {
-    this.client = new LowcodeClient(http)
-    this.catalog = new LowcodeCatalogApi(http)
+  /** 绑定宿主请求与共享运行 owner；正式读取校验 scope，设计 mutation 仅准备命令。 */
+  public constructor(options: DataSpaceDesignApiOptions) {
+    this.client = new LowcodeClient(options.http)
+    this.catalog = new LowcodeCatalogApi(options.http)
+    this.runtime = options.runtime
+    this.readScope = options.readScope
+  }
+
+  /** 以真实场景模型目录发现 Name，再复用正式单模型读取；不借物理 catalog 猜测字段。 */
+  public async readModels(input: DataSpaceFormalScenarioReadInput): Promise<readonly DataSpaceFormalModel[]> {
+    const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
+    const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
+    const scope = this.readScope().token
+    const assertCurrent = () => {
+      input.assertCurrent?.()
+      if (this.readScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式模型列表读取身份已失效')
+    }
+    const rows = await this.readFormalRows({ designScenarioId, metaName: MODEL_TABLE, assertCurrent,
+      filter: DataViewFilter.condition({ field: 'dataSetId', operator: 'eq', value: dataSpaceId }) })
+    if (rows.some(row => formalText(row, ['dataSetId', 'DataSetId', 'datasetid']) !== dataSpaceId)) {
+      throw new LowcodeApiError(0, `正式数据空间模型列表归属不一致: ${dataSpaceId}`)
+    }
+    const names = rows.map(row => requiredText(formalText(row, ['Name', 'name']), '正式模型 Name'))
+    if (new Set(names).size !== names.length) throw new LowcodeApiError(0, '正式数据空间模型 Name 不能重复')
+    const models: DataSpaceFormalModel[] = []
+    for (let index = 0; index < names.length; index++) {
+      const metaName = names[index]
+      const row = rows[index]
+      if (!metaName || !row) throw new LowcodeApiError(0, '正式模型列表身份缺失')
+      const model = await this.readModel({ designScenarioId, dataSpaceId, metaName, assertCurrent })
+      if (model.id !== formalRowId(row)) throw new LowcodeApiError(0, `正式模型列表读回身份改变: ${metaName}`)
+      models.push(model)
+    }
+    assertCurrent()
+    return Object.freeze(models)
+  }
+
+  /** 仅读取明确选择的正式模型；完整字段与来源主键验证通过后交付，不查询全物理目录。 */
+  public async readModel(input: DataSpaceFormalReadInput): Promise<DataSpaceFormalModel> {
+    const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
+    const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
+    const metaName = requiredText(input.metaName, 'metaName')
+    const scope = this.readScope().token
+    const assertCurrent = () => {
+      input.assertCurrent?.()
+      if (this.readScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式模型读取身份已失效')
+    }
+    assertCurrent()
+    const result = await this.runtime.query({ scenarioId: designScenarioId, metaName: MODEL_TABLE }, {
+      filter: DataViewFilter.group({ logic: 'and', filters: [
+        { field: 'dataSetId', operator: 'eq', value: dataSpaceId }, { field: 'Name', operator: 'eq', value: metaName },
+      ] }), page: { index: 1, size: 2 },
+    })
+    assertCurrent()
+    const models = result.rows
+    const model = models[0]
+    if (result.total !== models.length || models.length !== 1 || !model || !formalRowId(model)
+      || formalText(model, ['dataSetId', 'DataSetId', 'datasetid']) !== dataSpaceId
+      || formalText(model, ['Name', 'name']) !== metaName || !formalText(model, ['MetaName', 'metaName', 'metaname'])) {
+      throw new LowcodeApiError(0, `正式数据空间模型必须唯一且属于当前数据空间: ${metaName}`)
+    }
+    const modelId = formalRowId(model)
+    const fields = await this.readFormalRows({ designScenarioId, metaName: FIELD_TABLE, assertCurrent,
+      filter: DataViewFilter.group({ logic: 'and', filters: [
+        { field: 'dataSetId', operator: 'eq', value: dataSpaceId },
+        { field: 'dataModelId', operator: 'eq', value: modelId }, { field: 'type', operator: 'eq', value: 'dataModel' },
+      ] }) })
+    if (fields.some(field => formalText(field, ['dataSetId', 'DataSetId', 'datasetid']) !== dataSpaceId
+      || formalText(field, ['dataModelId', 'DataModelId', 'datamodelid']) !== modelId
+      || (formalText(field, ['type', 'Type']) || 'dataModel') !== 'dataModel')) {
+      throw new LowcodeApiError(0, `正式数据空间模型字段归属或类型不一致: ${metaName}`)
+    }
+    const sourceOutputKey = formalDatabaseTable(model)
+      ? await this.readFormalSourceKey({ designScenarioId, metaName: 'View_TblList', assertCurrent,
+        filter: DataViewFilter.group({ logic: 'and', filters: [
+          { field: 'tblname', operator: 'eq', value: requiredText(formalText(model, ['MetaName', 'metaName', 'metaname']), '来源名称') },
+          { field: 'dbid', operator: 'eq', value: requiredText(formalText(model, ['DbId', 'dbId', 'DBID', 'dbid']), '来源数据库 ID') },
+        ] }) }) : ''
+    assertCurrent()
+    return projectFormalModel(model, fields, sourceOutputKey)
+  }
+
+  /** 完整读取单场景关系；过滤经唯一 codec 保留完整树，模型与视图引用由场景装配核对。 */
+  public async readRelations(input: DataSpaceFormalScenarioReadInput): Promise<readonly DataSpaceFormalRelation[]> {
+    const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
+    const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
+    const scope = this.readScope().token
+    const assertCurrent = () => {
+      input.assertCurrent?.()
+      if (this.readScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式关系读取身份已失效')
+    }
+    const rows = await this.readFormalRows({ designScenarioId, metaName: RELATION_TABLE, assertCurrent,
+      filter: DataViewFilter.condition({ field: 'dataSetId', operator: 'eq', value: dataSpaceId }) })
+    if (rows.some(row => formalText(row, ['dataSetId', 'DataSetId', 'datasetid']) !== dataSpaceId)) {
+      throw new LowcodeApiError(0, `正式数据空间关系归属不一致: ${dataSpaceId}`)
+    }
+    const relations = dataSpaceRelations(rows).map(relation => Object.freeze({ ...relation,
+      filterExpression: decodeDataSpaceFilter(relation.filterExpression) }))
+    assertCurrent()
+    return Object.freeze(relations)
+  }
+
+  private async readFormalRows(command: DataSpaceFormalQueryCommand): Promise<readonly DataSpaceFormalRow[]> {
+    command.assertCurrent()
+    const result = await this.runtime.query({ scenarioId: command.designScenarioId, metaName: command.metaName }, {
+      filter: command.filter, sort: [{ field: 'rowid', direction: 'asc' }],
+      allPages: true, page: { index: 1, size: 500 },
+    })
+    command.assertCurrent()
+    const rows = result.rows
+    const ids = rows.map(row => requiredText(formalRowId(row), `${command.metaName} 正式记录 ID`))
+    if (new Set(ids).size !== ids.length) throw new LowcodeApiError(0, `${command.metaName} 正式记录 ID 不能重复`)
+    return rows
+  }
+
+  private async readFormalSourceKey(command: DataSpaceFormalQueryCommand): Promise<string> {
+    command.assertCurrent()
+    const result = await this.runtime.query({ scenarioId: command.designScenarioId, metaName: command.metaName }, {
+      filter: command.filter, page: { index: 1, size: 2 },
+    })
+    command.assertCurrent()
+    const rows = result.rows
+    const source = rows[0]
+    const conditions = command.filter.toJSON()
+    if (!('logic' in conditions)) throw new Error('正式来源查询缺少身份条件')
+    const expectedName = conditions.filters.find(field => 'field' in field && field.field === 'tblname')
+    const expectedId = conditions.filters.find(field => 'field' in field && field.field === 'dbid')
+    if (!source || result.total !== rows.length || rows.length !== 1 || !formalRowId(source)
+      || !expectedName || !('field' in expectedName) || formalText(source, ['tblname', 'TblName']) !== expectedName.value
+      || !expectedId || !('field' in expectedId) || formalText(source, ['dbid', 'DbId']) !== expectedId.value) {
+      throw new LowcodeApiError(0, '数据库表来源不唯一或归属不一致，无法读取正式主键')
+    }
+    const sourceId = formalRowId(source)
+    const fields = await this.readFormalRows({ ...command, metaName: 'Base_TblField',
+      filter: DataViewFilter.condition({ field: 'tblid', operator: 'eq', value: sourceId }) })
+    if (fields.some(field => formalText(field, ['tblid', 'TblId', 'tblId']) !== sourceId)) {
+      throw new LowcodeApiError(0, '数据库表来源字段归属不一致')
+    }
+    const keys = fields.filter(field => formalText(field, ['enname', 'EnName', 'ENNAME']) !== ''
+      && formalText(field, ['enname', 'EnName', 'ENNAME']).toLowerCase() !== 'lingma_sys_ent' && binary(field['IsPKey']))
+    const key = keys[0]
+    if (!key || keys.length !== 1) throw new LowcodeApiError(0, '正式来源必须有且仅有一个非租户主键')
+    return formalText(key, ['enname', 'EnName', 'ENNAME'])
   }
 
   public async read(input: DataSpaceDesignReadInput): Promise<DataSpaceDesignSnapshot> {

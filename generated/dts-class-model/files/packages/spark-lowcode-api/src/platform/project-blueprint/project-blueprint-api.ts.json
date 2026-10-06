@@ -7,13 +7,29 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/project-blueprint/project-blueprint-api",
-    "jsdoc": "lowcode 项目蓝图 HTTP 门面：读取 Base_NavigationInfo 记录、导航授权证据与文档导出任务。\n本模块不构造 AppWorks 项目蓝图、运行导航、治理或 AI 领域输出。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/project-blueprint/project-blueprint-api\n职责：经原 SPARK query/save 读写蓝图记录，读取导航授权并提交文档任务。\n边界：原权限和签名快照由私有 query context 持有，scope 来自共享 runtime；保存与读回不承诺事务或回滚。\nAI用途：使用正式四组记录编辑蓝图，区分业务保存、授权读取和文档任务提交。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
+      "LowcodeProjectBlueprintMutableField",
+      "LowcodeProjectBlueprintPatch",
       "LowcodeProjectBlueprintApi"
     ]
   },
   "$defs": {
+    "BlueprintApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "runtime": {
+          "$ref": "../data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        }
+      },
+      "additionalProperties": false
+    },
     "LowcodeProjectBlueprintApi": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -22,8 +38,8 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "http": {
-              "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            "options": {
+              "$ref": "#/$defs/BlueprintApiOptions"
             }
           },
           "additionalProperties": false
@@ -40,6 +56,74 @@
         "method.readRecords.return": {
           "type": "object",
           "title": "Promise<readonly LowcodeProjectBlueprintRecord[]>"
+        },
+        "method.updateNodeFields.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "patch": {
+              "type": "object",
+              "title": "LowcodeProjectBlueprintPatch"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNodeFields.return": {
+          "type": "object",
+          "title": "Promise<LowcodeProjectBlueprintRecord>"
+        },
+        "method.updateNode.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "node": {
+              "$ref": "project-blueprint.ts.json#/$defs/LowcodeProjectBlueprintRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNode.return": {
+          "type": "object",
+          "title": "Promise<LowcodeProjectBlueprintRecord>"
+        },
+        "method.createNode.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "node": {
+              "$ref": "project-blueprint.ts.json#/$defs/LowcodeProjectBlueprintRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createNode.return": {
+          "type": "object",
+          "title": "Promise<LowcodeProjectBlueprintRecord>"
+        },
+        "method.deleteNode.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteNode.return": {
+          "type": "object",
+          "title": "Promise<LowcodeProjectBlueprintRecord>"
         },
         "method.readNavigationAuthorization.params": {
           "type": "object",
@@ -79,21 +163,77 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T12:16:41.563Z",
+  "generatedAt": "2026-10-06T20:57:27.508Z",
   "models": {
+    "LowcodeProjectBlueprintMutableField": {
+      "name": "LowcodeProjectBlueprintMutableField",
+      "jsdoc": "蓝图可提交的既有 wire 字段；实际写权限仍由原查询上下文 E 白名单决定。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof LOWCODE_PROJECT_BLUEPRINT_MUTABLE_FIELDS[number]",
+        "members": {}
+      }
+    },
+    "LowcodeProjectBlueprintPatch": {
+      "name": "LowcodeProjectBlueprintPatch",
+      "jsdoc": "单节点字段变更；不接受权限、签名或请求应用身份作为业务 patch。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Partial<Record<LowcodeProjectBlueprintMutableField, string | number>>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Partial<Record<LowcodeProjectBlueprintMutableField, string | number>>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "BlueprintApiOptions": {
+      "name": "BlueprintApiOptions",
+      "jsdoc": "HTTP 承接授权与文档端点，共享 runtime 承接正式蓝图 query/save 及请求 scope。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    runtime: DataSpaceRuntimeApi;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    runtime: DataSpaceRuntimeApi;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeProjectBlueprintApi": {
       "name": "LowcodeProjectBlueprintApi",
-      "jsdoc": "项目蓝图只读与文档任务提交门面；依赖应用目录 FormKey 访问 GetData。",
+      "jsdoc": "项目蓝图 CRUD 共用原模型查询保存 owner；授权和文档任务保持各自正式端点。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(http: HttpClientBase)",
+          "jsdoc": "注入现有请求与原查询保存 owner；不从公开 source 重建授权凭据。",
+          "signatureText": "constructor(options: BlueprintApiOptions)",
           "parameters": [
             {
-              "name": "http",
+              "name": "options",
               "type": {
                 "type": "reference",
-                "name": "HttpClientBase"
+                "name": "BlueprintApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts"
               }
             }
           ]
@@ -102,7 +242,7 @@
           "methods": [
             {
               "name": "readRecords",
-              "jsdoc": "按 SysId 拉取并校验完整 Base_NavigationInfo 记录；不投影领域聚合。",
+              "jsdoc": "原模型查询 owner 持权限与保存凭据；正式记录仅包含消费行。",
               "parameters": [
                 {
                   "name": "projectId",
@@ -119,6 +259,138 @@
                   {
                     "type": "unknown",
                     "name": "readonly LowcodeProjectBlueprintRecord[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNodeFields",
+              "jsdoc": "只更新一个导航节点的六阶段所属字段，并以正式 GetData 读回确认。",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "patch",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeProjectBlueprintPatch",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNode",
+              "jsdoc": "正式分组仅提交发生变化的字段；权限与凭据仍由私有原查询上下文持有。",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createNode",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteNode",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeProjectBlueprintRecord",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts"
                   }
                 ]
               }

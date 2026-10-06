@@ -7,8 +7,8 @@
 import { computed } from 'vue'
 import type { ComputedRef } from 'vue'
 import type { SparkOptionFieldProps } from '../../shared-types.js'
-import { PAGE_DATASET, useSparkConsume } from '../../internal'
-import { DataMember, resolveDataViewKey, resolveDataViewMember } from '@spark-appworks/spark-data'
+import { PAGE_RUNTIME, useSparkConsume } from '../../internal'
+import { DataMember, resolveDataViewMember } from '@spark-appworks/spark-data'
 import { useFieldPermission } from '../context/useFieldPermission'
 import type { FieldPermissionProps } from '../context/useFieldPermission'
 import type { FieldComposableProps } from '../context/field-composable-props'
@@ -81,11 +81,15 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
   const resolvedOptionDataViewKey = computed(() => props.optionDataViewKey)
   const resolvedOptionDataMember = computed(() => props.optionDataMember ?? DataMember.Rows)
   const { sparkConsume } = useSparkConsume()
-  const pageDataSet = sparkConsume(PAGE_DATASET)
+  const runtime = sparkConsume(PAGE_RUNTIME)
 
   const optionDataView = computed(() => {
     const key = resolvedOptionDataViewKey.value
-    return resolveDataViewKey(key, pageDataSet)
+    if (key === undefined) return null
+    if (!runtime) throw new Error('PAGE_RUNTIME_MISSING')
+    const view = runtime.resolveView(key)
+    if (!view) throw new Error(`DATA_VIEW_MISSING: ${key}`)
+    return view
   })
 
   const optionLabelField = computed(() =>
@@ -115,10 +119,10 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
             optionChildrenField.value,
           )
         : resolveDataViewMember({
-            dataViewKey: resolvedOptionDataViewKey.value,
+            dataViewKey: `${view.tableName}@${view.viewId}`,
             dataMember: resolvedOptionDataMember.value,
             dataField: props.optionDataField,
-          }, pageDataSet)
+          }, view.dataSet)
 
       const rows = Array.isArray(source) ? source : []
       const optionFields = {

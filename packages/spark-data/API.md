@@ -1,5 +1,7 @@
 # SPARK Data API 文档
 
+运行 `DataTable.modelBinding` 为只读的模型ID/查询Name快照，创建时由 `DataTable.fromJson` 捕获并冻结。直接改绑或修改其成员会失败；模型改名/迁移按整页运行DataSet重建合同装配新实例，页面内tableName保持稳定。`toJson()` 返回独立的绑定JSON对象，修改配置不会改动旧实例。`DataSet.scenarioId` 创建后只读；`replaceFromJson` 拒绝新增、移除或更换场景，且在销毁旧表前失败，保留旧视图、数据和编辑状态。同场景结构替换仍可使用该入口；整页场景更换由独立 PageRuntime 调用重建负责，旧实例 dispose 后拒绝继续执行。
+
 ## SparkData 命名空间
 
 ### DataViewKey概览
@@ -184,6 +186,22 @@ const treeManager = SparkData.createTreeManager(
 
 ### DataView 管理
 
+`_pk` 是前端计算的行定位值，联合键组合规则保持在本仓。它不进入后端提交；服务端记录定位使用正式业务主键字段及其原值。新增、修改、删除及批量保存均须在封包时剔除 `_pk`，不能用组合值替代后端业务主键。
+
+单条更新、删除和批量删除从原始行提取联合业务键，显式传入的服务端主键不能含 `_pk`。联合键原始行或事务删除快照缺失时，请求前明确失败，保留待提交状态。
+
+查询失败时 DataView 保留上次结果与选中状态，暂停编辑、新增、修改、删除及保存，并明确抛出 `DATA_VIEW_RESULT_STALE`。重试期间仍保持该保护，成功登记新结果后恢复；清空数据不会代替一次成功查询。请求期间产生的草稿不丢弃，恢复前须由调用方明确放弃或处理。
+
+`bindQueryExecutor(executor)` 在首次查询前注入实际查询 owner，执行 `executeQuery(view, params)`；改变 owner 或旧查询开始后切换均要求重新装配运行 DataSet。同一个 owner 重复绑定不改变状态。`queryContext` 仍是输入参数，原结果上下文由 DataView 私有持有，不能由组件取得或通过旧 `ingestPermissionSnapshot` 注入替换。身份、数据、总数和权限一起登记，返回时再次检查未保存编辑；清空或销毁只释放本视图的引用，不使其他视图共享的原上下文失效。
+
+字段和动作集中通过 `fieldAccess(row, field)`、`addActionState`、`editActionState`、`deleteActionState`、`createChildActionState`、`viewActionState` 消费；行身份由原上下文解析，不用本地 `_pk` 猜权限。错误保留的旧结果暂停写通道；请求身份失效则拒绝旧权限消费和本地编辑。注入后的查询不经过 CRUD list，结果行不公开后端权限原文或保存凭据，运行行不写入配置。
+
+宿主数据空间装配器已直接安装实际 API owner，查询输入进入同一原 SPARK 查询链；组件与脚本统一消费 DataView 的原查询权限入口。正式模型输出装配和多空间页面实例仍在切换中。当前测试使用模拟传输，不代表页面整体或真实后端联调完成。
+
+已绑定原查询 owner 的视图不会因旧 CRUD 地址或 `commitMode: 'immediate'` 直接提交行修改，而是保留本地待提交状态。`DataView.saveChanges(ids?)` 已用当前私有已接纳上下文调用实际 owner.save，剔除计算列和 `_pk`，不执行旧逐行 CRUD。没有原上下文或保存能力时明确报 `DATA_VIEW_SAVE_OWNER`。返回后按实际字段回执更新未再次编辑的值；未返回字段、保存期间新修改及编辑草稿保留。新强基线接纳后重建对应行的 dirty 比较，不以旧 WeakRef 清整行；改回基线的选中行不发送无效更新。新增用实际返回身份，期间再次修改或移除仍分别保留为待更新或待删除；删除后本地已恢复的行保留为待新增。保存过程维护 mutating/mutatingError，失败保留 pending。DataSet 同场景多模型调用由 DataView.saveQueryViews 在 class 内捕获各私有基线，统一发送一次 owner.save；先验证全部回执和当前身份，再逐视图接纳，不公开查询上下文。
+
+`DataSet.saveChanges` 的 SPARK 场景预检在应用编辑草稿和拆装级联前执行：事务模式明确拒绝；本次选中的有变更视图必须属于当前 DataSet 运行实例，并有场景和正式模型绑定，同一模型 ID 或查询 Name 不能对应多个待保存视图。调用方须明确选择一个视图；`ids: []` 不扩大为全部行，`applyEditingRows: false` 不把未选中的编辑草稿纳入本次提交。拒绝时保留编辑与 pending 状态。通过预检后先应用选中草稿，未成功应用草稿的视图保留失败统计；其余选中视图的有效变更统一一次 SPARK save，无差异模型不要求回执。跨 owner 拒绝，失败保留待提交状态。原本地未绑定场景的 CRUD 保存仍使用本地路径，不作为 SPARK 保存的后备。
+
 #### `SparkData.createDataView(tableName, meta?)`
 
 创建 DataView 实例，用于数据绑定和视图管理
@@ -304,7 +322,7 @@ import type {
   DataColumn,
   TreeConfig,
   FlatTreeNode,
-  FilterExpression,
+  DataViewFilterTree,
   CrudApi,
   TableMetadata,
   ViewMetadata

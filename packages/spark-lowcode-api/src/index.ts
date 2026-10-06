@@ -23,6 +23,7 @@ export type {
   LowcodeFileDirectory,
   LowcodeFileEntry,
   LowcodeFileLocator,
+  LowcodeFileVersionSummary,
 } from './design/lowcode-design-api.js'
 export type {
   LowcodeDesignFileUploadCommand,
@@ -51,24 +52,6 @@ export type {
   DataSpaceDatabaseResourceType,
 } from './platform/data-space/data-space.js'
 export { DataSpaceRuntimeApi } from './platform/data-space/runtime/data-space-runtime-api.js'
-export type {
-  DataSpaceRuntimeFilter,
-  DataSpaceRuntimeInputParameter,
-  DataSpaceRuntimeQuery,
-  DataSpaceRuntimePreparedQuery,
-  DataSpaceRuntimeRow,
-  DataSpaceRuntimeSort,
-  DataSpaceRuntimeSnapshot,
-  DataSpaceSparsePermission,
-} from './platform/data-space/runtime/data-space-runtime-api.js'
-export type {
-  DataSpaceAddedRow,
-  DataSpaceChangedRow,
-  DataSpaceDeletedRow,
-  DataSpaceRuntimeChanges,
-  DataSpaceRuntimeMutationCommand,
-  DataSpaceRuntimeMutationInput,
-} from './platform/data-space/runtime/data-space-runtime-mutation.js'
 export { LowcodePlatformApi } from './platform/lowcode-platform-api.js'
 export { PermissionApi } from './platform/permission/permission-api.js'
 export { PermissionDesignApi } from './platform/permission/design/permission-design-api.js'
@@ -98,7 +81,6 @@ export {
   encodeLowcodeBlueprintFileVersions,
   lowcodeBlueprintFileVersionKey,
   lowcodeBlueprintVersionedFileName,
-  nextLowcodeBlueprintFileVersions,
   parseLowcodeBlueprintFileVersions,
 } from './platform/project-blueprint/project-blueprint-file-version.js'
 export type {

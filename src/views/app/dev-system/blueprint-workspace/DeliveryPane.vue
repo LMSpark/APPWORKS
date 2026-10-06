@@ -1,3 +1,9 @@
+<!--
+@module app:views/app/dev-system/blueprint-workspace/DeliveryPane
+职责：展示页面工具三文件编辑与真实运行实例预览。
+边界：三文件独立追加编号快照，场景pagedata不进入工具发布指针。
+AI用途：编辑rule/script/style并触发父工作台真实交付动作。
+-->
 <template>
   <section class="delivery-pane">
     <div class="delivery-actions">
@@ -15,14 +21,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { PageNodeFileName } from '@spark-appworks/spark-project-model'
+import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import DevFileEditor from '../DevFileEditor.vue'
 import DevPreviewTab from '../DevPreviewTab.vue'
 import type { DevState } from '../useDevState'
 defineProps<{ state: DevState; saving: boolean }>()
 defineEmits<{ save: [] }>()
-const files: readonly PageNodeFileName[] = ['rule.json', 'script.js', 'style.css']
-const activeFile = ref<PageNodeFileName | 'preview'>('rule.json')
+const files: readonly PageToolFileName[] = ['rule.json', 'script.js', 'style.css']
+const activeFile = ref<PageToolFileName | 'preview'>('rule.json')
 </script>
 
 <style scoped>

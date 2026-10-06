@@ -17,7 +17,7 @@ import {
   createWorkerDtsClassModelKnowledgeProvider,
   type ClassModelKnowledgeProvider,
 } from '@spark-appworks/spark-ai/class-model'
-import type { ProjectModel } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { AiAgentHost } from '@spark-appworks/spark-ai/agent'
 import { getDtsClassModelManifestUrl } from '@/class-model-artifacts/artifact-urls'
 import { readWorkflowDefinition } from '@/services/workflow-designs'
@@ -42,7 +42,6 @@ import {
 const PAGE_DESIGN_WORKFLOW_ID = 'agent.workflow.pageDesign'
 const PROJECT_PLANNING_WORKFLOW_ID = 'agent.workflow.projectPlanning'
 const PAGE_DESIGN_EDITOR_SOURCE = 'pageDesign'
-const PAGE_DATA_DESIGN_EDITOR_SOURCE = 'pageDataDesign'
 const PROJECT_PLANNING_EDITOR_SOURCE = 'projectPlanning'
 const DTS_CLASS_MODEL_MANIFEST_REF = 'dts-class-model'
 
@@ -101,7 +100,7 @@ export async function activateProjectPlanningAgentWorkflow(
 
 export function createAppAgentWorkflowRuntimeBindings(
   options: CreateAppAgentWorkflowRuntimeBindingsOptions,
-): AgentWorkflowRuntimeBindings<ProjectModel> {
+): AgentWorkflowRuntimeBindings<ProjectBlueprint | ProjectWorkspace> {
   return {
     manifestUrlResolver: (ref) => {
       if (ref !== DTS_CLASS_MODEL_MANIFEST_REF) {
@@ -111,7 +110,6 @@ export function createAppAgentWorkflowRuntimeBindings(
     },
     editorGetterRegistry: {
       [PAGE_DESIGN_EDITOR_SOURCE]: context => resolvePageDesignProject(requirePageDesignOptions(options), context),
-      [PAGE_DATA_DESIGN_EDITOR_SOURCE]: context => resolvePageDesignProject(requirePageDesignOptions(options), context),
       [PROJECT_PLANNING_EDITOR_SOURCE]: context => resolveProjectPlanningDomainRoot(
         requireProjectPlanningOptions(options),
         context,
@@ -125,7 +123,6 @@ export function createAppAgentWorkflowRuntimeBindings(
     systemPromptInterpolator: command => {
       switch (command.editorSource) {
         case PAGE_DESIGN_EDITOR_SOURCE:
-        case PAGE_DATA_DESIGN_EDITOR_SOURCE:
           return formatPageDesignSystemPrompt(createPageDesignPromptInput(command.input))
         case PROJECT_PLANNING_EDITOR_SOURCE:
           return createProjectPlanningSystemPrompt(createProjectPlanningPromptInput(command.input))
@@ -138,10 +135,13 @@ export function createAppAgentWorkflowRuntimeBindings(
 
 function createPageDesignPromptInput(input: JsonParams): PageDesignRunInput {
   const promptInput: PageDesignRunInput = {
+    requestId: readRequiredStringInput(input, 'requestId'),
     pageId: readRequiredStringInput(input, 'pageId'),
     description: readRequiredStringInput(input, 'description'),
     effectiveDescription: readRequiredStringInput(input, 'effectiveDescription'),
   }
+  const scenarioId = readOptionalStringInput(input, 'scenarioId')
+  if (scenarioId !== undefined) promptInput.scenarioId = scenarioId
   const projectId = readOptionalStringInput(input, 'projectId')
   const planningTitle = readOptionalStringInput(input, 'planningTitle')
   const planningPath = readOptionalStringInput(input, 'planningPath')
@@ -181,12 +181,13 @@ function readBlueprintPlanningAgentInput(value: JsonValue, index: number): Proje
     throw new Error(`projectPlanning prompt input blueprintNodes[${index}] must be an object.`)
   }
   const planningAttachmentRef = readOptionalStringInput(value, 'planningAttachmentRef')
+  const requirement = value['requirement']
+  if (typeof requirement !== 'string') throw new Error(`projectPlanning prompt input blueprintNodes[${index}] requires string requirement.`)
   return {
     nodeId: readRequiredStringInput(value, 'nodeId'),
     title: readRequiredStringInput(value, 'title'),
-    blueprintKind: readRequiredStringInput(value, 'blueprintKind'),
-    nodeKind: readRequiredStringInput(value, 'nodeKind'),
-    requirement: readRequiredStringInput(value, 'requirement'),
+    kind: readRequiredStringInput(value, 'kind'),
+    requirement,
     ...(planningAttachmentRef === undefined ? {} : { planningAttachmentRef }),
   }
 }
@@ -198,9 +199,9 @@ function readPageDesignAllowedOperations(value: JsonValue | undefined): PageDesi
     dataSet?: boolean
     script?: boolean
     style?: boolean
-    navigation?: boolean
+    blueprint?: boolean
   } = {}
-  for (const key of ['nodeTree', 'dataSet', 'script', 'style', 'navigation'] as const) {
+  for (const key of ['nodeTree', 'dataSet', 'script', 'style', 'blueprint'] as const) {
     const field = value[key]
     if (typeof field === 'boolean') allowedOperations[key] = field
   }
@@ -271,7 +272,6 @@ function executeAgentWorkflowGate(
 ): AgentWorkflowRuntimeGateResult {
   switch (command.editorSource) {
     case PAGE_DESIGN_EDITOR_SOURCE:
-    case PAGE_DATA_DESIGN_EDITOR_SOURCE:
       assertKnownGateRules(command, PAGE_DESIGN_GATE_RULE_KINDS)
       return beforeFunctionCallDirectiveToGateResult(evaluatePageDesignBeforeFunctionCall(
         resolvePageDesignProject(requirePageDesignOptions(options), command.options),

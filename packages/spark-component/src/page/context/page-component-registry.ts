@@ -11,6 +11,7 @@ import type {
 import type { ComponentInstanceSnapshot } from '@spark-appworks/spark-utils'
 
 export function createPageComponentRegistry(): PageComponentRegistry {
+  const renderMap = new Map<string, object>()
   const instanceMap = new Map<string, ComponentInstanceSnapshot>()
   const instanceRefCount = new Map<string, number>()
   const apiMap = new Map<string, PageComponentApiEntry>()
@@ -40,6 +41,9 @@ export function createPageComponentRegistry(): PageComponentRegistry {
   }
 
   return {
+    registerRender(name, component) { renderMap.set(name, component) },
+    getRender(name) { return renderMap.get(name) ?? null },
+    clearRenders() { renderMap.clear() },
     registerInstance(entry) {
       const normalized = entry.props === undefined
         ? { id: entry.id, type: entry.type }

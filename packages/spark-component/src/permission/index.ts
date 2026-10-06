@@ -5,44 +5,21 @@
  * AI用途：判断某个组件能力是否应对外暴露或被注册表扫描时，用本模块确认导出入口。
  */
 /**
- * 权限系统模块 — 权限数据的唯一消费者
+ * 组件权限渲染入口
  *
  * ## 定位
- * 页面权限模型 + 权限解析/渲染 API 统一收口于此。
- * 权限快照类型仍定义在 `@spark-appworks/spark-data`，但所有权限数据消费、字段/动作权限判断均在本模块内。
+ * 字段和动作消费绑定 DataView 的原查询权限，不建立另一份授权模型。
  *
  * ## 设计原则
- * - 纯函数优先：所有权限检查/过滤/字段状态计算均为纯函数，无类实例、无单例
- * - usePermission 是唯一的 Vue composable 桥接，内部消费 PAGE_PERMISSION_MODE 能力
+ * - usePermission 是 Vue composable 桥接，内部消费 DATA_SOURCE 和本地输入策略
  * - 其他 composable 只能通过 usePermission() 访问权限数据，不允许直接 sparkConsume 权限能力
  */
 
 // ── 页面权限模型（能力键，仅 SparkPageRenderer 应 import） ──
 export { SUBTREE_FIELD_POLICY, PAGE_PERMISSION_MODE } from '../core/capability-keys.js'
 
-// ── 权限检查纯函数 ──
-export {
-  canCreate, canImport, canExport,
-  canDelete, canCreateChild, canEdit,
-  isFieldVisible, isFieldEditable, getFieldVisibility,
-  maskFieldValue,
-  extractPermissionSnapshot,
-} from './PermissionChecker'
-
-// ── 权限过滤纯函数 ──
-export {
-  filterDeletableRows, filterEditableRows,
-  filterFields, getEditableFields, getVisibleFields,
-  filterDisplayableFields,
-} from './PermissionFilter'
-
-// ── 字段渲染状态 ──
-export { computeFieldState } from './FieldRenderHelper'
-
 // ── 动作权限解析 ──
 export {
-  isPermittedAction, resolveFieldPermissionState,
-  isModelScopedPermAction, isRowScopedPermAction,
   isModelActionAllowed, isRowActionAllowed,
 } from './PermissionResolver'
 
@@ -50,5 +27,4 @@ export {
 export { usePermission } from './usePermission'
 
 // ── 类型（FieldRender* 定义在 utils/data，勿从此包再导出）──
-export type { PermissionAction, ComponentPermissionActionContext, PermissionActionName } from './PermissionResolver'
 export type { UsePermissionReturn } from './usePermission'

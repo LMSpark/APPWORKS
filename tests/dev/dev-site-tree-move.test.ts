@@ -11,15 +11,12 @@ function createState(node: ProjectBlueprintTreeNodeData): DevState {
   const state = useDevState()
   seedDevStateConfigPages(state, [{
     pageId: 'orders',
-    nodeId: node.id,
-    title: node.title,
-    ...(node.path !== undefined ? { path: node.path } : {}),
+    nodeId: node.nodeId,
+    title: node.navigation?.title ?? node.capability.name,
+    ...(node.navigation?.target !== undefined ? { path: node.navigation?.target } : {}),
   }])
-  state.hasReservedRootGroup = vi.fn<DevState['hasReservedRootGroup']>(() => false)
-  state.restoreReservedRootGroup = vi.fn<DevState['restoreReservedRootGroup']>(async () => {})
   state.addRootNode = vi.fn<DevState['addRootNode']>()
   state.addChildNode = vi.fn<DevState['addChildNode']>()
-  state.isSystemRootDirectory = vi.fn<DevState['isSystemRootDirectory']>(() => false)
   state.removeNodeFromTree = vi.fn<DevState['removeNodeFromTree']>()
   state.selectNode = vi.fn<DevState['selectNode']>(async () => {})
   state.moveNodeInTree = vi.fn<DevState['moveNodeInTree']>(async () => {})
@@ -39,7 +36,7 @@ const ElTreeDropStub = defineComponent({
 
 describe('ProjectBlueprintTree move persistence', () => {
   it('persists drag-drop through moveNodeInTree', async () => {
-    const node: ProjectBlueprintTreeNodeData = { id: 'orders', title: 'Orders', nodeKind: 'page', path: '/orders' }
+    const node: ProjectBlueprintTreeNodeData = {nodeId:'orders',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders',order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}}
     const state = createState(node)
 
     const wrapper = mount(ProjectBlueprintTree, {
@@ -61,6 +58,6 @@ describe('ProjectBlueprintTree move persistence', () => {
 
     await wrapper.find('.emit-drop').trigger('click')
 
-    expect(state.moveNodeInTree).toHaveBeenCalledWith(node)
+    expect(state.moveNodeInTree).toHaveBeenCalledWith(expect.objectContaining({nodeId:node.nodeId,kind:node.kind}))
   })
 })

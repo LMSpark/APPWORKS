@@ -55,7 +55,8 @@
         },
         "preAuthNavTree": {
           "$ref": "navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
-        }
+        },
+        "loadScenario": true
       },
       "required": [
         "readPageFile"
@@ -103,19 +104,6 @@
         },
         "method.isPlatformNavigationEnabled.return": {
           "type": "boolean"
-        },
-        "method.loadRuntimeDataSet.params": {
-          "type": "object",
-          "properties": {
-            "binding": {
-              "$ref": "../../spark-project-model/src/page/config-page.ts.json#/$defs/PageDataSpaceBinding"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.loadRuntimeDataSet.return": {
-          "type": "object",
-          "title": "Promise<DataSet>"
         }
       }
     },
@@ -192,7 +180,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T10:18:15.562Z",
+  "generatedAt": "2026-10-06T20:39:07.161Z",
   "models": {
     "SparkOptions": {
       "name": "SparkOptions",
@@ -223,7 +211,7 @@
       "jsdoc": "PageNode 运行配置",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前页面四文件所属项目身份。 */\n    getProjectId: () => string;\n    /** 注入式页面四文件读取器，不绑定服务器路径。 */\n    readPageFile: PageFileReader;\n    /** 认证状态检查（DynamicRouter 据此决定使用远程导航树还是 preAuthNavTree） */\n    isAuthenticated?: () => boolean;\n    /** 页面组件（默认使用 PageRenderer） */\n    pageComponent?: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 路由元数据完全由后端 DB 管理，前端只提供组件解析映射。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 DynamicRouter 使用此函数加载远程导航树并派生路由。\n     * refreshRoutes() 返回加载后的导航树供 UI 直接消费。\n     */\n    loadNavigation?: () => Promise<RuntimeNavigation>;\n    /** 平台工作台导航加载函数；节点路径会注册到 /platform 前缀下。 */\n    loadPlatformNavigation?: () => Promise<RuntimeNavigation>;\n    /** 是否启用平台工作台导航注册。 */\n    isPlatformNavigationEnabled?: () => boolean;\n    /** 平台工作台路由前缀，默认 /platform。 */\n    platformPathPrefix?: string;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当用户未登录时，`registerRoutes()` 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: RuntimeNavigation;\n    /**\n     * 运行态 DataSet 装载器（有 PageDataSpaceBinding 时由 DynamicRouter 注入 SparkPageRenderer）。\n     * 有绑定则不得再把 pagedata.json 当运行数据真源。\n     */\n    loadRuntimeDataSet?: (binding: PageDataSpaceBinding) => Promise<DataSet>;\n}",
+        "declarationTypeText": "{\n    /** 当前页面四文件所属项目身份。 */\n    getProjectId: () => string;\n    /** 注入式页面四文件读取器，不绑定服务器路径。 */\n    readPageFile: PageFileReader;\n    /** 认证状态检查（DynamicRouter 据此决定使用远程导航树还是 preAuthNavTree） */\n    isAuthenticated?: () => boolean;\n    /** 页面组件（默认使用 PageRenderer） */\n    pageComponent?: Component;\n    /**\n     * system-page 路径 → Vue 组件映射。\n     * 路由元数据完全由后端 DB 管理，前端只提供组件解析映射。\n     */\n    componentMap?: Record<string, Component>;\n    /**\n     * 租户路径前缀（如 '/t/:tenantId'）。\n     * 设置后，config 页面路由自动加此前缀。\n     */\n    tenantPathPrefix?: string;\n    /**\n     * 导航数据加载函数 — 导航树作为路由的唯一来源。\n     *\n     * 已认证时 DynamicRouter 使用此函数加载远程导航树并派生路由。\n     * refreshRoutes() 返回加载后的导航树供 UI 直接消费。\n     */\n    loadNavigation?: () => Promise<RuntimeNavigation>;\n    /** 平台工作台导航加载函数；节点路径会注册到 /platform 前缀下。 */\n    loadPlatformNavigation?: () => Promise<RuntimeNavigation>;\n    /** 是否启用平台工作台导航注册。 */\n    isPlatformNavigationEnabled?: () => boolean;\n    /** 平台工作台路由前缀，默认 /platform。 */\n    platformPathPrefix?: string;\n    /**\n     * 登录前本地导航树 — 未认证时使用的静态导航数据。\n     *\n     * 当用户未登录时，`registerRoutes()` 使用此本地导航树注册路由（如 / 和 /login）。\n     * 登录后 `refreshRoutes()` 会用远程导航树替换。\n     */\n    preAuthNavTree?: RuntimeNavigation;\n    /**\n     * 场景 DataSet 装载器，由 DynamicRouter 注入每次调用的 PageRuntime。\n     * 后端定义为正式真源，场景 pagedata.json 只补充视图和级联。\n     */\n    loadScenario?: DynamicRouterOptions['loadScenario'];\n}",
         "members": {
           "attributes": [
             {
@@ -259,6 +247,12 @@
             {
               "name": "preAuthNavTree",
               "jsdoc": "登录前本地导航树 — 未认证时使用的静态导航数据。\n当用户未登录时，`registerRoutes()` 使用此本地导航树注册路由（如 / 和 /login）。\n登录后 `refreshRoutes()` 会用远程导航树替换。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loadScenario",
+              "jsdoc": "场景 DataSet 装载器，由 DynamicRouter 注入每次调用的 PageRuntime。\n后端定义为正式真源，场景 pagedata.json 只补充视图和级联。",
               "readable": true,
               "writable": false
             }
@@ -321,29 +315,6 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
-              }
-            },
-            {
-              "name": "loadRuntimeDataSet",
-              "jsdoc": "运行态 DataSet 装载器（有 PageDataSpaceBinding 时由 DynamicRouter 注入 SparkPageRenderer）。\n有绑定则不得再把 pagedata.json 当运行数据真源。",
-              "parameters": [
-                {
-                  "name": "binding",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageDataSpaceBinding"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "DataSet"
-                  }
-                ]
               }
             }
           ]

@@ -4,7 +4,7 @@
  * 边界：只覆盖当前组件目录 support 的局部能力，不定义全局页面模型，也不越级操作业务数据源。
  * AI用途：需要判断 before render 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。
  */
-import type { DataPermissionSnapshot, DataRow, DataView } from '@spark-appworks/spark-data'
+import type { DataRow, DataView } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import type { SparkNodeChildren, SparkNode } from '@spark-appworks/spark-data'
 
@@ -28,8 +28,6 @@ export type BeforeRenderContext = {
   index?: number | undefined
   /** 当前节点可访问的 DataView 数据源。 */
   dataSource?: DataView | null | undefined
-  /** 当前节点所在模型的后端最终权限快照。 */
-  permissionSnapshot?: DataPermissionSnapshot | null | undefined
   /** 当前渲染宿主信息。 */
   host?: {
     /** 宿主组件类型；缺失时为空。 */

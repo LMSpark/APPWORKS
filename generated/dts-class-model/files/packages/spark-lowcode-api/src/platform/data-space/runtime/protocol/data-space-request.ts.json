@@ -1,0 +1,393 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-request",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/protocol/data-space-request",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-request\n职责：执行原始 SPARK 查询与同场景批量保存。\n边界：请求前后检查 scope 与代次，保存依据实际动作回执确认。\nAI用途：使用原封包和上下文组装统一 CRUD 请求。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceRequest"
+    ]
+  },
+  "$defs": {
+    "DataSpaceRequestOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    },
+    "DataSpaceRequestQueryCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestQueryCommand",
+      "properties": {
+        "table": {
+          "$ref": "data-space-query-table.ts.json#/$defs/DataSpaceQueryTable"
+        },
+        "options": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRequestSaveChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestSaveChange",
+      "properties": {
+        "identity": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        },
+        "context": {
+          "$ref": "../query/data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+        },
+        "changes": true
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRequestSaveCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestSaveCommand",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceRequestSaveChange"
+          }
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRequestSaveResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "DataSpaceRequestSaveResult",
+      "items": {
+        "type": "object",
+        "title": "ReturnType<DataSpaceQueryContext['acceptSaveReceipt']>"
+      }
+    },
+    "DataSpaceRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequest",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataSpaceRequestOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.invalidate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidate.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true,
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/DataSpaceRequestQueryCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/DataSpaceRequestSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceRequestSaveResult>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.612Z",
+  "models": {
+    "DataSpaceRequestOptions": {
+      "name": "DataSpaceRequestOptions",
+      "jsdoc": "实际 HTTP 通道及请求 scope 读取器，供请求前后核对执行域。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestQueryCommand": {
+      "name": "DataSpaceRequestQueryCommand",
+      "jsdoc": "模型查询表、执行选项与可选取消信号的请求命令。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    signal?: AbortSignal;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    signal?: AbortSignal;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "table",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestSaveChange": {
+      "name": "DataSpaceRequestSaveChange",
+      "jsdoc": "单模型候选变更及其原查询上下文；身份必须与上下文一致。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    context: DataSpaceQueryContext;\n    changes: Parameters<DataSpaceQueryContext['buildSaveRequest']>[0];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    context: DataSpaceQueryContext;\n    changes: Parameters<DataSpaceQueryContext['buildSaveRequest']>[0];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestSaveCommand": {
+      "name": "DataSpaceRequestSaveCommand",
+      "jsdoc": "同场景且模型不重复的批量保存目标；无实际变更不能提交。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    changes: readonly DataSpaceRequestSaveChange[];\n    signal?: AbortSignal;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    changes: readonly DataSpaceRequestSaveChange[];\n    signal?: AbortSignal;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestSaveResult": {
+      "name": "DataSpaceRequestSaveResult",
+      "jsdoc": "逐模型实际动作回执及新基线，不以 HTTP 成功代替保存确认。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Array<ReturnType<DataSpaceQueryContext['acceptSaveReceipt']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Array<ReturnType<DataSpaceQueryContext['acceptSaveReceipt']>>",
+            "targetName": "Array"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceRequest": {
+      "name": "DataSpaceRequest",
+      "jsdoc": "拥有请求执行与失效代次；保留完整 SPARK 封包供原查询结果/权限算法消费。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "持有 HTTP 与 scope 读取器；失效代次由此请求对象管理。",
+          "signatureText": "constructor(options: DataSpaceRequestOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "invalidate",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRequestQueryCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "同场景多模型只发送一次；核对实际动作行，尚不确认本地 dirty 状态。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRequestSaveCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceRequestSaveResult",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

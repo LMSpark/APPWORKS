@@ -5,7 +5,7 @@
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/dts-surface-types 这一段如何生成、加载或投影时，用本模块定位职责。
  */
 import type { DtsTypeDeclarationModel } from './types'
-import type { ClassModelEmitSource } from './class-model-emit-path'
+import type { ClassModelEmitSource } from './bundle/class-model-emit-path'
 
 export const DTS_CLASS_MODEL_SURFACE_VERSION = 1 as const
 

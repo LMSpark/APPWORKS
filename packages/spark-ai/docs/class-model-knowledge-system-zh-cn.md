@@ -38,12 +38,12 @@ ClassModel 的目标不是保存一份“声明文件副本”，而是把原生
 
 | 职责 | 文件 |
 |------|------|
-| 投影协议类型 | `src/class-model/class-model/dts-bundle-types.ts` |
+| 投影协议类型 | `src/class-model/class-model/bundle/dts-bundle-types.ts` |
 | 类型模型 | `src/class-model/class-model/types.ts` |
-| 编译投影与 bundle 构建 | `src/class-model/class-model/build-dts-class-model-bundle.ts` |
-| 源声明投影 | `src/class-model/class-model/project-from-declarations.ts` |
-| JSON 读取与兼容 | `src/class-model/class-model/read-dts-class-model-bundle-json.ts` |
-| 按需加载与索引查询 | `src/class-model/class-model/dts-class-model-bundle-loader.ts` |
+| 编译投影与 bundle 构建 | `src/class-model/class-model/bundle/build-dts-class-model-bundle.ts` |
+| 源声明投影 | `src/class-model/class-model/declaration/project-from-declarations.ts` |
+| JSON 读取与兼容 | `src/class-model/class-model/bundle/read-dts-class-model-bundle-json.ts` |
+| 按需加载与索引查询 | `src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts` |
 | 知识查询与 guide 渲染 | `src/class-model/knowledge/class-model-knowledge-service.ts` |
 | bundle knowledge provider | `src/class-model/knowledge/dts-bundle-class-model-knowledge-service.ts` |
 | tool schema | `src/class-model/tools/class-model-tool-specs.ts` |
@@ -397,7 +397,7 @@ pnpm --filter @spark-appworks/spark-ai run typecheck
 | 现象 | 检查 |
 |------|------|
 | `model_query({ componentLevel })` 返回空 | manifest 是否有 `componentIndex.byLevel`，组件是否被分类到对应 level |
-| `row-level` 查不到 | 当前行级依据 `containers/support/RendererFieldScope.vue` 等明确组件路径分类 |
+| `row-level` 查不到 | 当前行级依据 `containers/support/scope/RendererFieldScope.vue` 等明确组件路径分类 |
 | component type 异常 | 检查 `SPECIAL_COMPONENT_TYPES` 和 `inferComponentType()` 的优先级 |
 | query 参数被拒绝 | 检查 `class-model-tool-specs.ts` 与 `ClassModelRuntime.rejectUnknownArgs()` 是否同步 |
 | guide 缺参数 schema | 检查 `paramsSchema` 是否在投影阶段写入，schema assert 是否失败 |

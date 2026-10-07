@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/bundle/build-dts-class-model-bundle",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/build-dts-class-model-bundle.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/bundle/build-dts-class-model-bundle.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/bundle/build-dts-class-model-bundle",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/bundle/build-dts-class-model-bundle\n职责：把内存 emit 的 DTS 文件投影成 DtsTypeDeclarationModel JSON bundle，生成 manifest、per-file shard 和 semantic-gaps 日志。\n边界：只负责编译期索引生成和语义缺口报告，不在运行时解析业务数据，也不替代源文件 JSDoc。\nAI用途：需要重建知识索引、定位 JSDoc 断链或验证模块/成员语义闭环时，用本模块作为编译入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "BuildDtsClassModelBundleProgressPhase",
+      "BuildDtsClassModelBundleProgress",
+      "BuildDtsClassModelBundleOptions",
+      "BuildDtsClassModelBundleResult"
+    ]
+  },
+  "$defs": {
+    "BuildDtsClassModelBundleProgressPhase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "BuildDtsClassModelBundleProgressPhase",
+      "enum": [
+        "read-files",
+        "project-file",
+        "write-semantic-gaps",
+        "write-manifest",
+        "done"
+      ]
+    },
+    "BuildDtsClassModelBundleProgress": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuildDtsClassModelBundleProgress",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/BuildDtsClassModelBundleProgressPhase"
+        },
+        "current": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number"
+        },
+        "sourcePath": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BuildDtsClassModelBundleOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuildDtsClassModelBundleOptions",
+      "properties": {
+        "repoRoot": {
+          "type": "string"
+        },
+        "rootFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputDir": {
+          "type": "string"
+        },
+        "compilerHost": {
+          "type": "object",
+          "title": "ts.CompilerHost"
+        },
+        "exportedOnly": {
+          "type": "boolean"
+        },
+        "progressInterval": {
+          "type": "number"
+        },
+        "projectOnlySourcePaths": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        },
+        "knownProjectedClassNamesBySourcePath": {
+          "type": "object",
+          "title": "ReadonlyMap<string, ReadonlySet<string>>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onProgress.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/BuildDtsClassModelBundleProgress"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onProgress.return": true
+      }
+    },
+    "BuildDtsClassModelBundleResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuildDtsClassModelBundleResult",
+      "properties": {
+        "manifest": {
+          "$ref": "dts-bundle-types.ts.json#/$defs/DtsClassModelBundleManifest"
+        },
+        "manifestPath": {
+          "type": "string"
+        },
+        "semanticLogJsonPath": {
+          "type": "string"
+        },
+        "semanticGapCount": {
+          "type": "number"
+        },
+        "fileCount": {
+          "type": "number"
+        },
+        "modelCount": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.692Z",
+  "models": {
+    "BuildDtsClassModelBundleProgressPhase": {
+      "name": "BuildDtsClassModelBundleProgressPhase",
+      "jsdoc": "Build Dts Class Model Bundle Progress Phase 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'read-files' | 'project-file' | 'write-semantic-gaps' | 'write-manifest' | 'done'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'read-files'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'project-file'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'write-semantic-gaps'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'write-manifest'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'done'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "BuildDtsClassModelBundleProgress": {
+      "name": "BuildDtsClassModelBundleProgress",
+      "jsdoc": "Build Dts Class Model Bundle Progress 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前 bundle 构建阶段。 */\n    phase: BuildDtsClassModelBundleProgressPhase;\n    /** 当前已处理文件序号（1-based）。 */\n    current?: number;\n    /** 待处理文件总数。 */\n    total?: number;\n    /** 当前正在投影的 emit 源路径。 */\n    sourcePath?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前 bundle 构建阶段。 */\n    phase: BuildDtsClassModelBundleProgressPhase;\n    /** 当前已处理文件序号（1-based）。 */\n    current?: number;\n    /** 待处理文件总数。 */\n    total?: number;\n    /** 当前正在投影的 emit 源路径。 */\n    sourcePath?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "phase",
+              "jsdoc": "当前 bundle 构建阶段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "jsdoc": "当前已处理文件序号（1-based）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "jsdoc": "待处理文件总数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourcePath",
+              "jsdoc": "当前正在投影的 emit 源路径。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BuildDtsClassModelBundleOptions": {
+      "name": "BuildDtsClassModelBundleOptions",
+      "jsdoc": "Build Dts Class Model Bundle Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 仓库根目录，用于规范化相对路径。 */\n    repoRoot: string;\n    /** 参与 bundle 闭包的 root .d.ts 绝对路径列表。 */\n    rootFiles: readonly string[];\n    /** bundle 输出目录（manifest、shard、semantic-gaps）。 */\n    outputDir: string;\n    /** 可选 TypeScript CompilerHost，供测试或自定义读文件。 */\n    compilerHost?: ts.CompilerHost;\n    /** true 时只投影 export 可见 symbol。 */\n    exportedOnly?: boolean;\n    /** 进度回调，按 phase 与文件序号推送事件。 */\n    onProgress?: (event: BuildDtsClassModelBundleProgress) => void;\n    /** 文件投影进度报告间隔（按文件数取模）；默认 50。 */\n    progressInterval?: number;\n    /** 仅投影并落盘这些 emit 源路径；rootFiles 仍可包含依赖闭包供 import 正则寻址。 */\n    projectOnlySourcePaths?: ReadonlySet<string>;\n    /** 未重投影 shard 的 className 索引，供 $ref 解析跨文件类型引用。 */\n    knownProjectedClassNamesBySourcePath?: ReadonlyMap<string, ReadonlySet<string>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 仓库根目录，用于规范化相对路径。 */\n    repoRoot: string;\n    /** 参与 bundle 闭包的 root .d.ts 绝对路径列表。 */\n    rootFiles: readonly string[];\n    /** bundle 输出目录（manifest、shard、semantic-gaps）。 */\n    outputDir: string;\n    /** 可选 TypeScript CompilerHost，供测试或自定义读文件。 */\n    compilerHost?: ts.CompilerHost;\n    /** true 时只投影 export 可见 symbol。 */\n    exportedOnly?: boolean;\n    /** 进度回调，按 phase 与文件序号推送事件。 */\n    onProgress?: (event: BuildDtsClassModelBundleProgress) => void;\n    /** 文件投影进度报告间隔（按文件数取模）；默认 50。 */\n    progressInterval?: number;\n    /** 仅投影并落盘这些 emit 源路径；rootFiles 仍可包含依赖闭包供 import 正则寻址。 */\n    projectOnlySourcePaths?: ReadonlySet<string>;\n    /** 未重投影 shard 的 className 索引，供 $ref 解析跨文件类型引用。 */\n    knownProjectedClassNamesBySourcePath?: ReadonlyMap<string, ReadonlySet<string>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "repoRoot",
+              "jsdoc": "仓库根目录，用于规范化相对路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootFiles",
+              "jsdoc": "参与 bundle 闭包的 root .d.ts 绝对路径列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputDir",
+              "jsdoc": "bundle 输出目录（manifest、shard、semantic-gaps）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "compilerHost",
+              "jsdoc": "可选 TypeScript CompilerHost，供测试或自定义读文件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "exportedOnly",
+              "jsdoc": "true 时只投影 export 可见 symbol。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "progressInterval",
+              "jsdoc": "文件投影进度报告间隔（按文件数取模）；默认 50。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectOnlySourcePaths",
+              "jsdoc": "仅投影并落盘这些 emit 源路径；rootFiles 仍可包含依赖闭包供 import 正则寻址。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knownProjectedClassNamesBySourcePath",
+              "jsdoc": "未重投影 shard 的 className 索引，供 $ref 解析跨文件类型引用。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onProgress",
+              "jsdoc": "进度回调，按 phase 与文件序号推送事件。",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "BuildDtsClassModelBundleProgress",
+                    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/build-dts-class-model-bundle.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BuildDtsClassModelBundleResult": {
+      "name": "BuildDtsClassModelBundleResult",
+      "jsdoc": "Build Dts Class Model Bundle Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 生成的 manifest 对象（未落盘前的内存快照）。 */\n    manifest: DtsClassModelBundleManifest;\n    /** manifest.json 的绝对输出路径。 */\n    manifestPath: string;\n    /** semantic-gaps.json 的绝对输出路径。 */\n    semanticLogJsonPath: string;\n    /** 检测到的 JSDoc 语义缺口总数。 */\n    semanticGapCount: number;\n    /** 实际写入的 shard 文件数。 */\n    fileCount: number;\n    /** 投影出的 DtsTypeDeclarationModel 总数。 */\n    modelCount: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 生成的 manifest 对象（未落盘前的内存快照）。 */\n    manifest: DtsClassModelBundleManifest;\n    /** manifest.json 的绝对输出路径。 */\n    manifestPath: string;\n    /** semantic-gaps.json 的绝对输出路径。 */\n    semanticLogJsonPath: string;\n    /** 检测到的 JSDoc 语义缺口总数。 */\n    semanticGapCount: number;\n    /** 实际写入的 shard 文件数。 */\n    fileCount: number;\n    /** 投影出的 DtsTypeDeclarationModel 总数。 */\n    modelCount: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "manifest",
+              "jsdoc": "生成的 manifest 对象（未落盘前的内存快照）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "manifestPath",
+              "jsdoc": "manifest.json 的绝对输出路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "semanticLogJsonPath",
+              "jsdoc": "semantic-gaps.json 的绝对输出路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "semanticGapCount",
+              "jsdoc": "检测到的 JSDoc 语义缺口总数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileCount",
+              "jsdoc": "实际写入的 shard 文件数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelCount",
+              "jsdoc": "投影出的 DtsTypeDeclarationModel 总数。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

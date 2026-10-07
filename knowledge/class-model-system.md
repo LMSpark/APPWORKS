@@ -36,6 +36,13 @@
 - **规则**：`generated/dts-class-model/` 由 `pnpm run generate:class-model-surface` 生成。修改模型后需要重新生成，否则运行时知识是旧的。运行时通过 Web Worker（Comlink）按需加载 shard，主线程不加载全量 manifest。
 - **违反后果**：AI 在运行时读到的是旧版字段/API，基于过期知识生成错误脚本
 
+### 增量重生成会顺带重写无关 shard
+
+- **场景**：用 `generate:class-model-surface -- --source <file>` 只重生成改动文件
+- **规则**：生成器按源文件 mtime 与 `.dts-manifest.json` 比较，任何 mtime 更新的文件都会被重投影；若 diff 只有 `generatedAt` 与 semantic-gaps 行号平移，属正常，保留即可，不手改生成物。导出函数不进入投影，删函数不必为清理知识而重生成（只有 class/interface/typeAlias/enum 进 shard）。
+- **违反后果**：把时间戳差异当成越界改动去手工回滚生成物，导致 manifest 与 shard 不一致
+- **发现来源**：2026-10-07 迭代 1/2（executableRef 白名单、清理孤儿函数）
+
 ### AI 编辑实例由真实 binding 提供
 
 - **场景**：新增一个 AI 可编辑的业务 class
@@ -43,9 +50,37 @@
 - **违反后果**：强行继承不存在的协议或添加假方法，会让生成知识偏离实际可调用对象。
 - **发现来源**：2026-10 对照 ClassModelRuntime、pageDesign binding 及正式领域 class，替换历史基类要求。
 
+### executableRef 只经宿主白名单解析
+
+- **场景**：workflow definition 声明 `runtimeBinding.executableRef`，或新增 AI 业务根 class
+- **规则**：`interpretAgentWorkflowDefinition` 以 `` `${moduleSpecifier}#${exportName}` `` 查 `AgentWorkflowRuntimeBindings.executableRegistry`，未注册即失败；新增业务根 class 必须同时在 `src/services/ai/agent-workflow-bindings.ts` 注册。禁止恢复 `import(moduleSpecifier)`：definition 来自后端可编辑文件；浏览器无法解析变量形式的裸包名，而 vitest 经 Vite alias 能解析，测试绿会掩盖浏览器失败。
+- **违反后果**：浏览器激活失败或按后端 JSON 加载任意模块
+- **发现来源**：2026-10-07 迭代 1；历史 `46f4cffdd` 研读已提出 allowlist 但未实现
+
 ### 首次模块说明须按真实生成器解析
 
 - **场景**：源文件已补模块说明，生成后仍报告inferred或weak module。
 - **规则**：当前hasModuleSemanticSections要求说明以@module开头，并包含精确“职责：”“边界：”“AI用途：”；TS放首次import之前，Vue由project-from-declarations读取文件顶部HTML注释。修改说明后必须以重新生成的gap报告验证，不以源文本搜索推断清零。
 - **违反后果**：把正文移到标签前、仅在Vue script内加JSDoc或遗漏精确标识，会让运行AI仍只获得推导路径语义。
 - **发现来源**：2026-10-07读取实际生成器后修复本轮47项新增门禁，最终对HEAD新增0。
+
+### AI Host 每次运行独立创建
+
+- **场景**：新增或修改 pageDesign / projectPlanning 等 AI 运行入口
+- **规则**：每次运行 `createAiAgentHost({ turnCallbacks: createAiAgentTurnCallbacks(), maxToolRounds: 16 })`，测试可注入 `host`。不要恢复全局共享 Host 或经 `AI_AGENT_HOST` 能力查找：`activateAgentWorkflowFromDefinition` 走 `host.ensure`，同 alias 只注册一次，首次 editor/projectId 闭包会在切换项目后失配。
+- **违反后果**：DevSystem 切换项目后 AI 运行报 `editor mismatch` 或改到旧工作区
+- **发现来源**：2026-10-07 迭代 9（删除 `appAiAgent`）
+
+### 组件分类只看 components/ 下前两段路径
+
+- **场景**：移动或分组 `packages/spark-component/src/components/**` 下的组件文件
+- **规则**：`classifySparkComponentPath` 只按 `<domain>/<group>` 前两段推导 componentDirectory/Level/Layer，更深的语义分组和组件专属目录不影响分类；但 `isRowScopeComponentPath` 精确匹配 `containers/support/scope/RendererFieldScope.vue` 与 `RendererHostScope.vue`，移动这两个文件必须同步该函数及 read-dts-class-model-bundle-json 测试夹具。
+- **违反后果**：行级作用域组件丢失 `row-level` 分类，AI 按层级查询查不到
+- **发现来源**：2026-10-07 迭代 11+ 组件目录拆分
+
+### 拆分视图/模块时导出类型会进入 ClassModel 投影
+
+- **场景**：把 `.vue` 内部类型抽到同目录 `.ts`（含 `src/views/**`），或新增导出 type/class
+- **规则**：`tsconfig.class-model-emit.json` 覆盖 `src/**` 全部 `.ts/.vue`；SFC 内未导出的类型不投影，一旦抽成导出类型即进 shard。`verify:class-model` 要求 module/model/constructor 级 gap 为 0（类型级 JSDoc + 模块头 `@module`/职责/边界/AI用途必备），attribute/method 级为报告债务，应同步补齐以免总数上涨。另：`new URL('<相对路径>', import.meta.url)` 不会被 mover 改写，文件换目录后必须手动校正。
+- **违反后果**：verify:class-model 失败，或 worker URL 指向不存在文件（typecheck 不报）
+- **发现来源**：2026-10-07 迭代 11w（WorkflowDesigns.vue 抽取 33 个类型时 gap +155）

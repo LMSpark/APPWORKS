@@ -148,7 +148,7 @@ export const prepareProjectPlanningAgentRun: AiAgentRunPrepare<AiAgentHost> = as
   })
   await editor.loadBlueprint()
 
-  // 每次 Agent Run 使用独立 AiAgentHost + 闭包 getter，避免 appAiAgent.ensure 幂等
+  // 每次 Agent Run 使用独立 AiAgentHost + 闭包 getter，避免共享 Host 的 ensure 幂等
   // 或模块级 registry 在 HMR / 并发同 scope 时丢失 editor。
   const runHost = createAiAgentHost({
     turnCallbacks: createAiAgentTurnCallbacks(),

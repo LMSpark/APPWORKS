@@ -53,34 +53,34 @@ export {
   resolveModuleApiOrUndefined,
 } from './class-model/model-projection'
 
-export { auditClassModelReflectionConnectivity } from './class-model/reflection-connectivity'
+export { auditClassModelReflectionConnectivity } from './class-model/declaration/reflection-connectivity'
 
-export { jsonSchemaToTypeText } from './class-model/json-schema-to-type'
+export { jsonSchemaToTypeText } from './class-model/schema/json-schema-to-type'
 
 export {
   dtsSourcePathToBundleRelativeJson,
   resolveDtsBundleRelativeUrl,
-} from './class-model/dts-bundle-url'
+} from './class-model/bundle/dts-bundle-url'
 
-export { DtsClassModelBundleLoader } from './class-model/dts-class-model-bundle-loader'
+export { DtsClassModelBundleLoader } from './class-model/bundle/dts-class-model-bundle-loader'
 export { createRuntimeApiMetadataFromSurface } from './class-model/dts-surface-to-runtime-api'
 
 export {
   DTS_CLASS_MODEL_BUNDLE_PROTOCOL,
   DTS_CLASS_MODEL_BUNDLE_VERSION,
   DTS_FILE_PROJECTION_VERSION,
-} from './class-model/dts-bundle-types'
+} from './class-model/bundle/dts-bundle-types'
 
 export { renderMethodSignature } from './class-model/signature-renderer'
 
 export type {
   ClassModelReflectionConnectivityIssue,
-} from './class-model/reflection-connectivity'
+} from './class-model/declaration/reflection-connectivity'
 
 export type {
   DtsClassModelBundleManifest,
   DtsFileProjectionDocument,
-} from './class-model/dts-bundle-types'
+} from './class-model/bundle/dts-bundle-types'
 
 export type {
   DtsClassModelSurfaceDocument,
@@ -93,7 +93,7 @@ export {
   renderMethodDeclaration,
   renderMethodGuide,
   renderModelGuide,
-} from './projection'
+} from './knowledge/projection'
 
 export type {
   AttributeGuide,
@@ -102,7 +102,7 @@ export type {
   MethodGuideRenderInput,
   ModelGuide,
   ModelGuideRenderInput,
-} from './projection'
+} from './knowledge/projection'
 
 export {
   ClassModelKnowledgeService,

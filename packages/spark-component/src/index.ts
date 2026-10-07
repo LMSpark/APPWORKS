@@ -11,10 +11,10 @@
  */
 
 // ── 1. System 层（命名空间 / 插件 / 注册表） ──
-export { Spark } from './system/index.js'
+export { Spark } from './core/system/index.js'
 export type {
   SparkSystem
-} from './system/index.js'
+} from './core/system/index.js'
 
 // ── 2. Core 层（基础 composable / 类型 / 能力键） ──
 export { useSparkComponent, useSparkConsume, useSparkPageComponent, useSparkContextScope, resolvePlaceholderProps } from './core/index.js'

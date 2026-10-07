@@ -114,7 +114,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
 import { lowcodeApi, lowcodeEnterpriseDisplayName } from '@/lowcode/lowcode-runtime'
-import { buildTenantPath } from '@/services/tenant-scope'
+import { buildTenantPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import TenantConfigPanel from './TenantConfigPanel.vue'
@@ -181,7 +181,7 @@ async function loadTenants(): Promise<void> {
         ?? lowcodeEnterpriseDisplayName(session.enterprise),
       tenantCode: enterprise?.domainKey ?? session.enterprise.shortName,
       status: enterprise?.checkState === 1 ? 'ACTIVE' : 'UNKNOWN',
-      defaultProjectId: 'homepage',
+      defaultProjectId: APPLICATION_CATALOG_PROJECT_ID,
       adminUserName: enterprise?.administratorAccount ?? session.identity.account,
       ...(enterprise?.createdAt === null || enterprise?.createdAt === undefined
         ? {}
@@ -309,7 +309,7 @@ async function deleteTenant(row: PlatformTenant): Promise<void> {
 }
 
 async function enterTenant(row: PlatformTenant): Promise<void> {
-  const projectId = row.defaultProjectId || 'homepage'
+  const projectId = row.defaultProjectId || APPLICATION_CATALOG_PROJECT_ID
   if (!projectSwitch) {
     ElMessage.error('租户管理页缺少项目切换服务')
     return

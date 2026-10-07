@@ -8,7 +8,7 @@
 import { createAiAgentStreamKey, createAiAgentTurnKey } from '../business/business-scope'
 import { CLASS_MODEL_TOOL_NAMES } from '../../class-model'
 import type { AiAgentScope } from '../business/scope-types'
-import type { AiAgentChatRequest, AiAgentStreamEvent, AiAgentTurnMeta } from '../chat/chat-types'
+import type { AiAgentChatRequest, AiAgentStreamEvent, AiAgentTurnMeta } from '../conversation/chat/chat-types'
 import { stringifyAiAgentPayload } from './payload-codec'
 
 /** Ai Agent Diagnostic Event Input 的输入数据。 */

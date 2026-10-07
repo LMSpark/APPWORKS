@@ -8,8 +8,8 @@
 import type { JsonObject, JsonParams, JsonValue } from '@spark-appworks/spark-json-document'
 import { coerceStrictJsonValue } from '@spark-appworks/spark-json-document'
 import { latestUserInput } from '../business/business-scope'
-import type { AiAgentChatRequest } from '../chat/chat-types'
-import type { AiAgentTransportMessage } from '../transport/transport-types'
+import type { AiAgentChatRequest } from '../conversation/chat/chat-types'
+import type { AiAgentTransportMessage } from '../conversation/transport/transport-types'
 
 /* -------------------------------------------------------------------------------
  * 一、工具参数解析

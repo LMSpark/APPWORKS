@@ -4,9 +4,9 @@ import { auditDraft2020Schema } from '@spark-appworks/spark-json-document'
 
 import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import type { AttributeMeta, DtsTypeDeclarationModel, ConstructorMeta, MethodMeta } from '../class-model/types'
-import type { DtsFileProjectionDocument } from '../class-model/dts-bundle-types'
-import { DTS_FILE_PROJECTION_VERSION } from '../class-model/dts-bundle-types'
-import { classModelToJsonSchema, shardToJsonSchemas } from '../class-model/class-model-to-json-schema'
+import type { DtsFileProjectionDocument } from '../class-model/bundle/dts-bundle-types'
+import { DTS_FILE_PROJECTION_VERSION } from '../class-model/bundle/dts-bundle-types'
+import { classModelToJsonSchema, shardToJsonSchemas } from '../class-model/schema/class-model-to-json-schema'
 
 function makeAttribute(overrides: Partial<AttributeMeta> & Pick<AttributeMeta, 'name'>): AttributeMeta {
   return {

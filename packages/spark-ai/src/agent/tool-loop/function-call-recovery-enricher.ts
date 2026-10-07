@@ -14,7 +14,7 @@ import type {
   AiAgentFunctionCallCheck,
   AiAgentFunctionCallFailure,
   AiAgentFunctionCallResult,
-} from '../session/session-types'
+} from '../conversation/session/session-types'
 
 const CLASS_MODEL_TOOL_NAME_SET = new Set<string>(Object.values(CLASS_MODEL_TOOL_NAMES))
 

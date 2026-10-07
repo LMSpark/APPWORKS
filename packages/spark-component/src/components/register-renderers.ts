@@ -23,7 +23,7 @@
  * 内置组件全部由 registerAllRenderers() 显式注册；应用层的
  * virtual:spark-components 只负责业务扩展组件。
  */
-import { Spark } from '../system/spark.js'
+import { Spark } from '../core/system/spark.js'
 
 // ── 数据容器 ──
 import {

@@ -7,7 +7,7 @@
 
 import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { EnrichFunctionCallFailureCommand } from '../tool-loop/function-call-recovery-enricher'
-import type { AiAgentSessionStore } from '../session/session-types'
+import type { AiAgentSessionStore } from '../conversation/session/session-types'
 import type { AiAgentToolRuntime } from '../tool-runtime'
 import type { AiAgentInputContract } from './business-task'
 import type {

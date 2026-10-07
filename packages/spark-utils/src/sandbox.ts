@@ -9,6 +9,7 @@
  *
  * 供 `spark-data`（计算列表达式）和 `spark-component`（页面脚本）两个沙箱统一使用。
  * 纯 TypeScript，零框架依赖。
+ * 同一 JS realm 内不是安全边界（函数 constructor 链仍可逃逸），只用于阻止脚本直接误用宿主全局。
  */
 
 /** 拦截原型链访问的危险属性，防止 `with()` 沙箱逃逸 */
@@ -20,6 +21,8 @@ export const SANDBOX_BLOCKED_KEYS = new Set<string | symbol>([
   'setTimeout', 'setInterval', 'setImmediate',
   'fetch', 'XMLHttpRequest', 'WebSocket', 'importScripts',
   'Proxy', 'Reflect',
+  'localStorage', 'sessionStorage', 'indexedDB', 'caches', 'cookieStore', 'navigator',
+  'EventSource', 'BroadcastChannel', 'Worker', 'SharedWorker', 'open', 'opener', 'postMessage',
   'import', 'Symbol',
 ])
 

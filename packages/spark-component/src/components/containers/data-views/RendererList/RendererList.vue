@@ -123,9 +123,9 @@ import type { RendererListApi } from './types'
 import { useContainerToolbar, useContainerModuleContext } from '../../runtime/container-ui'
 import { useContainerDataSource } from '../view-data-source'
 import { useContainerGrid } from '../../runtime/container-layout'
-import { createRowScope, createToolbarScope } from '../../support/scopeFactories'
+import { createRowScope, createToolbarScope } from '../../support/scope/scopeFactories'
 import { createRendererListZeroCode } from './zero-code'
-import RendererHostScope from '../../support/RendererHostScope.vue'
+import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
 
 const props = withDefaults(defineProps<RListProps>(), {

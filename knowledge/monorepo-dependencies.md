@@ -93,6 +93,13 @@
 - **违反后果**：typecheck 或 lint 失败；用 `as` 断言虽能消 `no-unsafe-assignment` 但会触发 `verify:ai-codegen` 的 type assertion 禁令
 - **发现来源**：2026-06 修复 verify:ai-codegen 违规时
 
+### 保留 Promise 签名但已无 await 的函数
+
+- **场景**：公共 API 需保持返回 `Promise`，但实现改为同步（如去掉 `await import()`）
+- **规则**：根 eslint 对非测试文件开启 `@typescript-eslint/require-await: error`，`async` 函数内无 await 会失败。改为普通函数 `return Promise.resolve().then(() => syncImpl(...))`：签名不变，同步抛错仍转为 reject。不用 eslint-disable。
+- **违反后果**：lint 失败；若改成直接 `return Promise.resolve(syncImpl())`，同步异常会变成同步 throw，破坏 `rejects` 语义
+- **发现来源**：2026-10-07 迭代 1（`interpretAgentWorkflowDefinition`）
+
 ### 工作目录清理时的进程句柄锁定
 
 - **场景**：深度清理项目工作目录中被 `.gitignore` 忽略的本地产物（`.vs/`、`*.log`、`.eslintcache`、`dist/`、`target/`、`node_modules/` 等）
@@ -113,3 +120,24 @@
 - **规则**：端点台账由 `tools/lowcode-contracts/generate-ledgers.mjs` 扫描 `LOWCODE_JDK17_ROOT`（默认 `E:\lowcode-jdk17`）下的 `*Controller.java` 生成，`--check` 只读比对。后端源码一变台账就过期，与 AppWorks 代码无关。用 `pnpm run generate:lowcode-contracts` 重新生成后，先对比新增和删除的接口（尤其是前端正在调用的路径），再提交。该目录永久只读，只读取不修改。
 - **违反后果**：误以为是自己的改动引起而到处排查；或盲目重新生成，漏看前端依赖的接口已被后端删除（2026-10-05 `GET /api/LoginAuthority/GetUserInfo` 即如此）。
 - **发现来源**：2026-10-05 `verify:rules` 在干净 HEAD 上同样失败时
+
+### pnpm run 会按 package.json 自动重装依赖
+
+- **场景**：临时改动 / 回滚根或子包 `package.json`（如反向验证门禁）后再执行 `pnpm run ...`
+- **规则**：pnpm 11 在 `pnpm run` 前会校验依赖并按 package.json 自动重装，同时改写 `pnpm-lock.yaml` 与 `node_modules` 链接；判断"是否变更"依赖文件 mtime。用 `Copy-Item` 恢复备份会保留旧 mtime，导致 `pnpm install` 误报 "Already up to date"。恢复后先更新 package.json 的 LastWriteTime 再 `pnpm install --offline`，并核对 lockfile diff 与 `node_modules/@spark-appworks/*`。
+- **违反后果**：lockfile 静默回退、workspace 链接缺失，后续构建/类型检查出现难以解释的失败
+- **发现来源**：2026-10-07 迭代 8 反向验证 `verify:deps` 时
+
+### 带 shebang 的 .mjs 工具必须用 LF 换行
+
+- **场景**：新建 `tools/*.mjs`（首行 `#!/usr/bin/env node`）并在 vitest 中 import
+- **规则**：CRLF 换行的 shebang `.mjs` 用 `node` 直接运行正常，但被 vitest import 时报 `SyntaxError: Invalid or unexpected token`（无行号）。保存为 LF、无 BOM。TS 测试导入 `.mjs` 需按先例加 `// @ts-ignore TS7016 -- Node .mjs verifier`。
+- **违反后果**：测试套件加载失败且错误不带位置，排查成本高
+- **发现来源**：2026-10-07 迭代 11a（verify-directory-limits）
+
+### 源码移动检查清单
+
+- **场景**：按目录规模门禁拆分子目录、批量移动源文件
+- **规则**：用 `node scripts/move-source-files.mjs --plan <json> [--dry-run]` 移动并改写相对/`@/` import；之后依次处理：①按路径登记的白名单（如 `tools/verify-ai-codegen-rules.mjs` 的 `<file>:<specifier>`）；②文件头 `@module` 标注（路径推导，无门禁会报错）；③md 相对链接；④全量 `generate:class-model-surface`（分片按源路径，旧分片随全量生成清理）；⑤`pnpm run build` 后 `generate:lowcode-contracts`（consumer ledger 扫描 `packages/*/dist`）；⑥`verify-directory-limits --update` 收紧基线。mover 不处理 `import.meta.glob` 与非代码字符串路径。
+- **违反后果**：verify:ai-codegen 报平铺公共面、verify:lowcode-contracts 报 ledger stale、AI 读到过期模块路径
+- **发现来源**：2026-10-07 迭代 11+ 四批目录拆分

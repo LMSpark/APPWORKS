@@ -55,7 +55,7 @@
           "type": "object",
           "properties": {
             "record": {
-              "$ref": "../../../packages/spark-ai/src/agent/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
+              "$ref": "../../../packages/spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
             }
           },
           "additionalProperties": false
@@ -92,16 +92,6 @@
         "editor": {
           "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
         },
-        "consumeCapability": {
-          "anyOf": [
-            {
-              "$ref": "../../../packages/spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "events": {
           "$ref": "#/$defs/PageDesignAiRunEvents"
         },
@@ -136,8 +126,7 @@
       "required": [
         "description",
         "pageId",
-        "editor",
-        "consumeCapability"
+        "editor"
       ],
       "additionalProperties": false
     },
@@ -187,7 +176,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:17:55.347Z",
+  "generatedAt": "2026-10-07T01:13:38.175Z",
   "models": {
     "PageDesignAiRunOptions": {
       "name": "PageDesignAiRunOptions",
@@ -269,7 +258,7 @@
       "jsdoc": "Page Design Ai Run Command 的命令参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "PageDesignAiRunOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** consume Capability 字段。 */\n    consumeCapability: SparkCapabilityConsumer | null;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}",
+        "declarationTypeText": "PageDesignAiRunOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -278,7 +267,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** consume Capability 字段。 */\n    consumeCapability: SparkCapabilityConsumer | null;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}"
+            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}"
           }
         ],
         "members": {
@@ -292,12 +281,6 @@
             {
               "name": "editor",
               "jsdoc": "editor 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "consumeCapability",
-              "jsdoc": "consume Capability 字段。",
               "readable": true,
               "writable": true
             },

@@ -2,7 +2,6 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h, KeepAlive, onMounted, ref } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { PageContentLoader } from '@spark-appworks/spark-project-model'
 import { createDynamicRouter } from '../../../packages/spark-app/src/router/dynamic'
 import { setDynamicRouter } from '../../../packages/spark-app/src/navigation/nav-access'
 import { useTabPages } from '../../../packages/spark-app/src/navigation/useTabPages'
@@ -19,7 +18,7 @@ describe('page call tabs and retained renderer instances', () => {
       { path: '/native', component: { render: () => h('p', 'native') }, meta: { title: 'Native', type: 'system-page' } },
     ] })
     const owner = createDynamicRouter({ router, pageComponent: Page,
-      pageContentLoader: new PageContentLoader({ projectId: 'APP', readPageFile: async () => '' }),
+      readPageFile: async () => '',
       loadNavigation: async () => ({ title: 'App', childPlacement: 'header', items: [
         { id: 'tool-node', title: 'Tool', itemKind: 'page', path: '/__page/tool-node', tool: { pageId: 'tool', projectId: 'APP' } },
       ] }),

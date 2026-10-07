@@ -24,11 +24,11 @@ export type {
 export { SparkApp } from './namespace'
 
 // Start（高级 API - 推荐）
-export { start } from './start'
-export type { StartOptions, SparkOptions, PageNodeOptions } from './start'
+export { start } from './app/start'
+export type { StartOptions, SparkOptions, PageNodeOptions } from './app/start'
 
 // Bootstrap（中级 API）
-export { bootstrap } from './bootstrap'
+export { bootstrap } from './app/bootstrap'
 export type { BootstrapAuthenticate, BootstrapOptions } from './types'
 
 // 插件管理系统
@@ -40,13 +40,13 @@ export {
   getGlobalPluginRegistry,
   registerBuiltinPlugins,
   registerAllPresetPlugins
-} from './plugins'
+} from './shell/plugins'
 
 export type {
   PluginConfigItem,
   PluginLoader,
   PluginInstance
-} from './plugins'
+} from './shell/plugins'
 
 // Logger
 export {
@@ -67,8 +67,8 @@ export type {
 } from './logger'
 
 // 主题服务
-export { createThemeService, useTheme, THEME_INJECTION_KEY } from './theme'
-export type { ThemeServiceOptions, ThemeServiceReactive } from './theme'
+export { createThemeService, useTheme, THEME_INJECTION_KEY } from './shell/theme'
+export type { ThemeServiceOptions, ThemeServiceReactive } from './shell/theme'
 
 // 类型导出
 export type {
@@ -86,7 +86,7 @@ export type {
 // AppContext (内部使用)
 export {
   createAppContext  // SparkApp 命名空间需要
-} from './app-context'
+} from './app/app-context'
 
 // Router Guards
 export { setupRouterGuards, setupLoadingGuard } from './router/guards'
@@ -96,10 +96,10 @@ export { DynamicRouter, createDynamicRouter } from './router/dynamic'
 export type { DynamicRouterOptions } from './router/dynamic'
 
 // Error Handler
-export { setupErrorHandler, createErrorBoundary } from './error-handler'
+export { setupErrorHandler, createErrorBoundary } from './app/error-handler'
 
 // Config
-export { isFeatureEnabled } from './config'
+export { isFeatureEnabled } from './app/config'
 
 // Page UI Service
 export {
@@ -111,11 +111,11 @@ export {
   confirmAppSelector,
   cancelAppSelector,
   closeAppSelector,
-} from './page-ui/pageUiService'
+} from './shell/page-ui/pageUiService'
 
 // 运行时组件注册辅助（可选，经典模式使用）
-export { setupAutoRegister } from './auto-register'
-export type { AutoRegisterOptions } from './auto-register'
+export { setupAutoRegister } from './app/auto-register'
+export type { AutoRegisterOptions } from './app/auto-register'
 
 // Composables
 // ⚠️ DI 架构已统一到 SPARK 能力系统（管道 B）
@@ -175,15 +175,9 @@ export {
   getNavTree,
   getNavHomePath,
 } from './navigation/nav-access'
-export {
-  setPageCacheHandle,
-  getPageCacheHandle,
-  clearAllPageCache,
-  getPageCacheStats,
-} from './navigation/page-cache-access'
 
 // ── Page UI Host Component ──
-export { default as AppPageUiHost } from './page-ui/AppPageUiHost.vue'
+export { default as AppPageUiHost } from './shell/page-ui/AppPageUiHost.vue'
 
 // ── AI run adapter（headless） ──
 export {

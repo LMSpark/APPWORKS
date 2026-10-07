@@ -105,7 +105,7 @@
           "$ref": "#/$defs/AgentWorkflowBindings"
         },
         "host": {
-          "$ref": "../business/ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
         }
       },
       "additionalProperties": false
@@ -122,7 +122,7 @@
           "$ref": "#/$defs/AgentWorkflowBindings"
         },
         "host": {
-          "$ref": "../business/ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
         },
         "input": {
           "type": "object",
@@ -137,19 +137,19 @@
       "title": "AgentWorkflowDryRunResult",
       "properties": {
         "host": {
-          "$ref": "../business/ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
         },
         "activation": {
           "$ref": "#/$defs/AgentWorkflowActivation"
         },
         "dryRun": {
-          "$ref": "../business/ai-host.ts.json#/$defs/AiAgentHostDryRunResult"
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHostDryRunResult"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.493Z",
+  "generatedAt": "2026-10-07T02:17:10.226Z",
   "models": {
     "AgentWorkflowActivation": {
       "name": "AgentWorkflowActivation",

@@ -9,7 +9,7 @@ import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type {
   AiAgentHost,
   AiAgentHostDryRunResult,
-} from '../business/ai-host'
+} from '../business/host/ai-host'
 import type { AiAgentRegistration } from '../business/registration-types'
 import type { AgentWorkflowDefinition } from './agent-workflow-definition'
 import { assertAgentWorkflowDefinition } from './agent-workflow-validation'

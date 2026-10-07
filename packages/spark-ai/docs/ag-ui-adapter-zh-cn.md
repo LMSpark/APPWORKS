@@ -1,7 +1,7 @@
 # AG-UI adapter 与 headless run
 
 > 状态：有效（2026-06）。以当前仓库代码和本地安装的 `@ag-ui/core@0.0.57` 为准。  
-> 代码真源：`packages/spark-ai/src/agent/ag-ui/**`、`packages/spark-app/src/ai/ai-run-adapter.ts`、`packages/spark-app/src/ai/tool-approval-bridge.ts`。
+> 代码真源：`packages/spark-ai/src/agent/conversation/ag-ui/**`、`packages/spark-app/src/ai/ai-run-adapter.ts`、`packages/spark-app/src/ai/tool-approval-bridge.ts`。
 
 ## 一句话定位
 
@@ -101,9 +101,9 @@ import {
 
 | 文件 | 职责 |
 |------|------|
-| `packages/spark-ai/src/agent/ag-ui/ag-ui-types.ts` | 只定义 AG-UI core 类型别名与 SPARK 扩展事件名 |
-| `packages/spark-ai/src/agent/ag-ui/ag-ui-mapper.ts` | 纯 mapper：创建 run/text/reasoning/tool/custom 事件 |
-| `packages/spark-ai/src/agent/ag-ui/index.ts` | 子域出口 |
+| `packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-types.ts` | 只定义 AG-UI core 类型别名与 SPARK 扩展事件名 |
+| `packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-mapper.ts` | 纯 mapper：创建 run/text/reasoning/tool/custom 事件 |
+| `packages/spark-ai/src/agent/conversation/ag-ui/index.ts` | 子域出口 |
 | `packages/spark-ai/src/agent/index.ts` | agent 公共 barrel 出口 |
 
 ### 类型别名
@@ -539,8 +539,8 @@ pnpm --filter @spark-appworks/spark-app test:run src/tests/ai/ai-run-adapter.tes
 
 | 路径 | 职责 |
 |------|------|
-| `packages/spark-ai/src/agent/ag-ui/ag-ui-types.ts` | AG-UI 类型别名 |
-| `packages/spark-ai/src/agent/ag-ui/ag-ui-mapper.ts` | 纯事件 mapper |
+| `packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-types.ts` | AG-UI 类型别名 |
+| `packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-mapper.ts` | 纯事件 mapper |
 | `packages/spark-ai/src/tests/ag-ui-mapper.test.ts` | mapper 行为测试 |
 | `packages/spark-ai/src/tests/host-public-surface.test.ts` | agent barrel 出口测试 |
 | `packages/spark-app/src/ai/ai-run-adapter.ts` | headless run adapter |

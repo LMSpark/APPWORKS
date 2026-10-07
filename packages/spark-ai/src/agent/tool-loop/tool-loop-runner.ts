@@ -12,15 +12,15 @@ import type { AiAgentLifecycleDirective } from '../business/lifecycle-types'
 import type { AiAgentRegistration } from '../business/registration-types'
 import type { AiAgentScope, AiAgentRuntimeContext } from '../business/scope-types'
 import type { AiAgentToolLoopNudgeReason } from '../business/registration-types'
-import type { AiAgentChatRequest, AiAgentTurnMeta } from '../chat/chat-types'
-import type { AiAgentHistoryEntry, AiAgentSessionStore } from '../session/session-types'
+import type { AiAgentChatRequest, AiAgentTurnMeta } from '../conversation/chat/chat-types'
+import type { AiAgentHistoryEntry, AiAgentSessionStore } from '../conversation/session/session-types'
 import type { AiAgentToolSpec } from '../tool-runtime'
 import type {
   AiAgentTurnCallbacks,
   AiAgentTransportMessage,
   AiAgentTransportToolCall,
   AiAgentTransportToolSpec,
-} from '../transport/transport-types'
+} from '../conversation/transport/transport-types'
 import { emitAiAgentDiagnosticEvent } from './diagnostic-events'
 import { toCurrentTurnMessages } from './payload-codec'
 import { AiAgentToolCallExecutor } from './tool-call-executor'

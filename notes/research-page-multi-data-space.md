@@ -38,7 +38,7 @@
 - `packages/spark-project-model/src/page/content/dataset-file.ts`：PageDataSetFile 持有一个 DataSet；编辑、撤销重做、保存依赖它的序列化。
 - `packages/spark-component/src/page/renderer/SparkPageRenderer.vue`：宿主回调仅收一个 binding；绑定页替换 data；PAGE_DATASET 注入一个 DataSet；crudTool 当前也绑定运行 ds，不能未经处理用于只读运行身份后的设计修改。
 - `packages/spark-component/src/page/renderer/usePageDataSet.ts`：只释放引用以保护 PageNode 拥有的数据；没有区分宿主新建运行实例的销毁责任。
-- `packages/spark-app/src/start.ts`、`router/dynamic.ts`、`src/main.ts`：传递单一 `(binding) => Promise<DataSet>` 回调。
+- `packages/spark-app/src/app/start.ts`、`router/dynamic.ts`、`src/main.ts`：传递单一 `(binding) => Promise<DataSet>` 回调。
 - `src/lowcode/data-space/lowcode-data-space-runtime.ts`：一次读取一个 dataSpaceId，组装一个 DataSet。
 - `packages/spark-data/src/core/data-view-key.ts:239`：有 `#scope@tableName@viewId` 解析，但 resolveDataViewKey 忽略 scope，直接调用传入 DataSet.getView；成员解析、诊断同样忽略 scope，`:474 getDataViewIdentity` 也只返回 table.view。全仓静态搜索未找到 descriptor.scope 的实际注册/选集消费者，不能认定已支持跨空间或跨页查找。
 

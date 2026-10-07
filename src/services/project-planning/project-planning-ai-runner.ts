@@ -18,8 +18,7 @@ import type {
   AiRunTraceSink,
 } from '@spark-appworks/spark-app'
 import type { AiAgentHost, AiAgentToolCallRecord } from '@spark-appworks/spark-ai/agent'
-import { AI_AGENT_HOST } from '@spark-appworks/spark-ai/agent'
-import type { SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
+import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
 import type { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import {
   buildProjectPlanningAgentInput,
@@ -29,6 +28,7 @@ import {
 } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { activateProjectPlanningAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
 import { createAiDeliveryFailureError } from '@/services/ai/ai-delivery-port'
+import { createAiAgentTurnCallbacks } from '@/services/ai/ai-turn-bridge'
 import { createProjectPlanningInlineDeliveryPort } from '@/services/project-planning/project-planning-agent-run-provider'
 
 /** Project Planning Ai Run Options 的调用配置。 */
@@ -47,9 +47,7 @@ export type ProjectPlanningAiRunEvents = Readonly<{
 export type ProjectPlanningAiRunCommand = ProjectPlanningAiRunOptions & Readonly<{
   /** 项目工作区编辑器实例。 */
   editor: ProjectWorkspace
-  /** Spark capability 消费者（用于查找 AI Agent Host）。 */
-  consumeCapability?: SparkCapabilityConsumer | null
-  /** 测试或编排层可直接注入 Host，跳过 capability 查找。 */
+  /** 测试或编排层可注入 Host；省略时每次运行新建独立 Host。 */
   host?: AiAgentHost
   /** 运行期事件回调集合。 */
   events?: ProjectPlanningAiRunEvents
@@ -86,12 +84,8 @@ export async function runProjectPlanningAiSession(
     throw new Error('projectPlanning AI requires a projectId on editor.project.')
   }
 
-  const aiAgentHost = command.host
-    ?? command.consumeCapability?.(AI_AGENT_HOST)
-    ?? null
-  if (aiAgentHost === null) {
-    throw new Error('AI Host 未注册，无法启动 projectPlanning。')
-  }
+  // 每次运行独立 Host：全局 Host 的 ensure 幂等会保留首次 editor 闭包，切换项目后失配。
+  const aiAgentHost = command.host ?? createAiAgentHost({ turnCallbacks: createAiAgentTurnCallbacks(), maxToolRounds: 16 })
 
   const input = buildProjectPlanningAgentInput(editor.project, command)
   const projectPlanningHost = await activateProjectPlanningAgentWorkflow({

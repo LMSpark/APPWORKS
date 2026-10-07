@@ -5,15 +5,15 @@
  * AI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。
  */
 
-import type { AiAgentStreamEvent } from '../chat/chat-types'
-import type { AiAgentAppSseEvent } from '../transport/app-sse-events'
+import type { AiAgentStreamEvent } from '../conversation/chat/chat-types'
+import type { AiAgentAppSseEvent } from '../conversation/transport/app-sse-events'
 import { isRecord } from '@spark-appworks/spark-utils'
 import type {
   AiAgentAppSseEventSource,
   AiAgentStreamTurnInput,
   AiAgentStreamTurnResult,
   AiAgentTransportToolCall,
-} from '../transport/transport-types'
+} from '../conversation/transport/transport-types'
 
 // ═══════════════════════════════════════════════════════════════
 // 第 1 节 · 常量与内部类型

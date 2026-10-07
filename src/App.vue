@@ -128,7 +128,6 @@ import { computed, onMounted, onUnmounted, provide, reactive, ref, watch, type C
 import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import { AI_AGENT_HOST } from '@spark-appworks/spark-ai/agent'
 import { PAGE_RUNTIME_SERVICES } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
@@ -160,22 +159,18 @@ import NavHeaderBar from '@/layout/NavHeaderBar.vue'
 import NavContextSelector from '@/layout/NavContextSelector.vue'
 import ThemeConfigurator from '@/layout/ThemeConfigurator.vue'
 import { onPageConfigChange, type FileChangeEvent } from '@/services/sse-events'
-import { appAiAgent } from '@/services/ai/ai-turn-bridge'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import type { ProjectSwitchService } from '@/services/project/project-shell'
 import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project/project-settings'
-import { buildTenantPath, buildTenantRootPath, parseTenantScope, stripTenantScope } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID, buildTenantPath, buildTenantRootPath, parseTenantScope, stripTenantScope } from '@/services/tenant-scope'
 import { getPublicPaths } from '@/registries/vue-page-registry'
 
 const {
   AppPageUiHost,
-  clearAllPageCache,
   appPageUiService,
   createNavigationActionRegistry,
-  getPageCacheHandle,
   getDynamicRouter,
   getNavTree,
-  getPageCacheStats,
   NAVIGATION_ACTION_REGISTRY_KEY,
   refreshRoutes,
   setColorSchemeStorageScope,
@@ -203,14 +198,14 @@ function isPlatformWorkspacePath(path: string): boolean {
 
 function resolveActiveProjectId(): string {
   if (isPlatformWorkspacePath(route.path)) return 'platform'
-  return parseTenantScope(route.path)?.projectId ?? readLowcodePrincipal()?.applicationId ?? 'homepage'
+  return parseTenantScope(route.path)?.projectId ?? readLowcodePrincipal()?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
 }
 
 const activeProjectId = ref(resolveActiveProjectId())
 const headerTitle = computed(() =>
   activeProjectId.value === 'platform'
     ? 'SPARK 平台管理'
-    : activeProjectId.value === 'homepage' ? 'SPARK 应用工场' : `SPARK · ${activeProjectId.value}`
+    : activeProjectId.value === APPLICATION_CATALOG_PROJECT_ID ? 'SPARK 应用工场' : `SPARK · ${activeProjectId.value}`
 )
 const theme = useTheme()
 const isDark = computed(() => theme?.isDark ?? false)
@@ -256,7 +251,7 @@ function resolveActiveSettingsScope(): string | null {
   const scoped = parseTenantScope(route.path)
   if (scoped !== null) return toTenantProjectSettingsScope(scoped.tenantId, scoped.projectId)
   const principal = readLowcodePrincipal()
-  return toTenantProjectSettingsScope(principal?.enterpriseName, principal?.applicationId ?? 'homepage')
+  return toTenantProjectSettingsScope(principal?.enterpriseName, principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID)
 }
 
 function resolveProjectSettingsScope(projectId: string): string | null {
@@ -319,7 +314,7 @@ const contextGuard = computed<AppContextGuardState | null>(() => {
 
   if (scoped === null) {
     if (publicPaths.has(currentPath)) return null
-    const projectId = principal?.applicationId ?? 'homepage'
+    const projectId = principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
     const expectedPath = principal?.enterpriseName
       ? buildTenantPath({ tenantId: principal.enterpriseName, projectId }, currentPath)
       : undefined
@@ -340,7 +335,7 @@ const contextGuard = computed<AppContextGuardState | null>(() => {
     }
   }
 
-  const applicationId = principal.applicationId ?? 'homepage'
+  const applicationId = principal.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
   if (scoped.tenantId !== principal.enterpriseName || scoped.projectId !== applicationId) {
     const restPath = stripTenantScope(currentPath)
     const expectedPath = restPath
@@ -375,7 +370,7 @@ function jumpToExpectedContext(): void {
 const projectSwitchService: ProjectSwitchService = {
   async switchAndReload(projectId: string) {
     getDynamicRouter()?.assertPageRuntimesClean()
-    if (projectId === 'homepage') enterLowcodeApplicationCatalog()
+    if (projectId === APPLICATION_CATALOG_PROJECT_ID) enterLowcodeApplicationCatalog()
     else await activateLowcodeApplication(projectId)
     getDynamicRouter()?.disposePageRuntimes()
     activeProjectId.value = projectId
@@ -415,18 +410,17 @@ navigationActionRegistry.register('settings', () => {
 navigationActionRegistry.register('home', () => {
   const principal = readLowcodePrincipal()
   if (principal && principal.applicationId !== null) {
-    void projectSwitchService.switchAndReload('homepage').then(() => {
-      void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: 'homepage' }, '/app-list'))
+    void projectSwitchService.switchAndReload(APPLICATION_CATALOG_PROJECT_ID).then(() => {
+      void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
     })
   } else if (principal) {
-    void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: 'homepage' }, '/app-list'))
+    void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
   } else {
     void router.push('/')
   }
 })
 navigationActionRegistry.register('logout', () => {
   resetAppProjectWorkspace()
-  clearAllPageCache()
   void lowcodeApi.platform.logout().finally(() => {
     window.location.replace(router.resolve('/').href)
   })
@@ -452,7 +446,6 @@ const nav = useNavigation(_navRoot, {
   actionRegistry: navigationActionRegistry,
 })
 const pageUiService = appPageUiService
-sparkProvide(AI_AGENT_HOST, appAiAgent)
 sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: pageUiService })
 const pageModuleContext = computed<ContextSnapshot | null>(() => {
   const state = nav.moduleContext.value
@@ -505,7 +498,6 @@ function emitModuleContextChange(
 }
 
 function handlePageConfigChange(event: FileChangeEvent): void {
-  getPageCacheHandle()?.clearPageCache(event.pageId)
   getDynamicRouter()?.markPageConfigPending(event.pageId)
   configurationRevision.value++
 }
@@ -589,9 +581,9 @@ onMounted(() => {
     syncAppNavProjectionFromRouter()
   }
 
-  // 暴露开发工具到 window.__sparkDev（清缓存页面使用）
+  // 暴露开发工具到 window.__sparkDev（刷新路由使用）
   Object.defineProperty(window, '__sparkDev', {
-    value: { reloadNavigation, clearAllPageCache, getPageCacheStats, refreshRoutes, router },
+    value: { reloadNavigation, refreshRoutes, router },
     configurable: true,
     writable: true,
   })

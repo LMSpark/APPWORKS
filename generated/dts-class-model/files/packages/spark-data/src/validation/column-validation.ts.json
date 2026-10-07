@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:validation/column-validation",
+    "sourcePath": "packages/spark-data/src/validation/column-validation.ts",
+    "sourceFile": "packages/spark-data/src/validation/column-validation.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "validation/column-validation",
+    "jsdoc": "@module @spark-appworks/spark-data:validation/column-validation\n职责：提供 spark-data 数据管线中的 column validation 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n列验证规则提取\n从 DataColumn 元数据提取框架无关的验证规则描述符。\nUI 框架层（如 Element Plus）负责将描述符转换为具体的表单验证规则。\n数据流：pagedata.json → DataColumn → extractColumnRules() → UI 层转换 → el-form-item :rules",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ValidationRuleType",
+      "ColumnValidationRule"
+    ]
+  },
+  "$defs": {
+    "ValidationRuleType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ValidationRuleType",
+      "enum": [
+        "required",
+        "type",
+        "minLength",
+        "maxLength",
+        "min",
+        "max",
+        "pattern"
+      ]
+    },
+    "ColumnValidationRule": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ColumnValidationRule",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "required",
+                "type"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "minLength",
+                "maxLength",
+                "min",
+                "max"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "message",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "pattern"
+            },
+            "message": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message",
+            "value"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.718Z",
+  "models": {
+    "ValidationRuleType": {
+      "name": "ValidationRuleType",
+      "jsdoc": "验证规则类型",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'required' | 'type' | 'minLength' | 'maxLength' | 'min' | 'max' | 'pattern'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'required'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'type'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'minLength'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'maxLength'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'min'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'max'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'pattern'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ColumnValidationRule": {
+      "name": "ColumnValidationRule",
+      "jsdoc": "框架无关的验证规则描述符",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    type: 'required' | 'type';\n    message: string;\n} | {\n    type: 'minLength' | 'maxLength' | 'min' | 'max';\n    message: string;\n    value: number;\n} | {\n    type: 'pattern';\n    message: string;\n    value: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "{\n    type: 'required' | 'type';\n    message: string;\n}"
+          },
+          {
+            "kind": "union",
+            "typeText": "{\n    type: 'minLength' | 'maxLength' | 'min' | 'max';\n    message: string;\n    value: number;\n}"
+          },
+          {
+            "kind": "union",
+            "typeText": "{\n    type: 'pattern';\n    message: string;\n    value: string;\n}"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

@@ -16,7 +16,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(root, './src'),
-      'virtual:spark-components': resolve(root, './tests/mocks/virtual-spark-components.ts'),
+      'virtual:spark-components': resolve(root, './tests/support/mocks/virtual-spark-components.ts'),
       // 所有包 → 源码解析（测试不应依赖构建产物）
       '@spark-appworks/spark-component/runtime': resolve(root, './packages/spark-component/src/runtime/index.ts'),
       '@spark-appworks/spark-component': resolve(root, './packages/spark-component/src/index.ts'),

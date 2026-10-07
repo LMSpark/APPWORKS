@@ -1,14 +1,14 @@
 import { existsSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { readSourceModifiedAtIso } from '../../packages/spark-ai/src/class-model/class-model/class-model-emit-fs.ts'
+import { readSourceModifiedAtIso } from '../../packages/spark-ai/src/class-model/class-model/bundle/class-model-emit-fs.ts'
 import {
   readDtsManifestSnapshotEntry,
   readManifestFileEntry,
   resolveClassModelEmitPath,
   sourceFileFromEmitPath,
-} from '../../packages/spark-ai/src/class-model/class-model/class-model-emit-path.ts'
-import { dtsSourcePathToBundleRelativeJson } from '../../packages/spark-ai/src/class-model/class-model/dts-bundle-url.ts'
+} from '../../packages/spark-ai/src/class-model/class-model/bundle/class-model-emit-path.ts'
+import { dtsSourcePathToBundleRelativeJson } from '../../packages/spark-ai/src/class-model/class-model/bundle/dts-bundle-url.ts'
 
 export const DTS_MANIFEST_SCHEMA_VERSION = 1
 

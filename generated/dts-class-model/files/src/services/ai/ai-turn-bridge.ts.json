@@ -56,7 +56,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:51:40.570Z",
+  "generatedAt": "2026-10-07T01:13:38.181Z",
   "models": {
     "AiTurnBridgeDiagnostic": {
       "name": "AiTurnBridgeDiagnostic",

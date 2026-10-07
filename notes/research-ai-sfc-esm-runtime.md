@@ -47,8 +47,8 @@ CSS     .box[data-v-p1]{color:red}
 
 | 事实 | 位置 |
 |---|---|
-| Spark 组件注册在自定义 registry，`createSparkPlugin` 仅 `app.provide(SPARK_REGISTRY_KEY, registry)`，不调用 `app.component` | `packages/spark-component/src/system/plugin.ts` |
-| 全局注册组件仅 `ErrorBoundary` | `packages/spark-app/src/error-handler.ts` |
+| Spark 组件注册在自定义 registry，`createSparkPlugin` 仅 `app.provide(SPARK_REGISTRY_KEY, registry)`，不调用 `app.component` | `packages/spark-component/src/core/system/plugin.ts` |
+| 全局注册组件仅 `ErrorBoundary` | `packages/spark-app/src/app/error-handler.ts` |
 | Element Plus 无 `app.use`，无 unplugin 自动导入 | `src/main.ts`、`vite.config.ts`、`package.json` |
 | `index.html` 无 CSP、无 import map | `index.html` |
 | HTTP 拦截器统一注入 `Authorization: Bearer`，含刷新流程 | `packages/spark-lowcode-api/src/lowcode-api.ts`、`platform/lowcode-platform-api.ts` |

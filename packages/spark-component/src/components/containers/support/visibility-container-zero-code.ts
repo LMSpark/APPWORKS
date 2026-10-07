@@ -5,7 +5,7 @@
  * AI用途：需要定位 components/containers/support/visibility-container-zero-code 的声明、导出和使用边界时，从本模块开始。
  */
 import type { ValueRef } from '../../shared-types.js'
-import type { VisibilityContainerApi } from './base-container-api.js'
+import type { VisibilityContainerApi } from './crud/base-container-api.js'
 
 /** Visibility Container Zero Code Options 的调用配置。 */
 export type VisibilityContainerZeroCodeOptions = {

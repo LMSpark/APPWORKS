@@ -195,7 +195,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import { buildTenantPath } from '@/services/tenant-scope'
+import { buildTenantPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { OfficeBuilding, User, Lock, Edit, Message, Postcard } from '@element-plus/icons-vue'
@@ -232,7 +232,7 @@ function goHome() {
 }
 
 function getUserHomePath(enterpriseName: string): string {
-  return buildTenantPath({ tenantId: enterpriseName, projectId: 'homepage' }, '/app-list')
+  return buildTenantPath({ tenantId: enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list')
 }
 
 // ── 登录表单 ────────────────────────────────────────────────────────────────

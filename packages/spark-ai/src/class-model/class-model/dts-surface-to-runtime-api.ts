@@ -11,8 +11,8 @@ import type {
   AiApiObjectMetadata,
   AiRuntimeApiMetadataJson,
 } from '../metadata'
-import { resolveMethodReturnType } from './dts-type-meta-ops'
-import { parseModelJsonSchemaRef } from './model-json-schema-ref'
+import { resolveMethodReturnType } from './declaration/dts-type-meta-ops'
+import { parseModelJsonSchemaRef } from './schema/model-json-schema-ref'
 import type { DtsClassModelSurfaceDocument } from './dts-surface-types'
 import type { AttributeMeta, DtsTypeDeclarationModel, ConstructorMeta, DtsTypeMeta, MethodMeta } from './types'
 

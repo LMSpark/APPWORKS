@@ -100,6 +100,10 @@
       "type": "object",
       "title": "AgentWorkflowRuntimeBindings",
       "properties": {
+        "executableRegistry": {
+          "type": "object",
+          "title": "Record<string, AgentWorkflowModuleConstructor<TInstance>>"
+        },
         "editorGetterRegistry": {
           "type": "object",
           "title": "Record<string, (context: AiAgentRuntimeContext) => TInstance>"
@@ -183,7 +187,7 @@
           "$ref": "#/$defs/AgentWorkflowRuntimeBindings"
         },
         "host": {
-          "$ref": "../business/ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
         }
       },
       "additionalProperties": false
@@ -212,7 +216,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.493Z",
+  "generatedAt": "2026-10-07T02:17:10.227Z",
   "models": {
     "AgentWorkflowModuleConstructor": {
       "name": "AgentWorkflowModuleConstructor",
@@ -359,16 +363,22 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    manifestUrlResolver: (ref: string) => string;\n    editorGetterRegistry: Readonly<Record<string, (context: AiAgentRuntimeContext) => TInstance>>;\n    knowledgeProviderFactory: (config: AgentWorkflowNodeModelProjectionRef) => AgentWorkflowRuntimeKnowledge;\n    gateExecutor?: (command: AgentWorkflowRuntimeGateCommand) => AgentWorkflowRuntimeGateResult;\n    systemPromptInterpolator: (command: AgentWorkflowRuntimeSystemPromptCommand) => string;\n}>",
+        "declarationTypeText": "Readonly<{\n    manifestUrlResolver: (ref: string) => string;\n    /** 宿主允许的可执行类白名单，键为 `moduleSpecifier#exportName`；definition 不能据此加载任意模块。 */\n    executableRegistry: Readonly<Record<string, AgentWorkflowModuleConstructor<TInstance>>>;\n    editorGetterRegistry: Readonly<Record<string, (context: AiAgentRuntimeContext) => TInstance>>;\n    knowledgeProviderFactory: (config: AgentWorkflowNodeModelProjectionRef) => AgentWorkflowRuntimeKnowledge;\n    gateExecutor?: (command: AgentWorkflowRuntimeGateCommand) => AgentWorkflowRuntimeGateResult;\n    systemPromptInterpolator: (command: AgentWorkflowRuntimeSystemPromptCommand) => string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    manifestUrlResolver: (ref: string) => string;\n    editorGetterRegistry: Readonly<Record<string, (context: AiAgentRuntimeContext) => TInstance>>;\n    knowledgeProviderFactory: (config: AgentWorkflowNodeModelProjectionRef) => AgentWorkflowRuntimeKnowledge;\n    gateExecutor?: (command: AgentWorkflowRuntimeGateCommand) => AgentWorkflowRuntimeGateResult;\n    systemPromptInterpolator: (command: AgentWorkflowRuntimeSystemPromptCommand) => string;\n}>",
+            "typeText": "Readonly<{\n    manifestUrlResolver: (ref: string) => string;\n    /** 宿主允许的可执行类白名单，键为 `moduleSpecifier#exportName`；definition 不能据此加载任意模块。 */\n    executableRegistry: Readonly<Record<string, AgentWorkflowModuleConstructor<TInstance>>>;\n    editorGetterRegistry: Readonly<Record<string, (context: AiAgentRuntimeContext) => TInstance>>;\n    knowledgeProviderFactory: (config: AgentWorkflowNodeModelProjectionRef) => AgentWorkflowRuntimeKnowledge;\n    gateExecutor?: (command: AgentWorkflowRuntimeGateCommand) => AgentWorkflowRuntimeGateResult;\n    systemPromptInterpolator: (command: AgentWorkflowRuntimeSystemPromptCommand) => string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "executableRegistry",
+              "jsdoc": "宿主允许的可执行类白名单，键为 `moduleSpecifier#exportName`；definition 不能据此加载任意模块。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "editorGetterRegistry",
               "readable": true,

@@ -8,7 +8,7 @@
 import type {
   AiAgentMessageRole,
   AiAgentMessageSource,
-} from '../session/session-types'
+} from '../conversation/session/session-types'
 
 /* -------------------------------------------------------------------------------
  * 一、业务定位基类

@@ -9,6 +9,7 @@ import {
   createLowcodeProjectGateways,
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 
 /** Project Planning Editor Resolve Context 的运行上下文。 */
 export type ProjectPlanningEditorResolveContext = Readonly<{
@@ -41,7 +42,7 @@ export function createHeadlessProjectPlanningEditor(
     ? explicitProjectId
     : defaultProjectId !== undefined && defaultProjectId.length > 0
       ? defaultProjectId
-      : 'homepage'
+      : APPLICATION_CATALOG_PROJECT_ID
   const editor = new ProjectWorkspace({
     projectId: resolvedProjectId,
     ...createLowcodeProjectGateways(resolvedProjectId),

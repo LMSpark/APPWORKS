@@ -9,7 +9,7 @@
  */
 
 import { DataSet } from './dataset'
-import { TreeManager } from './tree-manager'
+import { TreeManager } from './node-tree/tree-manager'
 import { DataTable } from './data-table'
 import { DataView } from './data-view'
 import { DataSetCrudTool } from './dataset-crud-tool'
@@ -33,7 +33,7 @@ import {
   resolveDataViewMember,
   resolveDataViewMemberBinding,
 } from './core/data-view-key'
-import { extractColumnRules, isColumnRequired } from './column-validation'
+import { extractColumnRules, isColumnRequired } from './validation/column-validation'
 import type {
   CrudApi,
   DataSetMetadata,

@@ -74,7 +74,7 @@ import {
   useFormDetailContainer,
 } from '../../runtime/container-form-detail'
 import { createRendererFormZeroCode } from './zero-code'
-import RendererHostScope from '../../support/RendererHostScope.vue'
+import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
 
 const props = withDefaults(defineProps<RFormProps>(), {

@@ -52,7 +52,7 @@
           "additionalProperties": false
         },
         "method.ensureCrudService.return": {
-          "$ref": "../crud-service.ts.json#/$defs/CrudService"
+          "$ref": "crud-service.ts.json#/$defs/CrudService"
         },
         "method.getCrudConfig.params": {
           "type": "object",
@@ -244,7 +244,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T13:06:20.153Z",
+  "generatedAt": "2026-10-07T02:17:10.245Z",
   "models": {
     "EmitCrudLifecycleFn": {
       "name": "EmitCrudLifecycleFn",
@@ -308,7 +308,7 @@
               "type": {
                 "type": "reference",
                 "name": "CrudService",
-                "sourcePath": "packages/spark-data/src/crud-service.ts"
+                "sourcePath": "packages/spark-data/src/strategies/crud-service.ts"
               }
             },
             {

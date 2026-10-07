@@ -11,51 +11,7 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {
-    "WorkflowLineRuntimeStatus": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "WorkflowLineRuntimeStatus",
-      "enum": [
-        "idle",
-        "running",
-        "completed",
-        "failed",
-        "skipped"
-      ]
-    }
-  },
-  "generatedAt": "2026-10-05T10:07:52.920Z",
-  "models": {
-    "WorkflowLineRuntimeStatus": {
-      "name": "WorkflowLineRuntimeStatus",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'idle' | 'running' | 'completed' | 'failed' | 'skipped'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'idle'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'running'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'completed'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'failed'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'skipped'"
-          }
-        ],
-        "members": {}
-      }
-    }
-  }
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:49:34.277Z",
+  "models": {}
 }

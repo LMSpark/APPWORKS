@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { effectScope, nextTick } from 'vue'
-import { createThemeService } from '../theme'
+import { createThemeService } from '../shell/theme'
 
 describe('ThemeService scoped storage', () => {
   let scope: ReturnType<typeof effectScope>

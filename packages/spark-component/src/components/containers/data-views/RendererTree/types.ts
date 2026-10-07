@@ -5,7 +5,7 @@
  * AI用途：需要判断 renderer tree 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。
  */
 import type { DataRow } from '@spark-appworks/spark-data'
-import type { BaseCrudContainerApi } from '../../support/base-container-api.js'
+import type { BaseCrudContainerApi } from '../../support/crud/base-container-api.js'
 
 /** Renderer Tree Api 的语义模型。 */
 export type RendererTreeApi = BaseCrudContainerApi & {

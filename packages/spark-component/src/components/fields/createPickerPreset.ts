@@ -15,8 +15,8 @@
 import { computed, defineComponent, h } from 'vue'
 import type { PageSelectorOption } from '../internal'
 import type { SparkOptionValueMode } from '../shared-types'
-import { emitFieldValueUpdate } from './data-components/composables/useControlledFieldChange'
-import FieldEntityPicker from './data-components/FieldEntityPicker.vue'
+import { emitFieldValueUpdate } from './data-components/composables/value/useControlledFieldChange'
+import FieldEntityPicker from './data-components/picker/FieldEntityPicker/FieldEntityPicker.vue'
 
 /** Picker Preset Defaults 的语义模型。 */
 type PickerPresetDefaults = {

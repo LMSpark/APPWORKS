@@ -12,13 +12,13 @@
   "consumers": [
     {
       "expression": "/api/v1",
-      "sourceFile": "packages/spark-app/dist/bootstrap.d.ts",
+      "sourceFile": "packages/spark-app/dist/app/bootstrap.d.ts",
       "sourceLine": 77,
       "scope": "tooling"
     },
     {
       "expression": "/api/v1",
-      "sourceFile": "packages/spark-app/src/bootstrap.ts",
+      "sourceFile": "packages/spark-app/src/app/bootstrap.ts",
       "sourceLine": 98,
       "scope": "tooling"
     },
@@ -156,206 +156,206 @@
     },
     {
       "expression": "/api/users",
-      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/commit-mode.test.ts",
       "sourceLine": 109,
       "scope": "tooling"
     },
     {
       "expression": "/api/users/{id}",
-      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/commit-mode.test.ts",
       "sourceLine": 110,
       "scope": "tooling"
     },
     {
       "expression": "/api/users/{id}",
-      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/commit-mode.test.ts",
       "sourceLine": 111,
       "scope": "tooling"
     },
     {
       "expression": "/api/users",
-      "sourceFile": "packages/spark-data/src/tests/commit-mode.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/commit-mode.test.ts",
       "sourceLine": 575,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 38,
       "scope": "tooling"
     },
     {
       "expression": "/api/t",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 85,
       "scope": "tooling"
     },
     {
       "expression": "/api/filter-expression-cases/query",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 253,
       "scope": "tooling"
     },
     {
       "expression": "/api/filter-expression-cases/query",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 273,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 293,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 294,
       "scope": "tooling"
     },
     {
       "expression": "/api/test/batch",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 296,
       "scope": "tooling"
     },
     {
       "expression": "/api/t/{id}",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 337,
       "scope": "tooling"
     },
     {
       "expression": "/api/t/{id}",
-      "sourceFile": "packages/spark-data/src/tests/crud-delegates.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
       "sourceLine": 380,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-service-permission.test.ts",
       "sourceLine": 23,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-service-permission.test.ts",
       "sourceLine": 24,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-service-permission.test.ts",
       "sourceLine": 25,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/crud-service-permission.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/crud-service-permission.test.ts",
       "sourceLine": 47,
       "scope": "tooling"
     },
     {
-      "expression": "/api/users",
-      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
-      "sourceLine": 40,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users",
-      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
-      "sourceLine": 41,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/orders",
-      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
-      "sourceLine": 102,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/orders",
-      "sourceFile": "packages/spark-data/src/tests/data-architecture-refactor.test.ts",
-      "sourceLine": 112,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users/{id}",
-      "sourceFile": "packages/spark-data/src/tests/data-view-events.test.ts",
-      "sourceLine": 246,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/departments",
-      "sourceFile": "packages/spark-data/src/tests/dataset-json-prompt-validation.test.ts",
-      "sourceLine": 492,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/employees",
-      "sourceFile": "packages/spark-data/src/tests/dataset-json-prompt-validation.test.ts",
-      "sourceLine": 516,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/employees",
-      "sourceFile": "packages/spark-data/src/tests/dataset-json-prompt-validation.test.ts",
-      "sourceLine": 588,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/tree/nodes",
-      "sourceFile": "packages/spark-data/src/tests/dataset-tree-4-plus-7.test.ts",
-      "sourceLine": 8,
-      "scope": "tooling"
-    },
-    {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/safety-guards.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/safety-guards.test.ts",
       "sourceLine": 71,
       "scope": "tooling"
     },
     {
       "expression": "/api/test",
-      "sourceFile": "packages/spark-data/src/tests/safety-guards.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/crud/safety-guards.test.ts",
       "sourceLine": 79,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/crud/validation.test.ts",
+      "sourceLine": 158,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/src/tests/crud/validation.test.ts",
+      "sourceLine": 159,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/:id",
+      "sourceFile": "packages/spark-data/src/tests/crud/validation.test.ts",
+      "sourceLine": 160,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/crud/validation.test.ts",
+      "sourceLine": 161,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/crud/validation.test.ts",
+      "sourceLine": 225,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/data-view/data-architecture-refactor.test.ts",
+      "sourceLine": 40,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users",
+      "sourceFile": "packages/spark-data/src/tests/data-view/data-architecture-refactor.test.ts",
+      "sourceLine": 41,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/orders",
+      "sourceFile": "packages/spark-data/src/tests/data-view/data-architecture-refactor.test.ts",
+      "sourceLine": 102,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/orders",
+      "sourceFile": "packages/spark-data/src/tests/data-view/data-architecture-refactor.test.ts",
+      "sourceLine": 112,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/users/{id}",
+      "sourceFile": "packages/spark-data/src/tests/data-view/data-view-events.test.ts",
+      "sourceLine": 246,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/departments",
+      "sourceFile": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+      "sourceLine": 492,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/employees",
+      "sourceFile": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+      "sourceLine": 516,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/employees",
+      "sourceFile": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+      "sourceLine": 588,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/tree/nodes",
+      "sourceFile": "packages/spark-data/src/tests/dataset/dataset-tree-4-plus-7.test.ts",
+      "sourceLine": 8,
       "scope": "tooling"
     },
     {
       "expression": "/api/list",
       "sourceFile": "packages/spark-data/src/tests/serialization/view-config-roundtrip.test.ts",
       "sourceLine": 68,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users",
-      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
-      "sourceLine": 158,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users/:id",
-      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
-      "sourceLine": 159,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users/:id",
-      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
-      "sourceLine": 160,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users",
-      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
-      "sourceLine": 161,
-      "scope": "tooling"
-    },
-    {
-      "expression": "/api/users",
-      "sourceFile": "packages/spark-data/src/tests/validation.test.ts",
-      "sourceLine": 225,
       "scope": "tooling"
     },
     {

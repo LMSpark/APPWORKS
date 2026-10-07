@@ -12,7 +12,7 @@ import {
   type JsonSchemaObject,
   type JsonValue,
 } from '@spark-appworks/spark-json-document'
-import type { AiAgentChatMessage, AiAgentChatRequest } from '../chat/chat-types'
+import type { AiAgentChatMessage, AiAgentChatRequest } from '../conversation/chat/chat-types'
 import type { AiAgentRegistration } from './registration-types'
 import { AiAgentTarget, type AiAgentScope } from './scope-types'
 

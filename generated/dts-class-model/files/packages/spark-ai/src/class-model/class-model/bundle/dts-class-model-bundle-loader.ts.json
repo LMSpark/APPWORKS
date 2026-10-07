@@ -1,0 +1,534 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/bundle/dts-class-model-bundle-loader",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/bundle/dts-class-model-bundle-loader",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/bundle/dts-class-model-bundle-loader\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 dts-class-model-bundle-loader 能力，围绕 DtsClassModelBundleLoaderOptions、DtsClassModelBundleLoader 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/dts-class-model-bundle-loader 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DtsClassModelBundleLoaderOptions",
+      "DtsClassModelComponentQuery",
+      "DtsClassModelBundleLoader"
+    ]
+  },
+  "$defs": {
+    "DtsClassModelBundleLoaderOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsClassModelBundleLoaderOptions",
+      "properties": {
+        "manifestUrl": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.fetchJson.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fetchJson.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        }
+      }
+    },
+    "DtsClassModelComponentQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsClassModelComponentQuery",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "level": {
+          "$ref": "../types.ts.json#/$defs/ComponentClassModelLevel"
+        },
+        "layer": {
+          "$ref": "../types.ts.json#/$defs/ComponentClassModelLayer"
+        },
+        "directory": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DtsClassModelBundleLoader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsClassModelBundleLoader",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DtsClassModelBundleLoaderOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.init.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.init.return": {
+          "type": "object",
+          "title": "Promise<DtsClassModelBundleManifest>"
+        },
+        "method.clearCache.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearCache.return": true,
+        "method.reload.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reload.return": {
+          "type": "object",
+          "title": "Promise<DtsClassModelBundleManifest>"
+        },
+        "method.ensureClassName.params": {
+          "type": "object",
+          "properties": {
+            "className": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureClassName.return": {
+          "type": "object",
+          "title": "Promise<DtsTypeDeclarationModel>"
+        },
+        "method.ensureSourcePath.params": {
+          "type": "object",
+          "properties": {
+            "sourcePath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureSourcePath.return": {
+          "type": "object",
+          "title": "Promise<DtsFileProjectionDocument>"
+        },
+        "method.ensureReachableClosure.params": {
+          "type": "object",
+          "properties": {
+            "rootClassName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureReachableClosure.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
+        },
+        "method.listComponentIndexEntries.params": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "$ref": "#/$defs/DtsClassModelComponentQuery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listComponentIndexEntries.return": {
+          "type": "object",
+          "title": "Promise<readonly DtsClassModelBundleComponentEntry[]>"
+        },
+        "method.ensureComponentQuery.params": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "$ref": "#/$defs/DtsClassModelComponentQuery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureComponentQuery.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
+        },
+        "method.buildRuntimeApiMetadata.params": {
+          "type": "object",
+          "properties": {
+            "rootClassName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildRuntimeApiMetadata.return": {
+          "type": "object",
+          "title": "Promise<AiRuntimeApiMetadataJson>"
+        },
+        "method.buildLoadedSurface.params": {
+          "type": "object",
+          "properties": {
+            "configPath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildLoadedSurface.return": {
+          "$ref": "../dts-surface-types.ts.json#/$defs/DtsClassModelSurfaceDocument"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.696Z",
+  "models": {
+    "DtsClassModelBundleLoaderOptions": {
+      "name": "DtsClassModelBundleLoaderOptions",
+      "jsdoc": "Dts Class Model Bundle Loader Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** bundle manifest.json 的 URL，loader 从此文件发现所有 shard 路径。 */\n    manifestUrl: string;\n    /** 自定义 JSON 获取函数；默认使用 fetch + JSON.parse，Node 环境需注入 fs-based 实现。 */\n    fetchJson?: (url: string) => Promise<unknown>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** bundle manifest.json 的 URL，loader 从此文件发现所有 shard 路径。 */\n    manifestUrl: string;\n    /** 自定义 JSON 获取函数；默认使用 fetch + JSON.parse，Node 环境需注入 fs-based 实现。 */\n    fetchJson?: (url: string) => Promise<unknown>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "manifestUrl",
+              "jsdoc": "bundle manifest.json 的 URL，loader 从此文件发现所有 shard 路径。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "fetchJson",
+              "jsdoc": "自定义 JSON 获取函数；默认使用 fetch + JSON.parse，Node 环境需注入 fs-based 实现。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DtsClassModelComponentQuery": {
+      "name": "DtsClassModelComponentQuery",
+      "jsdoc": "Component index query；所有字段是 AND 条件，单字段命中走 manifest 倒排索引。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 精确匹配 component.name，如 RendererTable。 */\n    name?: string;\n    /** 精确匹配 component.type，如 r-table。 */\n    type?: string;\n    /** 精确匹配 component.level，如 table-level / row-level / field-level。 */\n    level?: ComponentClassModelLevel;\n    /** 精确匹配 component.layer，如 data-view-container / row-scope / data-field。 */\n    layer?: ComponentClassModelLayer;\n    /** 精确匹配 component.directory，如 containers/data-views。 */\n    directory?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 精确匹配 component.name，如 RendererTable。 */\n    name?: string;\n    /** 精确匹配 component.type，如 r-table。 */\n    type?: string;\n    /** 精确匹配 component.level，如 table-level / row-level / field-level。 */\n    level?: ComponentClassModelLevel;\n    /** 精确匹配 component.layer，如 data-view-container / row-scope / data-field。 */\n    layer?: ComponentClassModelLayer;\n    /** 精确匹配 component.directory，如 containers/data-views。 */\n    directory?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "精确匹配 component.name，如 RendererTable。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "精确匹配 component.type，如 r-table。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "level",
+              "jsdoc": "精确匹配 component.level，如 table-level / row-level / field-level。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layer",
+              "jsdoc": "精确匹配 component.layer，如 data-view-container / row-scope / data-field。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "directory",
+              "jsdoc": "精确匹配 component.directory，如 containers/data-views。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DtsClassModelBundleLoader": {
+      "name": "DtsClassModelBundleLoader",
+      "jsdoc": "Dts Class Model Bundle Loader 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Dts Class Model Bundle Loader 实例。",
+          "signatureText": "constructor(options: DtsClassModelBundleLoaderOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DtsClassModelBundleLoaderOptions",
+                "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "init",
+              "jsdoc": "执行 init 操作。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DtsClassModelBundleManifest",
+                    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/dts-bundle-types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "clearCache",
+              "jsdoc": "清空已加载 manifest/shard/model 缓存，下次查询重新读取 bundle。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reload",
+              "jsdoc": "重新读取 manifest，用于编译器更新 generated bundle 后刷新知识。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DtsClassModelBundleManifest",
+                    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/dts-bundle-types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ensureClassName",
+              "jsdoc": "ensure Class Name 名称。",
+              "parameters": [
+                {
+                  "name": "className",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DtsTypeDeclarationModel",
+                    "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ensureSourcePath",
+              "jsdoc": "ensure Source Path 路径。",
+              "parameters": [
+                {
+                  "name": "sourcePath",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DtsFileProjectionDocument",
+                    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/dts-bundle-types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ensureReachableClosure",
+              "jsdoc": "执行 ensure Reachable Closure 操作。",
+              "parameters": [
+                {
+                  "name": "rootClassName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listComponentIndexEntries",
+              "jsdoc": "按 manifest componentIndex 查询组件模型，不扫全量 shard。",
+              "parameters": [
+                {
+                  "name": "query",
+                  "type": {
+                    "type": "reference",
+                    "name": "DtsClassModelComponentQuery",
+                    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DtsClassModelBundleComponentEntry[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ensureComponentQuery",
+              "jsdoc": "按 componentIndex 命中结果加载对应 shard，并返回 className 列表。",
+              "parameters": [
+                {
+                  "name": "query",
+                  "type": {
+                    "type": "reference",
+                    "name": "DtsClassModelComponentQuery",
+                    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "buildRuntimeApiMetadata",
+              "jsdoc": "从已加载的 guide manifest 闭包构建 script 用 runtime API metadata。\nguide 与 script 共用同一 shard 中的 paramsSchema / returnSchema。",
+              "parameters": [
+                {
+                  "name": "rootClassName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "AiRuntimeApiMetadataJson",
+                    "sourcePath": "packages/spark-ai/src/class-model/metadata.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "buildLoadedSurface",
+              "jsdoc": "执行 build Loaded Surface 操作。",
+              "parameters": [
+                {
+                  "name": "configPath",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DtsClassModelSurfaceDocument",
+                "sourcePath": "packages/spark-ai/src/class-model/class-model/dts-surface-types.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

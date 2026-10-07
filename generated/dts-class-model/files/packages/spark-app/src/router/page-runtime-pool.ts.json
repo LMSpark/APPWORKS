@@ -1,0 +1,432 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/page-runtime-pool",
+    "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts",
+    "sourceFile": "packages/spark-app/src/router/page-runtime-pool.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/page-runtime-pool",
+    "jsdoc": "@module @spark-appworks/spark-app:router/page-runtime-pool\n职责：按路由调用身份创建并复用 PageRuntime，提供视图包装、关闭、脏检查与配置待刷新标记。\n边界：不注册路由、不加载导航；工具文件读取与场景装配由 DynamicRouter 注入。\nAI用途：排查页面调用实例生命周期或多标签实例隔离时，用本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RuntimeScenarioLoadCommand",
+      "PageRuntimePoolOptions",
+      "PageRuntimePool"
+    ]
+  },
+  "$defs": {
+    "RuntimeScenarioLoadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeScenarioLoadCommand",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageRuntimePoolOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntimePoolOptions",
+      "properties": {
+        "pageComponent": {
+          "type": "object",
+          "title": "Component"
+        },
+        "readPageFile": {
+          "type": "object",
+          "title": "PageFileReader"
+        },
+        "loadScenario": {
+          "type": "object",
+          "title": "(command: RuntimeScenarioLoadCommand) => Promise<DataSet>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readNavTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readNavTree.return": {
+          "anyOf": [
+            {
+              "$ref": "../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.refreshRoutes.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshRoutes.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        }
+      }
+    },
+    "PageRuntimePool": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntimePool",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageRuntimePoolOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageRuntime.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageRuntime.return": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.getPageRuntimeView.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageRuntimeView.return": {
+          "type": "object",
+          "title": "Component"
+        },
+        "method.getPageRuntimeNames.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPageRuntimeNames.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.getPageRuntimeById.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageRuntimeById.return": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.closePageRuntime.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.closePageRuntime.return": true,
+        "method.assertPageRuntimesClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertPageRuntimesClean.return": true,
+        "method.disposePageRuntimes.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.disposePageRuntimes.return": true,
+        "method.markPageConfigPending.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markPageConfigPending.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:18:57.950Z",
+  "models": {
+    "RuntimeScenarioLoadCommand": {
+      "name": "RuntimeScenarioLoadCommand",
+      "jsdoc": "为一次页面调用装配指定应用中的一个场景；应用身份由请求层校验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageRuntimePoolOptions": {
+      "name": "PageRuntimePoolOptions",
+      "jsdoc": "实例池依赖：页面渲染组件、工具文件读取、场景装配、当前导航树与路由刷新。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。 */\n    pageComponent: Component;\n    /** 读取页面工具文件；未注入时页面加载显式失败。 */\n    readPageFile: PageFileReader | undefined;\n    /** 装配页面调用所需场景；未注入时场景加载显式失败。 */\n    loadScenario: ((command: RuntimeScenarioLoadCommand) => Promise<DataSet>) | undefined;\n    /** 读取当前导航树，用于校验蓝图工具绑定是否已改变。 */\n    readNavTree: () => RuntimeNavigation | null;\n    /** 刷新路由与导航，页面 reload 前调用。 */\n    refreshRoutes: () => Promise<unknown>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageComponent",
+              "jsdoc": "渲染页面调用实例的组件，接收 pageRuntime 与 routeSnapshot。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readPageFile",
+              "jsdoc": "读取页面工具文件；未注入时页面加载显式失败。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loadScenario",
+              "jsdoc": "装配页面调用所需场景；未注入时场景加载显式失败。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readNavTree",
+              "jsdoc": "读取当前导航树，用于校验蓝图工具绑定是否已改变。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "RuntimeNavigation",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refreshRoutes",
+              "jsdoc": "刷新路由与导航，页面 reload 前调用。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageRuntimePool": {
+      "name": "PageRuntimePool",
+      "jsdoc": "页面调用实例池：按路由调用身份复用 PageRuntime，负责创建、视图包装、关闭与脏检查。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "由 DynamicRouter 注入渲染、读取、场景与导航依赖。",
+          "signatureText": "constructor(options: PageRuntimePoolOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "PageRuntimePoolOptions",
+                "sourcePath": "packages/spark-app/src/router/page-runtime-pool.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getPageRuntime",
+              "jsdoc": "按路由调用身份获取或创建页面实例；非配置页返回 undefined，目标非法时抛错。",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              }
+            },
+            {
+              "name": "getPageRuntimeView",
+              "jsdoc": "返回该路由页面实例对应的包装视图组件。",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Component"
+                }
+              }
+            },
+            {
+              "name": "getPageRuntimeNames",
+              "jsdoc": "列出已打开实例的视图组件名。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "getPageRuntimeById",
+              "jsdoc": "按实例 ID 查找已打开的页面实例。",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              }
+            },
+            {
+              "name": "closePageRuntime",
+              "jsdoc": "关闭并释放实例；有未保存修改时抛错。",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertPageRuntimesClean",
+              "jsdoc": "任一实例有未保存修改时抛错。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "disposePageRuntimes",
+              "jsdoc": "确认全部干净后释放所有实例。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "markPageConfigPending",
+              "jsdoc": "标记该页面的所有实例配置待刷新。",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

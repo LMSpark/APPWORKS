@@ -1728,7 +1728,14 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
 /**
  * @description 工作流设计稿可视化编辑页。编辑 Dify-like graph 中的业务节点和步骤线，并通过后端文件 API 保存 design.json。
  */
-import { computed, onBeforeUnmount, onMounted, ref, watch, type CSSProperties } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  type CSSProperties,
+} from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -1741,17 +1748,11 @@ import {
   Position,
   VueFlow,
   type Connection,
-  type Node,
   type NodeChange,
   type NodeDragEvent,
   type ViewportTransform,
 } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
-import {
-  createWorkerDtsClassModelKnowledgeProvider,
-  type ClassModelKnowledgeProvider,
-} from '@spark-appworks/spark-ai/class-model'
-import { standardizeJsonSchema, type JsonSchema } from '@spark-appworks/spark-json-document'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
@@ -1796,10 +1797,7 @@ import {
   updateWorkflowDesignLine,
   workflowDesignLineControlPoints,
   workflowDesignLineType,
-  type WorkflowDesignCapability,
   type WorkflowDesignDocument,
-  type WorkflowDesignLineEndpoint,
-  type WorkflowDesignLineControlPoint,
   type WorkflowDesignLineType,
   type WorkflowDesignLineView,
   type WorkflowDesignGraphView,
@@ -1808,260 +1806,107 @@ import {
   type WorkflowDesignSummary,
   type WorkflowDesignVariable,
 } from '@/services/workflow-designs'
-import { getDtsClassModelManifestUrl } from '@/class-model-artifacts/artifact-urls'
+import type {
+  PropertyDrawerTarget,
+  LayoutResizeState,
+  GraphSplitCollapse,
+  GraphSplitResizeState,
+  GraphSplitPanel,
+  WorkflowFlowLineData,
+  WorkflowLineRuntimeStatus,
+  SelectedControlPoint,
+  ControlPointDragState,
+  StartControlPointDragCommand,
+  VueFlowLineChange,
+  VueFlowLineUpdateEvent,
+  ClassModelOption,
+  WorkflowFlowNode,
+  WorkflowFlowConnection,
+  LineEndpointPatchValidationCommand,
+  NodeCreateForm,
+  StructuredFieldRow,
+  StructuredRowsCollectionCommand,
+  StructuredSelectCard,
+  StructuredCapabilityCard,
+  ApplyStructuredEditorOptions,
+  WorkflowVariableEditorRow,
+  WorkflowMetadataRow,
+  WorkflowRuntimeBinding,
+} from './workflow-designs/workflow-design-view-types'
+import {
+  inputDockDefinitions,
+  outputDockDefinitions,
+  flowDefaultLineOptions,
+  isWorkflowFlowNodeData,
+  isWorkflowFlowLineData,
+  readFlowConnectionLineFromEvent,
+  dockHandle,
+  readDockText,
+  withConnectionEndpoint,
+  createEditorLineEndpoint,
+  isSameLineEndpoint,
+  flowId,
+  resolvedLineDocks,
+  workflowDockPoint,
+  workflowControlEdgePath,
+  workflowEdgeStatusPoint,
+  workflowRuntimeStatusIcon,
+  nearestLineSegmentIndex,
+  flowDefaultViewport,
+  workflowFlowConnectionId,
+  nodeKeyboardMoveDelta,
+  isEditableKeyboardTarget,
+} from './workflow-designs/workflow-design-flow'
+import {
+  classModelOptionMemberDocText,
+  shouldEditNodeConfig,
+  readBusinessNodeModelClassName,
+  readBusinessNodeValidationActionName,
+  createClassModelKnowledgeProvider,
+  readClassModelOptions,
+  readTextField,
+  classModelDocText,
+  shortClassModelDocText,
+  readPrimaryBusinessNodeModel,
+  ensurePrimaryBusinessNodeModel,
+  createWorkflowParamsSchema,
+} from './workflow-designs/workflow-design-class-model'
+import {
+  isJsonRecord,
+  recordOrEmpty,
+  uniqueTexts,
+  recordKeys,
+  metadataValueText,
+  collectWorkflowMetadataRows,
+  workflowVariableRowsToData,
+  primitiveValueText,
+  isPrimitiveEditableValue,
+  readWorkflowVariableSourceDocText,
+  firstMeaningfulText,
+  structuredRowsToRecord,
+  structuredCardsToStrings,
+  capabilityCardsToData,
+} from './workflow-designs/workflow-design-fields'
+import {
+  MIN_LEFT_PANEL_WIDTH,
+  MAX_LEFT_PANEL_WIDTH,
+  COLLAPSED_LEFT_PANEL_WIDTH,
+  MIN_RIGHT_PANEL_WIDTH,
+  MAX_RIGHT_PANEL_WIDTH,
+  GRAPH_SPLIT_MIN_RATIO,
+  GRAPH_SPLIT_MAX_RATIO,
+  GRAPH_SPLIT_SNAP_RATIO,
+  isUnreadableDesign,
+  workflowDesignErrorMessage,
+  workflowDesignListItemTitle,
+  defaultCreateNodeId,
+  defaultCreateNodeTitle,
+  graphPanelTitle,
+  graphSplitStorageKey,
+  errorMessage,
+} from './workflow-designs/workflow-design-shell'
 
-type PropertyDrawerTarget = 'workflow' | 'node' | 'line'
-
-type LayoutResizeState = {
-  side: 'left' | 'right'
-  startClientX: number
-  startLeftWidth: number
-  startRightWidth: number
-}
-
-type GraphSplitCollapse = 'top' | 'bottom' | null
-
-type GraphSplitResizeState = {
-  containerTop: number
-  containerHeight: number
-  moved: boolean
-}
-
-type GraphSplitPanel = {
-  key: string
-  role: 'main' | 'child'
-  graphView: WorkflowDesignGraphView | null
-  collapsed: boolean
-}
-
-type WorkflowFlowNodeData = {
-  viewKey: string
-  title: string
-  nodeType: string
-  scopePath: string
-  isBusinessNode: boolean
-  isBoundaryNode: boolean
-  modelClassName: string
-  modelDocText: string
-  validationActionName: string
-  validationActionDocText: string
-}
-
-type WorkflowFlowLineData = {
-  lineKey: string
-  lineType: WorkflowDesignLineType
-  controlPoints: readonly WorkflowDesignLineControlPoint[]
-  runtimeStatus: WorkflowLineRuntimeStatus
-}
-
-type WorkflowLineRuntimeStatus = 'idle' | 'running' | 'completed' | 'failed' | 'skipped'
-
-type WorkflowControlEdgeSlot = Readonly<{
-  id: string
-  sourceX: number
-  sourceY: number
-  targetX: number
-  targetY: number
-  markerEnd?: string
-  style?: CSSProperties
-  data: WorkflowFlowLineData
-}>
-
-type WorkflowDockDefinition = Readonly<{
-  id: number
-  position: Position
-  style: CSSProperties
-}>
-
-type SelectedControlPoint = Readonly<{
-  lineKey: string
-  index: number
-}>
-
-type ControlPointDragState = Readonly<{
-  lineKey: string
-  index: number
-  graph: WorkflowDesignGraphView['graph']
-  startClientX: number
-  startClientY: number
-  startPoint: WorkflowDesignLineControlPoint
-}>
-
-type StartControlPointDragCommand = Readonly<{
-  event: PointerEvent
-  data: WorkflowFlowLineData
-  index: string | number
-  graphView: WorkflowDesignGraphView
-}>
-
-type VueFlowLineChange = Readonly<{
-  id?: string
-  type: string
-  selected?: boolean
-}>
-
-type VueFlowLineUpdateEvent = Readonly<{
-  edge: {
-    data?: unknown
-  }
-  connection: Connection
-}>
-
-type ClassModelMethodOption = {
-  name: string
-  jsdoc: string
-  summary: string
-  signature: string
-}
-
-type ClassModelAttributeOption = {
-  name: string
-  jsdoc: string
-  summary: string
-  typeText: string
-}
-
-type ClassModelConstructorOption = {
-  jsdoc: string
-  summary: string
-  signature: string
-}
-
-type ClassModelOption = {
-  kind: string
-  jsdoc: string
-  summary: string
-  constructorSignature: ClassModelConstructorOption | null
-  attributes: ClassModelAttributeOption[]
-  methods: ClassModelMethodOption[]
-}
-
-type WorkflowFlowNode = Node<WorkflowFlowNodeData, Record<string, never>, 'workflow'>
-type WorkflowFlowConnection = {
-  id: string
-  type: 'workflow-control'
-  source: string
-  target: string
-  sourceHandle?: string
-  targetHandle?: string
-  markerEnd: MarkerType
-  data: WorkflowFlowLineData
-}
-
-type LineEndpointPatchValidationCommand = Readonly<{
-  line: WorkflowDesignLineView
-  from: WorkflowDesignLineEndpoint
-  to: WorkflowDesignLineEndpoint
-  options: {
-    silent?: boolean
-  }
-}>
-
-type NodeCreateForm = {
-  graphKey: string
-  nodeKind: WorkflowDesignNodeCreateKind
-  id: string
-  title: string
-  desc: string
-}
-
-type StructuredValueKind = 'text' | 'number' | 'boolean' | 'reference'
-
-type StructuredFieldRow = {
-  id: string
-  path: string
-  valueKind: StructuredValueKind
-  valueText: string
-  valueBoolean: boolean
-}
-
-type StructuredRowsCollectionCommand = Readonly<{
-  value: unknown
-  path: string
-  rows: StructuredFieldRow[]
-  prefix: string
-}>
-
-type EditorLineEndpointCommand = Readonly<{
-  nodeId: string
-  modelId: string
-  memberName: string
-  dockText: string
-}>
-
-type StructuredSelectCard = {
-  id: string
-  value: string
-}
-
-type StructuredCapabilityCard = {
-  id: string
-  title: string
-  scope: string
-  description: string
-  inputRows: StructuredFieldRow[]
-  outputRows: StructuredFieldRow[]
-  constraintCards: StructuredSelectCard[]
-}
-
-type ApplyStructuredEditorOptions = {
-  silent?: boolean
-}
-
-type WorkflowVariableEditorRow = {
-  id: string
-  source: Record<string, unknown>
-  schema: Record<string, unknown>
-  name: string
-  title: string
-  docText: string
-  required: boolean
-  schemaType: string
-  defaultValue: unknown
-  defaultValueText: string
-  defaultValueEditable: boolean
-}
-
-type WorkflowMetadataRow = {
-  label: string
-  value: string
-}
-
-type WorkflowRuntimeBinding = NonNullable<WorkflowDesignDocument['workflow']['runtimeBinding']>
-
-const MIN_LEFT_PANEL_WIDTH = 220
-const MAX_LEFT_PANEL_WIDTH = 480
-const COLLAPSED_LEFT_PANEL_WIDTH = 48
-const MIN_RIGHT_PANEL_WIDTH = 200
-const MAX_RIGHT_PANEL_WIDTH = 320
-const GRAPH_SPLIT_MIN_RATIO = 22
-const GRAPH_SPLIT_MAX_RATIO = 78
-const GRAPH_SPLIT_SNAP_RATIO = 12
-const GRAPH_SPLIT_STORAGE_PREFIX = 'spark.workflow-design.graph-split.'
-const NODE_KEYBOARD_MOVE_STEP = 20
-const NODE_KEYBOARD_FAST_MOVE_STEP = 100
-const UNREADABLE_WORKFLOW_DESIGN_STATUS = 'unreadable'
-const UNREADABLE_WORKFLOW_DESIGN_FALLBACK_ERROR = '设计稿格式不兼容或文件不可读'
-const WORKFLOW_NODE_WIDTH = 216
-const WORKFLOW_NODE_HEIGHT = 118
 let structuredEditorId = 0
-
-const inputDockDefinitions: readonly WorkflowDockDefinition[] = [
-  { id: 1, position: Position.Top, style: { left: '25%' } },
-  { id: 2, position: Position.Top, style: { left: '50%' } },
-  { id: 3, position: Position.Top, style: { left: '75%' } },
-  { id: 10, position: Position.Left, style: { top: '25%' } },
-  { id: 11, position: Position.Left, style: { top: '50%' } },
-  { id: 12, position: Position.Left, style: { top: '75%' } },
-]
-const outputDockDefinitions: readonly WorkflowDockDefinition[] = [
-  { id: 4, position: Position.Right, style: { top: '25%' } },
-  { id: 5, position: Position.Right, style: { top: '50%' } },
-  { id: 6, position: Position.Right, style: { top: '75%' } },
-  { id: 7, position: Position.Bottom, style: { left: '75%' } },
-  { id: 8, position: Position.Bottom, style: { left: '50%' } },
-  { id: 9, position: Position.Bottom, style: { left: '25%' } },
-]
 
 const designs = ref<WorkflowDesignSummary[]>([])
 const currentWorkflowId = ref('')
@@ -2413,11 +2258,6 @@ const graphSplitStyle = computed<CSSProperties>(() => {
     gridTemplateRows: `minmax(220px, ${graphSplitRatio.value}fr) 18px minmax(220px, ${100 - graphSplitRatio.value}fr)`,
   }
 })
-const flowDefaultLineOptions = {
-  type: 'smoothstep',
-  markerEnd: MarkerType.ArrowClosed,
-  interactionWidth: 18,
-}
 const canSave = computed(() => currentDocument.value !== null && currentWorkflowId.value.length > 0 && !opening.value)
 const canAutoLayout = computed(() => canSave.value && !saving.value && !autoLayoutSaving.value)
 const canPublish = computed(() => canSave.value && !saving.value && !publishing.value)
@@ -2543,19 +2383,6 @@ function findWorkflowDesignSummary(workflowId: string): WorkflowDesignSummary | 
   return designs.value.find(item => item.workflowId === workflowId)
 }
 
-function isUnreadableDesign(item: WorkflowDesignSummary | undefined): boolean {
-  return item?.status === UNREADABLE_WORKFLOW_DESIGN_STATUS
-}
-
-function workflowDesignErrorMessage(item: WorkflowDesignSummary | undefined): string {
-  const message = item?.error?.trim()
-  return message && message.length > 0 ? message : UNREADABLE_WORKFLOW_DESIGN_FALLBACK_ERROR
-}
-
-function workflowDesignListItemTitle(item: WorkflowDesignSummary): string {
-  return isUnreadableDesign(item) ? workflowDesignErrorMessage(item) : item.title || item.workflowId
-}
-
 function openCreateDialog(): void {
   const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)
   createForm.value = {
@@ -2634,20 +2461,6 @@ function syncNodeCreateKindDefaults(): void {
   const form = nodeCreateForm.value
   form.id = defaultCreateNodeId(form.nodeKind)
   form.title = defaultCreateNodeTitle(form.nodeKind)
-}
-
-function defaultCreateNodeId(nodeKind: WorkflowDesignNodeCreateKind): string {
-  if (nodeKind === 'node') return 'node.model'
-  if (nodeKind === 'start') return 'start'
-  if (nodeKind === 'output') return 'output'
-  return 'node.model'
-}
-
-function defaultCreateNodeTitle(nodeKind: WorkflowDesignNodeCreateKind): string {
-  if (nodeKind === 'node') return 'Business Node'
-  if (nodeKind === 'start') return 'Start'
-  if (nodeKind === 'output') return 'Output'
-  return 'Business Node'
 }
 
 function createNodeInSelectedGraph(): void {
@@ -2790,12 +2603,6 @@ function returnMainGraphToParent(): void {
   if (graphSplitCollapsed.value === 'bottom') graphSplitCollapsed.value = null
 }
 
-function graphPanelTitle(panel: GraphSplitPanel): string {
-  const graphView = panel.graphView
-  if (graphView === null) return panel.role === 'main' ? 'Main Graph' : 'Child Graph'
-  return panel.role === 'main' ? `Main / ${graphView.title}` : `Child / ${graphView.title}`
-}
-
 function startGraphSplitResize(event: PointerEvent): void {
   if (editorDirty.value && !applySelectedDraft({ silent: false })) return
   const currentTarget = event.currentTarget
@@ -2882,71 +2689,9 @@ function saveGraphSplitState(): void {
   }))
 }
 
-function graphSplitStorageKey(workflowId: string): string {
-  return `${GRAPH_SPLIT_STORAGE_PREFIX}${workflowId}`
-}
-
-function isWorkflowFlowNodeData(value: unknown): value is WorkflowFlowNodeData {
-  return isJsonRecord(value)
-    && typeof value['viewKey'] === 'string'
-    && typeof value['title'] === 'string'
-    && typeof value['nodeType'] === 'string'
-    && typeof value['scopePath'] === 'string'
-    && typeof value['isBusinessNode'] === 'boolean'
-    && typeof value['isBoundaryNode'] === 'boolean'
-    && typeof value['modelClassName'] === 'string'
-    && typeof value['modelDocText'] === 'string'
-    && typeof value['validationActionName'] === 'string'
-    && typeof value['validationActionDocText'] === 'string'
-}
-
-function isWorkflowFlowLineData(value: unknown): value is WorkflowFlowLineData {
-  return isJsonRecord(value) && typeof value['lineKey'] === 'string'
-}
-
-function readFlowConnectionLineFromEvent(value: unknown): Readonly<{ data: WorkflowFlowLineData }> | null {
-  if (!isJsonRecord(value)) return null
-  const linePayload = value['edge']
-  if (
-    !isJsonRecord(linePayload)
-    || typeof linePayload['id'] !== 'string'
-    || typeof linePayload['source'] !== 'string'
-    || typeof linePayload['target'] !== 'string'
-  ) {
-    return null
-  }
-  const data = linePayload['data']
-  if (!isWorkflowFlowLineData(data)) return null
-  return {
-    data,
-  }
-}
-
-function isJsonRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function recordOrEmpty(value: unknown): Record<string, unknown> {
-  return isJsonRecord(value) ? value : {}
-}
-
-function uniqueTexts(values: readonly unknown[]): string[] {
-  const result: string[] = []
-  for (const value of values) {
-    if (typeof value !== 'string') continue
-    const normalized = value.trim()
-    if (normalized.length > 0 && !result.includes(normalized)) result.push(normalized)
-  }
-  return result
-}
-
 function nextStructuredEditorId(prefix: string): string {
   structuredEditorId += 1
   return `${prefix}.${structuredEditorId}`
-}
-
-function recordKeys(value: unknown): string[] {
-  return isJsonRecord(value) ? Object.keys(value).filter(key => key.trim().length > 0) : []
 }
 
 function allStructuredRows(): StructuredFieldRow[] {
@@ -2968,34 +2713,6 @@ function structuredPathOptions(rows: readonly StructuredFieldRow[]): string[] {
 
 function structuredValueOptions(row: StructuredFieldRow): string[] {
   return uniqueTexts([row.valueText, ...structuredReferenceOptions.value])
-}
-
-function metadataValueText(value: unknown): string {
-  if (value === undefined || value === null) return '-'
-  if (typeof value === 'string') return value.length > 0 ? value : '-'
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-  if (Array.isArray(value)) return value.length === 0 ? '[]' : value.map(metadataValueText).join(', ')
-  if (isJsonRecord(value)) return Object.entries(value).map(([key, child]) => `${key}: ${metadataValueText(child)}`).join('; ')
-  return String(value)
-}
-
-function collectWorkflowMetadataRows(value: unknown, path: string, rows: WorkflowMetadataRow[]): void {
-  if (isJsonRecord(value)) {
-    const entries = Object.entries(value)
-    if (entries.length === 0 && path.length > 0) rows.push({ label: path, value: '{}' })
-    for (const [key, child] of entries) {
-      collectWorkflowMetadataRows(child, path.length === 0 ? key : `${path}.${key}`, rows)
-    }
-    return
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0 && path.length > 0) rows.push({ label: path, value: '[]' })
-    for (const [index, child] of value.entries()) {
-      collectWorkflowMetadataRows(child, `${path}.${index}`, rows)
-    }
-    return
-  }
-  if (path.length > 0) rows.push({ label: path, value: metadataValueText(value) })
 }
 
 function readWorkflowMetadataText(keys: readonly string[]): string {
@@ -3046,53 +2763,6 @@ function workflowVariableRowsFromData(value: unknown): WorkflowVariableEditorRow
     })
 }
 
-function workflowVariableRowsToData(rows: readonly WorkflowVariableEditorRow[]): WorkflowDesignVariable[] {
-  return rows
-    .map((row): WorkflowDesignVariable | null => {
-      const name = row.name.trim()
-      if (name.length === 0) return null
-      const variable: WorkflowDesignVariable = {
-        ...row.source,
-        name,
-        title: row.title.trim(),
-        required: row.required,
-        schema: {
-          ...row.schema,
-          type: row.schemaType.trim() || 'string',
-        },
-      }
-      if (row.defaultValueEditable) {
-        const defaultText = row.defaultValueText.trim()
-        if (defaultText.length > 0) variable.defaultValue = parseWorkflowVariableDefaultValue(defaultText, row.schemaType)
-        else delete variable.defaultValue
-      } else if (Object.prototype.hasOwnProperty.call(row.source, 'defaultValue')) {
-        variable.defaultValue = row.defaultValue
-      }
-      return variable
-    })
-    .filter((variable): variable is WorkflowDesignVariable => variable !== null)
-}
-
-function primitiveValueText(value: unknown): string {
-  if (value === undefined || value === null) return ''
-  if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-  return ''
-}
-
-function isPrimitiveEditableValue(value: unknown): boolean {
-  return value === undefined || value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
-}
-
-function parseWorkflowVariableDefaultValue(value: string, schemaType: string): unknown {
-  if (schemaType === 'boolean') return value === 'true'
-  if (schemaType === 'number' || schemaType === 'integer') {
-    const parsed = Number(value)
-    return Number.isFinite(parsed) ? parsed : 0
-  }
-  return value
-}
-
 function workflowVariableDocText(row: WorkflowVariableEditorRow): string {
   return firstMeaningfulText([
     row.docText,
@@ -3125,34 +2795,6 @@ function workflowReferenceDocText(value: string): string {
   const modelMatch = /^\$model\.([^.\s}]+)$/u.exec(trimmed)
   if (modelMatch !== null) return workflowAttributeDocText(modelMatch[1] ?? '')
   return ''
-}
-
-function readWorkflowVariableSourceDocText(variable: Record<string, unknown>, schema: Record<string, unknown>): string {
-  return firstMeaningfulText([
-    readTextField(variable, 'jsdoc'),
-    readTextField(variable, 'description'),
-    readTextField(variable, 'desc'),
-    readTextField(schema, 'jsdoc'),
-    readTextField(schema, 'description'),
-    readTextField(schema, 'summary'),
-  ], [
-    readTextField(variable, 'name'),
-    readTextField(variable, 'title'),
-  ])
-}
-
-function firstMeaningfulText(values: readonly string[], duplicates: readonly string[]): string {
-  const duplicateSet = new Set(duplicates.map(normalizeMeaningfulText).filter(value => value.length > 0))
-  return values
-    .map(value => value.trim())
-    .find((value) => {
-      if (value.length === 0) return false
-      return !duplicateSet.has(normalizeMeaningfulText(value))
-    }) ?? ''
-}
-
-function normalizeMeaningfulText(value: string): string {
-  return value.trim().replace(/\s+/gu, ' ').toLocaleLowerCase()
 }
 
 function lineEndpointModelDocText(nodeId: string, modelId: string): string {
@@ -3198,15 +2840,6 @@ function classModelMemberDocText(className: string, memberName: string): string 
   const option = classModelOptions.value.find(item => item.kind === className.trim())
   if (option === undefined) return ''
   return classModelOptionMemberDocText(option, memberName)
-}
-
-function classModelOptionMemberDocText(option: ClassModelOption, memberName: string): string {
-  const trimmedMember = memberName.trim()
-  const attribute = option.attributes.find(item => item.name === trimmedMember)
-  if (attribute !== undefined) return classModelDocText(attribute)
-  const method = option.methods.find(item => item.name === trimmedMember)
-  if (method !== undefined) return classModelDocText(method)
-  return ''
 }
 
 function selectedModelAttributeDocText(name: string): string {
@@ -3373,54 +3006,12 @@ function structuredRowFromValue(path: string, value: unknown, prefix: string): S
   }
 }
 
-function structuredRowsToRecord(rows: readonly StructuredFieldRow[]): Record<string, unknown> {
-  const result: Record<string, unknown> = {}
-  for (const row of rows) {
-    const path = row.path.trim()
-    if (path.length === 0) continue
-    assignStructuredPath(result, path.split('.'), structuredRowValue(row))
-  }
-  return result
-}
-
-function structuredRowValue(row: StructuredFieldRow): unknown {
-  if (row.valueKind === 'boolean') return row.valueBoolean
-  if (row.valueKind === 'number') {
-    const value = Number(row.valueText)
-    return Number.isFinite(value) ? value : 0
-  }
-  return row.valueText
-}
-
-function assignStructuredPath(target: Record<string, unknown>, parts: string[], value: unknown): void {
-  let cursor = target
-  for (const [index, part] of parts.entries()) {
-    if (part.length === 0) return
-    if (index === parts.length - 1) {
-      cursor[part] = value
-      return
-    }
-    const existing = cursor[part]
-    if (isJsonRecord(existing)) {
-      cursor = existing
-    } else {
-      const created: Record<string, unknown> = {}
-      cursor[part] = created
-      cursor = created
-    }
-  }
-}
-
 function structuredCardsFromStrings(value: unknown, prefix: string): StructuredSelectCard[] {
   return Array.isArray(value)
     ? value
       .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
       .map(item => ({ id: nextStructuredEditorId(prefix), value: item.trim() }))
     : []
-}
-
-function structuredCardsToStrings(cards: readonly StructuredSelectCard[]): string[] {
-  return uniqueTexts(cards.map(card => card.value))
 }
 
 function capabilityCardsFromData(value: unknown): StructuredCapabilityCard[] {
@@ -3438,80 +3029,11 @@ function capabilityCardsFromData(value: unknown): StructuredCapabilityCard[] {
     }))
 }
 
-function capabilityCardsToData(cards: readonly StructuredCapabilityCard[]): WorkflowDesignCapability[] {
-  return cards.map(card => ({
-    id: card.id,
-    title: card.title,
-    scope: card.scope,
-    description: card.description,
-    inputs: structuredRowsToRecord(card.inputRows),
-    outputs: structuredRowsToRecord(card.outputRows),
-    constraints: structuredCardsToStrings(card.constraintCards),
-  }))
-}
-
-function dockHandle(dock: number): string {
-  return `dock-${dock}`
-}
-
-function dockFromHandle(handle: string | null | undefined): number | undefined {
-  if (typeof handle !== 'string' || handle.trim().length === 0) return undefined
-  const match = /^dock-(\d+)$/u.exec(handle.trim())
-  if (match !== null) return Number(match[1])
-  const parsed = Number(handle)
-  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 12 ? parsed : undefined
-}
-
-function readDockText(dock: unknown): string {
-  return typeof dock === 'number' && Number.isInteger(dock) && dock >= 0 && dock <= 12 ? String(dock) : '0'
-}
-
-function parseDockText(value: string): number | undefined {
-  const text = value.trim()
-  if (text.length === 0) return 0
-  const parsed = Number(text)
-  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 12 ? parsed : undefined
-}
-
-function withConnectionEndpoint(
-  endpoint: WorkflowDesignLineEndpoint,
-  nodeId: string,
-  handle: string | null | undefined,
-): WorkflowDesignLineEndpoint {
-  const { dock: _dock, ...rest } = endpoint
-  const dock = dockFromHandle(handle)
-  return {
-    ...rest,
-    nodeId,
-    modelId: rest.modelId.trim().length > 0 ? rest.modelId : '$workflow',
-    memberName: rest.memberName.trim().length > 0 ? rest.memberName : 'value',
-    dock: dock ?? 0,
-  }
-}
-
 function lineViewKey(graphView: WorkflowDesignGraphView, line: WorkflowDesignLineView['line']): string {
   const view = lineViews.value.find(item => item.graph === graphView.graph && item.line === line)
   if (view !== undefined) return view.key
   const index = graphView.graph.lines.indexOf(line)
   return `${graphView.scopePath}:line:${line.id ?? index}`
-}
-
-function createEditorLineEndpoint(command: EditorLineEndpointCommand): WorkflowDesignLineEndpoint {
-  const { nodeId, modelId, memberName, dockText } = command
-  const dock = parseDockText(dockText)
-  return {
-    nodeId,
-    modelId,
-    memberName,
-    dock: dock ?? 0,
-  }
-}
-
-function isSameLineEndpoint(left: WorkflowDesignLineEndpoint, right: WorkflowDesignLineEndpoint): boolean {
-  return left.nodeId === right.nodeId
-    && left.modelId === right.modelId
-    && left.memberName === right.memberName
-    && (left.dock ?? 0) === (right.dock ?? 0)
 }
 
 function selectNode(key: string): void {
@@ -3579,10 +3101,6 @@ function linesForGraph(graphView: WorkflowDesignGraphView): WorkflowDesignLineVi
   return lineViews.value.filter(line => line.graph === graphView.graph)
 }
 
-function flowId(graphView: WorkflowDesignGraphView): string {
-  return `workflow-flow-${graphView.key.replace(/[^\w-]/gu, '-')}`
-}
-
 function flowNodesForGraph(graphView: WorkflowDesignGraphView): WorkflowFlowNode[] {
   return nodesForGraph(graphView).map((view) => {
     return {
@@ -3626,101 +3144,6 @@ function flowConnectionsForGraph(graphView: WorkflowDesignGraphView): WorkflowFl
       },
     }
   })
-}
-
-function resolvedLineDocks(line: WorkflowDesignLineView): Readonly<{ source: number; target: number }> {
-  const sourceCandidates = outputDockDefinitions.map(dock => dock.id)
-  const targetCandidates = inputDockDefinitions.map(dock => dock.id)
-  const fixedSource = sourceCandidates.includes(line.from.dock ?? 0) ? line.from.dock : undefined
-  const fixedTarget = targetCandidates.includes(line.to.dock ?? 0) ? line.to.dock : undefined
-  const sources = fixedSource === undefined ? sourceCandidates : [fixedSource]
-  const targets = fixedTarget === undefined ? targetCandidates : [fixedTarget]
-  let best = { source: sources[0] ?? 5, target: targets[0] ?? 2, distance: Number.POSITIVE_INFINITY }
-  for (const source of sources) {
-    for (const target of targets) {
-      const sourcePoint = workflowDockPoint(line.fromNode, source)
-      const targetPoint = workflowDockPoint(line.toNode, target)
-      const distance = Math.hypot(sourcePoint.x - targetPoint.x, sourcePoint.y - targetPoint.y)
-      if (distance < best.distance) best = { source, target, distance }
-    }
-  }
-  return { source: best.source, target: best.target }
-}
-
-function workflowDockPoint(node: WorkflowDesignLineView['fromNode'], dock: number): WorkflowDesignLineControlPoint {
-  const x = node?.position?.x ?? 0
-  const y = node?.position?.y ?? 0
-  const quarterX = WORKFLOW_NODE_WIDTH / 4
-  const quarterY = WORKFLOW_NODE_HEIGHT / 4
-  if (dock >= 1 && dock <= 3) return { x: x + quarterX * dock, y }
-  if (dock >= 4 && dock <= 6) return { x: x + WORKFLOW_NODE_WIDTH, y: y + quarterY * (dock - 3) }
-  if (dock >= 7 && dock <= 9) return { x: x + quarterX * (10 - dock), y: y + WORKFLOW_NODE_HEIGHT }
-  return { x, y: y + quarterY * (dock - 9) }
-}
-
-function workflowControlEdgePath(edge: WorkflowControlEdgeSlot): string {
-  const points = [
-    { x: edge.sourceX, y: edge.sourceY },
-    ...edge.data.controlPoints,
-    { x: edge.targetX, y: edge.targetY },
-  ]
-  if (edge.data.lineType === 'straight') return polylinePath(points)
-  if (edge.data.lineType === 'bezier') return smoothControlPointPath(points)
-  return orthogonalControlPointPath(points)
-}
-
-function polylinePath(points: readonly WorkflowDesignLineControlPoint[]): string {
-  const first = points[0]
-  if (first === undefined) return ''
-  return `M ${first.x} ${first.y}${points.slice(1).map(point => ` L ${point.x} ${point.y}`).join('')}`
-}
-
-function orthogonalControlPointPath(points: readonly WorkflowDesignLineControlPoint[]): string {
-  const first = points[0]
-  if (first === undefined) return ''
-  let path = `M ${first.x} ${first.y}`
-  for (let index = 1; index < points.length; index += 1) {
-    const previous = points[index - 1]
-    const point = points[index]
-    if (previous === undefined || point === undefined) continue
-    const middleY = (previous.y + point.y) / 2
-    path += ` L ${previous.x} ${middleY} L ${point.x} ${middleY} L ${point.x} ${point.y}`
-  }
-  return path
-}
-
-function smoothControlPointPath(points: readonly WorkflowDesignLineControlPoint[]): string {
-  const first = points[0]
-  if (first === undefined) return ''
-  if (points.length < 3) {
-    const last = points[points.length - 1]
-    if (last === undefined) return ''
-    const middleY = (first.y + last.y) / 2
-    return `M ${first.x} ${first.y} C ${first.x} ${middleY}, ${last.x} ${middleY}, ${last.x} ${last.y}`
-  }
-  let path = `M ${first.x} ${first.y}`
-  for (let index = 1; index < points.length - 1; index += 1) {
-    const point = points[index]
-    const next = points[index + 1]
-    if (point === undefined || next === undefined) continue
-    path += ` Q ${point.x} ${point.y} ${(point.x + next.x) / 2} ${(point.y + next.y) / 2}`
-  }
-  const previous = points[points.length - 2]
-  const last = points[points.length - 1]
-  return previous === undefined || last === undefined ? path : `${path} Q ${previous.x} ${previous.y} ${last.x} ${last.y}`
-}
-
-function workflowEdgeStatusPoint(edge: WorkflowControlEdgeSlot): WorkflowDesignLineControlPoint {
-  const middle = edge.data.controlPoints[Math.floor(edge.data.controlPoints.length / 2)]
-  return middle ?? { x: (edge.sourceX + edge.targetX) / 2, y: (edge.sourceY + edge.targetY) / 2 }
-}
-
-function workflowRuntimeStatusIcon(status: WorkflowLineRuntimeStatus): string {
-  if (status === 'running') return '▶'
-  if (status === 'completed') return '✓'
-  if (status === 'failed') return '!'
-  if (status === 'skipped') return '–'
-  return ''
 }
 
 function setWorkflowLineRuntimeStatus(lineIdOrKey: string, status: WorkflowLineRuntimeStatus): boolean {
@@ -3784,37 +3207,6 @@ function addLineControlPoint(event: MouseEvent, data: WorkflowFlowLineData, grap
   markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
 }
 
-function nearestLineSegmentIndex(
-  points: readonly WorkflowDesignLineControlPoint[],
-  point: WorkflowDesignLineControlPoint,
-): number {
-  let bestIndex = 0
-  let bestDistance = Number.POSITIVE_INFINITY
-  for (let index = 0; index < points.length - 1; index += 1) {
-    const start = points[index]
-    const end = points[index + 1]
-    if (start === undefined || end === undefined) continue
-    const distance = pointToLineSegmentDistance(point, start, end)
-    if (distance < bestDistance) {
-      bestDistance = distance
-      bestIndex = index
-    }
-  }
-  return bestIndex
-}
-
-function pointToLineSegmentDistance(
-  point: WorkflowDesignLineControlPoint,
-  start: WorkflowDesignLineControlPoint,
-  end: WorkflowDesignLineControlPoint,
-): number {
-  const dx = end.x - start.x
-  const dy = end.y - start.y
-  if (dx === 0 && dy === 0) return Math.hypot(point.x - start.x, point.y - start.y)
-  const ratio = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / (dx * dx + dy * dy)))
-  return Math.hypot(point.x - (start.x + ratio * dx), point.y - (start.y + ratio * dy))
-}
-
 function startControlPointDrag(command: StartControlPointDragCommand): void {
   const { event, data, index, graphView } = command
   const pointIndex = Number(index)
@@ -3872,15 +3264,6 @@ function handleControlPointDeleteKey(event: KeyboardEvent): void {
   if (event.key !== 'Delete' && event.key !== 'Backspace') return
   event.preventDefault()
   deleteLineControlPoint(selected.lineKey, selected.index)
-}
-
-function flowDefaultViewport(graphView: WorkflowDesignGraphView): ViewportTransform {
-  const vp = graphView.graph.viewport
-  return {
-    x: vp?.x ?? 0,
-    y: vp?.y ?? 0,
-    zoom: vp?.zoom ?? 1,
-  }
 }
 
 function handlePanelFlowNodesChange(changes: NodeChange[], graphView: WorkflowDesignGraphView | null): void {
@@ -3954,10 +3337,6 @@ function workflowLineViewForFlowConnectionId(
   return lineViews.value.find(line => line.graph === graphView.graph && workflowFlowConnectionId(line) === connectionId)
 }
 
-function workflowFlowConnectionId(line: WorkflowDesignLineView): string {
-  return line.key
-}
-
 function handleFlowViewportChangeEnd(viewport: ViewportTransform, graphView: WorkflowDesignGraphView): void {
   const document = currentDocument.value
   if (document === null) return
@@ -3994,20 +3373,6 @@ function handleNodeKeyboardMove(event: KeyboardEvent): void {
     Math.max(0, currentX + delta.x),
     Math.max(0, currentY + delta.y),
   )
-}
-
-function nodeKeyboardMoveDelta(event: KeyboardEvent): { x: number; y: number } | null {
-  const step = event.shiftKey ? NODE_KEYBOARD_FAST_MOVE_STEP : NODE_KEYBOARD_MOVE_STEP
-  if (event.key === 'ArrowLeft') return { x: -step, y: 0 }
-  if (event.key === 'ArrowRight') return { x: step, y: 0 }
-  if (event.key === 'ArrowUp') return { x: 0, y: -step }
-  if (event.key === 'ArrowDown') return { x: 0, y: step }
-  return null
-}
-
-function isEditableKeyboardTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false
-  return target.closest('input, textarea, select, button, [contenteditable="true"]') !== null
 }
 
 function handleFlowConnect(connection: Connection, graphView: WorkflowDesignGraphView): void {
@@ -4365,26 +3730,6 @@ function applyNodeBasicEditorToSelected(): boolean {
   return true
 }
 
-function shouldEditNodeConfig(view: WorkflowDesignNodeView): boolean {
-  return view.isBusinessNode
-}
-
-function readBusinessNodeModelClassName(view: WorkflowDesignNodeView): string {
-  if (!view.isBusinessNode) return ''
-  const model = readPrimaryBusinessNodeModel(view.node.data)
-  if (!isJsonRecord(model)) return 'unbound model'
-  const className = model['className']
-  return typeof className === 'string' && className.trim().length > 0 ? className.trim() : 'unbound model'
-}
-
-function readBusinessNodeValidationActionName(view: WorkflowDesignNodeView): string {
-  if (!view.isBusinessNode) return ''
-  const model = readPrimaryBusinessNodeModel(view.node.data)
-  const completion = isJsonRecord(model?.['completion']) ? model['completion'] : undefined
-  const memberName = isJsonRecord(completion) ? completion['memberName'] : undefined
-  return typeof memberName === 'string' && memberName.trim().length > 0 ? memberName.trim() : ''
-}
-
 function readBusinessNodeModelDocText(view: WorkflowDesignNodeView): string {
   const className = readBusinessNodeModelClassName(view)
   const option = classModelOptions.value.find(item => item.kind === className)
@@ -4397,113 +3742,6 @@ function readBusinessNodeValidationActionDocText(view: WorkflowDesignNodeView): 
   const option = classModelOptions.value.find(item => item.kind === className)
   const method = option?.methods.find(item => item.name === actionName)
   return method === undefined ? '' : shortClassModelDocText(method)
-}
-
-function createClassModelKnowledgeProvider(rootClassName: string): ClassModelKnowledgeProvider {
-  return createWorkerDtsClassModelKnowledgeProvider({
-    workerUrl: new URL('../../services/class-model-knowledge.worker.ts', import.meta.url),
-    dtsClassModelManifestUrl: getDtsClassModelManifestUrl(),
-    rootClassName,
-  })
-}
-
-function readClassModelOptions(value: unknown): ClassModelOption[] {
-  if (!isJsonRecord(value) || !Array.isArray(value['models'])) return []
-  return value['models']
-    .filter(isJsonRecord)
-    .map((model): ClassModelOption | null => {
-      const kind = readTextField(model, 'kind') || readTextField(model, 'name')
-      if (kind.length === 0) return null
-      return {
-        kind,
-        jsdoc: readTextField(model, 'jsdoc'),
-        summary: readTextField(model, 'summary'),
-        constructorSignature: readConstructorOption(model['constructorSignature']),
-        attributes: readAttributeOptions(model['attributes']),
-        methods: readMethodOptions(model['methods']),
-      }
-    })
-    .filter((item): item is ClassModelOption => item !== null)
-}
-
-function readConstructorOption(value: unknown): ClassModelConstructorOption | null {
-  if (!isJsonRecord(value)) return null
-  const signature = readTextField(value, 'signature')
-  if (signature.length === 0) return null
-  return {
-    jsdoc: readTextField(value, 'jsdoc'),
-    summary: readTextField(value, 'summary'),
-    signature,
-  }
-}
-
-function readAttributeOptions(value: unknown): ClassModelAttributeOption[] {
-  if (!Array.isArray(value)) return []
-  return value
-    .filter(isJsonRecord)
-    .map((attribute): ClassModelAttributeOption | null => {
-      const name = readTextField(attribute, 'name')
-      if (name.length === 0) return null
-      return {
-        name,
-        jsdoc: readTextField(attribute, 'jsdoc'),
-        summary: readTextField(attribute, 'summary'),
-        typeText: readTextField(attribute, 'typeText'),
-      }
-    })
-    .filter((item): item is ClassModelAttributeOption => item !== null)
-}
-
-function readMethodOptions(value: unknown): ClassModelMethodOption[] {
-  if (!Array.isArray(value)) return []
-  return value
-    .filter(isJsonRecord)
-    .map((method): ClassModelMethodOption | null => {
-      const name = readTextField(method, 'name')
-      if (name.length === 0) return null
-      return {
-        name,
-        jsdoc: readTextField(method, 'jsdoc'),
-        summary: readTextField(method, 'summary'),
-        signature: readTextField(method, 'signature'),
-      }
-    })
-    .filter((item): item is ClassModelMethodOption => item !== null)
-}
-
-function readTextField(value: unknown, field: string): string {
-  if (!isJsonRecord(value)) return ''
-  const text = value[field]
-  return typeof text === 'string' ? text.trim() : ''
-}
-
-function classModelDocText(item: Readonly<{ jsdoc?: string; summary?: string }>): string {
-  const jsdoc = typeof item.jsdoc === 'string' ? item.jsdoc.trim() : ''
-  if (jsdoc.length > 0) return jsdoc
-  const summary = typeof item.summary === 'string' ? item.summary.trim() : ''
-  return summary.length > 0 ? summary : 'No JSDoc.'
-}
-
-function shortClassModelDocText(item: Readonly<{ jsdoc?: string; summary?: string }>): string {
-  const line = classModelDocText(item).split('\n').map(part => part.trim()).find(part => part.length > 0) ?? ''
-  return line.length > 96 ? `${line.slice(0, 95)}...` : line
-}
-
-function readPrimaryBusinessNodeModel(data: unknown): Record<string, unknown> | null {
-  if (!isJsonRecord(data)) return null
-  const models = data['models']
-  if (Array.isArray(models) && isJsonRecord(models[0])) return models[0]
-  return null
-}
-
-function ensurePrimaryBusinessNodeModel(data: Record<string, unknown>, nodeId: string): Record<string, unknown> {
-  const models = Array.isArray(data['models']) ? [...data['models']] : []
-  const primary = isJsonRecord(models[0]) ? models[0] : {}
-  if (readTextField(primary, 'id').length === 0) primary['id'] = `${nodeId}.model`
-  if (readTextField(primary, 'sourceRef').length === 0) primary['sourceRef'] = '$'
-  models[0] = primary
-  data['models'] = models
-  return primary
 }
 
 function handleBusinessNodeStructuredChange(): void {
@@ -4747,27 +3985,6 @@ function createWorkflowRuntimeBindingFromEditor(
     ...(agentCompleteMethodName.length === 0 ? {} : { agentCompleteMethodName }),
     ...(executionToolNames.length === 0 ? {} : { executionToolNames }),
     ...(planWithoutToolMarkers.length === 0 ? {} : { planWithoutToolMarkers }),
-  }
-}
-
-function createWorkflowParamsSchema(
-  existing: unknown,
-  variables: readonly WorkflowDesignVariable[],
-): WorkflowRuntimeBinding['inputContract']['paramsSchema'] {
-  const standardized = standardizeJsonSchema(existing)
-  const current = typeof standardized === 'boolean' ? {} : standardized
-  const properties: Record<string, JsonSchema> = {}
-  const required: string[] = []
-  for (const variable of variables) {
-    properties[variable.name] = standardizeJsonSchema(variable.schema ?? { type: 'string' })
-    if (variable.required === true) required.push(variable.name)
-  }
-  return {
-    ...current,
-    type: 'object',
-    properties,
-    required,
-    additionalProperties: false,
   }
 }
 
@@ -5167,1073 +4384,6 @@ async function confirmDiscardDefinitionDraft(): Promise<boolean> {
     return false
   }
 }
-
-function errorMessage(error: unknown): string {
-  if (error instanceof Error && error.message.trim().length > 0) return error.message
-  return String(error)
-}
 </script>
 
-<style scoped>
-.workflow-design-page {
-  min-height: 100%;
-  padding: 12px;
-  background: #f6f8fb;
-}
-
-.workflow-design-shell {
-  display: grid;
-  min-height: calc(100vh - 88px);
-}
-
-.workflow-design-sidebar,
-.workflow-design-canvas,
-.workflow-design-editor {
-  min-width: 0;
-  border: 1px solid #d8dee8;
-  border-radius: 8px;
-  background: #ffffff;
-}
-
-.workflow-design-sidebar,
-.workflow-design-editor {
-  padding: 12px;
-  overflow: auto;
-}
-
-.workflow-design-sidebar.is-collapsed {
-  display: grid;
-  place-items: start center;
-  padding: 8px 4px;
-  overflow: hidden;
-}
-
-.workflow-sidebar-collapsed-button {
-  display: grid;
-  width: 36px;
-  min-height: 92px;
-  place-items: center;
-  gap: 8px;
-  padding: 8px 4px;
-  border: 1px solid #dbe3ee;
-  border-radius: 8px;
-  color: #334155;
-  cursor: pointer;
-  background: #f8fafc;
-}
-
-.workflow-sidebar-collapsed-button span {
-  writing-mode: vertical-rl;
-  letter-spacing: 0;
-}
-
-.workflow-sidebar-collapsed-button strong {
-  color: #0f766e;
-  font-size: 12px;
-}
-
-.workflow-tool-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-}
-
-.workflow-tool-sidebar .panel-heading {
-  margin-bottom: 2px;
-}
-
-.workflow-tool-group {
-  display: grid;
-  gap: 6px;
-  padding: 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #f8fafc;
-}
-
-.workflow-tool-group h3 {
-  margin: 0 0 2px;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.workflow-tool-group :deep(.el-button) {
-  width: 100%;
-  justify-content: center;
-  margin-left: 0;
-  min-height: 28px;
-  padding: 5px 6px;
-  font-size: 12px;
-}
-
-.workflow-tool-button-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.workflow-tool-empty {
-  padding: 7px 8px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 6px;
-  color: #94a3b8;
-  font-size: 12px;
-  text-align: center;
-  background: #ffffff;
-}
-
-.workflow-tool-selection {
-  display: grid;
-  gap: 3px;
-  padding: 6px;
-  border: 1px solid #dbe3ee;
-  border-radius: 6px;
-  background: #ffffff;
-}
-
-.workflow-tool-selection strong,
-.workflow-tool-selection span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.workflow-line-type-field {
-  display: grid;
-  gap: 4px;
-  color: #475569;
-  font-size: 12px;
-}
-
-.workflow-control-edge :deep(.vue-flow__edge-path) {
-  stroke: #64748b;
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-
-.workflow-control-edge.is-running :deep(.vue-flow__edge-path) {
-  stroke: #2563eb;
-  stroke-dasharray: 8 5;
-  animation: workflow-edge-flow 0.8s linear infinite;
-}
-
-.workflow-control-edge.is-completed :deep(.vue-flow__edge-path) {
-  stroke: #16a34a;
-}
-
-.workflow-control-edge.is-failed :deep(.vue-flow__edge-path) {
-  stroke: #dc2626;
-}
-
-.workflow-control-edge.is-skipped :deep(.vue-flow__edge-path) {
-  stroke: #94a3b8;
-  stroke-dasharray: 5 5;
-}
-
-.workflow-edge-control-point {
-  fill: #ffffff;
-  stroke: #2563eb;
-  stroke-width: 2;
-  cursor: move;
-}
-
-.workflow-edge-control-point.is-selected {
-  fill: #dbeafe;
-  stroke: #1d4ed8;
-  stroke-width: 3;
-}
-
-.workflow-edge-status-icon {
-  fill: #334155;
-  font-size: 14px;
-  font-weight: 800;
-  pointer-events: none;
-  text-anchor: middle;
-}
-
-@keyframes workflow-edge-flow {
-  to { stroke-dashoffset: -13; }
-}
-
-.workflow-tool-selection strong {
-  color: #111827;
-  font-size: 13px;
-}
-
-.workflow-tool-selection span {
-  color: #64748b;
-  font-size: 12px;
-}
-
-.layout-resize-handle {
-  align-self: stretch;
-  cursor: col-resize;
-  transition: background 0.16s ease;
-}
-
-.layout-resize-handle:hover {
-  background: linear-gradient(90deg, transparent 4px, #cbd5e1 4px, #cbd5e1 8px, transparent 8px);
-}
-
-.layout-resize-handle.is-disabled {
-  cursor: default;
-  pointer-events: none;
-}
-
-.workflow-design-canvas {
-  padding: 14px;
-  overflow: auto;
-}
-
-.panel-heading,
-.canvas-toolbar,
-.section-label,
-.workflow-list-meta,
-.workflow-list-actions,
-.document-title,
-.document-stats {
-  display: flex;
-  align-items: center;
-}
-
-.panel-heading {
-  justify-content: space-between;
-  margin-bottom: 12px;
-  color: #1f2937;
-  font-weight: 650;
-}
-
-.workflow-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.workflow-list-heading-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.workflow-list-item {
-  display: grid;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid #dbe3ee;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #ffffff;
-  transition: border-color 0.16s ease, background 0.16s ease;
-}
-
-.workflow-list-item:hover,
-.workflow-list-item.is-active {
-  border-color: #0f766e;
-  background: #eefaf7;
-}
-
-.workflow-list-item.is-unreadable {
-  border-color: #fecaca;
-  background: #fff7f7;
-}
-
-.workflow-list-item.is-unreadable:hover {
-  border-color: #dc2626;
-  background: #fff1f2;
-}
-
-.workflow-list-main {
-  display: grid;
-  gap: 2px;
-}
-
-.workflow-list-main strong {
-  overflow: hidden;
-  color: #111827;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.workflow-list-main span,
-.workflow-list-meta span,
-.document-stats span {
-  color: #64748b;
-  font-size: 12px;
-}
-
-.workflow-list-meta,
-.workflow-list-actions {
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.canvas-toolbar {
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.document-title {
-  min-width: 0;
-  gap: 8px;
-  color: #111827;
-  font-weight: 700;
-}
-
-.document-title-label {
-  flex: 0 0 auto;
-}
-
-.document-title-id {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.document-stats {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.graph-section {
-  margin-bottom: 16px;
-}
-
-.graph-split {
-  display: grid;
-  height: calc(100vh - 216px);
-  min-height: 640px;
-}
-
-.graph-split-pane {
-  display: flex;
-  min-height: 0;
-  margin-bottom: 0;
-  overflow: hidden;
-  flex-direction: column;
-}
-
-.graph-split-pane.is-collapsed {
-  min-height: 8px;
-}
-
-.graph-collapse-rail {
-  width: 100%;
-  height: 8px;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  cursor: pointer;
-  background: #cbd5e1;
-}
-
-.graph-splitter {
-  display: grid;
-  grid-template-columns: minmax(24px, 1fr) auto minmax(24px, 1fr);
-  align-items: center;
-  gap: 8px;
-  min-height: 18px;
-  cursor: row-resize;
-}
-
-.graph-splitter-line {
-  height: 1px;
-  background: #dbe3ee;
-}
-
-.graph-splitter-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 6px;
-  border: 1px solid #dbe3ee;
-  border-radius: 999px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
-}
-
-.graph-panel-label {
-  flex: 0 0 auto;
-}
-
-.graph-panel-body {
-  display: flex;
-  min-height: 0;
-  flex: 1 1 auto;
-  flex-direction: column;
-}
-
-.graph-panel-flow {
-  flex: 1 1 auto;
-  min-height: 220px;
-}
-
-.graph-child-select {
-  width: 180px;
-  min-height: 26px;
-  font-size: 12px;
-}
-
-.collapsible-section > summary {
-  list-style: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.collapsible-section > summary::-webkit-details-marker {
-  display: none;
-}
-
-.collapsible-section > summary::before {
-  content: ">";
-  flex: 0 0 auto;
-  color: #64748b;
-  transition: transform 0.16s ease;
-}
-
-.collapsible-section[open] > summary::before {
-  transform: rotate(90deg);
-}
-
-.collapsible-body {
-  min-width: 0;
-}
-
-.section-label {
-  justify-content: flex-start;
-  gap: 8px;
-  margin-bottom: 10px;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.section-title {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.section-label-actions {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-left: auto;
-}
-
-.graph-node-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.loop-group-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: -2px 0 10px;
-  color: #92400e;
-  font-size: 12px;
-}
-
-.loop-group-meta span {
-  padding: 3px 8px;
-  border: 1px solid #fed7aa;
-  border-radius: 999px;
-  background: #fff7ed;
-}
-
-.graph-class-model-strip {
-  display: flex;
-  min-height: 32px;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin: -2px 0 10px;
-  padding: 6px 8px;
-  border: 1px solid #dbe3ee;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #334155;
-  font-size: 12px;
-}
-
-.graph-class-model-strip strong {
-  color: #111827;
-}
-
-.graph-class-model-strip-badge {
-  padding: 3px 8px;
-  border: 1px solid #dbe3ee;
-  border-radius: 999px;
-  background: #ffffff;
-}
-
-.graph-class-model-strip-spacer {
-  flex: 1 1 auto;
-}
-
-.workflow-flow-shell {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fbfdff;
-}
-
-.workflow-flow {
-  width: 100%;
-  height: 100%;
-  min-height: 260px;
-}
-
-.graph-split .workflow-flow {
-  min-height: 0;
-}
-
-.workflow-flow--subgraph {
-  min-height: 520px;
-}
-
-.graph-split .workflow-flow--subgraph {
-  min-height: 0;
-}
-
-.workflow-node {
-  display: grid;
-  align-content: start;
-  min-width: 0;
-  border: 1px solid #dbe3ee;
-  border-radius: 8px;
-  text-align: left;
-  background: #ffffff;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
-  width: 190px;
-  min-height: 92px;
-  padding: 12px;
-  gap: 6px;
-  cursor: grab;
-  user-select: none;
-}
-
-.workflow-node:hover {
-  border-color: #2563eb;
-  box-shadow: 0 8px 20px rgb(15 23 42 / 8%);
-  transform: translateY(-1px);
-}
-
-.workflow-node.is-selected {
-  border-color: #0f766e;
-  box-shadow: 0 0 0 2px rgb(15 118 110 / 18%);
-}
-
-.workflow-node.is-business {
-  background: #f4fbf9;
-}
-
-.workflow-node.is-boundary {
-  background: #f5f9ff;
-}
-
-.workflow-node.is-loop {
-  background: #fff7ed;
-}
-
-.node-kind,
-.tool-name {
-  width: fit-content;
-  max-width: 100%;
-  overflow: hidden;
-  border-radius: 999px;
-  color: #334155;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 20px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.node-kind {
-  padding: 0 8px;
-  background: #e8eef6;
-}
-
-.tool-name {
-  padding: 0 7px;
-  background: #dcfce7;
-  color: #166534;
-}
-
-.tool-name--pinned {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.tool-name--pinned .class-model-pin {
-  width: 7px;
-  height: 7px;
-  border-width: 1px;
-  box-shadow: none;
-}
-
-.node-jsdoc {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.workflow-node strong {
-  overflow-wrap: anywhere;
-  color: #111827;
-  font-size: 14px;
-  line-height: 18px;
-}
-
-.workflow-node small {
-  overflow-wrap: anywhere;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 16px;
-}
-
-.editor-section {
-  padding: 10px 0;
-  border-top: 1px solid #e5e7eb;
-}
-
-.editor-section:first-of-type {
-  border-top: 0;
-  padding-top: 0;
-}
-
-.editor-section > summary {
-  margin-bottom: 10px;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.node-editor-form,
-.loop-editor-form,
-.class-model-editor,
-.structured-editor,
-.properties-summary {
-  display: grid;
-  gap: 10px;
-}
-
-.properties-drawer :deep(.el-drawer__body),
-.class-model-drawer :deep(.el-drawer__body) {
-  overflow: auto;
-  padding-top: 8px;
-}
-
-.structured-field-row,
-.structured-card {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-}
-
-.structured-field-row {
-  grid-template-columns: minmax(160px, 1fr) 130px minmax(220px, 2fr) auto;
-  align-items: center;
-}
-
-.structured-field-row--compact {
-  grid-template-columns: minmax(110px, 1fr) 96px minmax(120px, 1.5fr) auto;
-}
-
-.structured-card {
-  padding: 10px;
-  border: 1px solid #dbe3ee;
-  border-radius: 8px;
-  background: #f8fafc;
-}
-
-.structured-checkbox {
-  width: 18px;
-  height: 18px;
-}
-
-.class-model-catalog {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  color: #334155;
-  font-size: 12px;
-}
-
-.workflow-variable-editor,
-.workflow-runtime-editor,
-.workflow-capability-editor,
-.workflow-string-list {
-  display: grid;
-  gap: 8px;
-}
-
-.workflow-inline-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.workflow-doc-reference {
-  display: flex;
-  grid-column: 1 / -1;
-  gap: 6px;
-  align-items: flex-start;
-  min-width: 0;
-  padding: 6px 8px;
-  border: 1px solid #dbe3ee;
-  border-radius: 6px;
-  color: #475569;
-  font-size: 12px;
-  line-height: 17px;
-  background: #f8fafc;
-}
-
-.workflow-doc-reference > strong {
-  flex: 0 0 auto;
-  color: #0f766e;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.workflow-doc-reference span:last-child {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.structured-field-doc-reference {
-  margin-top: -2px;
-}
-
-.field-with-doc {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 28px;
-  gap: 4px;
-  align-items: center;
-  min-width: 0;
-}
-
-.field-with-doc .native-select {
-  min-width: 0;
-}
-
-.doc-hint {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 1px solid #cbd5e1;
-  border-radius: 999px;
-  color: #0f766e;
-  cursor: help;
-  background: #f8fafc;
-  touch-action: manipulation;
-}
-
-.doc-hint:hover,
-.doc-hint:focus-visible,
-.doc-hint:focus {
-  border-color: #14b8a6;
-  color: #0f766e;
-  background: #ecfeff;
-}
-
-.doc-hint-popover {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 6px);
-  z-index: 30;
-  display: none;
-  width: min(320px, 70vw);
-  padding: 8px 10px;
-  border: 1px solid #99f6e4;
-  border-radius: 6px;
-  box-shadow: 0 12px 24px rgb(15 23 42 / 14%);
-  color: #334155;
-  font-size: 12px;
-  line-height: 18px;
-  text-align: left;
-  white-space: normal;
-  background: #ffffff;
-}
-
-.doc-hint:hover .doc-hint-popover,
-.doc-hint:focus-visible .doc-hint-popover,
-.doc-hint:focus .doc-hint-popover {
-  display: block;
-}
-
-.workflow-runtime-editor strong,
-.workflow-capability-editor strong,
-.workflow-string-list > span {
-  color: #334155;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.workflow-variable-row {
-  display: grid;
-  grid-template-columns: minmax(92px, 1fr) minmax(92px, 1fr) 82px 58px minmax(92px, 1fr) auto;
-  gap: 6px;
-  align-items: center;
-}
-
-.workflow-variable-header {
-  display: grid;
-  grid-template-columns: minmax(92px, 1fr) minmax(92px, 1fr) 82px 58px minmax(92px, 1fr) auto;
-  gap: 6px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.workflow-checkbox-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: #334155;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.workflow-readonly-value {
-  overflow: hidden;
-  padding: 6px 8px;
-  border: 1px solid #dbe3ee;
-  border-radius: 6px;
-  color: #64748b;
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  background: #f8fafc;
-}
-
-.workflow-string-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
-  align-items: center;
-}
-
-.workflow-metadata-table {
-  display: grid;
-  gap: 1px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #e2e8f0;
-}
-
-.workflow-metadata-row {
-  display: grid;
-  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.4fr);
-  background: #ffffff;
-}
-
-.workflow-metadata-row span,
-.workflow-metadata-row strong {
-  min-width: 0;
-  padding: 6px 8px;
-  overflow-wrap: anywhere;
-  font-size: 12px;
-}
-
-.workflow-metadata-row span {
-  color: #64748b;
-  background: #f8fafc;
-}
-
-.workflow-metadata-row strong {
-  color: #334155;
-  font-weight: 500;
-}
-
-.class-model-pin {
-  width: 9px;
-  height: 9px;
-  border: 2px solid #0f766e;
-  border-radius: 50%;
-  background: #ccfbf1;
-  box-shadow: 0 0 0 2px #f0fdfa;
-}
-
-.class-model-doc-panel {
-  display: grid;
-  max-height: 420px;
-  overflow: auto;
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid #dbe3ee;
-  border-radius: 6px;
-  background: #f8fafc;
-}
-
-.class-model-drawer-doc-panel {
-  grid-template-columns: 1fr;
-  max-height: none;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-.class-model-doc-group {
-  display: grid;
-  gap: 8px;
-}
-
-.class-model-doc-group > summary,
-.class-model-doc-title {
-  color: #334155;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.class-model-doc-item {
-  display: grid;
-  gap: 5px;
-  padding: 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #ffffff;
-}
-
-.class-model-doc-title {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.class-model-doc-item code {
-  color: #0f766e;
-  font-size: 12px;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.class-model-doc-item pre {
-  margin: 0;
-  color: #475569;
-  font-size: 12px;
-  line-height: 1.45;
-  white-space: pre-wrap;
-}
-
-.class-model-guide {
-  max-height: 220px;
-  overflow: auto;
-  padding: 10px;
-  border: 1px solid #dbe3ee;
-  border-radius: 6px;
-  background: #f8fafc;
-  color: #0f172a;
-  font-size: 12px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-}
-
-.native-select {
-  width: 100%;
-  min-height: 32px;
-  padding: 0 10px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  color: #1f2937;
-  background: #ffffff;
-}
-
-.readonly-json-preview {
-  max-height: 260px;
-  overflow: auto;
-  padding: 10px;
-  border: 1px solid #dbe3ee;
-  border-radius: 6px;
-  background: #f8fafc;
-  color: #0f172a;
-  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  line-height: 1.55;
-  white-space: pre-wrap;
-}
-
-.definition-editor {
-  display: grid;
-  gap: 12px;
-}
-
-.definition-editor-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  color: #334155;
-  font-size: 13px;
-}
-
-.definition-json-input :deep(textarea) {
-  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.editor-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-@media (max-width: 1180px) {
-  .workflow-design-shell {
-    grid-template-columns: 240px minmax(420px, 1fr);
-  }
-
-  .workflow-design-editor {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 820px) {
-  .workflow-design-page {
-    padding: 10px;
-  }
-
-  .workflow-design-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .workflow-flow-shell {
-    max-width: calc(100vw - 20px);
-  }
-
-  .graph-split {
-    height: auto;
-    min-height: 720px;
-  }
-}
-</style>
+<style scoped src="./workflow-designs/workflow-designs.css"></style>

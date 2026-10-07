@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { visitDtsTypeMeta, canRenderMethodSignatureFromTypeTree, collectDtsTypeReferenceNames } from '../class-model/dts-type-meta-ops'
-import { readDtsFileProjectionDocument } from '../class-model/read-dts-class-model-bundle-json'
-import { DTS_FILE_PROJECTION_VERSION } from '../class-model/dts-bundle-types'
+import { visitDtsTypeMeta, canRenderMethodSignatureFromTypeTree, collectDtsTypeReferenceNames } from '../class-model/declaration/dts-type-meta-ops'
+import { readDtsFileProjectionDocument } from '../class-model/bundle/read-dts-class-model-bundle-json'
+import { DTS_FILE_PROJECTION_VERSION } from '../class-model/bundle/dts-bundle-types'
 import { renderDtsTypeMeta, renderMethodParameter, renderMethodSignatureFromMeta } from '../class-model/signature-renderer'
 import type { DtsTypeMeta, MethodMeta } from '../class-model/types'
 

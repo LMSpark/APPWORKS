@@ -993,3 +993,127 @@
 - **门禁边界**：全仓ClassModel仍168项HEAD可对应的module/model/constructor缺口，本轮新增0；全仓文档仍6项范围外.github治理错误。未声称verify全绿。
 - **实际写入边界**：只创建/恢复本次明确场景视图与快照；无业务记录CRUD、Java、租户权限或Git提交。业务父凭据强验签不是实际业务保存E2E。无后端CAS，失败不声称原子回滚。
 - **沉淀与清理**：正式知识已更新工具/场景/运行owner和原文件名版本规则；补记父凭据和模块语义解析隐含规则。已执行计划及3份同主题superseded方案删除，研读仅保留过程证据。
+
+### 2026-10-07 迭代 1+2：workflow executableRef 白名单与遗留清理
+
+- **复杂度**：迭代 1 中等（spark-ai runtime、app binding、2 测试、生成物）；迭代 2 简单（删孤儿脚本/函数）
+- **总耗时**：约 1.5 小时（含架构梳理后的研读与 9 道选择题）
+- **返工次数**：0；实施中 1 处可行性调整（require-await → Promise.resolve().then）
+- **审查轮次**：迭代 1 一轮批准；迭代 2 一轮批准；之后用户授权按长期利好自主决策
+- **30天存活**：待回填
+- **人工干预**：用户要求改为迭代计划、基于源码自证而非提问、低阶模型实施（迭代 2 由 Claude Haiku 4.5 子代理实施，主会话验收）
+- **验证摘要**：typecheck / lint / verify:class-model / ai-codegen / arch / workflow-designs / ai-business-boundaries 通过；根 vitest 180 文件 2079/2079（+2）；spark-ai 169/169（+1）；verify:docs 仅既有 6 条 .github 违规
+- **知识沉淀**：class-model-system.md（executableRef 白名单、增量重生成副作用）、monorepo-dependencies.md（require-await 保留 Promise 签名）
+- **未验证**：浏览器真实 AI 激活（需 lowcode 网关）
+
+### 2026-10-07 迭代 3：沙箱黑名单补齐
+
+- **复杂度**：简单（spark-utils 黑名单 + 1 个测试）
+- **总耗时**：约 15 分钟
+- **返工次数**：0
+- **审查轮次**：0（用户授权按长期利好自主决策；方案记录了放弃"has 恒 true"的理由）
+- **30天存活**：待回填
+- **人工干预**：无；Claude Haiku 4.5 子代理实施，主会话验收
+- **验证摘要**：lint / typecheck 通过；createSandbox + computed-columns 112 项、spark-utils 45 项通过；根 vitest 180 文件 2080/2080（+1）
+- **偏差**：子代理编辑时把 `sandbox.ts` 前 28 行混合 CRLF 归一为 LF；忽略行尾后 diff 仅 +3 行，接受
+- **知识沉淀**：vue-frontend.md（沙箱非安全边界、勿改 has 恒 true）
+
+### 2026-10-07 迭代 8：workspace 依赖门禁与 verify:docs 尊重 gitignore
+
+- **复杂度**：中等（根依赖声明 + lockfile、两个治理脚本），分 2 个闭环由 Claude Haiku 4.5 子代理实施
+- **总耗时**：约 30 分钟
+- **返工次数**：1（主会话反向验证时 pnpm 自动重装回退 lockfile，按 mtime 规则恢复）
+- **审查轮次**：0（用户授权自主决策）
+- **30天存活**：待回填
+- **人工干预**：用户要求暂不改后端（本迭代不涉及）
+- **验证摘要**：`verify:rules` 全绿（verify:docs 本地首次通过）；反向验证去掉声明时 verify:deps 报出 2 条违规；根 vitest 180 文件 2080/2080
+- **决策**：迭代 6 降级——源码确认 `'homepage'` 是应用目录作用域哨兵，下游已 fail-fast，仅剩字面量去重价值
+- **知识沉淀**：monorepo-dependencies.md（pnpm run 自动重装与 mtime）
+
+### 2026-10-07 迭代 9：AI Host 收敛为每次运行独立
+
+- **复杂度**：中等（9 个文件，删除全局 Host 与能力判空残留）
+- **总耗时**：约 25 分钟
+- **返工次数**：0（验收时补改 1 处引用已删符号的注释）
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无；Claude Haiku 4.5 子代理实施
+- **验证摘要**：lint / typecheck / verify:rules 全绿；新增"未注入时每次运行独立 Host"用例；根 vitest 180 文件 2081/2081
+- **知识沉淀**：class-model-system.md（AI Host 每次运行独立）
+
+### 2026-10-07 迭代 7：loadScenario 下沉 data-space
+
+- **复杂度**：简单（组合根内联逻辑移入 `lowcode-data-space-runtime.ts`，补 3 个用例）
+- **总耗时**：约 10 分钟
+- **返工次数**：0
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无；Claude Haiku 4.5 子代理实施
+- **验证摘要**：verify:rules 全绿；根 vitest 181 文件 2084/2084（+3）
+- **知识沉淀**：无（纯结构调整）
+
+### 2026-10-07 迭代 11a：目录规模棘轮门禁
+
+- **复杂度**：中等（新校验脚本 + 基线 + 接入 verify:rules + 测试 + README）
+- **总耗时**：约 30 分钟
+- **返工次数**：2（子代理擅自改写测试为弱化版本，主会话按方案重写；CRLF+shebang 导致 vitest 导入失败，改 LF）
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无
+- **验证摘要**：`verify:dirs` 基线 20 个超限目录；新增 5 个用例覆盖新增/增长/改善未收紧；verify:rules 全绿；根 vitest 182 文件 2089/2089
+- **知识沉淀**：monorepo-dependencies.md（shebang .mjs 必须 LF）
+
+### 2026-10-07 迭代 6：应用目录项目 ID 常量化
+
+- **复杂度**：简单（10 个文件字面量替换为 `APPLICATION_CATALOG_PROJECT_ID`）
+- **总耗时**：约 15 分钟
+- **返工次数**：0
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无；`projectType: 'homepage'` 属不同概念，刻意保留
+- **验证摘要**：typecheck/lint 0；根 vitest 全绿
+- **知识沉淀**：无
+
+### 2026-10-07 迭代 10：PageRuntimePool 抽出与死页缓存删除
+
+- **复杂度**：复杂（spark-app 路由拆分 + 删除 page-cache 两文件 + App.vue/CacheManager 调整）
+- **总耗时**：约 60 分钟
+- **返工次数**：1（新类缺成员 JSDoc 使语义缺口 +14，批次 3 重生成时发现并补齐，回到 1756）
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无
+- **验证摘要**：typecheck/lint 0；根 vitest 与 test:packages:run 全绿
+- **知识沉淀**：无（新增导出类必须带成员 JSDoc 已在既有知识中）
+
+### 2026-10-07 迭代 5：pageDesign allowedOperations 对象级守卫
+
+- **复杂度**：中等（新增 guard + bindings 接线 + 测试）
+- **总耗时**：约 40 分钟
+- **返工次数**：0
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无；Proxy 以原始 target 作 this 调用，保证 #private 字段可用
+- **验证摘要**：守卫测试覆盖三域放行/拒绝；verify:rules、根 vitest 全绿
+- **知识沉淀**：无
+
+### 2026-10-07 迭代 11+：目录拆分四批（tests、包测试、源码目录、组件目录）
+
+- **复杂度**：复杂（约 330 个文件移动、300+ 文件 import 改写、知识包全量重生成）
+- **总耗时**：约 120 分钟
+- **返工次数**：2（白名单按路径登记需同步；consumer ledger 扫描 dist 需先 build 再 generate:lowcode-contracts）
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无；使用 `scripts/move-source-files.mjs` 计划化移动 + @module 标注同步 + md 链接修复
+- **验证摘要**：`verify:dirs` 基线 20 → 0；语义缺口保持 1756；typecheck/lint/verify:rules 0；根 vitest 183 文件 2093/2093；test:packages:run 0；pnpm run build 0
+- **知识沉淀**：class-model-system.md（组件分类只看前两段路径；行级作用域硬编码路径）；monorepo-dependencies.md（源码移动检查清单）
+
+### 2026-10-07 迭代 11w：WorkflowDesigns.vue 机械抽取
+
+- **复杂度**：复杂（6239 行 SFC；117 个纯声明 + 样式抽到 `src/views/app/workflow-designs/` 6 个文件）
+- **总耗时**：约 50 分钟
+- **返工次数**：3（迁出后 type-aware lint 暴露 5 处既有问题并按原语义修正；worker 相对 URL 需手动改层级；导出类型致 gap +155，补 JSDoc 后回到 1755）
+- **审查轮次**：0（用户授权自主迭代）
+- **30天存活**：待回填
+- **人工干预**：无；Haiku 子代理补类型 JSDoc，主会话去注释比对结构 0 差异并纠正 5 条错误说明
+- **验证摘要**：SFC 6239 → 4390 行；typecheck/lint/verify:rules 0；根 vitest 183 文件 2093/2093；build:fe 0
+- **知识沉淀**：class-model-system.md（导出类型进入投影；new URL 不被 mover 改写）

@@ -5,7 +5,7 @@
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/knowledge/dts-bundle-class-model-knowledge-service 这一段如何生成、加载或投影时，用本模块定位职责。
  */
 import type { JsonValue } from '@spark-appworks/spark-json-document'
-import { DtsClassModelBundleLoader, type DtsClassModelComponentQuery } from '../class-model/dts-class-model-bundle-loader'
+import { DtsClassModelBundleLoader, type DtsClassModelComponentQuery } from '../class-model/bundle/dts-class-model-bundle-loader'
 import {
   ClassModelKnowledgeService,
   type ClassModelAttributeGuideInput,

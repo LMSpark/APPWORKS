@@ -8,16 +8,16 @@ import {
   DTS_CLASS_MODEL_BUNDLE_PROTOCOL,
   DTS_CLASS_MODEL_BUNDLE_VERSION,
   DTS_FILE_PROJECTION_VERSION,
-} from '../class-model/dts-bundle-types'
-import { buildDtsClassModelBundle } from '../class-model/build-dts-class-model-bundle'
-import { DtsClassModelBundleLoader } from '../class-model/dts-class-model-bundle-loader'
-import { projectDtsFileProjection } from '../class-model/project-from-declarations'
+} from '../class-model/bundle/dts-bundle-types'
+import { buildDtsClassModelBundle } from '../class-model/bundle/build-dts-class-model-bundle'
+import { DtsClassModelBundleLoader } from '../class-model/bundle/dts-class-model-bundle-loader'
+import { projectDtsFileProjection } from '../class-model/declaration/project-from-declarations'
 import { createDtsBundleClassModelKnowledgeProvider } from '../knowledge'
 import {
   readDtsClassModelBundleManifest,
   readDtsFileProjectionDocument,
-} from '../class-model/read-dts-class-model-bundle-json'
-import { sourceFileFromEmitPath } from '../class-model/class-model-emit-path'
+} from '../class-model/bundle/read-dts-class-model-bundle-json'
+import { sourceFileFromEmitPath } from '../class-model/bundle/class-model-emit-path'
 import type { DtsTypeDeclarationModel } from '../class-model/types'
 
 const removedReturnTypeField = ['return', 'Type'].join('')
@@ -373,7 +373,7 @@ describe('readDtsClassModelBundleJson', () => {
         },
       },
       {
-        sourcePath: 'class-model-emit/packages/spark-component/src/components/containers/support/RendererFieldScope.vue.d.ts',
+        sourcePath: 'class-model-emit/packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue.d.ts',
         declaration: 'export type RendererFieldScopeProps = { row?: unknown }',
         className: 'RendererFieldScopeProps',
         expected: {

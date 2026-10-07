@@ -17,8 +17,8 @@ import type {
   TableModelBinding,
 } from './types'
 import type { DataSet } from './dataset'
-import { DataValidator } from './validation'
-import { type CrudService, createCrudService } from './crud-service'
+import { DataValidator } from './validation/validation'
+import { type CrudService, createCrudService } from './strategies/crud-service'
 import { parseTableMetadataInput } from './metadata'
 import { assertNoSeparator, resolveApi } from './core/utils'
 

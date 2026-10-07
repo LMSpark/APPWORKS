@@ -11,6 +11,9 @@ tenantId: string
     /** project Id 标识。 */
 projectId: string}
 
+/** 未选中具体应用时的"应用目录/工场"作用域项目 ID，出现在 /t/{tenantId}/homepage 路径中。 */
+export const APPLICATION_CATALOG_PROJECT_ID = 'homepage'
+
 const TENANT_SCOPE_PREFIX_RE = /^\/t\/([^/]+)\/([^/]+)(?:\/|$)/
 const TENANT_SCOPE_STRIP_RE = /^\/t\/[^/]+\/[^/]+/
 

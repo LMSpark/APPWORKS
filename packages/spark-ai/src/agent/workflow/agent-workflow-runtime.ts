@@ -8,7 +8,7 @@
 import type { ClassModelKnowledgeProvider } from '../../class-model'
 import type { JsonParams } from '@spark-appworks/spark-json-document'
 import { ClassModelAgentAdapter } from '../business/class-model-agent-adapter'
-import type { AiAgentHost } from '../business/ai-host'
+import type { AiAgentHost } from '../business/host/ai-host'
 import { createSimpleInputContract } from '../business/business-kit'
 import type {
   AiAgentBeforeFunctionCallDirective,
@@ -53,6 +53,8 @@ export type AgentWorkflowRuntimeSystemPromptCommand = Readonly<{
 
 export type AgentWorkflowRuntimeBindings<TInstance> = Readonly<{
   manifestUrlResolver: (ref: string) => string
+  /** 宿主允许的可执行类白名单，键为 `moduleSpecifier#exportName`；definition 不能据此加载任意模块。 */
+  executableRegistry: Readonly<Record<string, AgentWorkflowModuleConstructor<TInstance>>>
   editorGetterRegistry: Readonly<Record<string, (context: AiAgentRuntimeContext) => TInstance>>
   knowledgeProviderFactory: (config: AgentWorkflowNodeModelProjectionRef) => AgentWorkflowRuntimeKnowledge
   gateExecutor?: (command: AgentWorkflowRuntimeGateCommand) => AgentWorkflowRuntimeGateResult
@@ -77,12 +79,18 @@ export type AgentWorkflowInterpretedRegistration = Readonly<{
   registration: AiAgentRegistration
 }>
 
-export async function interpretAgentWorkflowDefinition<TInstance>(
+export function interpretAgentWorkflowDefinition<TInstance>(
   command: InterpretAgentWorkflowDefinitionCommand<TInstance>,
 ): Promise<AgentWorkflowInterpretedRegistration> {
+  return Promise.resolve().then(() => interpretAgentWorkflowDefinitionNow(command))
+}
+
+function interpretAgentWorkflowDefinitionNow<TInstance>(
+  command: InterpretAgentWorkflowDefinitionCommand<TInstance>,
+): AgentWorkflowInterpretedRegistration {
   assertAgentWorkflowDefinition(command.definition)
   const runtimeBinding = command.definition.workflow.runtimeBinding
-  const moduleClass = await resolveExecutableClass<TInstance>(runtimeBinding.executableRef)
+  const moduleClass = resolveExecutableClass(command.bindings, runtimeBinding.executableRef)
   const editorGetter = resolveEditorGetter(command.bindings, runtimeBinding)
   const knowledge = command.bindings.knowledgeProviderFactory(runtimeBinding.modelProjectionRef)
   const dtsClassModelManifestUrl = normalizeRequiredText(
@@ -156,22 +164,20 @@ export async function activateAgentWorkflowFromDefinition<TInstance>(
   })
 }
 
-async function resolveExecutableClass<TInstance>(
+function resolveExecutableClass<TInstance>(
+  bindings: AgentWorkflowRuntimeBindings<TInstance>,
   ref: AgentWorkflowNodeExecutableRef,
-): Promise<AgentWorkflowModuleConstructor<TInstance>> {
+): AgentWorkflowModuleConstructor<TInstance> {
   const moduleSpecifier = normalizeRequiredText(ref.moduleSpecifier, 'executableRef.moduleSpecifier')
   const exportName = normalizeRequiredText(ref.exportName, 'executableRef.exportName')
-  // import() 返回 Promise<any>，无法用类型注解安全接收；经 isModuleExports 守卫收窄后使用。
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const moduleExports = await import(moduleSpecifier)
-  if (!isModuleExports(moduleExports)) {
-    throw new Error(`Agent workflow executable module did not export an object: ${moduleSpecifier}`)
+  const key = `${moduleSpecifier}#${exportName}`
+  const registry = bindings.executableRegistry
+  const executable = Object.hasOwn(registry, key) ? registry[key] : undefined
+  if (executable === undefined) {
+    const registered = Object.keys(registry).join(', ') || '(none)'
+    throw new Error(`Agent workflow executable is not registered: ${key}. Registered: ${registered}`)
   }
-  const exported = moduleExports[exportName]
-  if (!isFunctionConstructor<TInstance>(exported)) {
-    throw new Error(`Agent workflow executable export not found or not constructable: ${moduleSpecifier}#${exportName}`)
-  }
-  return exported
+  return executable
 }
 
 function resolveEditorGetter<TInstance>(
@@ -246,16 +252,4 @@ function normalizeRequiredText(value: string, field: string): string {
     throw new Error(`Agent workflow runtime ${field} must not be empty.`)
   }
   return normalized
-}
-
-function isFunctionConstructor<T>(
-  value: unknown,
-): value is new (...args: never[]) => T {
-  return typeof value === 'function'
-}
-
-function isModuleExports(
-  module: unknown,
-): module is Record<string, unknown> {
-  return module !== null && typeof module === 'object'
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-vi.mock('../../ai/components/AiSessionTracePanel.vue', () => ({
+vi.mock('../../ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.vue', () => ({
   default: {
     name: 'AiSessionTracePanel',
     props: ['entries', 'isStreaming', 'isReasoning', 'diagnostics', 'height', 'emptyText'],
@@ -9,7 +9,7 @@ vi.mock('../../ai/components/AiSessionTracePanel.vue', () => ({
   },
 }))
 
-import SparkAgentPanel from '../../ai/components/SparkAgentPanel.vue'
+import SparkAgentPanel from '../../ai/components/SparkAgentPanel/SparkAgentPanel.vue'
 import type {
   SessionDiagnosticsData,
   SparkAgentTimelineEvent,

@@ -1,0 +1,638 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/conversation/chat/chat-types",
+    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts",
+    "sourceFile": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/conversation/chat/chat-types",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/conversation/chat/chat-types\n职责：定义 Agent 聊天请求、消息、响应和流式事件之间共享的 DTO。\n边界：只维护跨 UI、transport、session 的消息协议，不发送网络请求，也不解释工具调用结果。\nAI用途：对齐聊天消息结构、历史记录和响应 payload 时，用本模块确认字段含义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentChatMessage",
+      "AiAgentChatRequest",
+      "AiAgentStreamEvent",
+      "AiAgentToolCallRecord",
+      "AiAgentTurnMeta"
+    ]
+  },
+  "$defs": {
+    "AiAgentChatMessage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "AiAgentChatMessage",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "role": {
+              "enum": [
+                "user",
+                "assistant",
+                "system"
+              ]
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "role",
+            "content"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "role": {
+              "const": "tool"
+            },
+            "content": {
+              "type": "string"
+            },
+            "tool_call_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "role",
+            "content",
+            "tool_call_id"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "AiAgentChatRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentChatRequest",
+      "properties": {
+        "historyMsgs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentChatMessage"
+          }
+        },
+        "turn": {
+          "$ref": "#/$defs/AiAgentTurnMeta"
+        },
+        "systemPrompt": {
+          "type": "string"
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onReasoning.params": {
+          "type": "object",
+          "properties": {
+            "reasoning": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onReasoning.return": true,
+        "method.onDelta.params": {
+          "type": "object",
+          "properties": {
+            "delta": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onDelta.return": true,
+        "method.onUsage.params": {
+          "type": "object",
+          "properties": {
+            "usageRaw": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onUsage.return": true,
+        "method.onStreamEvent.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/AiAgentStreamEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onStreamEvent.return": true,
+        "method.onToolCall.params": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "$ref": "#/$defs/AiAgentToolCallRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onToolCall.return": true,
+        "method.beforeFunctionCall.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "../../business/lifecycle-types.ts.json#/$defs/AiAgentBeforeFunctionCallOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.beforeFunctionCall.return": {
+          "anyOf": [
+            {
+              "$ref": "../../business/lifecycle-types.ts.json#/$defs/AiAgentBeforeFunctionCallDirective"
+            },
+            {
+              "type": "object",
+              "title": "Promise<AiAgentBeforeFunctionCallDirective>"
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentStreamEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentStreamEvent",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "data": true,
+        "turnKey": {
+          "type": "string"
+        },
+        "streamKey": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "businessRegistrationId": {
+              "type": "string"
+            },
+            "businessInstanceId": {
+              "type": "string"
+            },
+            "eventModuleId": {
+              "type": "string"
+            },
+            "turnId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "businessRegistrationId",
+            "businessInstanceId",
+            "eventModuleId",
+            "turnId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentToolCallRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentToolCallRecord",
+      "properties": {
+        "toolName": {
+          "type": "string"
+        },
+        "args": true,
+        "turnId": {
+          "type": "string"
+        },
+        "round": {
+          "type": "number"
+        },
+        "callId": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "success",
+            "error"
+          ]
+        },
+        "result": {
+          "$ref": "../session/session-types.ts.json#/$defs/AiAgentFunctionCallResult"
+        },
+        "durationMs": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentTurnMeta": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentTurnMeta",
+      "properties": {
+        "turnId": {
+          "type": "string"
+        },
+        "seq": {
+          "type": "number"
+        },
+        "baseRevision": {
+          "type": "number"
+        },
+        "queuedAt": {
+          "type": "string"
+        },
+        "startedAt": {
+          "type": "string"
+        },
+        "maxParallelTurns": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.678Z",
+  "models": {
+    "AiAgentChatMessage": {
+      "name": "AiAgentChatMessage",
+      "jsdoc": "单条聊天消息（对齐 OpenAI message 格式），判别联合：role='tool' 必须有 tool_call_id",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    role: 'user' | 'assistant' | 'system';\n    content: string;\n}> | Readonly<{\n    role: 'tool';\n    content: string;\n    tool_call_id: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    role: 'user' | 'assistant' | 'system';\n    content: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    role: 'tool';\n    content: string;\n    tool_call_id: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AiAgentChatRequest": {
+      "name": "AiAgentChatRequest",
+      "jsdoc": "聊天请求。\n必填：\nhistoryMsgs — 历史消息列表（包含当前用户输入）\n可选回调（流式传输）：\nonReasoning — 推理过程增量回调\nonDelta     — 文本增量回调\nonUsage     — token 用量回调\nonStreamEvent — 原始 AI turn 事件回调\nonToolCall  — 工具调用记录回调\nbeforeFunctionCall — 本次请求级工具执行前置裁决\n可选控制：\nturn        — 轮次元数据（未提供时自动生成）\nsystemPrompt — 额外的系统提示词\nsignal      — AbortSignal（取消请求）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 历史消息列表（含当前用户输入），按时间顺序排列 */\n    historyMsgs: readonly AiAgentChatMessage[];\n    /** 轮次元数据；未提供时由 tool-loop 自动生成 */\n    turn?: AiAgentTurnMeta;\n    /** 额外的系统提示词，追加到业务默认 systemPrompt 之后 */\n    systemPrompt?: string;\n    /** 中断信号，触发后取消正在进行的 LLM 请求 */\n    signal?: AbortSignal;\n    /** 推理过程增量回调：模型输出 reasoning token 时逐段调用 */\n    onReasoning?: (reasoning: string) => void;\n    /** 文本增量回调：模型输出正文 token 时逐段调用 */\n    onDelta?: (delta: string) => void;\n    /** token 用量回调：每次模型返回 usage 时调用，参数为原始 usage 对象 */\n    onUsage?: (usageRaw: Record<string, unknown>) => void;\n    /** 原始 AI turn 事件回调：所有 SSE 事件经此透传，用于调试或自定义处理 */\n    onStreamEvent?: (event: AiAgentStreamEvent) => void;\n    /** 工具调用记录回调：每次 function tool 完成后调用 */\n    onToolCall?: (record: AiAgentToolCallRecord) => void;\n    /** 本次请求级工具执行前置裁决：返回 deny 则跳过执行，返回 allow 则继续 */\n    beforeFunctionCall?: (options: AiAgentBeforeFunctionCallOptions) => AiAgentBeforeFunctionCallDirective | Promise<AiAgentBeforeFunctionCallDirective>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 历史消息列表（含当前用户输入），按时间顺序排列 */\n    historyMsgs: readonly AiAgentChatMessage[];\n    /** 轮次元数据；未提供时由 tool-loop 自动生成 */\n    turn?: AiAgentTurnMeta;\n    /** 额外的系统提示词，追加到业务默认 systemPrompt 之后 */\n    systemPrompt?: string;\n    /** 中断信号，触发后取消正在进行的 LLM 请求 */\n    signal?: AbortSignal;\n    /** 推理过程增量回调：模型输出 reasoning token 时逐段调用 */\n    onReasoning?: (reasoning: string) => void;\n    /** 文本增量回调：模型输出正文 token 时逐段调用 */\n    onDelta?: (delta: string) => void;\n    /** token 用量回调：每次模型返回 usage 时调用，参数为原始 usage 对象 */\n    onUsage?: (usageRaw: Record<string, unknown>) => void;\n    /** 原始 AI turn 事件回调：所有 SSE 事件经此透传，用于调试或自定义处理 */\n    onStreamEvent?: (event: AiAgentStreamEvent) => void;\n    /** 工具调用记录回调：每次 function tool 完成后调用 */\n    onToolCall?: (record: AiAgentToolCallRecord) => void;\n    /** 本次请求级工具执行前置裁决：返回 deny 则跳过执行，返回 allow 则继续 */\n    beforeFunctionCall?: (options: AiAgentBeforeFunctionCallOptions) => AiAgentBeforeFunctionCallDirective | Promise<AiAgentBeforeFunctionCallDirective>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "historyMsgs",
+              "jsdoc": "历史消息列表（含当前用户输入），按时间顺序排列",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "轮次元数据；未提供时由 tool-loop 自动生成",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemPrompt",
+              "jsdoc": "额外的系统提示词，追加到业务默认 systemPrompt 之后",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "jsdoc": "中断信号，触发后取消正在进行的 LLM 请求",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onReasoning",
+              "jsdoc": "推理过程增量回调：模型输出 reasoning token 时逐段调用",
+              "parameters": [
+                {
+                  "name": "reasoning",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDelta",
+              "jsdoc": "文本增量回调：模型输出正文 token 时逐段调用",
+              "parameters": [
+                {
+                  "name": "delta",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onUsage",
+              "jsdoc": "token 用量回调：每次模型返回 usage 时调用，参数为原始 usage 对象",
+              "parameters": [
+                {
+                  "name": "usageRaw",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onStreamEvent",
+              "jsdoc": "原始 AI turn 事件回调：所有 SSE 事件经此透传，用于调试或自定义处理",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentStreamEvent",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onToolCall",
+              "jsdoc": "工具调用记录回调：每次 function tool 完成后调用",
+              "parameters": [
+                {
+                  "name": "record",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentToolCallRecord",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "beforeFunctionCall",
+              "jsdoc": "本次请求级工具执行前置裁决：返回 deny 则跳过执行，返回 allow 则继续",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentBeforeFunctionCallOptions",
+                    "sourcePath": "packages/spark-ai/src/agent/business/lifecycle-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "AiAgentBeforeFunctionCallDirective",
+                    "sourcePath": "packages/spark-ai/src/agent/business/lifecycle-types.ts"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "AiAgentBeforeFunctionCallDirective",
+                        "sourcePath": "packages/spark-ai/src/agent/business/lifecycle-types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentStreamEvent": {
+      "name": "AiAgentStreamEvent",
+      "jsdoc": "AI turn 事件（一次模型 turn 在 APP 公共 SSE 中的事件单元）。\ntype      — 事件类型（delta / reasoning / usage / result / error / tool-result 等）\ndata      — 事件数据（字符串）\nturnKey   — turn 隔离键（kind + 顶层 instanceId + turnId）\nstreamKey — turn 内流键（turnKey + streamId）\nscope     — 事件作用域（含 kind / 顶层 instanceId / eventModuleId / turnId）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 事件类型标识（delta / reasoning / usage / result / error / tool-result 等） */\n    type: string;\n    /** 事件数据，类型随 type 变化：delta 时为 string，其余通常为 object */\n    data: unknown;\n    /** turn 隔离键：kind + 顶层 instanceId + turnId，用于 SSE 多路复用 */\n    turnKey: string;\n    /** turn 内流键：turnKey + streamId，区分同一 turn 中的多个并行流 */\n    streamKey: string;\n    /** 事件作用域：含业务注册 ID、实例 ID、事件模块 ID 和轮次 ID */\n    scope: {\n        readonly businessRegistrationId: string;\n        readonly businessInstanceId: string;\n        readonly eventModuleId: string;\n        readonly turnId: string;\n    };\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 事件类型标识（delta / reasoning / usage / result / error / tool-result 等） */\n    type: string;\n    /** 事件数据，类型随 type 变化：delta 时为 string，其余通常为 object */\n    data: unknown;\n    /** turn 隔离键：kind + 顶层 instanceId + turnId，用于 SSE 多路复用 */\n    turnKey: string;\n    /** turn 内流键：turnKey + streamId，区分同一 turn 中的多个并行流 */\n    streamKey: string;\n    /** 事件作用域：含业务注册 ID、实例 ID、事件模块 ID 和轮次 ID */\n    scope: {\n        readonly businessRegistrationId: string;\n        readonly businessInstanceId: string;\n        readonly eventModuleId: string;\n        readonly turnId: string;\n    };\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "事件类型标识（delta / reasoning / usage / result / error / tool-result 等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "事件数据，类型随 type 变化：delta 时为 string，其余通常为 object",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnKey",
+              "jsdoc": "turn 隔离键：kind + 顶层 instanceId + turnId，用于 SSE 多路复用",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "streamKey",
+              "jsdoc": "turn 内流键：turnKey + streamId，区分同一 turn 中的多个并行流",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "事件作用域：含业务注册 ID、实例 ID、事件模块 ID 和轮次 ID",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentToolCallRecord": {
+      "name": "AiAgentToolCallRecord",
+      "jsdoc": "工具调用记录（用于前端展示和调试）。\n每次 OpenAI function tool 调用完成后，tool-loop-runner 通过 onToolCall 回调\n将本记录传给业务方。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 工具名称（如 model_script / module_action） */\n    toolName: string;\n    /** 工具调用参数（原始值，未截断） */\n    args: unknown;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** 工具循环轮次序号（从 1 开始） */\n    round: number;\n    /** OpenAI function call ID，可能为空（非 function calling 场景） */\n    callId?: string;\n    /** 调用结果状态：success=成功 / error=失败 */\n    status: 'success' | 'error';\n    /** 调用结果（原始值，类型由具体工具决定） */\n    result: AiAgentFunctionCallResult<unknown>;\n    /** 调用耗时（毫秒），从发起调用到收到结果 */\n    durationMs: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 工具名称（如 model_script / module_action） */\n    toolName: string;\n    /** 工具调用参数（原始值，未截断） */\n    args: unknown;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** 工具循环轮次序号（从 1 开始） */\n    round: number;\n    /** OpenAI function call ID，可能为空（非 function calling 场景） */\n    callId?: string;\n    /** 调用结果状态：success=成功 / error=失败 */\n    status: 'success' | 'error';\n    /** 调用结果（原始值，类型由具体工具决定） */\n    result: AiAgentFunctionCallResult<unknown>;\n    /** 调用耗时（毫秒），从发起调用到收到结果 */\n    durationMs: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "toolName",
+              "jsdoc": "工具名称（如 model_script / module_action）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "args",
+              "jsdoc": "工具调用参数（原始值，未截断）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "所属轮次 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "round",
+              "jsdoc": "工具循环轮次序号（从 1 开始）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "callId",
+              "jsdoc": "OpenAI function call ID，可能为空（非 function calling 场景）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "调用结果状态：success=成功 / error=失败",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "result",
+              "jsdoc": "调用结果（原始值，类型由具体工具决定）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "durationMs",
+              "jsdoc": "调用耗时（毫秒），从发起调用到收到结果",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentTurnMeta": {
+      "name": "AiAgentTurnMeta",
+      "jsdoc": "轮次元数据。\nturnId          — 轮次 ID（UUID）\nseq             — 序号\nbaseRevision    — 基础版本号（历史消息数 - 1）\nqueuedAt        — 排队时间（ISO 字符串）\nstartedAt       — 开始时间（ISO 字符串）\nmaxParallelTurns — 最大并行轮次（当前固定为 1）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 轮次 ID（UUID），全局唯一标识一次模型 turn */\n    turnId: string;\n    /** 轮次序号，从 1 开始递增 */\n    seq: number;\n    /** 基础版本号 = 历史消息数 - 1，用于增量同步定位 */\n    baseRevision: number;\n    /** 排队时间（ISO 8601 字符串） */\n    queuedAt: string;\n    /** 开始执行时间（ISO 8601 字符串） */\n    startedAt: string;\n    /** 最大并行轮次数，当前固定为 1（串行执行） */\n    maxParallelTurns: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 轮次 ID（UUID），全局唯一标识一次模型 turn */\n    turnId: string;\n    /** 轮次序号，从 1 开始递增 */\n    seq: number;\n    /** 基础版本号 = 历史消息数 - 1，用于增量同步定位 */\n    baseRevision: number;\n    /** 排队时间（ISO 8601 字符串） */\n    queuedAt: string;\n    /** 开始执行时间（ISO 8601 字符串） */\n    startedAt: string;\n    /** 最大并行轮次数，当前固定为 1（串行执行） */\n    maxParallelTurns: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "turnId",
+              "jsdoc": "轮次 ID（UUID），全局唯一标识一次模型 turn",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "seq",
+              "jsdoc": "轮次序号，从 1 开始递增",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseRevision",
+              "jsdoc": "基础版本号 = 历史消息数 - 1，用于增量同步定位",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queuedAt",
+              "jsdoc": "排队时间（ISO 8601 字符串）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "startedAt",
+              "jsdoc": "开始执行时间（ISO 8601 字符串）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxParallelTurns",
+              "jsdoc": "最大并行轮次数，当前固定为 1（串行执行）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

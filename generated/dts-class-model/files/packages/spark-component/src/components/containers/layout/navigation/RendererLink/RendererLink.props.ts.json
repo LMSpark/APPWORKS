@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererLink/RendererLink.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererLink/RendererLink.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererLink/RendererLink.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/navigation/RendererLink/RendererLink.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererLink/RendererLink.props\n职责：定义 RendererLink（r-link）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer link 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RLinkProps"
+    ],
+    "componentName": "RendererLink",
+    "componentType": "r-link",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RLinkProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RLinkProps",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "linkType": {
+          "enum": [
+            "",
+            "default",
+            "primary",
+            "success",
+            "warning",
+            "info",
+            "danger"
+          ]
+        },
+        "underline": {
+          "type": "boolean"
+        },
+        "href": {
+          "type": "string"
+        },
+        "target": {
+          "enum": [
+            "_blank",
+            "_self",
+            "_parent",
+            "_top"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.128Z",
+  "models": {
+    "RLinkProps": {
+      "name": "RLinkProps",
+      "jsdoc": "RLink Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererLink",
+        "type": "r-link",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 链接文本 */\n    label?: string;\n    /** 链接类型 */\n    linkType?: '' | 'default' | 'primary' | 'success' | 'warning' | 'info' | 'danger';\n    /** 是否显示下划线 */\n    underline?: boolean;\n    /** 跳转地址 */\n    href?: string;\n    /** 跳转目标 */\n    target?: '_blank' | '_self' | '_parent' | '_top';\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 链接文本 */\n    label?: string;\n    /** 链接类型 */\n    linkType?: '' | 'default' | 'primary' | 'success' | 'warning' | 'info' | 'danger';\n    /** 是否显示下划线 */\n    underline?: boolean;\n    /** 跳转地址 */\n    href?: string;\n    /** 跳转目标 */\n    target?: '_blank' | '_self' | '_parent' | '_top';\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "jsdoc": "链接文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "linkType",
+              "jsdoc": "链接类型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "underline",
+              "jsdoc": "是否显示下划线",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "href",
+              "jsdoc": "跳转地址",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "jsdoc": "跳转目标",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

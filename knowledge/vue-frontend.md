@@ -9,7 +9,7 @@
 ### .props.ts + .vue 必须配对入子目录
 
 - **场景**：新增一个表单字段组件（如 FieldDatePicker）
-- **规则**：`.props.ts` + `.vue` 配对文件必须放入组件专属子目录（如 `data-components/FieldDatePicker/FieldDatePicker.props.ts` + `FieldDatePicker.vue`），禁止平铺在父目录。
+- **规则**：`.props.ts` + `.vue` 配对文件必须放入组件专属子目录（如 `fields/data-components/datetime/FieldDatePicker/FieldDatePicker.props.ts` + `FieldDatePicker.vue`；先放入语义分组目录，再放组件专属目录），禁止平铺在父目录。
 - **违反后果**：`verify:ai-codegen` 检测组件配对文件平铺会报违规；平铺后目录文件数很快超过 10 个限制
 
 ### Element Plus 组件的使用约定
@@ -208,3 +208,10 @@
 - **规则**：写 `field is X` 类型守卫，并把通过校验的条目收集进带类型的数组。`as Array<[…]>` 会被 `verify:ai-codegen` 拒绝；对值做 `!== undefined` 过滤会被 `@typescript-eslint/no-unnecessary-condition` 拒绝（该类型下 `Object.entries` 的值类型不含 `undefined`）。
 - **违反后果**：`verify:ai-codegen` 或 `lint` 失败。
 - **发现来源**：2026-10-05 修复 `LowcodeProjectBlueprintApi.updateNodeFields`
+
+### 页面脚本 / 计算列沙箱不是安全边界
+
+- **场景**：调整 `spark-utils/src/sandbox.ts` 的 `createSafeProxy` 或 `SANDBOX_BLOCKED_KEYS`，或评估页面脚本能读到什么
+- **规则**：`with(proxy)` + `new Function` 在同一 realm 内运行，`(()=>{}).constructor('return this')()` 仍可拿到全局；黑名单只阻止脚本直接误用宿主全局（存储、网络、跨窗口等）。不要把 `has` 改成恒 true 的"白名单"：脚本里的 `var` 赋值会写入 ctx，改变既有作用域语义。真正隔离需重新设计页面脚本 API（脚本产出 VNode，不能直接迁 Worker/iframe）。
+- **违反后果**：误以为沙箱可防恶意脚本；或"收紧"后页面脚本静默改写 ctx
+- **发现来源**：2026-10-07 迭代 3（黑名单补齐存储/网络/跨窗口全局）

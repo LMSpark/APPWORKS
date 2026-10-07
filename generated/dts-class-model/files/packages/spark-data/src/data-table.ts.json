@@ -75,7 +75,7 @@
           "$ref": "types.ts.json#/$defs/CrudOperationConfig"
         },
         "validator": {
-          "$ref": "validation.ts.json#/$defs/DataValidator"
+          "$ref": "validation/validation.ts.json#/$defs/DataValidator"
         },
         "rows": {
           "type": "array",
@@ -313,7 +313,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T19:53:16.505Z",
+  "generatedAt": "2026-10-07T02:17:10.243Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",

@@ -28,8 +28,8 @@ import {
   executeDtsNativeScript,
   executeAiNativeScript,
 } from '../native-runtime'
-import { DefaultAiAgentSessionStore } from '../session/default-session-store'
-import type { AiAgentSessionStore } from '../session/session-types'
+import { DefaultAiAgentSessionStore } from '../conversation/session/default-session-store'
+import type { AiAgentSessionStore } from '../conversation/session/session-types'
 import {
   AiAgentToolCheck,
   AiAgentToolResult,
@@ -45,7 +45,7 @@ import type {
   AiAgentBeforeFunctionCallOptions,
   AiAgentLifecycleDirective,
 } from './lifecycle-types'
-import type { AiAgentHost } from './ai-host'
+import type { AiAgentHost } from './host/ai-host'
 import type { AiAgentInputContract } from './business-task'
 import {
   AiAgentRegistration,

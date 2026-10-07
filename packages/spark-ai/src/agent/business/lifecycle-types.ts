@@ -6,7 +6,7 @@
  */
 
 import type { JsonParams } from '@spark-appworks/spark-json-document'
-import type { AiAgentFunctionCallResult } from '../session/session-types'
+import type { AiAgentFunctionCallResult } from '../conversation/session/session-types'
 import type { AiAgentRuntimeContext } from './scope-types'
 
 // ═══════════════════════════════════════════════════════════════

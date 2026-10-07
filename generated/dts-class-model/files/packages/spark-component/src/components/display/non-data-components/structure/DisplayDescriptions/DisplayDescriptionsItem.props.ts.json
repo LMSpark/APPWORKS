@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptionsItem.props",
+    "sourcePath": "packages/spark-component/src/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptionsItem.props.ts",
+    "sourceFile": "packages/spark-component/src/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptionsItem.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptionsItem.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptionsItem.props\n职责：定义 DisplayDescriptionsItem（r-descriptions-item）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 display/static-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 display descriptions item 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RDescriptionsItemProps"
+    ],
+    "componentName": "DisplayDescriptionsItem",
+    "componentType": "r-descriptions-item",
+    "componentLevel": "display",
+    "componentLayer": "static-display",
+    "componentDirectory": "display/non-data-components"
+  },
+  "$defs": {
+    "RDescriptionsItemProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RDescriptionsItemProps",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "span": {
+          "type": "number"
+        },
+        "labelAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "contentAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "labelClassName": {
+          "type": "string"
+        },
+        "className": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "value": true,
+        "field": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.152Z",
+  "models": {
+    "RDescriptionsItemProps": {
+      "name": "RDescriptionsItemProps",
+      "jsdoc": "RDescriptions Item Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplayDescriptionsItem",
+        "type": "r-descriptions-item",
+        "level": "display",
+        "layer": "static-display",
+        "directory": "display/non-data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 描述项标签文本 */\n    label?: string;\n    /** 该项占据的列数 */\n    span?: number;\n    /** 标签对齐方式 */\n    labelAlign?: 'left' | 'center' | 'right';\n    /** 内容对齐方式 */\n    contentAlign?: 'left' | 'center' | 'right';\n    /** 标签自定义 class */\n    labelClassName?: string;\n    /** 内容自定义 class */\n    className?: string;\n    /** 显式内容文本 */\n    content?: string;\n    /** 显式展示值 */\n    value?: unknown;\n    /** 数据字段绑定键 */\n    field?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 描述项标签文本 */\n    label?: string;\n    /** 该项占据的列数 */\n    span?: number;\n    /** 标签对齐方式 */\n    labelAlign?: 'left' | 'center' | 'right';\n    /** 内容对齐方式 */\n    contentAlign?: 'left' | 'center' | 'right';\n    /** 标签自定义 class */\n    labelClassName?: string;\n    /** 内容自定义 class */\n    className?: string;\n    /** 显式内容文本 */\n    content?: string;\n    /** 显式展示值 */\n    value?: unknown;\n    /** 数据字段绑定键 */\n    field?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "jsdoc": "描述项标签文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "span",
+              "jsdoc": "该项占据的列数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelAlign",
+              "jsdoc": "标签对齐方式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentAlign",
+              "jsdoc": "内容对齐方式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelClassName",
+              "jsdoc": "标签自定义 class",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "className",
+              "jsdoc": "内容自定义 class",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "显式内容文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "显式展示值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "jsdoc": "数据字段绑定键",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

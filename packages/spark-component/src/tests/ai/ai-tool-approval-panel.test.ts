@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import AiToolApprovalPanel from '../../ai/components/AiToolApprovalPanel.vue'
+import AiToolApprovalPanel from '../../ai/components/approval/AiToolApprovalPanel/AiToolApprovalPanel.vue'
 import type { ToolApprovalDisplayItem } from '../../ai/types'
 
 function makeApprovalRequest(id: string): ToolApprovalDisplayItem {

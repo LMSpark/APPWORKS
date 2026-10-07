@@ -40,7 +40,7 @@ export { isDataRow } from './core/data-row-guards'
 
 export type { FieldRenderState, PermissionActionContext } from './script-types'
 
-export { TreeManager } from './tree-manager'
+export { TreeManager } from './node-tree/tree-manager'
 export { DataSetCrudTool } from './dataset-crud-tool'
 
 // ===== Node Tree（页面节点树模型，从 spark-project-model 迁入）=====
@@ -218,8 +218,8 @@ export {
 
 // ===== 列验证规则 =====
 
-export { extractColumnRules, isColumnRequired } from './column-validation'
-export type { ColumnValidationRule, ValidationRuleType } from './column-validation'
+export { extractColumnRules, isColumnRequired } from './validation/column-validation'
+export type { ColumnValidationRule, ValidationRuleType } from './validation/column-validation'
 
 // ===== 事件发射器（spark-data 是 SSoT；spark-component 等下游 re-export） =====
 

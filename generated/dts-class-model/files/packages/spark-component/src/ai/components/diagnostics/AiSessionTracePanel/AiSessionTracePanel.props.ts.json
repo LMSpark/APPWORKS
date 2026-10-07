@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.props",
+    "sourcePath": "packages/spark-component/src/ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.props.ts",
+    "sourceFile": "packages/spark-component/src/ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.props",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.props\n职责：维护 @spark-appworks/spark-component 中 ai/components/AiSessionTracePanel.props 的模块能力，围绕 AiSessionTracePanelProps 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 ai/components/AiSessionTracePanel.props 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiSessionTracePanelProps"
+    ]
+  },
+  "$defs": {
+    "AiSessionTracePanelProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiSessionTracePanelProps",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../types.ts.json#/$defs/StreamDisplayEntry"
+          }
+        },
+        "isStreaming": {
+          "type": "boolean"
+        },
+        "isReasoning": {
+          "type": "boolean"
+        },
+        "diagnostics": {
+          "$ref": "../../../types.ts.json#/$defs/SessionDiagnosticsData"
+        },
+        "height": {
+          "type": "string"
+        },
+        "emptyText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.101Z",
+  "models": {
+    "AiSessionTracePanelProps": {
+      "name": "AiSessionTracePanelProps",
+      "jsdoc": "AiSessionTracePanel 根组件 Props。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "AiSessionTracePanel"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 外部 AI runtime 传入的 live 流展示条目。 */\n    entries: readonly StreamDisplayEntry[];\n    /** 是否正在接收流式增量。 */\n    isStreaming: boolean;\n    /** 是否正在接收推理文本。 */\n    isReasoning: boolean;\n    /** 外部诊断投影（永远有值，含空摘要）。 */\n    diagnostics: SessionDiagnosticsData;\n    /** 面板高度 CSS 值，默认 '100%'。 */\n    height?: string;\n    /** 无 live entries 且诊断投影为空时的占位文本。 */\n    emptyText?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 外部 AI runtime 传入的 live 流展示条目。 */\n    entries: readonly StreamDisplayEntry[];\n    /** 是否正在接收流式增量。 */\n    isStreaming: boolean;\n    /** 是否正在接收推理文本。 */\n    isReasoning: boolean;\n    /** 外部诊断投影（永远有值，含空摘要）。 */\n    diagnostics: SessionDiagnosticsData;\n    /** 面板高度 CSS 值，默认 '100%'。 */\n    height?: string;\n    /** 无 live entries 且诊断投影为空时的占位文本。 */\n    emptyText?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "entries",
+              "jsdoc": "外部 AI runtime 传入的 live 流展示条目。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isStreaming",
+              "jsdoc": "是否正在接收流式增量。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isReasoning",
+              "jsdoc": "是否正在接收推理文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "jsdoc": "外部诊断投影（永远有值，含空摘要）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "height",
+              "jsdoc": "面板高度 CSS 值，默认 '100%'。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "无 live entries 且诊断投影为空时的占位文本。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

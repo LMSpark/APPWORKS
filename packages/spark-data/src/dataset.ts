@@ -35,7 +35,7 @@ import type {
   DataSetSnapshotSelector,
 } from './dataset-history'
 import { DataTable } from './data-table'
-import { createCrudService } from './crud-service'
+import { createCrudService } from './strategies/crud-service'
 import { normalizeDataSetMetadata, normalizeScenarioId } from './metadata'
 import { assertNoSeparator, getParentRows } from './core/utils'
 

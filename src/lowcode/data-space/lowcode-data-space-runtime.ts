@@ -3,9 +3,11 @@
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用和租户由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import { lowcodeApi, lowcodeHttp } from '../lowcode-runtime'
+import { createLowcodeProjectGateways, lowcodeApi, lowcodeHttp } from '../lowcode-runtime'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
+import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
+import type { DataSet } from '@spark-appworks/spark-data'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -35,4 +37,22 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  ])
  input.assertCurrent?.()
  return new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config: input.config, models, relations})
+}
+
+/** PageRuntime 场景装配入口：读取场景视图文件并装配，期间请求应用或身份变化即失败并销毁。 */
+export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string }>): Promise<DataSet> {
+ const { projectId, scenarioId } = command
+ const scope = lowcodeApi.readRequestScope()
+ const assertCurrent = (): void => {
+  if (lowcodeApi.readRequestScope().token !== scope.token || scope.headers['X-AppId'] !== projectId) {
+   throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
+  }
+ }
+ assertCurrent()
+ const text = await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
+ assertCurrent()
+ if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
+ const result = await loadScenarioDataSet({ scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent })
+ try { assertCurrent() } catch (failure) { result.dataSet.destroy(); throw failure }
+ return result.dataSet
 }

@@ -18,10 +18,10 @@ const TOOL_NAV: RuntimeNavigation = { id: 'root', projectId: 'APP', title: 'App'
 
 async function setup(navigation: RuntimeNavigation = TOOL_NAV) {
   const requests: PageFileReadCommand[] = []
-  const loader = new PageContentLoader({ projectId: 'APP', readPageFile: async command => { requests.push(command); return command.fileName === 'rule.json' ? '[]' : '' } })
+  const readPageFile = async (command: PageFileReadCommand) => { requests.push(command); return command.fileName === 'rule.json' ? '[]' : '' }
   const router = createRouter({ history: createMemoryHistory(), routes: [] })
   const loadScenario = vi.fn(async ({ scenarioId }: RuntimeScenarioLoadCommand) => DataSet.fromJson({ scenarioId, dataSetName: scenarioId, tables: {} }))
-  const dynamic = createDynamicRouter({ router, pageContentLoader: loader, pageComponent: DummyPage, tenantPathPrefix: '/t/:tenantId/:projectId', loadNavigation: async () => navigation, loadScenario })
+  const dynamic = createDynamicRouter({ router, readPageFile, pageComponent: DummyPage, tenantPathPrefix: '/t/:tenantId/:projectId', loadNavigation: async () => navigation, loadScenario })
   await dynamic.registerRoutes()
   return { router, dynamic, requests, loadScenario }
 }
@@ -29,7 +29,7 @@ async function setup(navigation: RuntimeNavigation = TOOL_NAV) {
 describe('DynamicRouter formal routes and runtime calls', () => {
   it('falls back to pre-auth only when navigation returns 401', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const dynamic = createDynamicRouter({ router, pageContentLoader: new PageContentLoader({ projectId: 'APP' }), pageComponent: DummyPage,
+    const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
       loadNavigation: async () => { throw Object.assign(new Error('Unauthorized'), { status: 401 }) }, preAuthNavTree: PRE_AUTH_NAV, tenantPathPrefix: '/t/:tenantId/:projectId', componentMap: { '/demo/template-dsl': DummyPage } })
     await dynamic.registerRoutes()
     expect(dynamic.getRegisteredRoutes()).toContain('/login')
@@ -136,7 +136,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'dashboard', title: 'Dashboard', itemKind: 'system-page', path: '/dashboard' },
       { id: 'docs', title: 'Docs', itemKind: 'link', linkTarget: 'iframe', path: 'https://example.com/docs' },
     ] }
-    const dynamic = createDynamicRouter({ router, pageContentLoader: new PageContentLoader({ projectId: 'APP' }), pageComponent: DummyPage, loadNavigation: async () => navigation,
+    const dynamic = createDynamicRouter({ router, pageComponent: DummyPage, loadNavigation: async () => navigation,
       tenantPathPrefix: '/t/:tenantId/:projectId', componentMap: { '/dashboard': DummyPage } })
     await dynamic.registerRoutes()
     expect(router.getRoutes().find(route => route.name === 'nav-dashboard')?.meta['type']).toBe('system-page')

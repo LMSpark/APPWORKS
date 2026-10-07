@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/page-design/page-design-operation-guard",
+    "sourcePath": "src/services/page-design/page-design-operation-guard.ts",
+    "sourceFile": "src/services/page-design/page-design-operation-guard.ts",
+    "packageName": "app",
+    "modulePath": "services/page-design/page-design-operation-guard",
+    "jsdoc": "@module app:services/page-design/page-design-operation-guard\n职责：按 allowedOperations 为 pageDesign 编辑器生成对象级受限门面，未放行操作域的方法调用即失败。\n边界：只拦截方法调用与 nodeTree 属性读取，不改变领域对象状态；交付保存与闸门评估仍使用原编辑器。\nAI用途：排查 model_script 为何被拒绝调用某个编辑方法时，用本模块确认操作域映射。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:04:07.942Z",
+  "models": {}
+}

@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/composables/value/useControlledFieldChange",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/composables/value/useControlledFieldChange",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/composables/value/useControlledFieldChange\n职责：提供 useControlledFieldChange（未注册组件类型）相关的组合式状态或行为封装，复用字段值、选项、权限、动作和交互控制逻辑。\n边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。\nAI用途：需要理解 use controlled field change 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FieldValueUpdateEmitter",
+      "FieldValueUpdateEmits"
+    ],
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "FieldValueUpdateEmitter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldValueUpdateEmitter",
+      "additionalProperties": false
+    },
+    "FieldValueUpdateEmits": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldValueUpdateEmits",
+      "properties": {
+        "update:modelValue": {
+          "type": "array",
+          "prefixItems": [
+            true
+          ]
+        }
+      },
+      "required": [
+        "update:modelValue"
+      ],
+      "additionalProperties": false
+    },
+    "UseControlledFieldChangeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseControlledFieldChangeOptions",
+      "properties": {
+        "handlerSource": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getValue.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getValue.return": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "method.emitUpdate.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "TValue"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.emitUpdate.return": true,
+        "method.syncValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "TValue"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.syncValue.return": true,
+        "method.afterDefault.params": {
+          "type": "object",
+          "properties": {
+            "nextValue": {
+              "type": "object",
+              "title": "TValue"
+            },
+            "previousValue": {
+              "type": "object",
+              "title": "TValue"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.afterDefault.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.186Z",
+  "models": {
+    "FieldValueUpdateEmitter": {
+      "name": "FieldValueUpdateEmitter",
+      "jsdoc": "Field Value Update Emitter 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    (event: 'update:modelValue', value: TValue): void;\n}",
+        "members": {}
+      }
+    },
+    "FieldValueUpdateEmits": {
+      "name": "FieldValueUpdateEmits",
+      "jsdoc": "Field Value Update Emits 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** update:model Value 字段。 */\n    'update:modelValue': [value: TValue];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "update:modelValue",
+              "jsdoc": "update:model Value 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "UseControlledFieldChangeOptions": {
+      "name": "UseControlledFieldChangeOptions",
+      "jsdoc": "Use Controlled Field Change Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** get Value 回调。 */\n    getValue: () => TValue;\n    /** emit Update 回调。 */\n    emitUpdate: (value: TValue) => void;\n    /** sync Value 回调。 */\n    syncValue: (value: TValue) => void;\n    /** after Default 回调。 */\n    afterDefault?: (nextValue: TValue, previousValue: TValue) => void | Promise<void>;\n    /** handler Source 字段。 */\n    handlerSource?: Readonly<Record<string, unknown>>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "handlerSource",
+              "jsdoc": "handler Source 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getValue",
+              "jsdoc": "get Value 回调。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "TValue",
+                "refersToTypeParameter": true
+              }
+            },
+            {
+              "name": "emitUpdate",
+              "jsdoc": "emit Update 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "TValue",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "syncValue",
+              "jsdoc": "sync Value 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "TValue",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "afterDefault",
+              "jsdoc": "after Default 回调。",
+              "parameters": [
+                {
+                  "name": "nextValue",
+                  "type": {
+                    "type": "reference",
+                    "name": "TValue",
+                    "refersToTypeParameter": true
+                  }
+                },
+                {
+                  "name": "previousValue",
+                  "type": {
+                    "type": "reference",
+                    "name": "TValue",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

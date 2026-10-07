@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import AiToolApprovalCard from '../../ai/components/AiToolApprovalCard.vue'
+import AiToolApprovalCard from '../../ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.vue'
 import type { ToolApprovalDisplayItem } from '../../ai/types'
 
 function makeApprovalRequest(overrides: Partial<ToolApprovalDisplayItem> = {}): ToolApprovalDisplayItem {

@@ -197,8 +197,8 @@ AI用途：需要理解 json tree editor 的实际渲染结构、slot/toolbar/�
 import { computed, nextTick, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { deepClone, isRecord } from '@spark-appworks/spark-utils'
 import type { VxeTableInstance, VxeTablePropTypes } from 'vxe-table'
-import { useBasicFieldState } from '../fields/data-components/composables/useBasicFieldState'
-import { coerceStringValue } from '../fields/data-components/composables/fieldValueCoercion'
+import { useBasicFieldState } from '../fields/data-components/composables/state/useBasicFieldState'
+import { coerceStringValue } from '../fields/data-components/composables/value/fieldValueCoercion'
 import * as Sjd from '@spark-appworks/spark-json-document'
 
 type DisplayRow = Sjd.TreeDisplayNode & {

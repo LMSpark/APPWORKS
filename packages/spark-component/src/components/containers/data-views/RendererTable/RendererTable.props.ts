@@ -9,7 +9,7 @@ import type {
   SparkInteractiveDataContainerProps,
   SparkNodeProps,
 } from '../../../shared-types'
-import type { RToolbarProps } from '../../layout/RendererToolbar.types'
+import type { RToolbarProps } from '../../layout/action/RendererToolbar/RendererToolbar.types'
 import type { RFilterProps } from '../../zones/RendererFilter.types'
 
 /**

@@ -27,10 +27,10 @@ const interfaceAllowlist = new Set([
   'packages/spark-component/src/core/capability-keys.ts:CapabilityTypeMap',
   // Host session-types 与 transport-types 是完整类型契约模块；
   // 按主题再次 re-export 会制造额外间接层。
-  'packages/spark-ai/src/agent/index.ts:./session/session-types',
-  'packages/spark-ai/src/index.ts:./agent/session/session-types',
-  'packages/spark-ai/src/agent/index.ts:./transport/transport-types',
-  'packages/spark-ai/src/index.ts:./agent/transport/transport-types',
+  'packages/spark-ai/src/agent/index.ts:./conversation/session/session-types',
+  'packages/spark-ai/src/index.ts:./agent/conversation/session/session-types',
+  'packages/spark-ai/src/agent/index.ts:./conversation/transport/transport-types',
+  'packages/spark-ai/src/index.ts:./agent/conversation/transport/transport-types',
 ])
 
 const allowedSparkAiSpecifiers = new Set([
@@ -84,7 +84,7 @@ const publicSurfaceAllowlist = new Set([
   // Options 名称能让公共函数签名保持简短，同时不隐藏契约。
   'packages/spark-ai/src/index.ts:./json',
   // Agent 与 ClassModel 协议聚合出口是允许 @spark-appworks/spark-ai subpath 背后的显式公共门面。
-  'packages/spark-ai/src/agent/index.ts:./business/ai-host',
+  'packages/spark-ai/src/agent/index.ts:./business/host/ai-host',
   'packages/spark-ai/src/agent/index.ts:./business/business-kit',
   'packages/spark-ai/src/agent/index.ts:./workflow',
   'packages/spark-ai/src/agent/workflow/index.ts:./agent-workflow-definition',
@@ -95,22 +95,22 @@ const publicSurfaceAllowlist = new Set([
   'packages/spark-ai/src/class-model/index.ts:./class-model',
   'packages/spark-ai/src/class-model/index.ts:./metadata',
   'packages/spark-ai/src/class-model/index.ts:./knowledge',
-  'packages/spark-ai/src/class-model/index.ts:./projection',
+  'packages/spark-ai/src/class-model/index.ts:./knowledge/projection',
   'packages/spark-ai/src/class-model/index.ts:./runtime',
   'packages/spark-ai/src/class-model/class-model/index.ts:./types',
-  'packages/spark-ai/src/class-model/knowledge/index.ts:../projection',
+  'packages/spark-ai/src/class-model/knowledge/index.ts:./projection',
   'packages/spark-ai/src/class-model/metadata/index.ts:./ai-api-object-metadata-schema',
-  'packages/spark-ai/src/class-model/projection/index.ts:./dts-renderer',
+  'packages/spark-ai/src/class-model/knowledge/projection/index.ts:./dts-renderer',
   'packages/spark-ai/src/class-model/runtime/index.ts:./class-model-runtime',
   'packages/spark-project-model/src/index.ts:./project/project-types',
   'packages/spark-project-model/src/index.ts:./blueprint/project-blueprint-node',
   'packages/spark-project-model/src/index.ts:./blueprint/project-blueprint-tree',
   // Host session-types 与 transport-types 是完整类型契约模块；
   // 按主题再次 re-export 会制造额外间接层。
-  'packages/spark-ai/src/agent/index.ts:./session/session-types',
-  'packages/spark-ai/src/index.ts:./agent/session/session-types',
-  'packages/spark-ai/src/agent/index.ts:./transport/transport-types',
-  'packages/spark-ai/src/index.ts:./agent/transport/transport-types',
+  'packages/spark-ai/src/agent/index.ts:./conversation/session/session-types',
+  'packages/spark-ai/src/index.ts:./agent/conversation/session/session-types',
+  'packages/spark-ai/src/agent/index.ts:./conversation/transport/transport-types',
+  'packages/spark-ai/src/index.ts:./agent/conversation/transport/transport-types',
 ])
 
 const publicClassMethodSurfaces = new Map([

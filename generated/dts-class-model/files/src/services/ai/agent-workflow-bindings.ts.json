@@ -22,7 +22,7 @@
       "title": "ActivatePageDesignAgentWorkflowOptions",
       "properties": {
         "host": {
-          "$ref": "../../../packages/spark-ai/src/agent/business/ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
         }
       },
       "additionalProperties": false
@@ -33,7 +33,7 @@
       "title": "ActivateProjectPlanningAgentWorkflowOptions",
       "properties": {
         "host": {
-          "$ref": "../../../packages/spark-ai/src/agent/business/ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
         }
       },
       "additionalProperties": false
@@ -53,7 +53,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:05:04.448Z",
+  "generatedAt": "2026-10-07T02:17:10.247Z",
   "models": {
     "ActivatePageDesignAgentWorkflowOptions": {
       "name": "ActivatePageDesignAgentWorkflowOptions",

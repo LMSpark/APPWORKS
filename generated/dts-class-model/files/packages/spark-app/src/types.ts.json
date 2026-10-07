@@ -229,7 +229,7 @@
           "title": "Router"
         },
         "theme": {
-          "$ref": "theme/index.ts.json#/$defs/AppThemeCapability"
+          "$ref": "shell/theme/index.ts.json#/$defs/AppThemeCapability"
         }
       },
       "required": [
@@ -267,7 +267,7 @@
           "type": "string"
         },
         "themeService": {
-          "$ref": "theme/index.ts.json#/$defs/AppThemeCapability"
+          "$ref": "shell/theme/index.ts.json#/$defs/AppThemeCapability"
         }
       },
       "required": [
@@ -417,7 +417,7 @@
       ]
     }
   },
-  "generatedAt": "2026-08-10T11:26:01.133Z",
+  "generatedAt": "2026-10-07T02:17:10.240Z",
   "models": {
     "AppEnvironment": {
       "name": "AppEnvironment",

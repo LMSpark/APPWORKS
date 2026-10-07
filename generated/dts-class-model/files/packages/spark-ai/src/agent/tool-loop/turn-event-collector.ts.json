@@ -20,10 +20,10 @@
       "title": "TurnEventCollectorInput",
       "properties": {
         "input": {
-          "$ref": "../transport/transport-types.ts.json#/$defs/AiAgentStreamTurnInput"
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentStreamTurnInput"
         },
         "source": {
-          "$ref": "../transport/transport-types.ts.json#/$defs/AiAgentAppSseEventSource"
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentAppSseEventSource"
         },
         "timeoutMs": {
           "type": "number"
@@ -55,7 +55,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-14T20:17:26.449Z",
+  "generatedAt": "2026-10-07T02:17:10.225Z",
   "models": {
     "TurnEventCollectorInput": {
       "name": "TurnEventCollectorInput",

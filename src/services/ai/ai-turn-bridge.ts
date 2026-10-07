@@ -4,13 +4,12 @@
  * 边界：Agent、会话和模型配置由 lowcode 后端持有；前端只执行已注册的前端工具并回传结果。
  */
 
-import {
-  createAiAgentHost,
-  type AiAgentAppSseEvent,
-  type AiAgentStreamTurnInput,
-  type AiAgentStreamTurnResult,
-  type AiAgentTransportToolCall,
-  type AiAgentTurnCallbacks,
+import type {
+  AiAgentAppSseEvent,
+  AiAgentStreamTurnInput,
+  AiAgentStreamTurnResult,
+  AiAgentTransportToolCall,
+  AiAgentTurnCallbacks,
 } from '@spark-appworks/spark-ai/agent'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
@@ -468,9 +467,3 @@ function recordAiTurnDiagnostic(command: RecordAiTurnDiagnosticCommand): void {
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
-
-/** 生产 Agent Host：工具与页面能力仍由前端注册，模型与会话由 lowcode 持久化。 */
-export const appAiAgent = createAiAgentHost({
-  turnCallbacks: createAiAgentTurnCallbacks(),
-  maxToolRounds: 16,
-})

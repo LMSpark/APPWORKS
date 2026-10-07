@@ -55,7 +55,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:33:34.249Z",
+  "generatedAt": "2026-10-07T01:38:06.840Z",
   "models": {
     "ProjectSwitchService": {
       "name": "ProjectSwitchService",

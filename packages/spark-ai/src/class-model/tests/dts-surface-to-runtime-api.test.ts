@@ -4,10 +4,10 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-import { buildDtsClassModelBundle } from '../class-model/build-dts-class-model-bundle'
-import { DtsClassModelBundleLoader } from '../class-model/dts-class-model-bundle-loader'
+import { buildDtsClassModelBundle } from '../class-model/bundle/build-dts-class-model-bundle'
+import { DtsClassModelBundleLoader } from '../class-model/bundle/dts-class-model-bundle-loader'
 import { createRuntimeApiMetadataFromSurface } from '../class-model/dts-surface-to-runtime-api'
-import { readDtsFileProjectionDocument } from '../class-model/read-dts-class-model-bundle-json'
+import { readDtsFileProjectionDocument } from '../class-model/bundle/read-dts-class-model-bundle-json'
 
 describe('dts-surface-to-runtime-api', () => {
   it('maps guide bundle shard paramsSchema into script runtime API metadata', async () => {

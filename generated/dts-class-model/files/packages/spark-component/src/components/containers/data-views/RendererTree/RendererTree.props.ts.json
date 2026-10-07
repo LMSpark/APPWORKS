@@ -28,10 +28,10 @@
           "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "toolbar": {
-          "$ref": "../../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "actions": {
-          "$ref": "../../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "editor": {
           "$ref": "../../zones/RendererEditor.types.ts.json#/$defs/REditorProps"
@@ -85,7 +85,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.398Z",
+  "generatedAt": "2026-10-07T02:30:26.801Z",
   "models": {
     "RTreeProps": {
       "name": "RTreeProps",

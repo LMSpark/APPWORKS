@@ -7,12 +7,12 @@
 
 import { Logger } from '@spark-appworks/spark-utils'
 import { isDataRow } from '../core/data-row-guards'
-import type { CrudService } from '../crud-service'
+import type { CrudService } from './crud-service'
 import type {
   DataRow, CrudResult, BatchResult,
   CrudOperationConfig, QueryParams,
 } from '../types'
-import type { ValidationResult, ValidationError } from '../validation'
+import type { ValidationResult, ValidationError } from '../validation/validation'
 import type { DataView } from '../data-view'
 import type { CrudLifecycleEvent, CrudOperation } from './types'
 import { createCrudLifecycleEvent } from './types'

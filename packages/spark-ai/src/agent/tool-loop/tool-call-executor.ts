@@ -15,15 +15,15 @@ import type {
 } from '../business/lifecycle-types'
 import type { AiAgentRegistration } from '../business/registration-types'
 import type { AiAgentScope } from '../business/scope-types'
-import type { AiAgentChatRequest, AiAgentTurnMeta } from '../chat/chat-types'
+import type { AiAgentChatRequest, AiAgentTurnMeta } from '../conversation/chat/chat-types'
 import type {
   AiAgentFunctionCallResult,
   AiAgentSessionStore,
-} from '../session/session-types'
+} from '../conversation/session/session-types'
 import type {
   AiAgentTransportMessage,
   AiAgentTransportToolCall,
-} from '../transport/transport-types'
+} from '../conversation/transport/transport-types'
 import {
   emitToolResultEvent,
   eventModuleIdFromProtocolCall,

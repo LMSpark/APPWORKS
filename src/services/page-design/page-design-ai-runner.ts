@@ -18,8 +18,7 @@ import type {
   AiRunTraceSink,
 } from '@spark-appworks/spark-app'
 import type { AiAgentToolCallRecord } from '@spark-appworks/spark-ai/agent'
-import { createAiAgentHost, AI_AGENT_HOST } from '@spark-appworks/spark-ai/agent'
-import type { SparkCapabilityConsumer } from '@spark-appworks/spark-utils'
+import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
 import {
   PAGE_TOOL_FILE_NAMES,
   type PageToolFileName,
@@ -72,8 +71,7 @@ export type PageDesignAiRunCommand = PageDesignAiRunOptions & {
 pageId: string
     /** editor 字段。 */
 editor: ProjectWorkspace
-    /** consume Capability 字段。 */
-consumeCapability: SparkCapabilityConsumer | null
+
     /** events 字段。 */
 events?: PageDesignAiRunEvents
     /** trace 字段。 */
@@ -115,11 +113,6 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
   const description = command.description.trim()
   if (!pageId) throw new Error('pageDesign AI requires a pageId.')
   if (!description) throw new Error('pageDesign AI requires a description.')
-
-  const aiAgentHost = command.consumeCapability?.(AI_AGENT_HOST) ?? null
-  if (aiAgentHost === null) {
-    throw new Error('AI Host 未注册，无法启动 pageDesign。')
-  }
 
   assertActivePageToolLoaded(command.editor, pageId)
 

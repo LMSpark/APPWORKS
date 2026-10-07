@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.props",
+    "sourcePath": "packages/spark-component/src/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.props.ts",
+    "sourceFile": "packages/spark-component/src/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.props\n职责：定义 DisplayDescriptions（r-descriptions）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 display/static-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 display descriptions 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RDescriptionsProps"
+    ],
+    "componentName": "DisplayDescriptions",
+    "componentType": "r-descriptions",
+    "componentLevel": "display",
+    "componentLayer": "static-display",
+    "componentDirectory": "display/non-data-components"
+  },
+  "$defs": {
+    "RDescriptionsProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RDescriptionsProps",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "extra": {
+          "type": "string"
+        },
+        "border": {
+          "type": "boolean"
+        },
+        "column": {
+          "type": "number"
+        },
+        "direction": {
+          "enum": [
+            "horizontal",
+            "vertical"
+          ]
+        },
+        "descriptionsSize": {
+          "enum": [
+            "large",
+            "default",
+            "small"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.151Z",
+  "models": {
+    "RDescriptionsProps": {
+      "name": "RDescriptionsProps",
+      "jsdoc": "RDescriptions Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplayDescriptions",
+        "type": "r-descriptions",
+        "level": "display",
+        "layer": "static-display",
+        "directory": "display/non-data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 描述列表标题 */\n    title?: string;\n    /** 操作区附加内容 */\n    extra?: string;\n    /** 是否显示边框 */\n    border?: boolean;\n    /** 每行展示的描述列数 */\n    column?: number;\n    /** 排列方向 */\n    direction?: 'horizontal' | 'vertical';\n    /** 尺寸 */\n    descriptionsSize?: 'large' | 'default' | 'small';\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 描述列表标题 */\n    title?: string;\n    /** 操作区附加内容 */\n    extra?: string;\n    /** 是否显示边框 */\n    border?: boolean;\n    /** 每行展示的描述列数 */\n    column?: number;\n    /** 排列方向 */\n    direction?: 'horizontal' | 'vertical';\n    /** 尺寸 */\n    descriptionsSize?: 'large' | 'default' | 'small';\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "描述列表标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "extra",
+              "jsdoc": "操作区附加内容",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "border",
+              "jsdoc": "是否显示边框",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "column",
+              "jsdoc": "每行展示的描述列数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "direction",
+              "jsdoc": "排列方向",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "descriptionsSize",
+              "jsdoc": "尺寸",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

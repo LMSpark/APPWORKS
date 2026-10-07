@@ -10,13 +10,11 @@
  * 动态路由属于应用引导层（spark-app），页面节点能力来自 spark-project-model。
  */
 
-import type { Router, RouteRecordRaw, RouteLocationNormalizedLoaded, LocationQuery, RouteParams } from 'vue-router'
-import { defineComponent, h, markRaw, ref, type Component, type ComponentPublicInstance } from 'vue'
-import {
+import type { Router, RouteRecordRaw, RouteLocationNormalizedLoaded } from 'vue-router'
+import type { Component } from 'vue'
+import type {
   PageRuntime,
-  PageTool,
-  PAGE_TOOL_FILE_NAMES,
-  type PageContentLoader,
+  PageFileReader,
 } from '@spark-appworks/spark-project-model'
 import type { DataSet } from '@spark-appworks/spark-data'
 import { createLogger } from '../logger'
@@ -28,6 +26,7 @@ import { InvalidSystemPage } from './invalid-system-page'
 import { resolveNavNodeRuntimeTarget } from '../navigation/runtime-target'
 import { resolveNavRoutePageId } from './route-helpers'
 import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
+import { PageRuntimePool, type RuntimeScenarioLoadCommand } from './page-runtime-pool'
 
 function isUnauthorizedError(error: unknown): boolean {
   return readProperty(error, 'status') === 401
@@ -36,6 +35,7 @@ function isUnauthorizedError(error: unknown): boolean {
 
 const routerLogger = createLogger('DynamicRouter')
 export { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from './cross-project-ref-route'
+export type { RuntimeScenarioLoadCommand } from './page-runtime-pool'
 
 function shouldLogDynamicRouteDetails(): boolean {
   if (typeof globalThis === 'undefined') return false
@@ -50,8 +50,8 @@ export type DynamicRouterOptions = {
   /** Vue Router 实例 */
   router: Router
 
-  /** 页面工具三文件加载器 */
-  pageContentLoader: PageContentLoader
+  /** 工具三文件读取器；缺省时打开配置页会明确失败。 */
+  readPageFile?: PageFileReader
 
   /**
    * 动态页面组件（必需）
@@ -60,7 +60,7 @@ export type DynamicRouterOptions = {
    * @example
    * ```typescript
    * import { PageRenderer } from '@spark-appworks/spark-component'
-   * const options = { router, pageContentLoader, pageComponent: PageRenderer }
+   * const options = { router, pageComponent: PageRenderer }
    * ```
    */
   pageComponent: Component
@@ -125,10 +125,6 @@ export type DynamicRouterOptions = {
   loadScenario?: (command: RuntimeScenarioLoadCommand) => Promise<DataSet>
 }
 
-/** 为一次页面调用装配指定应用中的一个场景；应用身份由请求层校验。 */
-export type RuntimeScenarioLoadCommand = Readonly<{ projectId: string; scenarioId: string }>
-type RuntimeRouteEntry = { runtime: PageRuntime; view: Component; route: RouteLocationNormalizedLoaded; nodeId: string; key: string }
-
 type RouteRegistrationOptions = {
   skipTenantPrefix?: boolean
   routePathPrefix?: string
@@ -139,7 +135,6 @@ type RouteRegistrationOptions = {
  */
 export class DynamicRouter {
   private router: Router
-  private pageContentLoader: PageContentLoader
   private pageComponent: Component
   private registeredRoutes: Set<string> = new Set()
   /** path → Component 映射（system-page 路由使用） */
@@ -164,13 +159,11 @@ export class DynamicRouter {
   private _navTree: RuntimeNavigation | null = null
   /** ProjectBlueprintTreeNodeData → 注册路由路径追踪（弱引用，导航树刷新后自动 GC） */
   private _navRouteMap = new WeakMap<RuntimeNavigationItem, string>()
-  private readonly _loadScenario: DynamicRouterOptions['loadScenario']
-  private readonly pageInstances = new Map<string, RuntimeRouteEntry>()
+  private readonly runtimePool: PageRuntimePool
 
     /** 创建 Dynamic Router 实例。 */
 constructor(options: DynamicRouterOptions) {
     this.router = options.router
-    this.pageContentLoader = options.pageContentLoader
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- pageComponent 结构可缺失
     if (options.pageComponent === undefined || options.pageComponent === null) {
@@ -182,7 +175,6 @@ constructor(options: DynamicRouterOptions) {
     this.tenantPathRegex = this.tenantPathPrefix
       ? this.createTenantPathRegex(this.tenantPathPrefix)
       : null
-    this._loadScenario = options.loadScenario
 
     // 导航加载函数（统一数据源）
     this._loadNavigation = options.loadNavigation
@@ -198,125 +190,47 @@ constructor(options: DynamicRouterOptions) {
         this.staticComponentMap.set(this.normalizePath(path), comp)
       }
     }
-  }
 
-  private scenarioCall(query: LocationQuery): Readonly<{ ids: readonly string[]; main?: string }> {
-    const main = query['scenarioId']
-    if (main !== undefined && (typeof main !== 'string' || !main.trim() || main !== main.trim())) throw new Error('scenarioId 必须是单个非空场景ID')
-    const additional = query['additionalScenarioIds']
-    const ids = additional === undefined ? [] : Array.isArray(additional) ? [...additional] : [additional]
-    if (ids.some(id => typeof id !== 'string' || !id.trim() || id !== id.trim()) || new Set(ids).size !== ids.length || (main !== undefined && ids.includes(main))) throw new Error('additionalScenarioIds 包含空值、重复或主场景')
-    const strings = ids.filter((id): id is string => typeof id === 'string').sort()
-    return { ids: main === undefined ? strings : [main, ...strings], ...(main === undefined ? {} : { main }) }
+    // 初始化页面实例池
+    this.runtimePool = new PageRuntimePool({
+      pageComponent: options.pageComponent,
+      readPageFile: options.readPageFile,
+      loadScenario: options.loadScenario,
+      readNavTree: () => this._navTree,
+      refreshRoutes: () => this.refreshRoutes(),
+    })
   }
 
   getPageRuntime(route: RouteLocationNormalizedLoaded): PageRuntime | undefined {
-    if (route.meta['type'] !== 'config-page') return undefined
-    const tool = route.meta['programmaticTool'] === true
-      ? { pageId: route.params['pageId'], projectId: route.params['projectId'] }
-      : route.meta['tool']
-    if (typeof tool !== 'object' || tool === null || !('pageId' in tool) || typeof tool.pageId !== 'string'
-      || !('projectId' in tool) || typeof tool.projectId !== 'string') throw new Error('配置页缺少正式工具目标')
-    const projectId = tool.projectId
-    if (route.params['projectId'] !== undefined && route.params['projectId'] !== projectId) throw new Error('页面工具所属项目与调用路径不一致')
-    const call = this.scenarioCall(route.query)
-    const query = Object.fromEntries(Object.keys(route.query).sort().map(key => [key, key === 'additionalScenarioIds' ? call.ids.filter(id => id !== call.main).sort() : route.query[key]]))
-    const key = JSON.stringify([projectId, route.meta['nodeId'], tool.pageId, query, route.hash])
-    const existing = this.pageInstances.get(key)
-    if (existing && !existing.runtime.destroyed) return existing.runtime
-    const page = new PageTool({ pageId: tool.pageId })
-    const reader = this.pageContentLoader.getPageFileReader()
-    const runtime = markRaw(new PageRuntime({
-      tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
-      loadTool: async () => {
-        if (!reader) throw new Error('未注入工具文件读取器')
-        const generation = runtime.generation
-        const findTool = (nodes: readonly RuntimeNavigationItem[]): RuntimeNavigationItem['tool'] => {
-          for (const node of nodes) {
-            if (node.id === route.meta['nodeId']) return node.tool
-            const match = findTool(node.children ?? [])
-            if (match) return match
-          }
-          return undefined
-        }
-        const registeredTool = findTool(this._navTree?.items ?? [])
-        if (route.meta['programmaticTool'] !== true && this._navTree !== null
-          && (registeredTool?.pageId !== page.pageId || registeredTool.projectId !== projectId)) {
-          throw new Error('PAGE_RUNTIME_STALE: 蓝图工具绑定已改变，必须重新打开页面')
-        }
-        const currentTool = registeredTool ?? tool
-        const versionId = 'versionId' in currentTool && typeof currentTool.versionId === 'string' ? currentTool.versionId : undefined
-        const files = await Promise.all(PAGE_TOOL_FILE_NAMES.map(async fileName => ({ fileName,
-          text: await reader({ projectId, pageId: page.pageId, fileName, ...(versionId === undefined ? {} : { versionId }) }) })))
-        if (runtime.destroyed || runtime.generation !== generation) throw new Error('PAGE_RUNTIME_STALE: 工具读取已失效')
-        for (const file of files) page.hydrateFileText(file.fileName, file.text)
-        page.markLoaded()
-        return page
-      },
-      loadScenario: async scenarioId => {
-        if (!this._loadScenario) throw new Error('未注入场景运行装配器')
-        return this._loadScenario({ projectId, scenarioId })
-      },
-    }))
-    const querySnapshot: LocationQuery = {}
-    for (const [name, value] of Object.entries(route.query)) {
-      const copied = Array.isArray(value) ? [...value] : value
-      if (Array.isArray(copied)) Object.freeze(copied)
-      querySnapshot[name] = copied
-    }
-    const paramsSnapshot: RouteParams = {}
-    for (const [name, value] of Object.entries(route.params)) {
-      const copied = Array.isArray(value) ? [...value] : value
-      if (Array.isArray(copied)) Object.freeze(copied)
-      paramsSnapshot[name] = copied
-    }
-    const snapshot = Object.freeze({ ...route, params: Object.freeze(paramsSnapshot),
-      query: Object.freeze(querySnapshot), meta: Object.freeze({ ...route.meta }) })
-    const view = markRaw(defineComponent({ name: `PageCall_${runtime.instanceId.replaceAll('-', '_')}`,
-      setup: (_props, { expose }) => {
-        const renderer = ref<ComponentPublicInstance>()
-        expose({ reload: async () => {
-          if (runtime.isDirty) throw new Error('页面有未保存修改，必须先保存或明确放弃')
-          await this.refreshRoutes()
-          await runtime.reload()
-          const reload: unknown = renderer.value === undefined ? undefined : Reflect.get(renderer.value, 'reload')
-          if (typeof reload !== 'function') throw new Error('页面渲染器缺少 reload 能力')
-          await Reflect.apply(reload, renderer.value, [])
-        } })
-        return () => h(this.pageComponent, { ref: renderer, pageRuntime: runtime, routeSnapshot: snapshot })
-      } }))
-    this.pageInstances.set(key, { runtime, view, route: snapshot, nodeId: String(route.meta['nodeId']), key })
-    return runtime
+    return this.runtimePool.getPageRuntime(route)
   }
 
   getPageRuntimeView(route: RouteLocationNormalizedLoaded): Component | undefined {
-    const runtime = this.getPageRuntime(route)
-    return runtime === undefined ? undefined : [...this.pageInstances.values()].find(entry => entry.runtime === runtime)?.view
+    return this.runtimePool.getPageRuntimeView(route)
   }
 
-  getPageRuntimeNames(): string[] { return [...this.pageInstances.values()].map(entry => entry.view.name ?? '') }
-  getPageRuntimeById(instanceId: string): PageRuntime | undefined { return [...this.pageInstances.values()].find(entry => entry.runtime.instanceId === instanceId)?.runtime }
+  getPageRuntimeNames(): string[] {
+    return this.runtimePool.getPageRuntimeNames()
+  }
+
+  getPageRuntimeById(instanceId: string): PageRuntime | undefined {
+    return this.runtimePool.getPageRuntimeById(instanceId)
+  }
 
   closePageRuntime(instanceId: string): void {
-    const entry = [...this.pageInstances.values()].find(item => item.runtime.instanceId === instanceId)
-    if (!entry) return
-    if (entry.runtime.isDirty) throw new Error('页面有未保存修改，必须先保存或明确放弃')
-    entry.runtime.dispose()
-    this.pageInstances.delete(entry.key)
+    this.runtimePool.closePageRuntime(instanceId)
   }
 
   assertPageRuntimesClean(): void {
-    if ([...this.pageInstances.values()].some(entry => entry.runtime.isDirty)) throw new Error('打开的页面有未保存修改，必须先保存或明确放弃')
+    this.runtimePool.assertPageRuntimesClean()
   }
 
   disposePageRuntimes(): void {
-    this.assertPageRuntimesClean()
-    for (const entry of this.pageInstances.values()) entry.runtime.dispose()
-    this.pageInstances.clear()
+    this.runtimePool.disposePageRuntimes()
   }
 
   markPageConfigPending(pageId: string): void {
-    for (const entry of this.pageInstances.values()) if (entry.runtime.pageId === pageId) entry.runtime.markConfigPending()
+    this.runtimePool.markPageConfigPending(pageId)
   }
 
   private normalizePath(path: string): string {

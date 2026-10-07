@@ -100,7 +100,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { buildTenantPath, parseTenantScope } from '@/services/tenant-scope'
+import { buildTenantPath, parseTenantScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import NavIcon from '@/components/NavIcon.vue'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
@@ -129,7 +129,7 @@ const tenantId = computed(() => {
   return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
 })
 
-const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? 'homepage')
+const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? APPLICATION_CATALOG_PROJECT_ID)
 
 const createForm = ref({
   projectId: '',

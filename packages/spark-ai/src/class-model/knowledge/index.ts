@@ -58,7 +58,7 @@ export {
   renderAttributeGuide,
   renderMethodGuide,
   renderModelGuide,
-} from '../projection'
+} from './projection'
 
 export type {
   AttributeGuide,
@@ -67,4 +67,4 @@ export type {
   MethodGuideRenderInput,
   ModelGuide,
   ModelGuideRenderInput,
-} from '../projection'
+} from './projection'

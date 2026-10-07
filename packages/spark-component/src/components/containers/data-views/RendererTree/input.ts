@@ -7,7 +7,7 @@
 import { computed } from 'vue'
 
 import type { REditorProps } from '../../zones/RendererEditor.types'
-import type { RToolbarProps } from '../../layout/RendererToolbar.types'
+import type { RToolbarProps } from '../../layout/action/RendererToolbar/RendererToolbar.types'
 import { useContainerToolbar } from '../../runtime/container-ui'
 import { type SparkNode, getSparkNodeChildren } from '@spark-appworks/spark-data'
 

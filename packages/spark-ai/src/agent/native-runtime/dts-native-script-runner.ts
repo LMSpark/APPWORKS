@@ -7,7 +7,7 @@
 import type { JsonValue } from '@spark-appworks/spark-json-document'
 import type { AiAgentRuntimeHostContext } from '../tool-runtime'
 import { AiAgentToolResult } from '../tool-runtime'
-import { DtsClassModelBundleLoader } from '../../class-model/class-model/dts-class-model-bundle-loader'
+import { DtsClassModelBundleLoader } from '../../class-model/class-model/bundle/dts-class-model-bundle-loader'
 import type { AiRuntimeApiMetadataJson } from '../../class-model/metadata'
 import { executeModuleScript } from './native-script-sandbox'
 import { createAiApiScriptContext } from './native-script-context'

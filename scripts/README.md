@@ -58,7 +58,7 @@ ClassModel 全量门禁 (verify:class-model:full)
 - `lib/class-model-knowledge-refresh.mjs`：Node 宿主 refreshBundle 回调（触发 targeted compile）。
 - `lib/class-model-bundle-assert.mjs`：guide manifest + shard 完整性；`assertClassModelGuideExecutableSchemas` 供全量门禁。
 - `verify-class-model-guide-json-schema.mjs`：`verify:class-model:full` 的 jsonSchema-only 校验。
-- ClassModel 编译期 TS API：`packages/spark-ai/src/class-model/class-model/build-index.ts`（禁止浏览器 import）。
+- ClassModel 编译期 TS API：`packages/spark-ai/src/class-model/class-model/bundle/build-index.ts`（禁止浏览器 import）。
 
 ## 编译管线调试
 

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/workflow-designs/workflow-design-shell",
+    "sourcePath": "src/views/app/workflow-designs/workflow-design-shell.ts",
+    "sourceFile": "src/views/app/workflow-designs/workflow-design-shell.ts",
+    "packageName": "app",
+    "modulePath": "views/app/workflow-designs/workflow-design-shell",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-shell\n职责：WorkflowDesigns 页面布局常量、设计稿列表文案、节点默认值与错误文本等纯辅助。\n边界：无响应式状态与副作用。\nAI用途：调整面板宽度、分屏比例或列表展示文案时，从本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:50:52.323Z",
+  "models": {}
+}

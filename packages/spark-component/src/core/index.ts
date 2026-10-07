@@ -29,7 +29,7 @@ export type {
   ComponentRegistry,
 } from './types.js'
 
-export { SPARK_REGISTRY_KEY } from '../system/keys.js'
+export { SPARK_REGISTRY_KEY } from './system/keys.js'
 
 export type {
   PageServiceCapability,

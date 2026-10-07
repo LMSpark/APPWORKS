@@ -3,6 +3,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { spawnSync } from 'node:child_process'
 import {
   isCliEntrypoint,
   parseCliArgs,
@@ -236,6 +237,18 @@ export function runDocsCli(argv = process.argv.slice(2)) {
   return 0
 }
 
+/** 过滤被 .gitignore 忽略的文件；root 不是 git 工作区时不过滤。 */
+function excludeGitIgnored(root, files) {
+  const probe = spawnSync('git', ['-C', root, 'rev-parse', '--is-inside-work-tree'], { encoding: 'utf8' })
+  if (probe.status !== 0 || probe.stdout.trim() !== 'true') return files
+  const input = files.map(file => relativePath(root, file)).join('\n')
+  const result = spawnSync('git', ['-C', root, 'check-ignore', '--stdin'], { input, encoding: 'utf8' })
+  // check-ignore 退出码 1 表示没有任何文件被忽略
+  if (result.status !== 0 && result.status !== 1) throw new Error(`git check-ignore failed: ${result.stderr}`)
+  const ignored = new Set(result.stdout.split(/\r?\n/u).filter(Boolean))
+  return files.filter(file => !ignored.has(relativePath(root, file)))
+}
+
 function collectDocFiles(root) {
   const exclude = (filePath) => {
     const rel = relativePath(root, filePath)
@@ -252,7 +265,7 @@ function collectDocFiles(root) {
       || rel.startsWith('dist/')
       || rel.includes('/dist/')
   }
-  return [...walkFiles(root, { extensions: docExtensions, exclude })]
+  return excludeGitIgnored(root, [...walkFiles(root, { extensions: docExtensions, exclude })])
     .sort((left, right) => relativePath(root, left).localeCompare(relativePath(root, right)))
 }
 

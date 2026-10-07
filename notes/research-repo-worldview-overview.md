@@ -286,9 +286,9 @@
 | 维度 | 文件 |
 |------|------|
 | 知识体系主文档 | `packages/spark-ai/docs/class-model-knowledge-system-zh-cn.md` |
-| 编译入口 | `packages/spark-ai/src/class-model/class-model/build-dts-class-model-bundle.ts` |
-| 投影机制 | `packages/spark-ai/src/class-model/class-model/project-from-declarations.ts` |
-| 按需加载 | `packages/spark-ai/src/class-model/class-model/dts-class-model-bundle-loader.ts` |
+| 编译入口 | `packages/spark-ai/src/class-model/class-model/bundle/build-dts-class-model-bundle.ts` |
+| 投影机制 | `packages/spark-ai/src/class-model/class-model/declaration/project-from-declarations.ts` |
+| 按需加载 | `packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts` |
 | 工具闭集 | `packages/spark-ai/src/class-model/tools/class-model-tool-specs.ts` |
 | 工具执行 | `packages/spark-ai/src/class-model/runtime/class-model-runtime.ts` |
 | Workflow 契约 | `packages/spark-ai/docs/business-factory-workflow-zh-cn.md` |
@@ -299,7 +299,7 @@
 | Workflow 文件存储 | `spark-ai-server/.../WorkflowDesignController.java` + `WorkflowDesignService.java` |
 | 工具循环 | `packages/spark-ai/src/agent/tool-loop/tool-loop-runner.ts` |
 | 工具调用执行 | `packages/spark-ai/src/agent/tool-loop/tool-call-executor.ts` |
-| Agent Host | `packages/spark-ai/src/agent/business/ai-host.ts` |
+| Agent Host | `packages/spark-ai/src/agent/business/host/ai-host.ts` |
 | ClassModel 对接 | `packages/spark-ai/src/agent/business/class-model-agent-adapter.ts` |
 | SparkAIModel 基类 | `packages/spark-utils/src/ai-model.ts` |
 | ProjectModel | `packages/spark-project-model/src/project/project-model.ts` |

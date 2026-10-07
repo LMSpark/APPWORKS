@@ -11,7 +11,7 @@
  * 消费方只需调用本 composable 返回的方法，无需自行 sparkConsume 权限模式。
  *
  * 设计原则：
- * - permissionMode 由后端随导航配置下发，PageRenderer 通过 sparkProvide 注入
+ * - permissionMode 当前由 SparkPageRenderer 固定提供 'masked'（导航不再下发）
  * - subtreeFieldPolicy 只描述子树内字段输入策略，不改变页面级 permissionMode
  * - 前端权限仅为渲染层表现，真正安全由后端控制
  * - 所有权限判断收口到本模块，方便统一维护

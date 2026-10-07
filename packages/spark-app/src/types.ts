@@ -15,7 +15,7 @@
 import type { LogLevel } from '@spark-appworks/spark-utils'
 import type { App } from 'vue'
 import type { Router } from 'vue-router'
-import type { AppThemeCapability } from './theme'
+import type { AppThemeCapability } from './shell/theme'
 
 /**
  * 应用环境

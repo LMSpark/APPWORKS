@@ -29,7 +29,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:09:08.628Z",
+  "generatedAt": "2026-10-07T01:37:44.086Z",
   "models": {
     "PageDesignEditorResolveContext": {
       "name": "PageDesignEditorResolveContext",

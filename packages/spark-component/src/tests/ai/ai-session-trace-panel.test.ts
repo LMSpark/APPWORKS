@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
 
 // ── mock 子组件 ──
-vi.mock('../../ai/components/SessionStreamView.vue', () => ({
+vi.mock('../../ai/components/session/SessionStreamView/SessionStreamView.vue', () => ({
   default: {
     name: 'SessionStreamView',
     props: ['entries', 'isStreaming', 'isReasoning', 'emptyText'],
@@ -11,7 +11,7 @@ vi.mock('../../ai/components/SessionStreamView.vue', () => ({
   },
 }))
 
-vi.mock('../../ai/components/SessionDiagnosticsPanel.vue', () => ({
+vi.mock('../../ai/components/diagnostics/SessionDiagnosticsPanel/SessionDiagnosticsPanel.vue', () => ({
   default: {
     name: 'SessionDiagnosticsPanel',
     props: ['data', 'loading'],
@@ -19,7 +19,7 @@ vi.mock('../../ai/components/SessionDiagnosticsPanel.vue', () => ({
   },
 }))
 
-import AiSessionTracePanel from '../../ai/components/AiSessionTracePanel.vue'
+import AiSessionTracePanel from '../../ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.vue'
 import type { SessionDiagnosticsData, StreamDisplayEntry } from '../../ai/types'
 
 function createEmptyDiagnostics(): SessionDiagnosticsData {

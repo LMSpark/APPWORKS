@@ -115,7 +115,7 @@ import { useContainerDataSource } from '../view-data-source'
 import { useRendererTreeViewState } from '../view-tree-state'
 import { resolveTreeNodeText, toDataRecord } from '../data-row-utils'
 import { resolveNodeBeforeRender, mergeNodeBeforeRenderProps } from '../../../support/beforeRender'
-import RendererHostScope from '../../support/RendererHostScope.vue'
+import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
 
 const props = withDefaults(defineProps<RTreeProps>(), {

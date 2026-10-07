@@ -34,16 +34,16 @@ export {
   isCrudResult,
   isCrudSuccess,
   getCrudErrorMessage,
-} from './crud-result-helpers.js'
+} from './crud/crud-result-helpers.js'
 
-export { createCrudEventDefaults, createCrudDispatcher } from './crud-defaults.js'
+export { createCrudEventDefaults, createCrudDispatcher } from './crud/crud-defaults.js'
 
 export type {
   BaseCrudContainerApi,
   BaseContainerApi,
   VisibilityContainerApi,
-} from './base-container-api.js'
+} from './crud/base-container-api.js'
 
-export { createBaseCrudMethods } from './base-crud-methods.js'
+export { createBaseCrudMethods } from './crud/base-crud-methods.js'
 
-export { createToolbarScope, createRowScope, createCurrentRowScope } from './scopeFactories.js'
+export { createToolbarScope, createRowScope, createCurrentRowScope } from './scope/scopeFactories.js'

@@ -17,9 +17,9 @@ import {
   createWorkerDtsClassModelKnowledgeProvider,
   type ClassModelKnowledgeProvider,
 } from '@spark-appworks/spark-ai/class-model'
-import type { ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { AiAgentHost } from '@spark-appworks/spark-ai/agent'
-import { getDtsClassModelManifestUrl } from '@/class-model-artifacts/artifact-urls'
+import { getDtsClassModelManifestUrl } from '@/services/class-model-artifacts/artifact-urls'
 import { readWorkflowDefinition } from '@/services/workflow-designs'
 import {
   evaluatePageDesignBeforeFunctionCall,
@@ -30,6 +30,8 @@ import {
   type PageDesignAgentWorkflowBindingOptions,
   type PageDesignRunInput,
 } from '@/services/page-design/page-design-agent-workflow-binding'
+import { guardPageDesignEditor } from '@/services/page-design/page-design-operation-guard'
+import { readPageDesignRunContext } from '@/services/page-design/page-design-gates'
 import {
   createProjectPlanningSystemPrompt,
   evaluateProjectPlanningBeforeFunctionCall,
@@ -44,6 +46,7 @@ const PROJECT_PLANNING_WORKFLOW_ID = 'agent.workflow.projectPlanning'
 const PAGE_DESIGN_EDITOR_SOURCE = 'pageDesign'
 const PROJECT_PLANNING_EDITOR_SOURCE = 'projectPlanning'
 const DTS_CLASS_MODEL_MANIFEST_REF = 'dts-class-model'
+const PROJECT_MODEL_MODULE_SPECIFIER = '@spark-appworks/spark-project-model'
 
 const PAGE_DESIGN_GATE_RULE_KINDS = new Set([
   'pageDesignMutationGate',
@@ -108,8 +111,15 @@ export function createAppAgentWorkflowRuntimeBindings(
       }
       return getDtsClassModelManifestUrl()
     },
+    executableRegistry: {
+      [`${PROJECT_MODEL_MODULE_SPECIFIER}#ProjectWorkspace`]: ProjectWorkspace,
+      [`${PROJECT_MODEL_MODULE_SPECIFIER}#ProjectBlueprint`]: ProjectBlueprint,
+    },
     editorGetterRegistry: {
-      [PAGE_DESIGN_EDITOR_SOURCE]: context => resolvePageDesignProject(requirePageDesignOptions(options), context),
+      [PAGE_DESIGN_EDITOR_SOURCE]: context => guardPageDesignEditor(
+        resolvePageDesignProject(requirePageDesignOptions(options), context),
+        readPageDesignRunContext(context.moduleInstanceId.trim())?.allowedOperations,
+      ),
       [PROJECT_PLANNING_EDITOR_SOURCE]: context => resolveProjectPlanningDomainRoot(
         requireProjectPlanningOptions(options),
         context,

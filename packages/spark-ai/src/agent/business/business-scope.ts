@@ -10,7 +10,7 @@ import {
   AiAgentScope,
   AiAgentTarget,
 } from './scope-types'
-import type { AiAgentChatRequest } from '../chat/chat-types'
+import type { AiAgentChatRequest } from '../conversation/chat/chat-types'
 
 // ═══════════════════════════════════════════════════════════════
 // 第 1 节 · 输入校验

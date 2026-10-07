@@ -134,13 +134,13 @@
           "type": "string"
         },
         "role": {
-          "$ref": "../session/session-types.ts.json#/$defs/AiAgentMessageRole"
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentMessageRole"
         },
         "content": {
           "type": "string"
         },
         "source": {
-          "$ref": "../session/session-types.ts.json#/$defs/AiAgentMessageSource"
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentMessageSource"
         },
         "metadata": {
           "type": "object",
@@ -150,7 +150,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-20T04:47:21.059Z",
+  "generatedAt": "2026-10-07T02:17:10.221Z",
   "models": {
     "AiAgentTarget": {
       "name": "AiAgentTarget",

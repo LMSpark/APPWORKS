@@ -162,7 +162,7 @@
       "title": "ClassModelAgentAdapterRegisterCommand",
       "properties": {
         "host": {
-          "$ref": "ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "host/ai-host.ts.json#/$defs/AiAgentHost"
         },
         "alias": {
           "type": "string"
@@ -234,7 +234,7 @@
           "$ref": "business-task.ts.json#/$defs/AiAgentInputContract"
         },
         "sessionStore": {
-          "$ref": "../session/session-types.ts.json#/$defs/AiAgentSessionStore"
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionStore"
         },
         "agentCompleteMethodName": {
           "type": "string"
@@ -466,7 +466,7 @@
           "additionalProperties": false
         },
         "method.register.return": {
-          "$ref": "ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "host/ai-host.ts.json#/$defs/AiAgentHost"
         },
         "method.createRegistration.params": {
           "type": "object",
@@ -483,7 +483,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-05T10:07:52.879Z",
+  "generatedAt": "2026-10-07T02:17:10.219Z",
   "models": {
     "ClassModelAgentAdapterConstructor": {
       "name": "ClassModelAgentAdapterConstructor",
@@ -1300,7 +1300,7 @@
               "type": {
                 "type": "reference",
                 "name": "AiAgentHost",
-                "sourcePath": "packages/spark-ai/src/agent/business/ai-host.ts"
+                "sourcePath": "packages/spark-ai/src/agent/business/host/ai-host.ts"
               }
             },
             {

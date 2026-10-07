@@ -1,0 +1,2117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/workflow-designs/workflow-design-view-types",
+    "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
+    "sourceFile": "src/views/app/workflow-designs/workflow-design-view-types.ts",
+    "packageName": "app",
+    "modulePath": "views/app/workflow-designs/workflow-design-view-types",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-view-types\n职责：WorkflowDesigns 视图内部的画布、属性面板、ClassModel 选项与结构化字段类型。\n边界：只声明类型，不含运行逻辑；仅供 WorkflowDesigns 视图及同目录模块使用。\nAI用途：修改工作流设计页的节点、连线、面板或表单数据形状时，从本模块定位类型。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PropertyDrawerTarget",
+      "LayoutResizeState",
+      "GraphSplitCollapse",
+      "GraphSplitResizeState",
+      "GraphSplitPanel",
+      "WorkflowFlowNodeData",
+      "WorkflowFlowLineData",
+      "WorkflowLineRuntimeStatus",
+      "WorkflowControlEdgeSlot",
+      "WorkflowDockDefinition",
+      "SelectedControlPoint",
+      "ControlPointDragState",
+      "StartControlPointDragCommand",
+      "VueFlowLineChange",
+      "VueFlowLineUpdateEvent",
+      "ClassModelMethodOption",
+      "ClassModelAttributeOption",
+      "ClassModelConstructorOption",
+      "ClassModelOption",
+      "WorkflowFlowNode",
+      "WorkflowFlowConnection",
+      "LineEndpointPatchValidationCommand",
+      "NodeCreateForm",
+      "StructuredValueKind",
+      "StructuredFieldRow",
+      "StructuredRowsCollectionCommand",
+      "EditorLineEndpointCommand",
+      "StructuredSelectCard",
+      "StructuredCapabilityCard",
+      "ApplyStructuredEditorOptions",
+      "WorkflowVariableEditorRow",
+      "WorkflowMetadataRow",
+      "WorkflowRuntimeBinding"
+    ]
+  },
+  "$defs": {
+    "PropertyDrawerTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PropertyDrawerTarget",
+      "enum": [
+        "workflow",
+        "node",
+        "line"
+      ]
+    },
+    "LayoutResizeState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LayoutResizeState",
+      "properties": {
+        "side": {
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "startClientX": {
+          "type": "number"
+        },
+        "startLeftWidth": {
+          "type": "number"
+        },
+        "startRightWidth": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "side",
+        "startClientX",
+        "startLeftWidth",
+        "startRightWidth"
+      ],
+      "additionalProperties": false
+    },
+    "GraphSplitCollapse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "GraphSplitCollapse",
+      "enum": [
+        "top",
+        "bottom",
+        null
+      ]
+    },
+    "GraphSplitResizeState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphSplitResizeState",
+      "properties": {
+        "containerTop": {
+          "type": "number"
+        },
+        "containerHeight": {
+          "type": "number"
+        },
+        "moved": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "containerTop",
+        "containerHeight",
+        "moved"
+      ],
+      "additionalProperties": false
+    },
+    "GraphSplitPanel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphSplitPanel",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "main",
+            "child"
+          ]
+        },
+        "graphView": {
+          "anyOf": [
+            {
+              "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignGraphView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "collapsed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "role",
+        "graphView",
+        "collapsed"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowFlowNodeData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowFlowNodeData",
+      "properties": {
+        "viewKey": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "nodeType": {
+          "type": "string"
+        },
+        "scopePath": {
+          "type": "string"
+        },
+        "isBusinessNode": {
+          "type": "boolean"
+        },
+        "isBoundaryNode": {
+          "type": "boolean"
+        },
+        "modelClassName": {
+          "type": "string"
+        },
+        "modelDocText": {
+          "type": "string"
+        },
+        "validationActionName": {
+          "type": "string"
+        },
+        "validationActionDocText": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "viewKey",
+        "title",
+        "nodeType",
+        "scopePath",
+        "isBusinessNode",
+        "isBoundaryNode",
+        "modelClassName",
+        "modelDocText",
+        "validationActionName",
+        "validationActionDocText"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowFlowLineData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowFlowLineData",
+      "properties": {
+        "lineKey": {
+          "type": "string"
+        },
+        "lineType": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineType"
+        },
+        "controlPoints": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineControlPoint"
+          }
+        },
+        "runtimeStatus": {
+          "$ref": "#/$defs/WorkflowLineRuntimeStatus"
+        }
+      },
+      "required": [
+        "lineKey",
+        "lineType",
+        "controlPoints",
+        "runtimeStatus"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowLineRuntimeStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WorkflowLineRuntimeStatus",
+      "enum": [
+        "idle",
+        "running",
+        "completed",
+        "failed",
+        "skipped"
+      ]
+    },
+    "WorkflowControlEdgeSlot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowControlEdgeSlot",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "sourceX": {
+          "type": "number"
+        },
+        "sourceY": {
+          "type": "number"
+        },
+        "targetX": {
+          "type": "number"
+        },
+        "targetY": {
+          "type": "number"
+        },
+        "markerEnd": {
+          "type": "string"
+        },
+        "style": {
+          "type": "object",
+          "title": "CSSProperties"
+        },
+        "data": {
+          "$ref": "#/$defs/WorkflowFlowLineData"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDockDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDockDefinition",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "position": {
+          "type": "object",
+          "title": "Position"
+        },
+        "style": {
+          "type": "object",
+          "title": "CSSProperties"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SelectedControlPoint": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SelectedControlPoint",
+      "properties": {
+        "lineKey": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ControlPointDragState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ControlPointDragState",
+      "properties": {
+        "lineKey": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        },
+        "graph": true,
+        "startClientX": {
+          "type": "number"
+        },
+        "startClientY": {
+          "type": "number"
+        },
+        "startPoint": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineControlPoint"
+        }
+      },
+      "additionalProperties": false
+    },
+    "StartControlPointDragCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StartControlPointDragCommand",
+      "properties": {
+        "event": {
+          "type": "object",
+          "title": "PointerEvent"
+        },
+        "data": {
+          "$ref": "#/$defs/WorkflowFlowLineData"
+        },
+        "index": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "graphView": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignGraphView"
+        }
+      },
+      "additionalProperties": false
+    },
+    "VueFlowLineChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "VueFlowLineChange",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "selected": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "VueFlowLineUpdateEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "VueFlowLineUpdateEvent",
+      "properties": {
+        "edge": {
+          "type": "object",
+          "properties": {
+            "data": true
+          },
+          "additionalProperties": false
+        },
+        "connection": {
+          "type": "object",
+          "title": "Connection"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelMethodOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelMethodOption",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "jsdoc",
+        "summary",
+        "signature"
+      ],
+      "additionalProperties": false
+    },
+    "ClassModelAttributeOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelAttributeOption",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "typeText": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "jsdoc",
+        "summary",
+        "typeText"
+      ],
+      "additionalProperties": false
+    },
+    "ClassModelConstructorOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelConstructorOption",
+      "properties": {
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "jsdoc",
+        "summary",
+        "signature"
+      ],
+      "additionalProperties": false
+    },
+    "ClassModelOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelOption",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "constructorSignature": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClassModelConstructorOption"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ClassModelAttributeOption"
+          }
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ClassModelMethodOption"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "jsdoc",
+        "summary",
+        "constructorSignature",
+        "attributes",
+        "methods"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowFlowConnection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowFlowConnection",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "workflow-control"
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "sourceHandle": {
+          "type": "string"
+        },
+        "targetHandle": {
+          "type": "string"
+        },
+        "markerEnd": {
+          "type": "object",
+          "title": "MarkerType"
+        },
+        "data": {
+          "$ref": "#/$defs/WorkflowFlowLineData"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "source",
+        "target",
+        "markerEnd",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "LineEndpointPatchValidationCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LineEndpointPatchValidationCommand",
+      "properties": {
+        "line": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineView"
+        },
+        "from": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "to": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "silent": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "NodeCreateForm": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeCreateForm",
+      "properties": {
+        "graphKey": {
+          "type": "string"
+        },
+        "nodeKind": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignNodeCreateKind"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "graphKey",
+        "nodeKind",
+        "id",
+        "title",
+        "desc"
+      ],
+      "additionalProperties": false
+    },
+    "StructuredValueKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "StructuredValueKind",
+      "enum": [
+        "text",
+        "number",
+        "boolean",
+        "reference"
+      ]
+    },
+    "StructuredFieldRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StructuredFieldRow",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "valueKind": {
+          "$ref": "#/$defs/StructuredValueKind"
+        },
+        "valueText": {
+          "type": "string"
+        },
+        "valueBoolean": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "path",
+        "valueKind",
+        "valueText",
+        "valueBoolean"
+      ],
+      "additionalProperties": false
+    },
+    "StructuredRowsCollectionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StructuredRowsCollectionCommand",
+      "properties": {
+        "value": true,
+        "path": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StructuredFieldRow"
+          }
+        },
+        "prefix": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "EditorLineEndpointCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EditorLineEndpointCommand",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "memberName": {
+          "type": "string"
+        },
+        "dockText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "StructuredSelectCard": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StructuredSelectCard",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "StructuredCapabilityCard": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StructuredCapabilityCard",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "inputRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StructuredFieldRow"
+          }
+        },
+        "outputRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StructuredFieldRow"
+          }
+        },
+        "constraintCards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StructuredSelectCard"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "scope",
+        "description",
+        "inputRows",
+        "outputRows",
+        "constraintCards"
+      ],
+      "additionalProperties": false
+    },
+    "ApplyStructuredEditorOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApplyStructuredEditorOptions",
+      "properties": {
+        "silent": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowVariableEditorRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowVariableEditorRow",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "schema": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "docText": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "schemaType": {
+          "type": "string"
+        },
+        "defaultValue": true,
+        "defaultValueText": {
+          "type": "string"
+        },
+        "defaultValueEditable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "schema",
+        "name",
+        "title",
+        "docText",
+        "required",
+        "schemaType",
+        "defaultValue",
+        "defaultValueText",
+        "defaultValueEditable"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowMetadataRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowMetadataRow",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T03:04:14.752Z",
+  "models": {
+    "PropertyDrawerTarget": {
+      "name": "PropertyDrawerTarget",
+      "jsdoc": "属性面板当前显示的目标类型：工作流整体属性、节点属性或连线属性",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'workflow' | 'node' | 'line'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'workflow'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'node'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'line'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LayoutResizeState": {
+      "name": "LayoutResizeState",
+      "jsdoc": "页面左右侧边栏拖拽调整的临时状态，记录拖拽起点和初始宽度",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 调整的方向（左侧边栏或右侧边栏） */\n    side: 'left' | 'right';\n    /** 拖拽起点的客户端 X 坐标 */\n    startClientX: number;\n    /** 拖拽开始时左侧边栏的宽度 */\n    startLeftWidth: number;\n    /** 拖拽开始时右侧边栏的宽度 */\n    startRightWidth: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "side",
+              "jsdoc": "调整的方向（左侧边栏或右侧边栏）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "startClientX",
+              "jsdoc": "拖拽起点的客户端 X 坐标",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "startLeftWidth",
+              "jsdoc": "拖拽开始时左侧边栏的宽度",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "startRightWidth",
+              "jsdoc": "拖拽开始时右侧边栏的宽度",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "GraphSplitCollapse": {
+      "name": "GraphSplitCollapse",
+      "jsdoc": "画布上下分割面板的折叠状态，null 表示两个面板都展开",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'top' | 'bottom' | null",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'top'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'bottom'"
+          },
+          {
+            "kind": "union",
+            "typeText": "null"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "GraphSplitResizeState": {
+      "name": "GraphSplitResizeState",
+      "jsdoc": "画布上下分割面板拖拽调整的临时状态",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 分割面板容器的顶部位置 */\n    containerTop: number;\n    /** 分割面板容器的总高度 */\n    containerHeight: number;\n    /** 是否在拖拽过程中移动过位置 */\n    moved: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "containerTop",
+              "jsdoc": "分割面板容器的顶部位置",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "containerHeight",
+              "jsdoc": "分割面板容器的总高度",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "moved",
+              "jsdoc": "是否在拖拽过程中移动过位置",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "GraphSplitPanel": {
+      "name": "GraphSplitPanel",
+      "jsdoc": "画布分割面板的结构，包含主图和子图两个面板",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 面板的唯一标识 */\n    key: string;\n    /** 面板角色：主图面板或子图面板 */\n    role: 'main' | 'child';\n    /** 该面板关联的工作流设计图视图，null 时表示面板未初始化 */\n    graphView: WorkflowDesignGraphView | null;\n    /** 面板是否已折叠 */\n    collapsed: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "jsdoc": "面板的唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "role",
+              "jsdoc": "面板角色：主图面板或子图面板",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "graphView",
+              "jsdoc": "该面板关联的工作流设计图视图，null 时表示面板未初始化",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "collapsed",
+              "jsdoc": "面板是否已折叠",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowFlowNodeData": {
+      "name": "WorkflowFlowNodeData",
+      "jsdoc": "画布节点的业务数据，包含标题、类型、模型及验证信息",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 节点的视图唯一标识 */\n    viewKey: string;\n    /** 节点在画布上显示的标题 */\n    title: string;\n    /** 设计稿节点类型（node / start / output） */\n    nodeType: string;\n    /** 节点在工作流中的作用域路径 */\n    scopePath: string;\n    /** 是否为业务节点（关联了 ClassModel 模型） */\n    isBusinessNode: boolean;\n    /** 是否为边界节点（start 或 output） */\n    isBoundaryNode: boolean;\n    /** 业务节点绑定的 ClassModel 模型类名 */\n    modelClassName: string;\n    /** 模型类的 JSDoc 文档摘要 */\n    modelDocText: string;\n    /** 节点的验证逻辑对应的方法名 */\n    validationActionName: string;\n    /** 验证方法的 JSDoc 文档摘要 */\n    validationActionDocText: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "viewKey",
+              "jsdoc": "节点的视图唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "节点在画布上显示的标题",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeType",
+              "jsdoc": "设计稿节点类型（node / start / output）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopePath",
+              "jsdoc": "节点在工作流中的作用域路径",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isBusinessNode",
+              "jsdoc": "是否为业务节点（关联了 ClassModel 模型）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isBoundaryNode",
+              "jsdoc": "是否为边界节点（start 或 output）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelClassName",
+              "jsdoc": "业务节点绑定的 ClassModel 模型类名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelDocText",
+              "jsdoc": "模型类的 JSDoc 文档摘要",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "validationActionName",
+              "jsdoc": "节点的验证逻辑对应的方法名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "validationActionDocText",
+              "jsdoc": "验证方法的 JSDoc 文档摘要",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowFlowLineData": {
+      "name": "WorkflowFlowLineData",
+      "jsdoc": "画布连线的业务数据，包含类型、控制点及运行时状态",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 连线的唯一标识 */\n    lineKey: string;\n    /** 连线路径风格（orthogonal / straight / bezier） */\n    lineType: WorkflowDesignLineType;\n    /** 连线的路径控制点序列（用于自定义连线弯曲） */\n    controlPoints: readonly WorkflowDesignLineControlPoint[];\n    /** 连线在工作流执行时的运行状态 */\n    runtimeStatus: WorkflowLineRuntimeStatus;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "lineKey",
+              "jsdoc": "连线的唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lineType",
+              "jsdoc": "连线路径风格（orthogonal / straight / bezier）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "controlPoints",
+              "jsdoc": "连线的路径控制点序列（用于自定义连线弯曲）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "runtimeStatus",
+              "jsdoc": "连线在工作流执行时的运行状态",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowLineRuntimeStatus": {
+      "name": "WorkflowLineRuntimeStatus",
+      "jsdoc": "连线在工作流运行时的执行状态",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'running' | 'completed' | 'failed' | 'skipped'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'running'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'completed'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'failed'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'skipped'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowControlEdgeSlot": {
+      "name": "WorkflowControlEdgeSlot",
+      "jsdoc": "vue-flow 连线的渲染插槽数据，包含端点坐标、样式及业务数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 连线的唯一标识 */\n    id: string;\n    /** 起点的 X 坐标 */\n    sourceX: number;\n    /** 起点的 Y 坐标 */\n    sourceY: number;\n    /** 终点的 X 坐标 */\n    targetX: number;\n    /** 终点的 Y 坐标 */\n    targetY: number;\n    /** 箭头标记的 CSS class 或 ID */\n    markerEnd?: string;\n    /** 连线的 CSS 样式对象 */\n    style?: CSSProperties;\n    /** 连线的业务数据 */\n    data: WorkflowFlowLineData;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 连线的唯一标识 */\n    id: string;\n    /** 起点的 X 坐标 */\n    sourceX: number;\n    /** 起点的 Y 坐标 */\n    sourceY: number;\n    /** 终点的 X 坐标 */\n    targetX: number;\n    /** 终点的 Y 坐标 */\n    targetY: number;\n    /** 箭头标记的 CSS class 或 ID */\n    markerEnd?: string;\n    /** 连线的 CSS 样式对象 */\n    style?: CSSProperties;\n    /** 连线的业务数据 */\n    data: WorkflowFlowLineData;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "连线的唯一标识",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceX",
+              "jsdoc": "起点的 X 坐标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceY",
+              "jsdoc": "起点的 Y 坐标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetX",
+              "jsdoc": "终点的 X 坐标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetY",
+              "jsdoc": "终点的 Y 坐标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "markerEnd",
+              "jsdoc": "箭头标记的 CSS class 或 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "style",
+              "jsdoc": "连线的 CSS 样式对象",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "连线的业务数据",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDockDefinition": {
+      "name": "WorkflowDockDefinition",
+      "jsdoc": "节点端口的定义，包括位置和样式",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 端口的唯一标识 */\n    id: number;\n    /** 端口在节点上的相对位置（上/下/左/右） */\n    position: Position;\n    /** 端口的 CSS 样式 */\n    style: CSSProperties;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 端口的唯一标识 */\n    id: number;\n    /** 端口在节点上的相对位置（上/下/左/右） */\n    position: Position;\n    /** 端口的 CSS 样式 */\n    style: CSSProperties;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "端口的唯一标识",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "jsdoc": "端口在节点上的相对位置（上/下/左/右）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "style",
+              "jsdoc": "端口的 CSS 样式",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SelectedControlPoint": {
+      "name": "SelectedControlPoint",
+      "jsdoc": "用户在画布上选中的连线控制点",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 所属连线的标识 */\n    lineKey: string;\n    /** 控制点在该连线上的序列号 */\n    index: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 所属连线的标识 */\n    lineKey: string;\n    /** 控制点在该连线上的序列号 */\n    index: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "lineKey",
+              "jsdoc": "所属连线的标识",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "控制点在该连线上的序列号",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ControlPointDragState": {
+      "name": "ControlPointDragState",
+      "jsdoc": "用户拖拽连线控制点时的临时状态",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 被拖拽的控制点所属连线的标识 */\n    lineKey: string;\n    /** 被拖拽的控制点在该连线上的序列号 */\n    index: number;\n    /** 连线所在的图结构 */\n    graph: WorkflowDesignGraphView['graph'];\n    /** 拖拽起点的客户端 X 坐标 */\n    startClientX: number;\n    /** 拖拽起点的客户端 Y 坐标 */\n    startClientY: number;\n    /** 拖拽前控制点的原始位置 */\n    startPoint: WorkflowDesignLineControlPoint;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 被拖拽的控制点所属连线的标识 */\n    lineKey: string;\n    /** 被拖拽的控制点在该连线上的序列号 */\n    index: number;\n    /** 连线所在的图结构 */\n    graph: WorkflowDesignGraphView['graph'];\n    /** 拖拽起点的客户端 X 坐标 */\n    startClientX: number;\n    /** 拖拽起点的客户端 Y 坐标 */\n    startClientY: number;\n    /** 拖拽前控制点的原始位置 */\n    startPoint: WorkflowDesignLineControlPoint;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "lineKey",
+              "jsdoc": "被拖拽的控制点所属连线的标识",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "被拖拽的控制点在该连线上的序列号",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "graph",
+              "jsdoc": "连线所在的图结构",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "startClientX",
+              "jsdoc": "拖拽起点的客户端 X 坐标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "startClientY",
+              "jsdoc": "拖拽起点的客户端 Y 坐标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "startPoint",
+              "jsdoc": "拖拽前控制点的原始位置",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "StartControlPointDragCommand": {
+      "name": "StartControlPointDragCommand",
+      "jsdoc": "用户开始拖拽连线控制点的命令",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 触发拖拽的指针事件 */\n    event: PointerEvent;\n    /** 被拖拽的控制点所属连线的业务数据 */\n    data: WorkflowFlowLineData;\n    /** 被拖拽的控制点在连线上的索引 */\n    index: string | number;\n    /** 连线所在的图视图 */\n    graphView: WorkflowDesignGraphView;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 触发拖拽的指针事件 */\n    event: PointerEvent;\n    /** 被拖拽的控制点所属连线的业务数据 */\n    data: WorkflowFlowLineData;\n    /** 被拖拽的控制点在连线上的索引 */\n    index: string | number;\n    /** 连线所在的图视图 */\n    graphView: WorkflowDesignGraphView;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "event",
+              "jsdoc": "触发拖拽的指针事件",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "被拖拽的控制点所属连线的业务数据",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "被拖拽的控制点在连线上的索引",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "graphView",
+              "jsdoc": "连线所在的图视图",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "VueFlowLineChange": {
+      "name": "VueFlowLineChange",
+      "jsdoc": "vue-flow 连线变更事件",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 变更的连线 ID */\n    id?: string;\n    /** 变更类型（如 select/remove 等） */\n    type: string;\n    /** 连线是否被选中 */\n    selected?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 变更的连线 ID */\n    id?: string;\n    /** 变更类型（如 select/remove 等） */\n    type: string;\n    /** 连线是否被选中 */\n    selected?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "变更的连线 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "变更类型（如 select/remove 等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selected",
+              "jsdoc": "连线是否被选中",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "VueFlowLineUpdateEvent": {
+      "name": "VueFlowLineUpdateEvent",
+      "jsdoc": "vue-flow 连线更新事件",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 连线的数据和属性 */\n    edge: {\n        /** 连线的业务数据 */\n        data?: unknown;\n    };\n    /** 连线的源点和目标点连接信息 */\n    connection: Connection;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 连线的数据和属性 */\n    edge: {\n        /** 连线的业务数据 */\n        data?: unknown;\n    };\n    /** 连线的源点和目标点连接信息 */\n    connection: Connection;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "edge",
+              "jsdoc": "连线的数据和属性",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "connection",
+              "jsdoc": "连线的源点和目标点连接信息",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelMethodOption": {
+      "name": "ClassModelMethodOption",
+      "jsdoc": "业务类的方法选项，用于展示在编辑器中",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 方法名 */\n    name: string;\n    /** 方法的 JSDoc 注释（原始格式） */\n    jsdoc: string;\n    /** 方法的摘要文本 */\n    summary: string;\n    /** 方法的签名（包含参数和返回类型） */\n    signature: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "方法名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "jsdoc",
+              "jsdoc": "方法的 JSDoc 注释（原始格式）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "summary",
+              "jsdoc": "方法的摘要文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signature",
+              "jsdoc": "方法的签名（包含参数和返回类型）",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelAttributeOption": {
+      "name": "ClassModelAttributeOption",
+      "jsdoc": "业务类的属性选项，用于展示在编辑器中",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 属性名 */\n    name: string;\n    /** 属性的 JSDoc 注释（原始格式） */\n    jsdoc: string;\n    /** 属性的摘要文本 */\n    summary: string;\n    /** 属性的类型描述文本 */\n    typeText: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "属性名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "jsdoc",
+              "jsdoc": "属性的 JSDoc 注释（原始格式）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "summary",
+              "jsdoc": "属性的摘要文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "typeText",
+              "jsdoc": "属性的类型描述文本",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelConstructorOption": {
+      "name": "ClassModelConstructorOption",
+      "jsdoc": "业务类的构造器选项，用于展示在编辑器中",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 构造器的 JSDoc 注释（原始格式） */\n    jsdoc: string;\n    /** 构造器的摘要文本 */\n    summary: string;\n    /** 构造器的完整签名（包含参数） */\n    signature: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "jsdoc",
+              "jsdoc": "构造器的 JSDoc 注释（原始格式）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "summary",
+              "jsdoc": "构造器的摘要文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signature",
+              "jsdoc": "构造器的完整签名（包含参数）",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelOption": {
+      "name": "ClassModelOption",
+      "jsdoc": "业务类的完整模型选项，包括属性、方法和构造器",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 类的种类名称 */\n    kind: string;\n    /** 类的 JSDoc 注释（原始格式） */\n    jsdoc: string;\n    /** 类的摘要文本 */\n    summary: string;\n    /** 构造器选项，null 表示无指定构造器 */\n    constructorSignature: ClassModelConstructorOption | null;\n    /** 该类的所有属性选项 */\n    attributes: ClassModelAttributeOption[];\n    /** 该类的所有方法选项 */\n    methods: ClassModelMethodOption[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "类的种类名称",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "jsdoc",
+              "jsdoc": "类的 JSDoc 注释（原始格式）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "summary",
+              "jsdoc": "类的摘要文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "constructorSignature",
+              "jsdoc": "构造器选项，null 表示无指定构造器",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attributes",
+              "jsdoc": "该类的所有属性选项",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "methods",
+              "jsdoc": "该类的所有方法选项",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowFlowNode": {
+      "name": "WorkflowFlowNode",
+      "jsdoc": "vue-flow 画布节点类型，绑定了工作流节点业务数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Node<WorkflowFlowNodeData, Record<string, never>, 'workflow'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Node<WorkflowFlowNodeData, Record<string, never>, 'workflow'>",
+            "targetName": "Node"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowFlowConnection": {
+      "name": "WorkflowFlowConnection",
+      "jsdoc": "vue-flow 画布连线类型，绑定了工作流连线业务数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 连线的唯一标识 */\n    id: string;\n    /** 连线的类型标记（固定为 workflow-control） */\n    type: 'workflow-control';\n    /** 源节点的 ID */\n    source: string;\n    /** 目标节点的 ID */\n    target: string;\n    /** 源节点的连接点 handle ID */\n    sourceHandle?: string;\n    /** 目标节点的连接点 handle ID */\n    targetHandle?: string;\n    /** 连线末端的箭头标记类型 */\n    markerEnd: MarkerType;\n    /** 连线的业务数据 */\n    data: WorkflowFlowLineData;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "连线的唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "连线的类型标记（固定为 workflow-control）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "source",
+              "jsdoc": "源节点的 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target",
+              "jsdoc": "目标节点的 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceHandle",
+              "jsdoc": "源节点的连接点 handle ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetHandle",
+              "jsdoc": "目标节点的连接点 handle ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "markerEnd",
+              "jsdoc": "连线末端的箭头标记类型",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "jsdoc": "连线的业务数据",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LineEndpointPatchValidationCommand": {
+      "name": "LineEndpointPatchValidationCommand",
+      "jsdoc": "校验连线新端点是否合法的命令（非空、同图、非自环、不重复）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 被修改的连线视图 */\n    line: WorkflowDesignLineView;\n    /** 待写入的起点端点 */\n    from: WorkflowDesignLineEndpoint;\n    /** 待写入的终点端点 */\n    to: WorkflowDesignLineEndpoint;\n    /** 校验选项 */\n    options: {\n        /** 为 true 时校验失败不弹警告消息 */\n        silent?: boolean;\n    };\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 被修改的连线视图 */\n    line: WorkflowDesignLineView;\n    /** 待写入的起点端点 */\n    from: WorkflowDesignLineEndpoint;\n    /** 待写入的终点端点 */\n    to: WorkflowDesignLineEndpoint;\n    /** 校验选项 */\n    options: {\n        /** 为 true 时校验失败不弹警告消息 */\n        silent?: boolean;\n    };\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "line",
+              "jsdoc": "被修改的连线视图",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "from",
+              "jsdoc": "待写入的起点端点",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "to",
+              "jsdoc": "待写入的终点端点",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "校验选项",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NodeCreateForm": {
+      "name": "NodeCreateForm",
+      "jsdoc": "创建新节点的表单数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 新节点所属的图标识 */\n    graphKey: string;\n    /** 新节点类型（node / start / output） */\n    nodeKind: WorkflowDesignNodeCreateKind;\n    /** 新节点的 ID */\n    id: string;\n    /** 新节点的标题 */\n    title: string;\n    /** 新节点的描述 */\n    desc: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "graphKey",
+              "jsdoc": "新节点所属的图标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeKind",
+              "jsdoc": "新节点类型（node / start / output）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "jsdoc": "新节点的 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "新节点的标题",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "desc",
+              "jsdoc": "新节点的描述",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "StructuredValueKind": {
+      "name": "StructuredValueKind",
+      "jsdoc": "结构化字段的值类型",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'text' | 'number' | 'boolean' | 'reference'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'text'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'number'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'boolean'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'reference'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "StructuredFieldRow": {
+      "name": "StructuredFieldRow",
+      "jsdoc": "结构化表单中的一行字段数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 该行的唯一标识 */\n    id: string;\n    /** 字段的 JSON 路径或字段名 */\n    path: string;\n    /** 字段值的类型（文本/数字/布尔/引用） */\n    valueKind: StructuredValueKind;\n    /** 字段的文本值 */\n    valueText: string;\n    /** 字段的布尔值 */\n    valueBoolean: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "该行的唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "jsdoc": "字段的 JSON 路径或字段名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valueKind",
+              "jsdoc": "字段值的类型（文本/数字/布尔/引用）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valueText",
+              "jsdoc": "字段的文本值",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valueBoolean",
+              "jsdoc": "字段的布尔值",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "StructuredRowsCollectionCommand": {
+      "name": "StructuredRowsCollectionCommand",
+      "jsdoc": "递归展开结构化值为字段行的命令：按路径遍历对象/数组，叶子写入 rows",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前递归到的值 */\n    value: unknown;\n    /** 当前值的点分路径 */\n    path: string;\n    /** 收集结果的字段行数组（原地追加） */\n    rows: StructuredFieldRow[];\n    /** 生成行 ID 的前缀 */\n    prefix: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前递归到的值 */\n    value: unknown;\n    /** 当前值的点分路径 */\n    path: string;\n    /** 收集结果的字段行数组（原地追加） */\n    rows: StructuredFieldRow[];\n    /** 生成行 ID 的前缀 */\n    prefix: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "当前递归到的值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "当前值的点分路径",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "jsdoc": "收集结果的字段行数组（原地追加）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prefix",
+              "jsdoc": "生成行 ID 的前缀",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "EditorLineEndpointCommand": {
+      "name": "EditorLineEndpointCommand",
+      "jsdoc": "编辑连线端点（绑定业务类成员）的命令",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 连接的节点 ID */\n    nodeId: string;\n    /** 节点绑定的业务类模型 ID */\n    modelId: string;\n    /** 连接到的成员名（属性或方法） */\n    memberName: string;\n    /** 该连接在节点上显示的端口号文本 */\n    dockText: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 连接的节点 ID */\n    nodeId: string;\n    /** 节点绑定的业务类模型 ID */\n    modelId: string;\n    /** 连接到的成员名（属性或方法） */\n    memberName: string;\n    /** 该连接在节点上显示的端口号文本 */\n    dockText: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "连接的节点 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "节点绑定的业务类模型 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "memberName",
+              "jsdoc": "连接到的成员名（属性或方法）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dockText",
+              "jsdoc": "该连接在节点上显示的端口号文本",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "StructuredSelectCard": {
+      "name": "StructuredSelectCard",
+      "jsdoc": "结构化表单中的选择卡片（如能力选择）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 卡片的唯一标识 */\n    id: string;\n    /** 卡片的选中值 */\n    value: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "卡片的唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "jsdoc": "卡片的选中值",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "StructuredCapabilityCard": {
+      "name": "StructuredCapabilityCard",
+      "jsdoc": "结构化表单中的能力卡片（包含输入/输出字段和约束）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 卡片的唯一标识 */\n    id: string;\n    /** 能力的名称/标题 */\n    title: string;\n    /** 能力的作用域 */\n    scope: string;\n    /** 能力的描述文本 */\n    description: string;\n    /** 能力的输入字段集合 */\n    inputRows: StructuredFieldRow[];\n    /** 能力的输出字段集合 */\n    outputRows: StructuredFieldRow[];\n    /** 能力的约束条件选择卡片集合 */\n    constraintCards: StructuredSelectCard[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "卡片的唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "能力的名称/标题",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scope",
+              "jsdoc": "能力的作用域",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "能力的描述文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputRows",
+              "jsdoc": "能力的输入字段集合",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "outputRows",
+              "jsdoc": "能力的输出字段集合",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "constraintCards",
+              "jsdoc": "能力的约束条件选择卡片集合",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ApplyStructuredEditorOptions": {
+      "name": "ApplyStructuredEditorOptions",
+      "jsdoc": "应用结构化编辑器的选项",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 是否以静默模式执行（不触发通知） */\n    silent?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "silent",
+              "jsdoc": "是否以静默模式执行（不触发通知）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowVariableEditorRow": {
+      "name": "WorkflowVariableEditorRow",
+      "jsdoc": "工作流变量编辑器的一行数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 变量的唯一标识 */\n    id: string;\n    /** 变量的原始数据来源 */\n    source: Record<string, unknown>;\n    /** 变量的 JSON Schema 约束 */\n    schema: Record<string, unknown>;\n    /** 变量名 */\n    name: string;\n    /** 变量的显示标题 */\n    title: string;\n    /** 变量的文档描述 */\n    docText: string;\n    /** 变量是否必填 */\n    required: boolean;\n    /** 变量的数据类型（如 string/number/object 等） */\n    schemaType: string;\n    /** 变量的默认值 */\n    defaultValue: unknown;\n    /** 变量默认值的文本表示 */\n    defaultValueText: string;\n    /** 默认值是否可编辑 */\n    defaultValueEditable: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "变量的唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "source",
+              "jsdoc": "变量的原始数据来源",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "schema",
+              "jsdoc": "变量的 JSON Schema 约束",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "jsdoc": "变量名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "变量的显示标题",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "docText",
+              "jsdoc": "变量的文档描述",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "required",
+              "jsdoc": "变量是否必填",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "schemaType",
+              "jsdoc": "变量的数据类型（如 string/number/object 等）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "defaultValue",
+              "jsdoc": "变量的默认值",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "defaultValueText",
+              "jsdoc": "变量默认值的文本表示",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "defaultValueEditable",
+              "jsdoc": "默认值是否可编辑",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowMetadataRow": {
+      "name": "WorkflowMetadataRow",
+      "jsdoc": "工作流元数据的一行显示数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 元数据的标签名 */\n    label: string;\n    /** 元数据的值 */\n    value: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "jsdoc": "元数据的标签名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "jsdoc": "元数据的值",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowRuntimeBinding": {
+      "name": "WorkflowRuntimeBinding",
+      "jsdoc": "工作流运行时绑定配置（运行时执行时的上下文绑定）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<WorkflowDesignDocument['workflow']['runtimeBinding']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<WorkflowDesignDocument['workflow']['runtimeBinding']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

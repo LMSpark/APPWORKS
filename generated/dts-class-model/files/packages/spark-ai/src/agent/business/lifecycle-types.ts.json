@@ -108,13 +108,13 @@
           "title": "JsonParams"
         },
         "result": {
-          "$ref": "../session/session-types.ts.json#/$defs/AiAgentFunctionCallResult"
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentFunctionCallResult"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.478Z",
+  "generatedAt": "2026-10-07T02:17:10.220Z",
   "models": {
     "AiAgentBeforeFunctionCallStatus": {
       "name": "AiAgentBeforeFunctionCallStatus",

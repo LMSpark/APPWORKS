@@ -12,7 +12,7 @@ import type {
   SparkNodeProps,
 } from '../../../shared-types'
 import type { RowClickHandler } from '../../support'
-import type { RToolbarProps } from '../../layout/RendererToolbar.types'
+import type { RToolbarProps } from '../../layout/action/RendererToolbar/RendererToolbar.types'
 
 /** RVirtual Card Props 的属性契约。 */
 export type RVirtualCardProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {

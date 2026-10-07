@@ -187,12 +187,12 @@
           "additionalProperties": false
         },
         "method.toChatRequest.return": {
-          "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
         }
       }
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.476Z",
+  "generatedAt": "2026-10-07T02:17:10.219Z",
   "models": {
     "AiAgentOrchestrationPlan": {
       "name": "AiAgentOrchestrationPlan",
@@ -494,7 +494,7 @@
               "type": {
                 "type": "reference",
                 "name": "AiAgentChatRequest",
-                "sourcePath": "packages/spark-ai/src/agent/chat/chat-types.ts"
+                "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
               }
             }
           ]

@@ -14,14 +14,14 @@ import {
   normalizeAiAgentTarget,
   toAiAgentRuntimeScope,
 } from './business-scope'
-import type { AiAgentChatRequest, AiAgentTurnMeta } from '../chat/chat-types'
-import type { AiAgentSessionRecord, AiAgentStartSessionResult } from '../session/session-types'
+import type { AiAgentChatRequest, AiAgentTurnMeta } from '../conversation/chat/chat-types'
+import type { AiAgentSessionRecord, AiAgentStartSessionResult } from '../conversation/session/session-types'
 import {
   createAiAgentTask,
   type AiAgentTask,
   type AiAgentTaskChatOptions,
 } from './business-task'
-import type { AiAgentOptions } from './host-options'
+import type { AiAgentOptions } from './host/host-options'
 import type { AiAgentLifecycleDirective } from './lifecycle-types'
 import type { AiAgentRegistration } from './registration-types'
 import type {

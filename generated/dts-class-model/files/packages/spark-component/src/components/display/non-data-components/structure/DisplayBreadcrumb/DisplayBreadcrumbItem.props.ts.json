@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumbItem.props",
+    "sourcePath": "packages/spark-component/src/components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumbItem.props.ts",
+    "sourceFile": "packages/spark-component/src/components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumbItem.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumbItem.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumbItem.props\n职责：定义 DisplayBreadcrumbItem（r-breadcrumb-item）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 display/static-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 display breadcrumb item 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RBreadcrumbItemProps"
+    ],
+    "componentName": "DisplayBreadcrumbItem",
+    "componentType": "r-breadcrumb-item",
+    "componentLevel": "display",
+    "componentLayer": "static-display",
+    "componentDirectory": "display/non-data-components"
+  },
+  "$defs": {
+    "RBreadcrumbItemProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RBreadcrumbItemProps",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "additionalProperties": true
+            }
+          ]
+        },
+        "replace": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.150Z",
+  "models": {
+    "RBreadcrumbItemProps": {
+      "name": "RBreadcrumbItemProps",
+      "jsdoc": "RBreadcrumb Item Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplayBreadcrumbItem",
+        "type": "r-breadcrumb-item",
+        "level": "display",
+        "layer": "static-display",
+        "directory": "display/non-data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 面包屑文本 */\n    label?: string;\n    /** 跳转目标（路径或路由对象） */\n    to?: string | object;\n    /** 是否替换当前历史记录 */\n    replace?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 面包屑文本 */\n    label?: string;\n    /** 跳转目标（路径或路由对象） */\n    to?: string | object;\n    /** 是否替换当前历史记录 */\n    replace?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "jsdoc": "面包屑文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "to",
+              "jsdoc": "跳转目标（路径或路由对象）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "replace",
+              "jsdoc": "是否替换当前历史记录",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -12,6 +12,7 @@ import {
   createLowcodeProjectGateways,
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 
 // --- project-switch ---
 
@@ -47,7 +48,7 @@ function resolveProjectScope(scope?: Partial<ProjectApiScope>): ProjectWorkspace
     : (principal?.enterpriseName ?? 'platform')
   const projectId = scopedProjectId && scopedProjectId.length > 0
     ? scopedProjectId
-    : (principal?.applicationId ?? 'homepage')
+    : (principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID)
   return { tenantId, projectId }
 }
 

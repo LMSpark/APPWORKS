@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { Router } from 'vue-router'
-import { PageContentLoader } from '@spark-appworks/spark-project-model'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { useNavigation } from '../../packages/spark-app/src/navigation/useNavigation'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../../packages/spark-app/src/router/cross-project-ref-route'
@@ -36,8 +35,6 @@ const NAV_ROOT: RuntimeNavigation = {
   childPlacement: 'header',
   items: [],
 }
-
-const DUMMY_PAGE_CONTENT_LOADER = new PageContentLoader({ projectId: 'test' })
 
 async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation = NAV_ROOT): Promise<MountedNavigationProbe> {
   let navigateToPath: NavigateToPath | null = null
@@ -97,7 +94,6 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
         path: '/t/:tenantId/:projectId/__ref/:refNodeId',
         name: CROSS_PROJECT_REF_HOST_ROUTE_NAME,
         component: DummyPage,
-        props: () => ({ pageContentLoader: DUMMY_PAGE_CONTENT_LOADER }),
         meta: {
           type: 'cross-project-ref',
           crossProjectRefHost: true,

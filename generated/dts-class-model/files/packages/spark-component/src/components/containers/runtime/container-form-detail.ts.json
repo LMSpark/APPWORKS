@@ -30,7 +30,7 @@
           "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "toolbar": {
-          "$ref": "../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "autoColumns": {
           "type": "boolean"
@@ -71,7 +71,7 @@
         "type": true,
         "id": true,
         "toolbar": {
-          "$ref": "../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "children": true,
         "dataSource": {
@@ -117,7 +117,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T13:59:00.574Z",
+  "generatedAt": "2026-10-07T02:30:26.822Z",
   "models": {
     "FormDetailContainerProps": {
       "name": "FormDetailContainerProps",

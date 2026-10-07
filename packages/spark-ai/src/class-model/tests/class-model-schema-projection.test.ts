@@ -4,8 +4,8 @@ import type { AttributeMeta, DtsTypeDeclarationModel, ConstructorMeta, MethodMet
 import {
   hydrateModelSchemasFromJsonSchema,
   stripRedundantModelSchemas,
-} from '../class-model/class-model-schema-projection'
-import { attachModelJsonSchemas } from '../class-model/class-model-to-json-schema'
+} from '../class-model/schema/class-model-schema-projection'
+import { attachModelJsonSchemas } from '../class-model/schema/class-model-to-json-schema'
 
 function makeAttribute(overrides: Partial<AttributeMeta> & Pick<AttributeMeta, 'name'>): AttributeMeta {
   return {

@@ -22,7 +22,7 @@
       "title": "AiAgentRunCommand",
       "properties": {
         "options": {
-          "$ref": "host-options.ts.json#/$defs/AiAgentOptions"
+          "$ref": "host/host-options.ts.json#/$defs/AiAgentOptions"
         },
         "kindID": {
           "type": "string"
@@ -72,7 +72,7 @@
           "type": "object",
           "properties": {
             "options": {
-              "$ref": "host-options.ts.json#/$defs/AiAgentOptions"
+              "$ref": "host/host-options.ts.json#/$defs/AiAgentOptions"
             },
             "targetInput": {
               "$ref": "scope-types.ts.json#/$defs/AiAgentTarget"
@@ -97,7 +97,7 @@
         "method.getSessionRecord.return": {
           "anyOf": [
             {
-              "$ref": "../session/session-types.ts.json#/$defs/AiAgentSessionRecord"
+              "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionRecord"
             },
             {
               "type": "null"
@@ -121,7 +121,7 @@
           "type": "object",
           "properties": {
             "request": {
-              "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+              "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
             }
           },
           "additionalProperties": false
@@ -133,7 +133,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.475Z",
+  "generatedAt": "2026-10-07T02:17:10.218Z",
   "models": {
     "AiAgentRunCommand": {
       "name": "AiAgentRunCommand",
@@ -223,7 +223,7 @@
               "type": {
                 "type": "reference",
                 "name": "AiAgentOptions",
-                "sourcePath": "packages/spark-ai/src/agent/business/host-options.ts"
+                "sourcePath": "packages/spark-ai/src/agent/business/host/host-options.ts"
               }
             },
             {
@@ -283,7 +283,7 @@
                   {
                     "type": "reference",
                     "name": "AiAgentSessionRecord",
-                    "sourcePath": "packages/spark-ai/src/agent/session/session-types.ts"
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-types.ts"
                   },
                   {
                     "type": "literal",
@@ -317,7 +317,7 @@
                       {
                         "type": "reference",
                         "name": "AiAgentSessionRecord",
-                        "sourcePath": "packages/spark-ai/src/agent/session/session-types.ts"
+                        "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-types.ts"
                       },
                       {
                         "type": "literal",
@@ -337,7 +337,7 @@
                   "type": {
                     "type": "reference",
                     "name": "AiAgentChatRequest",
-                    "sourcePath": "packages/spark-ai/src/agent/chat/chat-types.ts"
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
                   }
                 }
               ],

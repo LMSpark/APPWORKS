@@ -18,9 +18,9 @@ import type {
   AiAgentToolLoopNudgeContext,
   AiAgentToolLoopNudgeReason,
 } from '@spark-appworks/spark-ai/agent'
-import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import type { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { ProjectBlueprint } from '@spark-appworks/spark-project-model'
-import { getDtsClassModelManifestUrl } from '@/class-model-artifacts/artifact-urls'
+import { getDtsClassModelManifestUrl } from '@/services/class-model-artifacts/artifact-urls'
 import {
   evaluatePageDesignMutationToolGate,
   evaluatePageDesignScriptOperationGate,
@@ -29,6 +29,7 @@ import {
   type PageDesignAllowedOperations,
   type PageDesignRunMode,
 } from '@/services/page-design/page-design-gates'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 
 export type { PageDesignAllowedOperations, PageDesignRunMode }
 
@@ -124,7 +125,7 @@ export function formatPageDesignSystemPrompt(input: PageDesignRunInput): string 
   }
   const planningTitle = input.planningTitle?.trim() ?? input.pageId
   const planningPath = input.planningPath?.trim() ?? `/${input.pageId}`
-  const projectId = input.projectId?.trim() ?? 'homepage'
+  const projectId = input.projectId?.trim() ?? APPLICATION_CATALOG_PROJECT_ID
   const sharedHeader = [
     `projectId=${projectId}；pageId=${input.pageId}。`,
     '策划约束（readPlanningProjection.effectiveDescription）:',
@@ -312,14 +313,6 @@ export function createPageDesignKnowledgeProvider(rootClassName: string): ClassM
     dtsClassModelManifestUrl: getDtsClassModelManifestUrl(),
     rootClassName,
   })
-}
-
-/**
- * pageDesign moduleClassResolver 片段——返回 ProjectWorkspace 构造器。
- * 解释器 resolveInstance 直接拿本次请求编辑器实例。
- */
-export function resolvePageDesignModuleClass(): typeof ProjectWorkspace {
-  return ProjectWorkspace
 }
 
 export {

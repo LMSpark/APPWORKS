@@ -10,7 +10,7 @@ import type {
   SparkGridLayoutProps,
   SparkNodeProps,
 } from '../../../shared-types'
-import type { RToolbarProps } from '../../layout/RendererToolbar.types'
+import type { RToolbarProps } from '../../layout/action/RendererToolbar/RendererToolbar.types'
 
 /**
  * r-detail 组件公开属性接口。

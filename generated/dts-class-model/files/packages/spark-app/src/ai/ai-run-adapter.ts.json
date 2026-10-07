@@ -44,7 +44,7 @@
           "type": "object",
           "properties": {
             "event": {
-              "$ref": "../../../spark-ai/src/agent/chat/chat-types.ts.json#/$defs/AiAgentStreamEvent"
+              "$ref": "../../../spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentStreamEvent"
             }
           },
           "additionalProperties": false
@@ -74,7 +74,7 @@
           "type": "object",
           "properties": {
             "record": {
-              "$ref": "../../../spark-ai/src/agent/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
+              "$ref": "../../../spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
             }
           },
           "additionalProperties": false
@@ -242,7 +242,7 @@
       "title": "AiRunSnapshot",
       "properties": {
         "trace": {
-          "$ref": "../../../spark-ai/src/agent/session/session-run-trace.ts.json#/$defs/AiAgentRunTraceSnapshot"
+          "$ref": "../../../spark-ai/src/agent/conversation/session/session-run-trace.ts.json#/$defs/AiAgentRunTraceSnapshot"
         },
         "agUiEvents": {
           "type": "array",

@@ -12,9 +12,9 @@ import {
   MODULE_CONTEXT,
   useSparkPageComponent,
 } from '../../internal.js'
-import type { RToolbarProps } from '../layout/RendererToolbar.types'
-import { createCurrentRowScope } from '../support/scopeFactories'
-import { syncReactiveRow } from '../support/row-mirror-sync'
+import type { RToolbarProps } from '../layout/action/RendererToolbar/RendererToolbar.types'
+import { createCurrentRowScope } from '../support/scope/scopeFactories'
+import { syncReactiveRow } from '../support/scope/row-mirror-sync'
 import { useContainerDataSource } from '../data-views/view-data-source.js'
 import { useDataViewEventBridge } from './useDataViewEventBridge.js'
 import { useContainerGrid } from './container-layout.js'

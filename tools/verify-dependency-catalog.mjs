@@ -8,6 +8,7 @@ import {
   printViolations,
   readJsonFile,
   relativePath,
+  walkFiles,
 } from './verifier-common.mjs'
 
 /** pnpm-workspace.yaml `catalog` 中声明的包名（版本真源）。 */
@@ -138,6 +139,20 @@ function collectDeclaredDeps(packageJson, section) {
   return Object.entries(bucket).map(([name, version]) => ({ name, version, section }))
 }
 
+/** 收集包源码中引用的 workspace 包名（去子路径）。 */
+function collectWorkspaceImports(sourceDir) {
+  const names = new Set()
+  const pattern = /['"](@spark-appworks\/[a-z0-9-]+)(?:\/[^'"]*)?['"]/gu
+  for (const file of walkFiles(sourceDir, {
+    extensions: new Set(['.ts', '.vue']),
+    exclude: fullPath => fullPath.includes(`${path.sep}node_modules`) || fullPath.includes(`${path.sep}dist`),
+  })) {
+    const text = fs.readFileSync(file, 'utf8')
+    for (const match of text.matchAll(pattern)) names.add(match[1])
+  }
+  return names
+}
+
 export function scanDependencyCatalogRules(options = {}) {
   const root = options.root ?? process.cwd()
   const violations = []
@@ -202,6 +217,18 @@ export function scanDependencyCatalogRules(options = {}) {
           }
         }
       }
+    }
+
+    const sourceDir = path.join(root, pkg.dirName, 'src')
+    const declared = new Set(['dependencies', 'devDependencies', 'peerDependencies']
+      .flatMap(section => collectDeclaredDeps(packageJson, section).map(dep => dep.name)))
+    for (const name of collectWorkspaceImports(sourceDir)) {
+      if (name === pkg.packageName || declared.has(name)) continue
+      violations.push({
+        file: relPath,
+        line: 1,
+        message: `${pkg.packageName} 源码引用 ${name} 但未在 dependencies/devDependencies/peerDependencies 声明`,
+      })
     }
 
     if (isRoot) {

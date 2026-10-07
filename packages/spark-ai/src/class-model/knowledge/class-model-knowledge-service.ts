@@ -17,8 +17,8 @@ import type {
 } from '../class-model/types'
 import type { DtsClassModelSurfaceDocument } from '../class-model/dts-surface-types'
 import type { DtsTypeMeta } from '../class-model/types'
-import { resolveMethodReturnType, visitDtsTypeMeta } from '../class-model/dts-type-meta-ops'
-import { jsonSchemaToTypeText } from '../class-model/json-schema-to-type'
+import { resolveMethodReturnType, visitDtsTypeMeta } from '../class-model/declaration/dts-type-meta-ops'
+import { jsonSchemaToTypeText } from '../class-model/schema/json-schema-to-type'
 import {
   listAttributeReachableKinds,
   projectClassModelForGuide,
@@ -33,7 +33,7 @@ import {
   renderAttributeGuide,
   renderMethodGuide,
   renderModelGuide,
-} from '../projection'
+} from './projection'
 
 /** Class Model Knowledge Query Input 的输入数据。 */
 export type ClassModelKnowledgeQueryInput = Readonly<{

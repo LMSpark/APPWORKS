@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url'
 
 import ts from 'typescript'
 
-import { buildDtsClassModelBundle } from '../packages/spark-ai/src/class-model/class-model/build-dts-class-model-bundle.ts'
+import { buildDtsClassModelBundle } from '../packages/spark-ai/src/class-model/class-model/bundle/build-dts-class-model-bundle.ts'
 import {
   CLASS_MODEL_EMIT_PREFIX,
   CLASS_MODEL_EMIT_TSCONFIG,
@@ -33,7 +33,7 @@ import {
   resolveClassModelEmitPath,
   sourceFileFromEmitPath,
   toClassModelEmitPath,
-} from '../packages/spark-ai/src/class-model/class-model/class-model-emit-path.ts'
+} from '../packages/spark-ai/src/class-model/class-model/bundle/class-model-emit-path.ts'
 import {
   augmentIncrementalPlanWithConfigDrift,
   canSkipDeclarationEmit,

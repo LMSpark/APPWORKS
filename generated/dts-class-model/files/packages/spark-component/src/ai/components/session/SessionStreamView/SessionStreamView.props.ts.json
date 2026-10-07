@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/components/session/SessionStreamView/SessionStreamView.props",
+    "sourcePath": "packages/spark-component/src/ai/components/session/SessionStreamView/SessionStreamView.props.ts",
+    "sourceFile": "packages/spark-component/src/ai/components/session/SessionStreamView/SessionStreamView.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/components/session/SessionStreamView/SessionStreamView.props",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/components/session/SessionStreamView/SessionStreamView.props\n职责：维护 @spark-appworks/spark-component 中 ai/components/SessionStreamView.props 的模块能力，围绕 SessionStreamViewProps 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 ai/components/SessionStreamView.props 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SessionStreamViewProps"
+    ]
+  },
+  "$defs": {
+    "SessionStreamViewProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionStreamViewProps",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../types.ts.json#/$defs/StreamDisplayEntry"
+          }
+        },
+        "isStreaming": {
+          "type": "boolean"
+        },
+        "isReasoning": {
+          "type": "boolean"
+        },
+        "emptyText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.099Z",
+  "models": {
+    "SessionStreamViewProps": {
+      "name": "SessionStreamViewProps",
+      "jsdoc": "Session Stream View Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "SessionStreamView"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 流式显示条目数组：每条包含文本增量、推理过程或工具调用结果。 */\n    entries: readonly StreamDisplayEntry[];\n    /** AI 是否正在流式输出文本增量。 */\n    isStreaming: boolean;\n    /** AI 是否正在输出推理过程（如 chain-of-thought）。 */\n    isReasoning: boolean;\n    /** 无条目时的占位提示文本。 */\n    emptyText?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 流式显示条目数组：每条包含文本增量、推理过程或工具调用结果。 */\n    entries: readonly StreamDisplayEntry[];\n    /** AI 是否正在流式输出文本增量。 */\n    isStreaming: boolean;\n    /** AI 是否正在输出推理过程（如 chain-of-thought）。 */\n    isReasoning: boolean;\n    /** 无条目时的占位提示文本。 */\n    emptyText?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "entries",
+              "jsdoc": "流式显示条目数组：每条包含文本增量、推理过程或工具调用结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isStreaming",
+              "jsdoc": "AI 是否正在流式输出文本增量。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isReasoning",
+              "jsdoc": "AI 是否正在输出推理过程（如 chain-of-thought）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "无条目时的占位提示文本。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

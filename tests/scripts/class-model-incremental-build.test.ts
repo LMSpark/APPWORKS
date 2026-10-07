@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { describe, expect, it } from 'vitest'
 // @ts-ignore TS7016 -- Node .mjs helper
 import { augmentIncrementalPlanWithConfigDrift, canSkipDeclarationEmit, planIncrementalBundleBuild, readDtsManifestSnapshot, resolveEmitSourcePathsForIncrementalPlan, writeDtsManifestSnapshot } from '../../scripts/lib/class-model-incremental-build.mjs'
-import { dtsSourcePathToBundleRelativeJson } from '../../packages/spark-ai/src/class-model/class-model/dts-bundle-url'
+import { dtsSourcePathToBundleRelativeJson } from '../../packages/spark-ai/src/class-model/class-model/bundle/dts-bundle-url'
 
 describe('class-model-incremental-build', () => {
   it('maps emit source paths to native shard relative paths', () => {

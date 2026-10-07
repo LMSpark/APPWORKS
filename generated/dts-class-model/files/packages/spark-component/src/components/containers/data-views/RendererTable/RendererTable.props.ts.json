@@ -49,19 +49,19 @@
           "type": "boolean"
         },
         "toolbar": {
-          "$ref": "../../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "filter": {
           "$ref": "../../zones/RendererFilter.types.ts.json#/$defs/RFilterProps"
         },
         "actions": {
-          "$ref": "../../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.392Z",
+  "generatedAt": "2026-10-07T02:30:26.800Z",
   "models": {
     "RTableProps": {
       "name": "RTableProps",

@@ -65,7 +65,7 @@
           "$ref": "business-task.ts.json#/$defs/AiAgentInputContract"
         },
         "sessionStore": {
-          "$ref": "../session/session-types.ts.json#/$defs/AiAgentSessionStore"
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionStore"
         },
         "executionToolNames": {
           "type": "object",
@@ -222,7 +222,7 @@
           "$ref": "business-task.ts.json#/$defs/AiAgentInputContract"
         },
         "sessionStore": {
-          "$ref": "../session/session-types.ts.json#/$defs/AiAgentSessionStore"
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionStore"
         },
         "systemPrompt": {
           "type": "object",
@@ -281,7 +281,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.479Z",
+  "generatedAt": "2026-10-07T02:17:10.220Z",
   "models": {
     "AiAgentToolLoopNudgeReason": {
       "name": "AiAgentToolLoopNudgeReason",

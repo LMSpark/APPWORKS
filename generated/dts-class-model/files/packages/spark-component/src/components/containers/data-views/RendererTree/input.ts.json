@@ -24,10 +24,10 @@
       "properties": {
         "children": true,
         "toolbar": {
-          "$ref": "../../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "actions": {
-          "$ref": "../../layout/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "editor": {
           "$ref": "../../zones/RendererEditor.types.ts.json#/$defs/REditorProps"
@@ -50,7 +50,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:22:51.178Z",
+  "generatedAt": "2026-10-07T02:30:26.802Z",
   "models": {
     "RendererTreeInputProps": {
       "name": "RendererTreeInputProps",

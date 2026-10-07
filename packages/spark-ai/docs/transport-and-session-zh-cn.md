@@ -1,6 +1,6 @@
 # 传输层与会话
 
-> 状态：有效。类型 SSOT 见 [`transport-types.ts`](../src/agent/transport/transport-types.ts)；lowcode 物理端点只由 `@spark-appworks/spark-lowcode-api` 持有。
+> 状态：有效。类型 SSOT 见 [`transport-types.ts`](../src/agent/conversation/transport/transport-types.ts)；lowcode 物理端点只由 `@spark-appworks/spark-lowcode-api` 持有。
 
 ## 分层职责
 
@@ -56,8 +56,8 @@ sequenceDiagram
 
 | 路径 | 职责 |
 |------|------|
-| `packages/spark-ai/src/agent/transport/transport-types.ts` | 框架无关 turn 契约 |
-| `packages/spark-ai/src/agent/transport/app-sse-events.ts` | 应用 SSE 事件结构 |
+| `packages/spark-ai/src/agent/conversation/transport/transport-types.ts` | 框架无关 turn 契约 |
+| `packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts` | 应用 SSE 事件结构 |
 | `packages/spark-ai/src/agent/tool-loop/turn-event-collector.ts` | llm-frame 聚合 |
 | `src/services/ai/ai-turn-bridge.ts` | lowcode Agent turn 桥接与身份绑定 |
 | `src/services/sse-events.ts` | lowcode SSE 单例连接与分发 |

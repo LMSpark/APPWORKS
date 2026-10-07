@@ -37,7 +37,7 @@
           "type": "object",
           "properties": {
             "record": {
-              "$ref": "../../../packages/spark-ai/src/agent/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
+              "$ref": "../../../packages/spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
             }
           },
           "additionalProperties": false
@@ -56,18 +56,8 @@
         "editor": {
           "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
         },
-        "consumeCapability": {
-          "anyOf": [
-            {
-              "$ref": "../../../packages/spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "host": {
-          "$ref": "../../../packages/spark-ai/src/agent/business/ai-host.ts.json#/$defs/AiAgentHost"
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
         },
         "events": {
           "$ref": "#/$defs/ProjectPlanningAiRunEvents"
@@ -113,7 +103,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:26:46.021Z",
+  "generatedAt": "2026-10-07T01:13:38.180Z",
   "models": {
     "ProjectPlanningAiRunOptions": {
       "name": "ProjectPlanningAiRunOptions",
@@ -186,7 +176,7 @@
       "jsdoc": "Project Planning Ai Run Command 的命令参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ProjectPlanningAiRunOptions & Readonly<{\n    /** 项目工作区编辑器实例。 */\n    editor: ProjectWorkspace;\n    /** Spark capability 消费者（用于查找 AI Agent Host）。 */\n    consumeCapability?: SparkCapabilityConsumer | null;\n    /** 测试或编排层可直接注入 Host，跳过 capability 查找。 */\n    host?: AiAgentHost;\n    /** 运行期事件回调集合。 */\n    events?: ProjectPlanningAiRunEvents;\n    /** trace 输出 sink。 */\n    trace?: AiRunTraceSink;\n    /** AI run 适配器状态（跨轮次复用）。 */\n    adapter?: AiRunAdapterState;\n    /** tool call 前置拦截钩子。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 运行被中止时的回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** 默认使用 requirement 作为 user turn 文本。 */\n    userMessage?: string;\n}>",
+        "declarationTypeText": "ProjectPlanningAiRunOptions & Readonly<{\n    /** 项目工作区编辑器实例。 */\n    editor: ProjectWorkspace;\n    /** 测试或编排层可注入 Host；省略时每次运行新建独立 Host。 */\n    host?: AiAgentHost;\n    /** 运行期事件回调集合。 */\n    events?: ProjectPlanningAiRunEvents;\n    /** trace 输出 sink。 */\n    trace?: AiRunTraceSink;\n    /** AI run 适配器状态（跨轮次复用）。 */\n    adapter?: AiRunAdapterState;\n    /** tool call 前置拦截钩子。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 运行被中止时的回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** 默认使用 requirement 作为 user turn 文本。 */\n    userMessage?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -195,7 +185,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    /** 项目工作区编辑器实例。 */\n    editor: ProjectWorkspace;\n    /** Spark capability 消费者（用于查找 AI Agent Host）。 */\n    consumeCapability?: SparkCapabilityConsumer | null;\n    /** 测试或编排层可直接注入 Host，跳过 capability 查找。 */\n    host?: AiAgentHost;\n    /** 运行期事件回调集合。 */\n    events?: ProjectPlanningAiRunEvents;\n    /** trace 输出 sink。 */\n    trace?: AiRunTraceSink;\n    /** AI run 适配器状态（跨轮次复用）。 */\n    adapter?: AiRunAdapterState;\n    /** tool call 前置拦截钩子。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 运行被中止时的回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** 默认使用 requirement 作为 user turn 文本。 */\n    userMessage?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 项目工作区编辑器实例。 */\n    editor: ProjectWorkspace;\n    /** 测试或编排层可注入 Host；省略时每次运行新建独立 Host。 */\n    host?: AiAgentHost;\n    /** 运行期事件回调集合。 */\n    events?: ProjectPlanningAiRunEvents;\n    /** trace 输出 sink。 */\n    trace?: AiRunTraceSink;\n    /** AI run 适配器状态（跨轮次复用）。 */\n    adapter?: AiRunAdapterState;\n    /** tool call 前置拦截钩子。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 运行被中止时的回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** 默认使用 requirement 作为 user turn 文本。 */\n    userMessage?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -208,14 +198,8 @@
               "writable": false
             },
             {
-              "name": "consumeCapability",
-              "jsdoc": "Spark capability 消费者（用于查找 AI Agent Host）。",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "host",
-              "jsdoc": "测试或编排层可直接注入 Host，跳过 capability 查找。",
+              "jsdoc": "测试或编排层可注入 Host；省略时每次运行新建独立 Host。",
               "readable": true,
               "writable": false
             },

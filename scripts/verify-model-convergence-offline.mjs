@@ -13,9 +13,9 @@ const ROOT = path.resolve(import.meta.dirname, '..')
 const testFiles = [
   'packages/spark-project-model/tests/project-model.test.ts',
   'packages/spark-project-model/tests/io/navigation-tree-sync.test.ts',
-  'tests/page/page-design-gates.test.ts',
-  'tests/services/page-design-ai-runner.test.ts',
-  'tests/services/project-planning-ai-runner.test.ts',
+  'tests/runtime/page/page-design-gates.test.ts',
+  'tests/app/services/page-design-ai-runner.test.ts',
+  'tests/app/services/project-planning-ai-runner.test.ts',
   'packages/spark-app/src/tests/runtime-target.test.ts',
 ]
 

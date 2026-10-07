@@ -9,7 +9,7 @@ import type {
   SparkCrudDataContainerProps,
   SparkNodeProps,
 } from '../../../shared-types'
-import type { RToolbarProps } from '../../layout/RendererToolbar.types'
+import type { RToolbarProps } from '../../layout/action/RendererToolbar/RendererToolbar.types'
 import type { REditorProps } from '../../zones/RendererEditor.types'
 import type { TreeEventHandler } from './zero-code'
 

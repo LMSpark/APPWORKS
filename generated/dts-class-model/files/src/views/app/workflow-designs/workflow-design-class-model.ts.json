@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/workflow-designs/workflow-design-class-model",
+    "sourcePath": "src/views/app/workflow-designs/workflow-design-class-model.ts",
+    "sourceFile": "src/views/app/workflow-designs/workflow-design-class-model.ts",
+    "packageName": "app",
+    "modulePath": "views/app/workflow-designs/workflow-design-class-model",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-class-model\n职责：WorkflowDesigns 读取 ClassModel 知识并整理业务节点模型、构造器、属性与方法选项。\n边界：只做知识读取与文本整理，不修改设计稿。\nAI用途：排查业务节点模型下拉或文档摘要内容时，从本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:43:55.603Z",
+  "models": {}
+}

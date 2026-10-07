@@ -34,7 +34,7 @@ export {
   AI_AGENT_HOST,
   AiAgentHost,
   createAiAgentHost,
-} from './business/ai-host'
+} from './business/host/ai-host'
 
 export type {
   AiAgentHostDryRunDiagnostic,
@@ -46,7 +46,7 @@ export type {
   AiAgentHostRegistrationSummary,
   AiAgentHostRunResult,
   CreateAiAgentHostOptions,
-} from './business/ai-host'
+} from './business/host/ai-host'
 
 export {
   AGENT_WORKFLOW_DEFINITION_KIND,
@@ -186,7 +186,7 @@ export type {
 
 export type {
   AiAgentOptions,
-} from './business/host-options'
+} from './business/host/host-options'
 
 export {
   AiAgentToolCheck,
@@ -252,13 +252,13 @@ export type {
   AiAgentStreamEvent,
   AiAgentToolCallRecord,
   AiAgentTurnMeta,
-} from './chat/chat-types'
+} from './conversation/chat/chat-types'
 
 // ── 6. 会话存储契约 ─────────────────────────────────────────
 
 export {
   AiAgentSessionStore,
-} from './session/session-types'
+} from './conversation/session/session-types'
 
 export type {
   AiAgentHistoryEntry,
@@ -268,7 +268,7 @@ export type {
   AiAgentSessionRecord,
   AiAgentSessionStatus,
   AiAgentStartSessionResult,
-} from './session/session-types'
+} from './conversation/session/session-types'
 
 export type {
   AiAgentFunctionCallFailure,
@@ -276,33 +276,33 @@ export type {
   AiAgentFunctionCallHistoryStatus,
   AiAgentFunctionCallResult,
   AiAgentMessageSource,
-} from './session/session-types'
+} from './conversation/session/session-types'
 
 // ── 7. 内存会话存储实现 ─────────────────────────────────────
 
 export {
   DefaultAiAgentSessionStore,
-} from './session/default-session-store'
+} from './conversation/session/default-session-store'
 
 export type {
   DefaultAiAgentSessionStoreOptions,
-} from './session/default-session-store'
+} from './conversation/session/default-session-store'
 
 export {
   createAiAgentSessionTranscript,
   previewAiAgentDiagnosticValue,
   summarizeAiAgentSessionRecord,
-} from './session/session-diagnostics'
+} from './conversation/session/session-diagnostics'
 
 export type {
   AiAgentSessionSummary,
   AiAgentSessionTranscriptEntry,
   AiAgentSessionTranscriptOptions,
-} from './session/session-diagnostics'
+} from './conversation/session/session-diagnostics'
 
 export {
   createAiAgentRunTrace,
-} from './session/session-run-trace'
+} from './conversation/session/session-run-trace'
 
 export type {
   AiAgentRunTrace,
@@ -312,13 +312,13 @@ export type {
   AiAgentRunTraceReasoning,
   AiAgentRunTraceSnapshot,
   AiAgentRunTraceToolCall,
-} from './session/session-run-trace'
+} from './conversation/session/session-run-trace'
 
 // ── 8. APP turn 回调契约与类型 ──────────────────────────────
 
 export {
   createAiAgentTransportTurn,
-} from './transport/transport-turn'
+} from './conversation/transport/transport-turn'
 
 export type {
   AiAgentAppendMessagesInput,
@@ -330,16 +330,16 @@ export type {
   AiAgentTransportMessage,
   AiAgentTransportToolCall,
   AiAgentTransportToolSpec,
-} from './transport/transport-types'
+} from './conversation/transport/transport-types'
 
 export type {
   AiAgentTransportTurn,
-} from './transport/transport-turn'
+} from './conversation/transport/transport-turn'
 
 export type {
   AiAgentAppSseEvent,
   AiAgentAppSseEventName,
-} from './transport/app-sse-events'
+} from './conversation/transport/app-sse-events'
 
 // ── 9. 工具循环执行器 ───────────────────────────────────────
 
@@ -359,7 +359,7 @@ export type {
 
 export {
   sparkAgUi,
-} from './ag-ui'
+} from './conversation/ag-ui'
 
 export type {
   AGUIEvent,
@@ -369,4 +369,4 @@ export type {
   SparkAgUiEventMetadata,
   SparkAgUiRunRef,
   SparkAgUiTextMessageRole,
-} from './ag-ui'
+} from './conversation/ag-ui'

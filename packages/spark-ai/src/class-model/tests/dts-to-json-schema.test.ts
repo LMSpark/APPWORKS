@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 
 import { auditDraft2020Schema, type StandardJsonSchemaObject } from '@spark-appworks/spark-json-document'
 
-import { projectDtsRootFilesToJsonSchemas } from '../class-model/class-model-to-json-schema'
+import { projectDtsRootFilesToJsonSchemas } from '../class-model/schema/class-model-to-json-schema'
 
 const TMP_DIR = resolve(__dirname, '__tmp_dts_to_schema__')
 

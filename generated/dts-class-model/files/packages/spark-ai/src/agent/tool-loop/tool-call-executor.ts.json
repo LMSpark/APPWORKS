@@ -26,7 +26,7 @@
           "$ref": "../business/scope-types.ts.json#/$defs/AiAgentScope"
         },
         "turn": {
-          "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
         },
         "round": {
           "type": "number"
@@ -36,13 +36,13 @@
           "title": "AiAgentToolNameResolver"
         },
         "call": {
-          "$ref": "../transport/transport-types.ts.json#/$defs/AiAgentTransportToolCall"
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentTransportToolCall"
         },
         "request": {
-          "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
         },
         "sessionStore": {
-          "$ref": "../session/session-types.ts.json#/$defs/AiAgentSessionStore"
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionStore"
         }
       },
       "additionalProperties": false
@@ -53,7 +53,7 @@
       "title": "AiAgentToolCallExecutionOutput",
       "properties": {
         "toolMessage": {
-          "$ref": "../transport/transport-types.ts.json#/$defs/AiAgentTransportMessage"
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentTransportMessage"
         },
         "directive": {
           "$ref": "../business/lifecycle-types.ts.json#/$defs/AiAgentLifecycleDirective"
@@ -87,7 +87,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.490Z",
+  "generatedAt": "2026-10-07T02:17:10.224Z",
   "models": {
     "AiAgentToolNameResolver": {
       "name": "AiAgentToolNameResolver",

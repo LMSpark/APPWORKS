@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/composables/state/useOptionFieldState",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/composables/state/useOptionFieldState.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useOptionFieldState.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/composables/state/useOptionFieldState",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/composables/state/useOptionFieldState\n职责：提供 useOptionFieldState（未注册组件类型）相关的组合式状态或行为封装，复用字段值、选项、权限、动作和交互控制逻辑。\n边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。\nAI用途：需要理解 use option field state 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "OptionFieldStateProps"
+    ],
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "OptionFieldStateProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OptionFieldStateProps",
+      "properties": {
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "options": {
+          "type": "array",
+          "items": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "UseOptionFieldStateOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseOptionFieldStateOptions",
+      "properties": {
+        "props": {
+          "$ref": "#/$defs/OptionFieldStateProps"
+        },
+        "fieldType": {
+          "type": "string"
+        },
+        "fallbackValue": {
+          "type": "object",
+          "title": "TValue"
+        }
+      },
+      "required": [
+        "props",
+        "fieldType",
+        "fallbackValue"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.emitUpdate.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "TValue"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.emitUpdate.return": true,
+        "method.coerce.params": {
+          "type": "object",
+          "properties": {
+            "rawValue": true
+          },
+          "additionalProperties": false
+        },
+        "method.coerce.return": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "method.formatDisplay.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "helpers": {
+              "type": "object",
+              "title": "ReturnType<typeof useFieldOptions>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.formatDisplay.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.189Z",
+  "models": {
+    "OptionFieldStateProps": {
+      "name": "OptionFieldStateProps",
+      "jsdoc": "选项类字段组件共享的受控值和选项 props。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "FieldComposableProps<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>> & {\n    /** Vue v-model 当前值。 */\n    modelValue?: TValue | undefined;\n    /** 兼容非 v-model 场景的当前值。 */\n    value?: TValue | undefined;\n    /** 原始选项集合，后续由 useFieldOptions 归一化。 */\n    options?: unknown[] | undefined;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FieldComposableProps<Omit<SparkOptionFieldProps<TValue>, 'modelValue' | 'value' | 'options'>>",
+            "targetName": "FieldComposableProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** Vue v-model 当前值。 */\n    modelValue?: TValue | undefined;\n    /** 兼容非 v-model 场景的当前值。 */\n    value?: TValue | undefined;\n    /** 原始选项集合，后续由 useFieldOptions 归一化。 */\n    options?: unknown[] | undefined;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "jsdoc": "Vue v-model 当前值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "兼容非 v-model 场景的当前值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "原始选项集合，后续由 useFieldOptions 归一化。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "UseOptionFieldStateOptions": {
+      "name": "UseOptionFieldStateOptions",
+      "jsdoc": "创建选项类字段运行态所需的输入。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 选项字段组件 props。 */\n    props: OptionFieldStateProps<TValue>;\n    /** 字段组件类型，用于字段上下文注册。 */\n    fieldType: string;\n    /** 当前值缺失或无效时使用的默认值。 */\n    fallbackValue: TValue;\n    /** 向 Vue v-model/update 事件发出新值。 */\n    emitUpdate: (value: TValue) => void;\n    /** 将未知原始值转换成字段组件的值类型。 */\n    coerce: (rawValue: unknown) => TValue;\n    /** 自定义当前值展示文本。 */\n    formatDisplay?: (value: unknown, helpers: ReturnType<typeof useFieldOptions>) => string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "选项字段组件 props。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldType",
+              "jsdoc": "字段组件类型，用于字段上下文注册。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fallbackValue",
+              "jsdoc": "当前值缺失或无效时使用的默认值。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "emitUpdate",
+              "jsdoc": "向 Vue v-model/update 事件发出新值。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "TValue",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "coerce",
+              "jsdoc": "将未知原始值转换成字段组件的值类型。",
+              "parameters": [
+                {
+                  "name": "rawValue",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "TValue",
+                "refersToTypeParameter": true
+              }
+            },
+            {
+              "name": "formatDisplay",
+              "jsdoc": "自定义当前值展示文本。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "helpers",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReturnType",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "typeof useFieldOptions"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

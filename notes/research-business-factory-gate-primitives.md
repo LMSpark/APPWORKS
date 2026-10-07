@@ -1,6 +1,7 @@
 # 业务工厂通用 gate 原语设计 — 研读锚点
 
 > 状态：未立项，待启动（2026-10-05 核对）。runtime 目录里仍没有通用谓词原语；应用层仍用 `PAGE_DESIGN_GATE_RULE_KINDS`（`agent-workflow-bindings.ts:49`、`page-design-agent-workflow-binding.ts:186`）按 kind 分发。本轮不改设计内容。
+> 2026-10-07：`tools/generate-workflow-design-data.mjs` 已删除；`gateRules` 直接在 `design.json` 维护，正文中引用该脚本处仅作历史参考。
 >
 > 行号：正文里 2026-06-21 的行号已漂移，不当作现行位置。现行位置以文末「2026-10-05 行号核对」为准。
 

@@ -5,14 +5,14 @@
  * AI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。
  */
 
-import { bootstrap } from './bootstrap'
-import { start } from './start'
+import { bootstrap } from './app/bootstrap'
+import { start } from './app/start'
 import { setupRouterGuards } from './router/guards'
 import { createDynamicRouter } from './router/dynamic'
-import { setupErrorHandler } from './error-handler'
-import { loadConfig } from './config'
-import { createAppContext } from './app-context'
-import { createThemeService } from './theme'
+import { setupErrorHandler } from './app/error-handler'
+import { loadConfig } from './app/config'
+import { createAppContext } from './app/app-context'
+import { createThemeService } from './shell/theme'
 
 /**
  * SparkApp 命名空间

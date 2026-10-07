@@ -11,7 +11,7 @@ import type {
   AiAgentFunctionCallCheck,
   AiAgentFunctionCallFailure,
   AiAgentFunctionCallResult,
-} from '../session/session-types'
+} from '../conversation/session/session-types'
 
 /* -------------------------------------------------------------------------------
  * 一、主转换函数

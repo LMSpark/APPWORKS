@@ -48,7 +48,7 @@ import {
   createActionNotifier,
   type ActionNotifier,
 } from './executor-helpers'
-import { isCrudResult, isCrudSuccess, getCrudErrorMessage } from '../../components/containers/support/crud-result-helpers.js'
+import { isCrudResult, isCrudSuccess, getCrudErrorMessage } from '../../components/containers/support/crud/crud-result-helpers.js'
 
 // ── 目标行解析 ────────────────────────────────────────────────────────────
 

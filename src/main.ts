@@ -52,13 +52,11 @@ import type {
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
 import { SparkPageRenderer, Spark } from '@spark-appworks/spark-component'
-import { loadScenarioDataSet } from './lowcode/data-space/lowcode-data-space-runtime'
-import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
+import { loadLowcodeRuntimeScenario } from './lowcode/data-space/lowcode-data-space-runtime'
 import { addLogTransport, isRecord } from '@spark-appworks/spark-utils'
 
 import {
   activateLowcodeApplication,
-  createLowcodeProjectGateways,
   enterLowcodeApplicationCatalog,
   hasLowcodeSession,
   lowcodeApi,
@@ -68,6 +66,7 @@ import {
   readLowcodeRuntimeNavigation,
 } from './lowcode/lowcode-runtime'
 import {
+  APPLICATION_CATALOG_PROJECT_ID,
   buildTenantPath,
   parseTenantScope,
   stripTenantScope,
@@ -372,7 +371,7 @@ async function startApp() {
         const principal = readLowcodePrincipal()
         if (principal?.enterpriseName === urlScope.tenantId && urlScope.projectId !== principal.applicationId) {
           startupLogger.info(`📌 URL 应用上下文预同步: ${principal.applicationId ?? 'catalog'} → ${urlScope.projectId}`)
-          if (urlScope.projectId === 'homepage') enterLowcodeApplicationCatalog()
+          if (urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID) enterLowcodeApplicationCatalog()
           else await activateLowcodeApplication(urlScope.projectId)
         }
       }
@@ -405,24 +404,9 @@ async function startApp() {
       // === PageNode 运行配置（路由从 DB 动态加载）===
       pageNode: {
         ...HOST_PAGE_NODE_CONFIG,
-        getProjectId: () => lowcodeApi.application.get()?.application.id ?? 'homepage',
         readPageFile: readLowcodePageFile,
         pageComponent: SparkPageRenderer,
-        loadScenario: async ({ projectId, scenarioId }) => {
-          const scope = lowcodeApi.readRequestScope()
-          const assertCurrent = () => {
-            if (lowcodeApi.readRequestScope().token !== scope.token || scope.headers['X-AppId'] !== projectId) {
-              throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
-            }
-          }
-          assertCurrent()
-          const text = await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
-          assertCurrent()
-          if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
-          const result = await loadScenarioDataSet({ scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent })
-          try { assertCurrent() } catch (failure) { result.dataSet.destroy(); throw failure }
-          return result.dataSet
-        },
+        loadScenario: loadLowcodeRuntimeScenario,
         componentMap,
         isAuthenticated: hasLowcodeSession,
         tenantPathPrefix: '/t/:tenantId/:projectId',
@@ -474,7 +458,7 @@ async function startApp() {
           }
           const principal = readLowcodePrincipal()
           const tenantId = principal?.enterpriseName
-          const projectId = principal?.applicationId ?? 'homepage'
+          const projectId = principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
           if (!tenantId || !projectId) return '/login'
           const currentScope = { tenantId, projectId }
           // 已登录：默认进入租户主应用首页；但保留 about / hidden demos 这类平台静态工具页的直达访问。
@@ -492,7 +476,7 @@ async function startApp() {
             }
             if (urlScope.projectId !== projectId) {
               SparkAppRuntime.getDynamicRouter()?.assertPageRuntimesClean()
-              if (urlScope.projectId === 'homepage') enterLowcodeApplicationCatalog()
+              if (urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID) enterLowcodeApplicationCatalog()
               else await activateLowcodeApplication(urlScope.projectId)
               SparkAppRuntime.getDynamicRouter()?.disposePageRuntimes()
               await SparkAppRuntime.refreshRoutes()

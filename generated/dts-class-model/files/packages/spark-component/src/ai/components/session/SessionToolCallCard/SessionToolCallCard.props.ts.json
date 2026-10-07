@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/components/session/SessionToolCallCard/SessionToolCallCard.props",
+    "sourcePath": "packages/spark-component/src/ai/components/session/SessionToolCallCard/SessionToolCallCard.props.ts",
+    "sourceFile": "packages/spark-component/src/ai/components/session/SessionToolCallCard/SessionToolCallCard.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/components/session/SessionToolCallCard/SessionToolCallCard.props",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/components/session/SessionToolCallCard/SessionToolCallCard.props\n职责：维护 @spark-appworks/spark-component 中 ai/components/SessionToolCallCard.props 的模块能力，围绕 SessionToolCallCardProps 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 ai/components/SessionToolCallCard.props 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SessionToolCallCardProps"
+    ]
+  },
+  "$defs": {
+    "SessionToolCallCardProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionToolCallCardProps",
+      "properties": {
+        "toolCall": {
+          "$ref": "../../../types.ts.json#/$defs/ToolCallDisplayItem"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.100Z",
+  "models": {
+    "SessionToolCallCardProps": {
+      "name": "SessionToolCallCardProps",
+      "jsdoc": "Session Tool Call Card Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "SessionToolCallCard"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前要展示的工具调用条目，包含工具名、参数预览、调用状态、耗时等渲染所需的投影数据 */\n    toolCall: ToolCallDisplayItem;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前要展示的工具调用条目，包含工具名、参数预览、调用状态、耗时等渲染所需的投影数据 */\n    toolCall: ToolCallDisplayItem;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "toolCall",
+              "jsdoc": "当前要展示的工具调用条目，包含工具名、参数预览、调用状态、耗时等渲染所需的投影数据",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

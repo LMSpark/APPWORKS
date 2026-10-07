@@ -5,7 +5,7 @@
  * AI用途：需要判断 renderer table 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。
  */
 import type { CrudResult, DataRow, NestedTreeNode, NestedTreeSearchResult, SortDirection } from '@spark-appworks/spark-data'
-import type { BaseContainerApi } from '../../support/base-container-api.js'
+import type { BaseContainerApi } from '../../support/crud/base-container-api.js'
 
 /** Element Plus el-table 排序回调 order；投影为 spark-data SortDirection，勿与 wire OrderType 混用。 */
 export type ElementPlusTableSortOrder = 'ascending' | 'descending'

@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/overlay/RendererPopconfirm/RendererPopconfirm.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererPopconfirm/RendererPopconfirm.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererPopconfirm/RendererPopconfirm.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/overlay/RendererPopconfirm/RendererPopconfirm.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/overlay/RendererPopconfirm/RendererPopconfirm.props\n职责：定义 RendererPopconfirm（r-popconfirm）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer popconfirm 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RPopconfirmProps"
+    ],
+    "componentName": "RendererPopconfirm",
+    "componentType": "r-popconfirm",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RPopconfirmProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RPopconfirmProps",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "confirmButtonText": {
+          "type": "string"
+        },
+        "cancelButtonText": {
+          "type": "string"
+        },
+        "confirmButtonType": {
+          "enum": [
+            "",
+            "default",
+            "primary",
+            "success",
+            "warning",
+            "info",
+            "danger"
+          ]
+        },
+        "cancelButtonType": {
+          "enum": [
+            "",
+            "default",
+            "primary",
+            "success",
+            "warning",
+            "info",
+            "danger"
+          ]
+        },
+        "icon": {
+          "type": "string"
+        },
+        "iconColor": {
+          "type": "string"
+        },
+        "hideIcon": {
+          "type": "boolean"
+        },
+        "hideAfter": {
+          "type": "number"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.122Z",
+  "models": {
+    "RPopconfirmProps": {
+      "name": "RPopconfirmProps",
+      "jsdoc": "RPopconfirm Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererPopconfirm",
+        "type": "r-popconfirm",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 确认框标题 */\n    title?: string;\n    /** 确认按钮文案 */\n    confirmButtonText?: string;\n    /** 取消按钮文案 */\n    cancelButtonText?: string;\n    /** 确认按钮类型 */\n    confirmButtonType?: '' | 'default' | 'primary' | 'success' | 'warning' | 'info' | 'danger';\n    /** 取消按钮类型 */\n    cancelButtonType?: '' | 'default' | 'primary' | 'success' | 'warning' | 'info' | 'danger';\n    /** 图标名称 */\n    icon?: string;\n    /** 图标颜色 */\n    iconColor?: string;\n    /** 是否隐藏图标 */\n    hideIcon?: boolean;\n    /** 自动隐藏延迟（毫秒） */\n    hideAfter?: number;\n    /** 浮层宽度 */\n    width?: number | string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 确认框标题 */\n    title?: string;\n    /** 确认按钮文案 */\n    confirmButtonText?: string;\n    /** 取消按钮文案 */\n    cancelButtonText?: string;\n    /** 确认按钮类型 */\n    confirmButtonType?: '' | 'default' | 'primary' | 'success' | 'warning' | 'info' | 'danger';\n    /** 取消按钮类型 */\n    cancelButtonType?: '' | 'default' | 'primary' | 'success' | 'warning' | 'info' | 'danger';\n    /** 图标名称 */\n    icon?: string;\n    /** 图标颜色 */\n    iconColor?: string;\n    /** 是否隐藏图标 */\n    hideIcon?: boolean;\n    /** 自动隐藏延迟（毫秒） */\n    hideAfter?: number;\n    /** 浮层宽度 */\n    width?: number | string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "确认框标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmButtonText",
+              "jsdoc": "确认按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelButtonText",
+              "jsdoc": "取消按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmButtonType",
+              "jsdoc": "确认按钮类型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelButtonType",
+              "jsdoc": "取消按钮类型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "图标名称",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "iconColor",
+              "jsdoc": "图标颜色",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hideIcon",
+              "jsdoc": "是否隐藏图标",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hideAfter",
+              "jsdoc": "自动隐藏延迟（毫秒）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "浮层宽度",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

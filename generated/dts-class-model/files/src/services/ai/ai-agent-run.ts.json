@@ -44,7 +44,7 @@
           "additionalProperties": false
         },
         "method.dryRun.return": {
-          "$ref": "../../../packages/spark-ai/src/agent/business/ai-host.ts.json#/$defs/AiAgentHostDryRunResult"
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHostDryRunResult"
         },
         "method.run.params": {
           "type": "object",

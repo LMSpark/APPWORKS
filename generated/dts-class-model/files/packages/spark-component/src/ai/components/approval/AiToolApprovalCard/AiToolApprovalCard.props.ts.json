@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.props",
+    "sourcePath": "packages/spark-component/src/ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.props.ts",
+    "sourceFile": "packages/spark-component/src/ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.props",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.props\n职责：维护 @spark-appworks/spark-component 中 ai/components/AiToolApprovalCard.props 的模块能力，围绕 AiToolApprovalCardProps、AiToolApprovalCardEmits 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 ai/components/AiToolApprovalCard.props 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiToolApprovalCardProps",
+      "AiToolApprovalCardEmits"
+    ]
+  },
+  "$defs": {
+    "AiToolApprovalCardProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiToolApprovalCardProps",
+      "properties": {
+        "request": {
+          "$ref": "../../../types.ts.json#/$defs/ToolApprovalDisplayItem"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiToolApprovalCardEmits": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiToolApprovalCardEmits",
+      "properties": {
+        "allow": {
+          "type": "array",
+          "prefixItems": [
+            true
+          ]
+        },
+        "reject": {
+          "type": "array",
+          "prefixItems": [
+            true,
+            true
+          ]
+        },
+        "abort": {
+          "type": "array",
+          "prefixItems": [
+            true,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.103Z",
+  "models": {
+    "AiToolApprovalCardProps": {
+      "name": "AiToolApprovalCardProps",
+      "jsdoc": "Ai Tool Approval Card Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "AiToolApprovalCard"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 待审批的工具调用请求，包含工具名、参数摘要和风险描述。 */\n    request: ToolApprovalDisplayItem;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 待审批的工具调用请求，包含工具名、参数摘要和风险描述。 */\n    request: ToolApprovalDisplayItem;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "jsdoc": "待审批的工具调用请求，包含工具名、参数摘要和风险描述。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiToolApprovalCardEmits": {
+      "name": "AiToolApprovalCardEmits",
+      "jsdoc": "Ai Tool Approval Card Emits 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "AiToolApprovalCard"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 用户批准执行该工具调用；参数为工具调用的唯一标识。 */\n    allow: [id: string];\n    /** 用户拒绝执行该工具调用；参数为工具调用 ID 和拒绝原因。 */\n    reject: [id: string, reason: string];\n    /** 用户中止该工具调用（如超时自动中止）；参数为工具调用 ID 和中止原因。 */\n    abort: [id: string, reason: string];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 用户批准执行该工具调用；参数为工具调用的唯一标识。 */\n    allow: [id: string];\n    /** 用户拒绝执行该工具调用；参数为工具调用 ID 和拒绝原因。 */\n    reject: [id: string, reason: string];\n    /** 用户中止该工具调用（如超时自动中止）；参数为工具调用 ID 和中止原因。 */\n    abort: [id: string, reason: string];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "allow",
+              "jsdoc": "用户批准执行该工具调用；参数为工具调用的唯一标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reject",
+              "jsdoc": "用户拒绝执行该工具调用；参数为工具调用 ID 和拒绝原因。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "abort",
+              "jsdoc": "用户中止该工具调用（如超时自动中止）；参数为工具调用 ID 和中止原因。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

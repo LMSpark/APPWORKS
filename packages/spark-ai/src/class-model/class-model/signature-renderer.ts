@@ -5,7 +5,7 @@
  * AI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/signature-renderer 这一段如何生成、加载或投影时，用本模块定位职责。
  */
 import type { JsonSchemaObject } from '@spark-appworks/spark-json-document'
-import { jsonSchemaToTypeText } from './json-schema-to-type'
+import { jsonSchemaToTypeText } from './schema/json-schema-to-type'
 import {
   classNameForKind,
   findNestedAttributeApi,
@@ -18,7 +18,7 @@ import type {
   MethodMeta,
   MethodParameterMeta,
 } from './types'
-import { canRenderMethodSignatureFromTypeTree, resolveMethodReturnType } from './dts-type-meta-ops'
+import { canRenderMethodSignatureFromTypeTree, resolveMethodReturnType } from './declaration/dts-type-meta-ops'
 
 export { classNameForKind } from './model-projection'
 

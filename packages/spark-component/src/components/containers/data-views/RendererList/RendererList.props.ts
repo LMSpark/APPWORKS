@@ -12,7 +12,7 @@ import type {
   SparkNodeProps,
 } from '../../../shared-types'
 import type { RowClickHandler } from '../../support'
-import type { RToolbarProps } from '../../layout/RendererToolbar.types'
+import type { RToolbarProps } from '../../layout/action/RendererToolbar/RendererToolbar.types'
 
 /**
  * r-list 组件公开属性接口。

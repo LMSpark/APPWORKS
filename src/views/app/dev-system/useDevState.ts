@@ -16,12 +16,12 @@
  * - 配置页内容：写入走 `project.writePageFile()`，保存/版本走 ProjectWorkspace
  * - 本模块只编排：Vue ref、localStorage 活动页、autoSave、SSE、状态消息
  */
-import { ref, shallowRef, reactive, computed, getCurrentInstance, getCurrentScope, nextTick, onScopeDispose } from 'vue'
+import { ref, shallowRef, reactive, computed, getCurrentScope, nextTick, onScopeDispose } from 'vue'
 import { createAiRunAdapter, createAiToolApprovalBridge } from '@spark-appworks/spark-app'
 import type { AiRunTimelineEvent } from '@spark-appworks/spark-app'
 import type { AiToolApprovalRequest } from '@spark-appworks/spark-app'
 import * as ProjectBlueprintDomain from '@spark-appworks/spark-project-model'
-import { useSparkComponent } from '@spark-appworks/spark-component'
+
 import type { ToolApprovalDisplayItem } from '@spark-appworks/spark-component'
 import {
   runPageDesignAiSession,
@@ -37,6 +37,7 @@ import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 
 const {
   isConfigFilesPageSurface,
@@ -118,7 +119,7 @@ export function useDevState() {
   const initialPrincipal = readLowcodePrincipal()
   const initialScope: ProjectWorkspaceScope = {
     tenantId: initialPrincipal?.enterpriseName ?? 'platform',
-    projectId: initialPrincipal?.applicationId ?? 'homepage',
+    projectId: initialPrincipal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID,
   }
   const activeEditScope = ref<ProjectWorkspaceScope>(initialScope)
   const currentEditor = shallowRef<ProjectBlueprintDomain.ProjectWorkspace>(getAppProjectBlueprintWorkspace(initialScope))
@@ -133,9 +134,6 @@ export function useDevState() {
   const editableProjects = ref<EditableProjectOption[]>([])
   const projectOptionsLoading = ref(false)
   const pageFileNames = PAGE_TOOL_FILE_NAMES
-  const capabilityConsumer = getCurrentInstance() === null
-    ? null
-    : useSparkComponent({ type: 'dev-system-ai-runner' }).sparkConsume
 
   // ── 项目蓝图树（ProjectBlueprint 投影，非独立真源）──
   const blueprintLoading = ref(false)
@@ -152,7 +150,7 @@ export function useDevState() {
     const principal = readLowcodePrincipal()
     const runtimeScope = principal === null
       ? initialScope
-      : { tenantId: principal.enterpriseName, projectId: principal.applicationId ?? 'homepage' }
+      : { tenantId: principal.enterpriseName, projectId: principal.applicationId ?? APPLICATION_CATALOG_PROJECT_ID }
     return activeEditScope.value.tenantId === runtimeScope.tenantId
       && activeEditScope.value.projectId === runtimeScope.projectId
   }
@@ -622,7 +620,6 @@ export function useDevState() {
         ...options,
         pageId,
         editor,
-        consumeCapability: capabilityConsumer,
         adapter: pageDesignAiAdapter,
         beforeFunctionCall: aiToolApprovals.beforeFunctionCall,
         onAbort: aiToolApprovals.cancelPending,
@@ -707,7 +704,6 @@ export function useDevState() {
       const result = await runProjectPlanningAiSession({
         planningAttachmentRef: attachmentRef,
         editor,
-        consumeCapability: capabilityConsumer,
         adapter: projectPlanningAdapter,
         beforeFunctionCall: aiToolApprovals.beforeFunctionCall,
         onAbort: aiToolApprovals.cancelPending,

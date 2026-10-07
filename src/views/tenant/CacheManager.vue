@@ -112,7 +112,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Coin, Refresh, Delete } from '@element-plus/icons-vue'
-import { clearAllPageCache, refreshRoutes } from '@spark-appworks/spark-app'
+import { refreshRoutes } from '@spark-appworks/spark-app'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
@@ -257,8 +257,9 @@ async function handleClearAllFrontend() {
       '清除前端缓存',
       { type: 'warning', confirmButtonText: '清除', cancelButtonText: '取消' },
     )
-    const stats = clearAllPageCache()
-    ElMessage.success(`已清除 ${stats.size} 条缓存`)
+    const keysToRemove = feEntries.value.map(e => e.key)
+    keysToRemove.forEach(key => localStorage.removeItem(key))
+    ElMessage.success(`已清除 ${keysToRemove.length} 条缓存`)
     loadFrontendCache()
   } catch {
     // 用户取消
